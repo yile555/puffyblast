@@ -198,6 +198,65 @@
     30%{ box-shadow:0 0 26px 8px rgba(255,196,60,.75); }
     100%{ box-shadow:0 0 0 0 rgba(255,196,60,0); } }
 
+  /* ★ v50 ① 連消中央大字：×2 才開始跳（第一消是日常、連上才是煙火 —— 稀有才會爽、不疲乏）。
+     連越多 → 字越大、色越燙：×2~3 橘火 → ×4~5 烈焰紅（換狂震動畫）→ ×6+ 燒成金白。 */
+  #streakPop { position:fixed; top:46%; left:50%; z-index:936; pointer-events:none;
+    transform:translate(-50%,-50%); opacity:0; text-align:center; will-change:transform,opacity; }
+  #streakPop .sp-fire { display:block; font-size:calc(var(--sp-size,64px)*.42); line-height:1;
+    margin-bottom:-4px; filter:drop-shadow(0 2px 4px rgba(0,0,0,.3)); }
+  #streakPop .sp-x { font-weight:900; line-height:1; font-size:var(--sp-size,64px); letter-spacing:1px;
+    background:var(--sp-grad,linear-gradient(180deg,#ffe0b2,#ff9100));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    filter:drop-shadow(0 3px 0 rgba(120,40,0,.35)) drop-shadow(0 6px 16px rgba(255,111,0,.5)); }
+  #streakPop.show { animation:streakPopIn .9s cubic-bezier(.2,1.4,.35,1) forwards; }
+  #streakPop.mega.show { animation:streakPopMega 1s cubic-bezier(.2,1.4,.35,1) forwards; }
+  @keyframes streakPopIn {
+    0%{ opacity:0; transform:translate(-50%,-50%) scale(.3); }
+    22%{ opacity:1; transform:translate(-50%,-50%) scale(1.18); }
+    36%{ transform:translate(-50%,-50%) scale(.96); }
+    50%{ transform:translate(-50%,-50%) scale(1.04); }
+    72%{ opacity:1; transform:translate(-50%,-50%) scale(1); }
+    100%{ opacity:0; transform:translate(-50%,-56%) scale(1.06); } }
+  @keyframes streakPopMega {   /* 高連消加碼：落地帶旋轉狂震，字在燒 */
+    0%{ opacity:0; transform:translate(-50%,-50%) scale(.25) rotate(-6deg); }
+    18%{ opacity:1; transform:translate(-50%,-50%) scale(1.3) rotate(2deg); }
+    30%{ transform:translate(-50%,-50%) scale(.94) rotate(-1.5deg); }
+    42%{ transform:translate(-50%,-50%) scale(1.1) rotate(1deg); }
+    54%{ transform:translate(-50%,-50%) scale(1) rotate(0deg); }
+    76%{ opacity:1; transform:translate(-50%,-51%) scale(1.02); }
+    100%{ opacity:0; transform:translate(-50%,-58%) scale(1.1); } }
+
+  /* ★ v50 ② 炸彈 3×3 轟炸標記：按住拖曳時即時亮起、橘紅呼吸閃爍，放開才引爆。
+     中心格加亮金框 —— 一眼看懂「爆心在哪、炸多大」。 */
+  .cell.bomb-preview::after { content:''; position:absolute; inset:0; border-radius:4px; z-index:6;
+    background:rgba(255,110,40,.38); pointer-events:none;
+    box-shadow:inset 0 0 0 2px rgba(255,180,60,.95), 0 0 12px rgba(255,120,30,.8);
+    animation:bombPreviewPulse .55s ease-in-out infinite; }
+  .cell.bomb-preview-core::after { background:rgba(255,70,30,.55);
+    box-shadow:inset 0 0 0 3px #ffd54f, 0 0 18px rgba(255,90,20,.95); }
+  @keyframes bombPreviewPulse { 0%,100%{ opacity:.55; } 50%{ opacity:1; } }
+
+  /* ★ v50 ③ 爆炸專屬視覺：付費道具必須「感覺值錢」——
+     橘白radial閃光（圓心對準爆點）＋雙層衝擊波光環＋火星粒子（JS算拋物線）＋加重全畫面震屏。 */
+  .boom-flash { position:fixed; inset:0; z-index:1080; pointer-events:none; opacity:0;
+    background:radial-gradient(circle at var(--bx,50%) var(--by,50%),
+      #fff 0%, #ffd180 22%, rgba(255,110,20,.45) 45%, transparent 70%);
+    animation:boomFlash .45s ease-out forwards; }
+  @keyframes boomFlash { 0%{opacity:.95;} 100%{opacity:0;} }
+  .boom-ring { position:fixed; z-index:1075; pointer-events:none; border-radius:50%;
+    border:5px solid #ffb74d; box-shadow:0 0 24px rgba(255,120,30,.9), inset 0 0 18px rgba(255,170,60,.8);
+    transform:translate(-50%,-50%) scale(0); animation:boomRing .55s cubic-bezier(.15,.7,.3,1) forwards; }
+  @keyframes boomRing { 0%{ transform:translate(-50%,-50%) scale(0); opacity:1; }
+    100%{ transform:translate(-50%,-50%) scale(1); opacity:0; } }
+  .fire-spark { position:fixed; z-index:1085; pointer-events:none; border-radius:50%; will-change:transform,opacity; }
+  .app-quake { animation:appQuake .55s cubic-bezier(.36,.07,.19,.97); }
+  @keyframes appQuake {
+    0%{ transform:translate(0,0) rotate(0); } 8%{ transform:translate(-10px,7px) rotate(-1.6deg); }
+    16%{ transform:translate(11px,-8px) rotate(1.7deg); } 26%{ transform:translate(-12px,6px) rotate(-1.8deg); }
+    38%{ transform:translate(9px,-7px) rotate(1.4deg); } 52%{ transform:translate(-7px,5px) rotate(-1deg); }
+    66%{ transform:translate(5px,-3px) rotate(.7deg); } 82%{ transform:translate(-3px,2px) rotate(-.4deg); }
+    100%{ transform:translate(0,0) rotate(0); } }
+
   /* ★ v49 ② 放置微碎光 & 消行星芒：✦ 字元＋發光，閃現即逝。
      放置版(place)小而淡＝日常確認章；消行版(clear)大而亮＝疊在彩色碎片之上的「亮」層。 */
   .twinkle { position:fixed; z-index:946; pointer-events:none; color:#fff; font-weight:900;
@@ -685,7 +744,7 @@
     </span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v49・胖嘟嘟消消樂・連消狂歡包：Streak連消＋聰明讚</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v50・胖嘟嘟消消樂・爆裂手感包：連消大字＋炸彈拖瞄＋震撼爆炸</div>
 </div>
 
 <div id="app">
@@ -754,6 +813,8 @@
 <div id="combo"></div>
 <!-- ★ v48 情緒讚美字容器：大字＋動物道謝，pointer-events:none 絕不擋操作 -->
 <div id="praise"></div>
+<!-- ★ v50 ① 連消中央大字（×2 起跳）：純顯示層，pointer-events:none 不擋手指 -->
+<div id="streakPop"></div>
 
 <div class="overlay" id="winOverlay">
   <div class="modal">
@@ -1046,7 +1107,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'胖嘟嘟消消樂', 'menu.tagline':'放方塊・消整排・餵飽胖嘟嘟',
-  'menu.footer':'v49・胖嘟嘟消消樂・連消狂歡包：Streak連消＋聰明讚',
+  'menu.footer':'v50・胖嘟嘟消消樂・爆裂手感包：連消大字＋炸彈拖瞄＋震撼爆炸',
   'menu.best':'最高 {n} 關',
   'mode.endless.name':'無盡模式', 'mode.endless.desc':'沒有終點，放到沒空間為止。挑戰你的最高分。',
   'mode.gem.name':'胖嘟嘟收集', 'mode.gem.desc':'餵飽三隻胖嘟嘟就過關，盤面塞滿才結束，一關接一關往下闖。',
@@ -1096,7 +1157,7 @@ const I18N = {
   'combo.deflate':'🫧 氣球洩氣了一半！',
   'combo.warnGem':'🎈 機關關！別讓氣球碰到仙人掌', 'combo.warn':'🎈 別讓氣球碰到仙人掌！',
   'combo.noAds':'🚫 已永久去廣告！', 'combo.dm':'💎 +{n}！', 'combo.daily':'🎁 每日禮物 +{n}💎',
-  'combo.dmShort':'💎 鑽石不足', 'combo.goldShort':'🪙 金幣不足', 'combo.bomb':'💣 +{n}！', 'combo.aim':'💣 點盤面引爆 3×3', 'combo.bombRevive':'💣 炸彈救援！',
+  'combo.dmShort':'💎 鑽石不足', 'combo.goldShort':'🪙 金幣不足', 'combo.bomb':'💣 +{n}！', 'combo.aim':'💣 按住棋盤拖曳瞄準，放開引爆 3×3', 'combo.bombRevive':'💣 炸彈救援！',
   'skin.default':'原色果凍', 'skin.brick':'工業風(磁磚)', 'skin.wood':'原木紋理', 'skin.marble':'大理石紋', 'skin.steel':'鋼板螺絲',
   'skin.rib':'毛線風(羅紋針)', 'skin.moss':'毛線風(桂花針)', 'skin.honeycomb':'毛線風(蜂巢編)', 'skin.shell':'毛線風(貝殼編)', 'skin.cable':'毛線風(麻花辮)',
   'trial.title':'🎁 剛剛試玩的皮膚，喜歡嗎？',
@@ -1118,7 +1179,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'PuffyBlast', 'menu.tagline':'Drop blocks, clear lines, feed the puffies!',
-  'menu.footer':'v49 · PuffyBlast · Streak Pack: Combo Streaks + Smart Praise',
+  'menu.footer':'v50 · PuffyBlast · Blast Pack: Streak Popups + Bomb Drag-Aim + Epic Booms',
   'menu.best':'Best: Lv {n}',
   'mode.endless.name':'Endless', 'mode.endless.desc':'No finish line — play until the board fills up. Chase your high score.',
   'mode.gem.name':'Puffy Collect', 'mode.gem.desc':'Feed the puffies to clear each level. You only lose when the board jams. Level after level!',
@@ -1168,7 +1229,7 @@ const I18N = {
   'combo.deflate':'🫧 Balloon deflated halfway!',
   'combo.warnGem':'🎈 Hazard level! Keep the balloon off the cactus', 'combo.warn':'🎈 Keep the balloon off the cactus!',
   'combo.noAds':'🚫 Ads removed forever!', 'combo.dm':'💎 +{n}!', 'combo.daily':'🎁 Daily gift +{n}💎',
-  'combo.dmShort':'💎 Not enough gems', 'combo.goldShort':'🪙 Not enough gold', 'combo.bomb':'💣 +{n}!', 'combo.aim':'💣 Tap the board to blast 3×3', 'combo.bombRevive':'💣 Bomb rescue!',
+  'combo.dmShort':'💎 Not enough gems', 'combo.goldShort':'🪙 Not enough gold', 'combo.bomb':'💣 +{n}!', 'combo.aim':'💣 Hold & drag to aim — release to blast 3×3', 'combo.bombRevive':'💣 Bomb rescue!',
   'skin.default':'Classic Jelly', 'skin.brick':'Industrial Tile', 'skin.wood':'Wood Grain', 'skin.marble':'Marble', 'skin.steel':'Riveted Steel',
   'skin.rib':'Rib Knit', 'skin.moss':'Moss Stitch', 'skin.honeycomb':'Honeycomb Knit', 'skin.shell':'Shell Stitch', 'skin.cable':'Cable Knit',
   'trial.title':'🎁 Liked the skin you just tried?',
@@ -1190,7 +1251,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'パフィーブラスト', 'menu.tagline':'ブロックを置いて、ライン消して、もぐもぐタイム！',
-  'menu.footer':'v49・パフィーブラスト・連続消し＆スマート称賛',
+  'menu.footer':'v50・パフィーブラスト・爆裂パック：連続消し表示＋ボム照準＋大爆発',
   'menu.best':'最高 {n} 面',
   'mode.endless.name':'エンドレス', 'mode.endless.desc':'終わりなき挑戦。盤面が埋まるまでハイスコアを狙おう。',
   'mode.gem.name':'もぐもぐコレクト', 'mode.gem.desc':'どうぶつたちを満腹にすればクリア。盤面が詰まるまで終わらない。どんどん先へ！',
@@ -1240,7 +1301,7 @@ const I18N = {
   'combo.deflate':'🫧 空気が半分抜けた！',
   'combo.warnGem':'🎈 ギミック面！風船をサボテンに当てないで', 'combo.warn':'🎈 風船をサボテンに当てないで！',
   'combo.noAds':'🚫 広告を永久削除しました！', 'combo.dm':'💎 +{n}！', 'combo.daily':'🎁 デイリーギフト +{n}💎',
-  'combo.dmShort':'💎 ジェムが足りません', 'combo.goldShort':'🪙 ゴールドが足りません', 'combo.bomb':'💣 +{n}！', 'combo.aim':'💣 盤面をタップして 3×3 爆破', 'combo.bombRevive':'💣 ボムで復活！',
+  'combo.dmShort':'💎 ジェムが足りません', 'combo.goldShort':'🪙 ゴールドが足りません', 'combo.bomb':'💣 +{n}！', 'combo.aim':'💣 ドラッグで狙って、離すと 3×3 爆破', 'combo.bombRevive':'💣 ボムで復活！',
   'skin.default':'クラシックゼリー', 'skin.brick':'インダストリアルタイル', 'skin.wood':'木目', 'skin.marble':'大理石', 'skin.steel':'リベット鋼板',
   'skin.rib':'リブ編み', 'skin.moss':'ガーター編み', 'skin.honeycomb':'ハニカム編み', 'skin.shell':'シェル編み', 'skin.cable':'ケーブル編み',
   'trial.title':'🎁 さっき試したきせかえ、気に入った？',
@@ -1586,6 +1647,20 @@ function actx(){
   if(_actx && _actx.state==='suspended'){ _actx.resume(); }
   return _actx;
 }
+/* ★ v50 母帶總線：所有合成音先過「柔化壓縮器」再出喇叭 ——
+   多層音效同時疊（碎裂＋收集音＋動物叫＋爆炸）時自動壓住尖峰、不破音不刺耳，
+   整體聽感從「生硬電子音」變「圓潤糖果音」。錄音室母帶處理的同一招，零外部檔案。 */
+let _adest = null;
+function adest(ctx){
+  if(_adest && _adest.ctx === ctx) return _adest.node;
+  const comp = ctx.createDynamicsCompressor();
+  comp.threshold.value = -18; comp.knee.value = 24; comp.ratio.value = 6;
+  comp.attack.value = 0.003;  comp.release.value = 0.2;
+  const master = ctx.createGain(); master.gain.value = 0.9;
+  comp.connect(master); master.connect(ctx.destination);
+  _adest = { ctx, node: comp };
+  return comp;
+}
 /* ★ v21 觸覺回饋設定（全參數化，可分別開關；iOS 幾乎封鎖 vibrate → 自動偵測降級）
    注意：H5 的 navigator.vibrate 在 iOS Safari 幾乎無效，且僅在使用者觸控互動中較穩定。
    之後包成原生 App（Capacitor 等）可把 haptic() 內部換成原生 Haptics API，iOS 即可補回。 */
@@ -1620,7 +1695,7 @@ function playClick(){
   o.frequency.exponentialRampToValueAtTime(180, ctx.currentTime+dur);
   g.gain.setValueAtTime(0.14, ctx.currentTime);
   g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+dur);
-  o.connect(g).connect(ctx.destination); o.start(); o.stop(ctx.currentTime+dur+0.02);
+  o.connect(g).connect(adest(ctx)); o.start(); o.stop(ctx.currentTime+dur+0.02);
 }
 
 /* ★ v21 消除「特殊音」：清脆上揚的收集音（消行成功時，疊在碎裂聲之上，給獎勵感）。 */
@@ -1646,7 +1721,7 @@ function playCrack(){
   const g=ctx.createGain(); g.gain.value=0.4;
   g.gain.setValueAtTime(0.4, ctx.currentTime);
   g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+dur);
-  src.connect(hp).connect(bp).connect(g).connect(ctx.destination); src.start();
+  src.connect(hp).connect(bp).connect(g).connect(adest(ctx)); src.start();
 
   // 疊加 4~6 顆隨機高頻「碎片」短音，模擬碎裂瞬間四散的細小顆粒聲
   const shardCount = 5 + Math.floor(Math.random()*2);
@@ -1659,9 +1734,51 @@ function playCrack(){
     sg.gain.setValueAtTime(0.0001, ctx.currentTime+t0);
     sg.gain.exponentialRampToValueAtTime(0.05+Math.random()*0.05, ctx.currentTime+t0+0.005);
     sg.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+t0+0.07);
-    o.connect(sg).connect(ctx.destination);
+    o.connect(sg).connect(adest(ctx));
     o.start(ctx.currentTime+t0); o.stop(ctx.currentTime+t0+0.09);
   }
+}
+
+/* ★ v50 ③ 爆炸專屬音「轟」：三層合成，先轟再碎 ——
+   ① 重低音俯衝：120Hz 俯衝到 30Hz 的胸腔壓迫感（爆炸的靈魂，現在只有「脆」沒有「重」的解藥）
+   ② 中頻厚度：三角波 220→55Hz，給爆炸一點「肉」
+   ③ 悶雷餘震：低通白噪音、濾波器從 900Hz 慢慢關到 120Hz —— 轟完慢慢滾走的 rumble
+   高頻碎裂聲延後 20ms 疊上（先轟、再碎，層次才對）。全走母帶壓縮器，大聲但圓潤不破音。 */
+function playBoom(){
+  if(!soundOn) return; const ctx=actx(); if(!ctx) return;
+  const t = ctx.currentTime, out = adest(ctx);
+  // ① 重低音俯衝
+  const o=ctx.createOscillator(), og=ctx.createGain();
+  o.type='sine';
+  o.frequency.setValueAtTime(120, t);
+  o.frequency.exponentialRampToValueAtTime(30, t+0.5);
+  og.gain.setValueAtTime(0.0001, t);
+  og.gain.exponentialRampToValueAtTime(0.9, t+0.012);
+  og.gain.exponentialRampToValueAtTime(0.0001, t+0.6);
+  o.connect(og).connect(out); o.start(t); o.stop(t+0.65);
+  // ② 中頻厚度
+  const b=ctx.createOscillator(), bg=ctx.createGain();
+  b.type='triangle';
+  b.frequency.setValueAtTime(220, t);
+  b.frequency.exponentialRampToValueAtTime(55, t+0.28);
+  bg.gain.setValueAtTime(0.0001, t);
+  bg.gain.exponentialRampToValueAtTime(0.4, t+0.01);
+  bg.gain.exponentialRampToValueAtTime(0.0001, t+0.35);
+  b.connect(bg).connect(out); b.start(t); b.stop(t+0.4);
+  // ③ 悶雷餘震 rumble
+  const dur=0.85, sr=ctx.sampleRate;
+  const buf=ctx.createBuffer(1, sr*dur, sr), d=buf.getChannelData(0);
+  for(let i=0;i<d.length;i++){ d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,1.35); }
+  const src=ctx.createBufferSource(); src.buffer=buf;
+  const lp=ctx.createBiquadFilter(); lp.type='lowpass'; lp.Q.value=0.6;
+  lp.frequency.setValueAtTime(900, t);
+  lp.frequency.exponentialRampToValueAtTime(120, t+dur);
+  const ng=ctx.createGain();
+  ng.gain.setValueAtTime(0.55, t);
+  ng.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+  src.connect(lp).connect(ng).connect(out); src.start(t);
+  // 高頻碎裂：延後 20ms 疊上
+  setTimeout(playCrack, 20);
 }
 
 // ★ v24 碎片視覺：從清除格的螢幕座標噴出小方塊碎屑，落點隨機、旋轉飛散，強化破碎感
@@ -1757,6 +1874,26 @@ function updateStreakBadge(pulse){
   } else {
     el.classList.remove('show','gold','pulse');
   }
+}
+
+/* ★ v50 ① 連消中央大字：×2 才開始跳。
+   第一消給一般效果就好、連上才放煙火 —— 「連續才觸發」的稀有感是爽的來源，天天跳就麻痺了。
+   視覺分級：字級隨連消放大（封頂 128px）、×2~3 橘火、×4~5 烈焰紅（換狂震動畫）、×6+ 金白狂燒。
+   刻意不配專屬音效：連消的聽覺爽感交給既有的音高階梯（越連越高亢），避免音效疲乏。 */
+function showStreakPop(n){
+  if(n < 2) return;
+  const el = document.getElementById('streakPop');
+  if(!el) return;
+  const size = Math.min(56 + n*10, 128);
+  let grad, fire;
+  if(n >= 6){ grad='linear-gradient(180deg,#fffde7,#ffd740 45%,#ff8f00)'; fire='🔥🔥🔥'; }
+  else if(n >= 4){ grad='linear-gradient(180deg,#ffe082,#ff5722 60%,#d32f2f)'; fire='🔥🔥'; }
+  else { grad='linear-gradient(180deg,#ffe0b2,#ff9100)'; fire='🔥'; }
+  el.style.setProperty('--sp-size', size+'px');
+  el.style.setProperty('--sp-grad', grad);
+  el.innerHTML = `<span class="sp-fire">${fire}</span><span class="sp-x">×${n}</span>`;
+  el.classList.toggle('mega', n>=4);
+  el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
 }
 
 /* ── ✦ 星芒粒子：place=放置微碎光（小而淡）、clear=消行星芒（大而亮，疊在彩色碎片上） ── */
@@ -1991,7 +2128,7 @@ function tone(freq, t0, dur, type='sine', vol=0.25, bendTo=null){
   g.gain.setValueAtTime(0.0001, ctx.currentTime+t0);
   g.gain.exponentialRampToValueAtTime(vol, ctx.currentTime+t0+0.02);
   g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+t0+dur);
-  o.connect(g).connect(ctx.destination); o.start(ctx.currentTime+t0); o.stop(ctx.currentTime+t0+dur+0.02);
+  o.connect(g).connect(adest(ctx)); o.start(ctx.currentTime+t0); o.stop(ctx.currentTime+t0+dur+0.02);
 }
 
 // ★ v26 統一達標音：任意一種收齊 → 同一個清脆愉悅的「叮叮鈴✨」中獎音。
@@ -3004,6 +3141,7 @@ function clearLines(){
   clearStreak++;
   lastPlacement = null;      // 這一手已用消行慶祝，聰明讚不重複跳
   updateStreakBadge(true);
+  showStreakPop(clearStreak);   // ★ v50 ① 中央大字 ×N（×2 起跳，越連越大越燙）
 
   // 收集鑽石 + 標記消除格
   const toClear = new Set();
@@ -4004,10 +4142,30 @@ function exchangeDiamond(idx){
 let bombAim = false;
 function cancelBombAim(){
   bombAim = false;
+  clearBombPreview();   // ★ v50 ② 收掉轟炸標記
   const b = document.getElementById('board');
   if(b) b.classList.remove('bomb-aim');
   const btn = document.getElementById('bombBtn');
   if(btn) btn.classList.remove('aim');
+}
+
+/* ★ v50 ② 3×3 轟炸標記：亮出爆炸範圍（中心格加金框），跟著手指即時移動。
+   純 class 切換、零重繪，renderBoard 重建格子也不怕殘留（清除函式對舊參照無感）。 */
+let _bombPrevCells = [];
+function showBombPreview(r0, c0){
+  clearBombPreview();
+  for(let r=r0-1; r<=r0+1; r++) for(let c=c0-1; c<=c0+1; c++){
+    if(r<0||c<0||r>=SIZE||c>=SIZE) continue;
+    const cell = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+    if(!cell) continue;
+    cell.classList.add('bomb-preview');
+    if(r===r0 && c===c0) cell.classList.add('bomb-preview-core');
+    _bombPrevCells.push(cell);
+  }
+}
+function clearBombPreview(){
+  _bombPrevCells.forEach(c=> c.classList.remove('bomb-preview','bomb-preview-core'));
+  _bombPrevCells = [];
 }
 function startBombAim(){
   bombAim = true;
@@ -4039,11 +4197,11 @@ function explodeAt(r0, c0){
     const el = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"] .filled`);
     if(el){ el.classList.add('clearing'); spawnShards(el, data.color); spawnPopRing(el, data.color); }
   }
-  // 爆炸回饋：碎裂聲 + 重震 + 盤面搖晃（沒炸到東西也給音效，回饋不能靜音）
-  playCrack();
-  haptic(totalLinesHaptic(2));
-  { const boardEl=document.getElementById('board');
-    if(boardEl){ boardEl.classList.remove('board-shake'); void boardEl.offsetWidth; boardEl.classList.add('board-shake'); } }
+  // ★ v50 ③ 爆炸回饋全面升級：付費道具必須「感覺值錢」，威力要壓過連消 ——
+  //   專屬重低音轟鳴 + radial 閃光 + 雙層衝擊波 + 火星四射 + 全畫面震屏 + 重脈衝震動
+  playBoom();
+  haptic([28, 36, 90]);   // 連續脈衝「喀-喀-轟」（navigator.vibrate 原生支援 pattern 陣列）
+  spawnBoomFX(r0, c0);
   justDone.forEach((animal,i)=> setTimeout(()=>playAnimal(animal), 180 + i*420));
   if(flyList.length) flyList.forEach((f,i)=> flyGemToGoal(f.gem, f.el, Math.min(i*70, 600)));
 
@@ -4052,6 +4210,57 @@ function explodeAt(r0, c0){
     renderBoard();
     afterMove();      // 炸完可能剛好收齊 → 走正常過關；空間變多不會觸發失敗
   }, 360);
+}
+
+/* ★ v50 ③ 爆炸視覺套餐：以爆心格的螢幕座標為圓心打出「火藥味」——
+   跟消行刻意做出材質區隔：消行是糖果碎、爆炸是火光。
+   ① radial 閃光（圓心對準爆點，不是死板全白）② 白快圈＋橘慢圈雙層衝擊波
+   ③ 26 顆火星放射噴飛＋重力下墜（Web Animations 逐顆算拋物線）④ 全畫面震屏（振幅約消行的三倍） */
+function spawnBoomFX(r0, c0){
+  const core = document.querySelector(`.cell[data-r="${r0}"][data-c="${c0}"]`);
+  const host = core || document.getElementById('board');
+  if(!host) return;
+  const rect = host.getBoundingClientRect();
+  const cx = rect.left + rect.width/2, cy = rect.top + rect.height/2;
+  // ① radial 閃光
+  const flash = document.createElement('div');
+  flash.className = 'boom-flash';
+  flash.style.setProperty('--bx', (cx/window.innerWidth*100).toFixed(1)+'%');
+  flash.style.setProperty('--by', (cy/window.innerHeight*100).toFixed(1)+'%');
+  document.body.appendChild(flash);
+  setTimeout(()=> flash.remove(), 480);
+  // ② 雙層衝擊波：白色快圈先、橘色慢圈追
+  [[0,'#fff',6,190],[70,'#ffb74d',4,270]].forEach(([delay,color,bw,size])=>{
+    const ring = document.createElement('div');
+    ring.className = 'boom-ring';
+    ring.style.cssText = `left:${cx}px; top:${cy}px; width:${size}px; height:${size}px;`+
+      `border-color:${color}; border-width:${bw}px; animation-delay:${delay}ms;`;
+    document.body.appendChild(ring);
+    setTimeout(()=> ring.remove(), 720+delay);
+  });
+  // ③ 火星四射：先衝出去、再被重力拉下來的拋物線
+  for(let i=0;i<26;i++){
+    const s = document.createElement('div');
+    const sz = 3 + Math.random()*5;
+    s.className = 'fire-spark';
+    s.style.cssText = `left:${cx}px; top:${cy}px; width:${sz}px; height:${sz}px;`+
+      `background:${pick(['#fff59d','#ffb74d','#ff7043','#ffd740'])};`+
+      `box-shadow:0 0 ${Math.round(4+sz)}px ${pick(['#ff9100','#ffab40'])};`;
+    document.body.appendChild(s);
+    const ang = Math.random()*Math.PI*2;
+    const dist = 60 + Math.random()*130;
+    const dx = Math.cos(ang)*dist, dy = Math.sin(ang)*dist*0.8;
+    const dur = 550 + Math.random()*350;
+    s.animate([
+      { transform:'translate(0,0) scale(1)', opacity:1 },
+      { transform:`translate(${dx*0.7}px, ${dy*0.7 - 26}px) scale(.85)`, opacity:1, offset:0.55 },
+      { transform:`translate(${dx}px, ${dy + 90}px) scale(.15)`, opacity:0 },
+    ], { duration:dur, easing:'cubic-bezier(.2,.7,.4,1)' });
+    setTimeout(()=> s.remove(), dur+80);
+  }
+  // ④ 全畫面震屏
+  const app = document.getElementById('app');
+  if(app){ app.classList.remove('app-quake'); void app.offsetWidth; app.classList.add('app-quake'); }
 }
 
 /* ============================================================
@@ -4491,25 +4700,88 @@ document.querySelectorAll('[data-ex]').forEach(btn=>{
   btn.onclick = ()=> exchangeDiamond(+btn.dataset.ex);
 });
 
-/* 炸彈鈕：有貨 → 進出瞄準模式；沒貨 → 直接開商店（消費入口就在指尖） */
-document.getElementById('bombBtn').onclick = ()=>{
+/* ★ v50 ② 炸彈交互重寫：「一點就炸」→「按住拖移瞄準、放開才引爆」。
+   兩種手感二合一：
+   ① 點一下炸彈鈕：進出瞄準模式（老玩家習慣不變）→ 棋盤上按住拖移，3×3 標記跟手走，放開引爆
+   ② 按住炸彈鈕直接拖進棋盤：真正的「提取炸彈」，一氣呵成
+   仍用 pointer 事件家族：拖牌時 pointer capture 在 documentElement 上、事件不落棋盤，
+   與拖放系統天然互不干擾，核心引擎零污染。 */
+function _bombCellFromPoint(x, y){
+  const t = document.elementFromPoint(x, y);
+  return t ? t.closest('.cell') : null;
+}
+function _bombDetonate(r, c){
+  cancelBombAim();
+  bombCount--;
+  saveGame(); refreshEconomyUI();
+  explodeAt(r, c);
+}
+
+const _bombBtnEl = document.getElementById('bombBtn');
+let _bombDragFromBtn = false;
+_bombBtnEl.addEventListener('pointerdown', (e)=>{
+  if(!currentMode || bombCount <= 0) return;   // 沒貨 → 留給下方 pointerup 開商店
+  e.preventDefault();
+  _bombDragFromBtn = false;
+  try{ _bombBtnEl.setPointerCapture(e.pointerId); }catch(_){}
+});
+_bombBtnEl.addEventListener('pointermove', (e)=>{
+  if(!currentMode || bombCount <= 0) return;
+  if(e.pointerType === 'mouse' && e.buttons === 0) return;   // 滑鼠須按住才算拖曳
+  const cell = _bombCellFromPoint(e.clientX, e.clientY);
+  if(cell){                                    // 拖出按鈕、指到棋盤 → 即時亮出轟炸標記
+    if(!bombAim) startBombAim();
+    _bombDragFromBtn = true;
+    showBombPreview(+cell.dataset.r, +cell.dataset.c);
+  } else if(_bombDragFromBtn){ clearBombPreview(); }
+});
+_bombBtnEl.addEventListener('pointerup', (e)=>{
+  if(_bombDragFromBtn){                        // 提取拖曳收尾：指在棋盤上 → 引爆；否則留在瞄準模式
+    _bombDragFromBtn = false;
+    const cell = _bombCellFromPoint(e.clientX, e.clientY);
+    if(cell){ _bombDetonate(+cell.dataset.r, +cell.dataset.c); }
+    else{ clearBombPreview(); }
+    return;
+  }
+  // 純點按：切換瞄準模式（原本手感）；沒貨 → 直接開商店（消費入口就在指尖）
   if(!currentMode) return;
   if(bombAim){ cancelBombAim(); return; }
   if(bombCount <= 0){ openShop(); return; }
   startBombAim();
-};
+});
 
-/* 瞄準模式下點盤面 → 引爆 3×3。
-   用 pointerup：拖牌時 pointer capture 在 documentElement 上，事件不會落到棋盤，
-   所以與拖放系統天然互不干擾，核心引擎零污染。 */
-document.getElementById('board').addEventListener('pointerup', (e)=>{
+/* 瞄準模式下的棋盤：按住 → 標記跟手走，放開前隨時微調 → 放開原地引爆 */
+const _bombBoardEl = document.getElementById('board');
+let _bombAimHold = false;
+_bombBoardEl.addEventListener('pointerdown', (e)=>{
   if(!bombAim) return;
-  const cell = e.target.closest('.cell');
-  if(!cell) return;
-  cancelBombAim();
-  bombCount--;
-  saveGame(); refreshEconomyUI();
-  explodeAt(+cell.dataset.r, +cell.dataset.c);
+  e.preventDefault();
+  _bombAimHold = true;
+  try{ _bombBoardEl.setPointerCapture(e.pointerId); }catch(_){}
+  const cell = _bombCellFromPoint(e.clientX, e.clientY);
+  if(cell) showBombPreview(+cell.dataset.r, +cell.dataset.c);
+});
+_bombBoardEl.addEventListener('pointermove', (e)=>{
+  if(!bombAim) return;
+  if(_bombAimHold){                            // 按住拖移：手機/滑鼠通用
+    const cell = _bombCellFromPoint(e.clientX, e.clientY);
+    if(cell) showBombPreview(+cell.dataset.r, +cell.dataset.c);
+    else clearBombPreview();
+  } else if(e.pointerType === 'mouse' && e.buttons === 0){
+    // 桌機加碼：滑鼠 hover 也預覽（手機無 hover，自動無感）
+    const cell = _bombCellFromPoint(e.clientX, e.clientY);
+    if(cell) showBombPreview(+cell.dataset.r, +cell.dataset.c);
+  }
+});
+_bombBoardEl.addEventListener('pointerup', (e)=>{
+  if(!bombAim || !_bombAimHold) return;
+  _bombAimHold = false;
+  const cell = _bombCellFromPoint(e.clientX, e.clientY);
+  if(cell) _bombDetonate(+cell.dataset.r, +cell.dataset.c);
+  else clearBombPreview();
+});
+_bombBoardEl.addEventListener('pointercancel', ()=>{
+  if(_bombAimHold){ _bombAimHold = false; clearBombPreview(); }
 });
 
 window.addEventListener('resize', ()=>{
