@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>胖嘟嘟消消樂 v37</title>
+<title>胖嘟嘟消消樂 v47</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; }
   html,body { height:100%; overflow:hidden; }
@@ -34,7 +34,13 @@
   .gm-item { display:flex; align-items:center; gap:10px; width:100%; padding:11px 12px; border:none;
     background:transparent; color:#fff; font-size:15px; font-weight:600; border-radius:10px; cursor:pointer; text-align:left; }
   .gm-item:active { background:rgba(255,255,255,.14); }
-  .gm-item .gm-ic { font-size:18px; width:22px; text-align:center; }
+  .gm-item .gm-ic { font-size:18px; width:22px; text-align:center; position:relative; display:inline-block; }
+  /* ★ v41 震動關閉時：圖示不變，疊一條紅色斜線（不依賴 emoji 字型，跨平台穩定一致） */
+  .gm-ic.ic-off::before, .gm-ic.ic-off::after {
+    content:''; position:absolute; left:-2px; right:-2px; top:50%;
+    height:2.5px; background:#ff4d4f; border-radius:2px; transform:translateY(-50%) rotate(-45deg);
+    box-shadow:0 0 0 1px rgba(0,0,0,.35);
+  }
   #gearBackdrop { position:fixed; inset:0; z-index:55; display:none; }
   #gearBackdrop.show { display:block; }
 
@@ -174,9 +180,15 @@
   #tray { display:flex; justify-content:space-around; align-items:center;
     height:118px; min-height:118px; max-height:118px; padding:8px 10px; box-sizing:border-box; }
   /* 固定尺寸的「牌槽」：每個牌位大小恆定，牌本身縮進來 */
-  .piece-slot { width:33.33%; height:100%; display:flex; align-items:center; justify-content:center; }
+  .piece-slot { width:33.33%; height:100%; display:flex; align-items:center; justify-content:center; position:relative; }
   .piece { display:grid; gap:0; cursor:grab; transition:transform .15s, opacity .2s; touch-action:none;
-    transform-origin:center center; }
+    transform-origin:center center; position:relative; }
+  /* ★ v42 手感修正：方塊本體周圍加一圈「看不見但摸得到」的緩衝區，
+     解決「必須精準點在方塊本體才抓得起來」的問題——玩家點在方塊邊緣、
+     甚至稍微超出方塊一點點，也該算抓取成功，這是同類遊戲的業界常態手感。
+     用 ::before 疊一層透明的擴大熱區，四邊各多留 14px，
+     不影響視覺（transparent），只影響「能點到」的範圍。 */
+  .piece::before { content:''; position:absolute; left:-14px; right:-14px; top:-14px; bottom:-14px; }
   .piece.used { opacity:0; pointer-events:none; transform:scale(.5); }
   .piece .pcell { border-radius:3px; box-shadow:inset 0 -3px 0 rgba(0,0,0,.28), inset 0 3px 0 rgba(255,255,255,.28),
     inset 3px 0 0 rgba(255,255,255,.10), inset -3px 0 0 rgba(0,0,0,.14);
@@ -329,11 +341,16 @@
   .noti-dot.on { display:block; }
 
   /* 主選單右上角：鑽石餘額膠囊（點了開商店） */
-  #menuDm { position:absolute; top:18px; right:18px; border:none; color:#fff; cursor:pointer;
+  #menuDm { position:absolute; top:66px; right:18px; border:none; color:#fff; cursor:pointer;
     background:rgba(255,255,255,.12); border-radius:20px; padding:9px 15px;
     font-size:15px; font-weight:800; display:flex; align-items:center; gap:6px; }
   #menuDm:active { transform:scale(.95); }
   #menuDm .noti-dot { top:-2px; right:-2px; }
+  /* ★ v45 開場選單齒輪：原本齒輪只活在對局畫面(#app)裡，玩家在選單頁完全摸不到設定/商店/換膚，
+     這裡直接複用同一顆 #gearMenu（原生 DOM 節點用 JS 搬家到 .menu-gear-wrap，見下方腳本），
+     不用重複刻一份選單，邏輯與樣式全部沿用。 */
+  .menu-gear-wrap { position:absolute; top:18px; right:18px; z-index:1150; }
+  .menu-gear-wrap .icon-btn { background:rgba(255,255,255,.14); }
   /* ★ v37 暱稱膠囊：左上角，與鑽石膠囊左右對稱 */
   #menuName { position:absolute; top:18px; left:18px; border:none; color:#fff; cursor:pointer;
     background:rgba(255,255,255,.12); border-radius:20px; padding:9px 15px; max-width:140px;
@@ -410,6 +427,32 @@
   .stp-buy { display:flex; flex-direction:column; gap:5px; flex-shrink:0; }
   .stp-buy .shop-buy { padding:7px 11px; font-size:12.5px; }
 
+  /* ★ v45 測試員模式：開發者／私人測試員專用福利總覽 + 一鍵解鎖 */
+  .tester-badge { display:inline-block; font-size:10px; letter-spacing:1px; font-weight:800;
+    background:linear-gradient(135deg,#66bb6a,#43a047); padding:2px 8px; border-radius:8px; margin-left:6px; vertical-align:1px; }
+  .tester-unlock-btn { width:100%; border:none; border-radius:14px; padding:13px; margin:4px 0 14px;
+    background:linear-gradient(135deg,#ff9800,#ff5722); color:#fff; font-size:15px; font-weight:800;
+    cursor:pointer; box-shadow:0 6px 16px rgba(255,87,34,.4); }
+  .tester-unlock-btn:active { transform:scale(.97); }
+  .tester-unlock-btn.done { background:linear-gradient(135deg,#66bb6a,#43a047); box-shadow:0 6px 16px rgba(67,160,71,.4); }
+  .tester-check { color:#7be084; font-weight:900; margin-left:6px; }
+  .tester-note { font-size:11.5px; opacity:.55; line-height:1.5; margin:2px 2px 4px; }
+
+  /* ★ v46 皮膚輪播：仿音樂播放器的模式切換列（固定／輪播／隨機） */
+  .rotate-modes { display:flex; gap:8px; margin:0 0 12px; }
+  .rotate-mode-btn { flex:1; border:none; border-radius:14px; padding:10px 6px; cursor:pointer;
+    background:rgba(255,255,255,.07); color:#fff; display:flex; flex-direction:column; align-items:center; gap:3px;
+    font-size:11px; font-weight:800; opacity:.7; transition:.15s; }
+  .rotate-mode-btn .rm-ic { font-size:19px; }
+  .rotate-mode-btn.active { background:linear-gradient(135deg,#4fc3f7,#2196f3); opacity:1;
+    box-shadow:0 4px 12px rgba(33,150,243,.4); }
+  .rotate-mode-btn:active { transform:scale(.95); }
+  .rotate-hint { font-size:11.5px; opacity:.55; text-align:center; margin:-4px 0 12px; line-height:1.5; }
+  .skin-card.in-rotation { outline:2px solid #66bb6a; }
+  .sc-rotate-tag { position:absolute; top:6px; left:6px; font-size:9px; font-weight:800;
+    background:rgba(102,187,106,.85); padding:2px 6px; border-radius:7px; }
+  .skin-card { position:relative; }
+
   /* ★ v39 皮膚圖鑑 */
   .gallery-sub { font-size:12px; opacity:.65; text-align:center; margin:2px 0 12px; line-height:1.4; }
   .skin-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; overflow-y:auto; flex:1; min-height:0; }
@@ -444,6 +487,16 @@
 
   /* 歡迎視窗：新玩家首次啟動，暱稱輸入 + 新手禮包 */
   .welcome-modal { max-width:340px; text-align:center; padding:26px 22px 22px; }
+  /* ★ v44 開場語言快選：急性子玩家看不懂畫面文字時，第一秒就能自己挑語言，
+     不用先看懂⚙️齒輪、鑽進選單才找得到語言選項（那一步很多人等不到）。
+     純圖示（國旗+語言自稱），跨語言一看就懂，不需要任何文字說明。 */
+  .wm-langrow { display:flex; justify-content:center; gap:8px; margin-bottom:14px; }
+  .wm-lang-chip { display:flex; align-items:center; gap:5px; background:rgba(255,255,255,.08);
+    border:1.5px solid transparent; border-radius:20px; padding:6px 12px; cursor:pointer;
+    -webkit-tap-highlight-color:transparent; font-size:12px; font-weight:800; color:#fff; opacity:.62; }
+  .wm-lang-chip .ic { font-size:15px; }
+  .wm-lang-chip:active { background:rgba(255,255,255,.16); }
+  .wm-lang-chip.active { opacity:1; background:rgba(102,187,106,.16); border-color:rgba(102,187,106,.55); }
   .welcome-modal .wm-emoji { font-size:48px; margin-bottom:6px; }
   .welcome-modal h2 { font-size:21px; margin:0 0 6px; }
   .welcome-modal .wm-sub { font-size:13px; opacity:.7; margin-bottom:18px; line-height:1.5; }
@@ -467,6 +520,20 @@
   .login-item.active .li-tag { background:rgba(102,187,106,.3); color:#a5d6a7; }
   .login-item.soon .li-tag { background:rgba(255,255,255,.12); opacity:.6; }
   .login-item.soon { opacity:.55; }
+  /* ★ v43 語言選擇彈窗：點🌐不再暴力循環切換，改跳出清單讓玩家自己挑 */
+  .lang-modal { max-width:320px; text-align:center; padding:24px 20px 20px; }
+  .lang-modal h2 { font-size:19px; margin:0 0 16px; }
+  .lang-list { display:flex; flex-direction:column; gap:9px; margin:16px 0 6px; }
+  .lang-item { display:flex; align-items:center; gap:11px; width:100%; background:rgba(255,255,255,.07);
+    border:none; border-radius:13px; padding:11px 14px; text-align:left; cursor:pointer;
+    -webkit-tap-highlight-color:transparent; }
+  .lang-item:active { background:rgba(255,255,255,.14); }
+  .lang-item .li-ic { font-size:20px; }
+  .lang-item .li-name { flex:1; font-size:14px; font-weight:700; color:#fff; }
+  .lang-item .li-tag { font-size:11px; padding:4px 9px; border-radius:9px; font-weight:800;
+    background:rgba(255,255,255,.12); opacity:.6; }
+  .lang-item.active { background:rgba(102,187,106,.12); }
+  .lang-item.active .li-tag { background:rgba(102,187,106,.3); color:#a5d6a7; opacity:1; }
 </style>
 </head>
 <body class="theme-default">
@@ -482,6 +549,11 @@
 
   <!-- ★ v36 鑽石餘額（點了開商店；紅點 = 每日禮物未領） -->
   <button id="menuDm">💎 <span id="menuDmVal">0</span><span class="noti-dot" id="menuDmDot"></span></button>
+
+  <!-- ★ v45 開場選單齒輪：右上角，讓玩家一進來就能設定/逛商店/換膚，不用先選模式進對局才摸得到 -->
+  <div class="menu-gear-wrap" id="menuGearWrap">
+    <button class="icon-btn" id="menuGearBtn" title="選單">⚙️<span class="noti-dot" id="menuGearDot"></span></button>
+  </div>
 
   <button class="mode-card endless" data-mode="endless">
     <span class="emoji">♾️</span>
@@ -508,7 +580,7 @@
     </span>
   </button>
 
-  <div class="footer-note" data-i18n="menu.footer">v39・胖嘟嘟消消樂・皮膚試玩＋圖鑑＋雙貨幣經濟</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v39・胖嘟嘟消消樂・皮膚試玩＋圖鑑＋雙貨幣經濟</div>
 </div>
 
 <div id="app">
@@ -532,10 +604,14 @@
     <button class="icon-btn" id="gearBtn" title="選單">⚙️<span class="noti-dot" id="gearDot"></span></button>
     <div id="gearMenu">
       <button class="gm-item" id="soundBtn"><span class="gm-ic">🔊</span><span data-i18n="gear.sound">音效</span></button>
+      <button class="gm-item" id="hapticBtn"><span class="gm-ic">📳</span><span data-i18n="gear.haptic">震動</span></button>
       <button class="gm-item" id="shopBtn"><span class="gm-ic">🛍️</span><span><span data-i18n="gear.shop">商店</span><span class="noti-dot" id="shopItemDot" style="position:static;display:inline-block;margin-left:6px;vertical-align:2px;"></span></span></button>
       <button class="gm-item" id="skinBtn"><span class="gm-ic">🎨</span><span data-i18n="gear.skin">換膚</span></button>
       <button class="gm-item" id="langBtn"><span class="gm-ic">🌐</span><span id="langName">繁體中文</span></button>
       <button class="gm-item" id="profileBtn"><span class="gm-ic">👤</span><span data-i18n="gear.profile">帳號</span></button>
+      <!-- ★ v45 測試員模式：開發者與私人測試員專用入口，一鍵解鎖全部皮膚＋福利總覽 -->
+      <!-- ★ v47 預設隱藏，避免上架後被一般玩家開啟掀桌經濟系統；需連點主選單版本號 7 下解鎖 -->
+      <button class="gm-item" id="testerBtn" style="display:none"><span class="gm-ic">🧪</span><span data-i18n="gear.tester">測試員模式</span></button>
       <button class="gm-item" id="homeBtn"><span class="gm-ic">🏠</span><span data-i18n="gear.home">主選單</span></button>
     </div>
   </div>
@@ -607,6 +683,8 @@
      ============================================================ -->
 <div class="overlay shop-z" id="welcomeOverlay">
   <div class="modal welcome-modal">
+    <!-- ★ v44 開場語言快選：JS 依 LANGS 動態生成，選了立刻套用全站文字（含這個視窗本身） -->
+    <div class="wm-langrow" id="welcomeLangRow"></div>
     <div class="wm-emoji">🐾</div>
     <h2 data-i18n="welcome.title">歡迎來到胖嘟嘟消消樂！</h2>
     <p class="wm-sub" data-i18n="welcome.sub">先幫自己取個名字，將來全球排行榜會用到喔</p>
@@ -650,6 +728,18 @@
       </div>
     </div>
     <button class="text-link" id="profileCloseBtn" data-i18n="profile.close">關閉</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     ★ v43 語言選擇彈窗：點🌐地球圖示 → 跳出清單，玩家自己挑語言
+     （不再是點一下暴力循環切換，符合通用 App 慣例）
+     ============================================================ -->
+<div class="overlay shop-z" id="langOverlay">
+  <div class="modal lang-modal">
+    <h2 data-i18n="lang.title">🌐 選擇語言</h2>
+    <div class="lang-list" id="langList"><!-- JS 依 LANGS 動態生成 --></div>
+    <button class="text-link" id="langCloseBtn" data-i18n="profile.close">關閉</button>
   </div>
 </div>
 
@@ -746,8 +836,62 @@
       <div class="dm-pill">🪙 <span id="gallGold">0</span>　💎 <span id="gallDm">0</span></div>
     </div>
     <p class="gallery-sub" data-i18n="gallery.sub">每 4 關會偷偷讓你試玩一款材質，喜歡的話就把它留下來吧</p>
+
+    <!-- ★ v46 皮膚輪播：仿音樂播放器三種模式，只在擁有 2 款以上皮膚時才有意義顯示 -->
+    <div class="rotate-modes" id="rotateModes">
+      <button class="rotate-mode-btn" data-rmode="fixed"><span class="rm-ic">📌</span><span>固定</span></button>
+      <button class="rotate-mode-btn" data-rmode="cycle"><span class="rm-ic">🔁</span><span>輪播</span></button>
+      <button class="rotate-mode-btn" data-rmode="shuffle"><span class="rm-ic">🔀</span><span>隨機</span></button>
+    </div>
+    <p class="rotate-hint" id="rotateHint">輪播／隨機模式下，每過一關就自動換上你擁有的下一款皮膚；當這關剛好邂逅到新款材質時，邂逅款優先蓋過輪播設定。</p>
+
     <div class="skin-grid" id="skinGrid"></div>
     <button class="text-link" id="skinGalleryCloseBtn" data-i18n="gallery.close">關閉</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     ★ v45 測試員模式：開發者／私人測試員專用面板
+     用途：(1) 一鍵解鎖全部皮膚，方便自己跟老婆評分每款材質
+          (2) 完整列出目前所有可測試的福利/功能項目，避免漏測或忘記
+     這不是玩家看得到的正式商業功能，純粹是內部測試工具，關掉齒輪選單就找得到。
+     ============================================================ -->
+<div class="overlay shop-z" id="testerOverlay">
+  <div class="modal shop-modal">
+    <div class="shop-head">
+      <h2>🧪 測試員模式<span class="tester-badge">內部專用</span></h2>
+    </div>
+    <p class="tester-note">給你跟私人測試員（老婆）用的快速通道：一鍵解鎖全部皮膚方便評分，下面是目前遊戲裡「所有能玩到」的項目，照著表逐項體驗就不會漏測。</p>
+
+    <div class="shop-scroll">
+      <div class="shop-sec-title">一鍵操作</div>
+      <button class="tester-unlock-btn" id="testerUnlockSkinsBtn">🎨 一鍵解鎖全部皮膚（自己先擁有再評分）</button>
+      <button class="tester-unlock-btn" id="testerGiveResourceBtn">💰 補滿金幣／鑽石／炸彈（測試用，不限次數）</button>
+
+      <div class="shop-sec-title">🎨 皮膚材質福利（<span id="testerSkinCount">0</span> 款）</div>
+      <div id="testerSkinList"></div>
+
+      <div class="shop-sec-title">🎮 三大玩法模式</div>
+      <div class="shop-item"><span class="si-ic">♾️</span><div class="si-info"><div class="si-name">無盡模式</div><div class="si-desc">沒有終點，測試手感、消除爽度、防死局重洗牌</div></div></div>
+      <div class="shop-item"><span class="si-ic">🍡</span><div class="si-info"><div class="si-name">胖嘟嘟收集</div><div class="si-desc">主線關卡，測試皮膚邂逅機率、碎片收集、難度曲線</div></div></div>
+      <div class="shop-item"><span class="si-ic">🎈</span><div class="si-info"><div class="si-name">氣球大逃亡</div><div class="si-desc">物理機關救援，測試威脅／解藥碰撞、炸彈瞄準、震動回饋</div></div></div>
+
+      <div class="shop-sec-title">💎 商業變現項目</div>
+      <div class="shop-item"><span class="si-ic">🎁</span><div class="si-info"><div class="si-name">每日簽到禮</div><div class="si-desc">每日金幣領取，測試紅點提醒、換日邏輯</div></div></div>
+      <div class="shop-item"><span class="si-ic">📺</span><div class="si-info"><div class="si-name">激勵廣告（自願式）</div><div class="si-desc">卡關提示、看廣告賺金幣、看廣告救援續關，三種入口都測</div></div></div>
+      <div class="shop-item"><span class="si-ic">💣</span><div class="si-info"><div class="si-name">炸彈道具</div><div class="si-desc">金幣／鑽石雙標價購買，瞄準模式引爆 3×3</div></div></div>
+      <div class="shop-item"><span class="si-ic">💱</span><div class="si-info"><div class="si-name">鑽石兌換金幣</div><div class="si-desc">單向兌換所，測試匯率顯示是否合理</div></div></div>
+      <div class="shop-item"><span class="si-ic">🏷️</span><div class="si-info"><div class="si-name">儲值鑽石包（模擬）</div><div class="si-desc">尚未接真 IAP SDK，目前為模擬直接到帳，測試首購雙倍</div></div></div>
+      <div class="shop-item"><span class="si-ic">🚫</span><div class="si-info"><div class="si-name">付費去廣告</div><div class="si-desc">接口已預留，測試購買後的狀態切換</div></div></div>
+
+      <div class="shop-sec-title">⚙️ 個人化設定</div>
+      <div class="shop-item"><span class="si-ic">🎭</span><div class="si-info"><div class="si-name">暱稱系統</div><div class="si-desc">7 天改名冷卻，金幣或鑽石付費加速</div></div></div>
+      <div class="shop-item"><span class="si-ic">🌐</span><div class="si-info"><div class="si-name">多國語言</div><div class="si-desc">繁體中文／English／日本語 三語切換</div></div></div>
+      <div class="shop-item"><span class="si-ic">🔊</span><div class="si-info"><div class="si-name">音效／震動開關</div><div class="si-desc">iOS 網頁版無法震動屬已知限制，App 化後會回歸</div></div></div>
+
+      <p class="tester-note">💡 提醒：皮膚「邂逅」機制在正常遊玩下 premium 機率極低（1.2%），是刻意設計的稀有感；用上面的一鍵解鎖繞過機率鎖，純粹是為了讓你們評分美術，不影響正式機率邏輯。</p>
+    </div>
+    <button class="text-link" id="testerCloseBtn">關閉</button>
   </div>
 </div>
 
@@ -792,12 +936,12 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'胖嘟嘟消消樂', 'menu.tagline':'放方塊・消整排・餵飽胖嘟嘟',
-  'menu.footer':'v40・胖嘟嘟消消樂・皮膚邂逅＋碎片收集＋雙貨幣經濟',
+  'menu.footer':'v47・胖嘟嘟消消樂・防死局保底＋測試員暗門',
   'menu.best':'最高 {n} 關',
   'mode.endless.name':'無盡模式', 'mode.endless.desc':'沒有終點，放到沒空間為止。挑戰你的最高分。',
   'mode.gem.name':'胖嘟嘟收集', 'mode.gem.desc':'餵飽三隻胖嘟嘟就過關，盤面塞滿才結束，一關接一關往下闖。',
   'mode.balloon.name':'氣球大逃亡', 'mode.balloon.desc':'氣球一路膨脹爬向仙人掌，靠消行洩氣把它拉回來。關關加速，撐得越久越險。',
-  'gear.sound':'音效', 'gear.shop':'商店', 'gear.skin':'換膚', 'gear.home':'主選單',
+  'gear.sound':'音效', 'gear.haptic':'震動', 'gear.shop':'商店', 'gear.skin':'換膚', 'gear.tester':'測試員模式', 'gear.home':'主選單',
   'side.level':'關卡', 'side.score':'分數', 'side.best':'最佳', 'side.hint':'提示', 'side.bomb':'炸彈', 'side.dm':'💎 鑽石', 'side.gold':'🪙 金幣',
   'gear.profile':'帳號',
   'welcome.title':'歡迎來到胖嘟嘟消消樂！', 'welcome.sub':'先幫自己取個名字，將來全球排行榜會用到喔',
@@ -807,6 +951,7 @@ const I18N = {
   'profile.renameBtn':'改名', 'profile.renameHint':'首次自訂免費，之後每次改名消耗改名卡',
   'profile.cooldown':'改名卡冷卻中，還要等 {d} 天',
   'login.guest':'遊客模式', 'login.using':'使用中', 'login.google':'Google 登入', 'login.apple':'Apple 登入', 'login.soon':'即將推出',
+  'lang.title':'🌐 選擇語言', 'lang.using':'使用中',
   'win.title':'🎉 過關！', 'win.text':'第 {lv} 關完成！本關得分 {s}　🪙+{n}',
   'win.balloonTitle':'🎈 氣球守住了！', 'win.balloonText':'第 {lv} 關完成！仙人掌鬆了一口氣（得分 {s}）　🪙+{n}',
   'win.textDefault':'小動物都吃飽囉！', 'win.next':'下一關 →', 'win.home':'回主選單',
@@ -842,7 +987,8 @@ const I18N = {
   'combo.warnGem':'🎈 機關關！別讓氣球碰到仙人掌', 'combo.warn':'🎈 別讓氣球碰到仙人掌！',
   'combo.noAds':'🚫 已永久去廣告！', 'combo.dm':'💎 +{n}！', 'combo.daily':'🎁 每日禮物 +{n}💎',
   'combo.dmShort':'💎 鑽石不足', 'combo.goldShort':'🪙 金幣不足', 'combo.bomb':'💣 +{n}！', 'combo.aim':'💣 點盤面引爆 3×3', 'combo.bombRevive':'💣 炸彈救援！',
-  'skin.default':'原色果凍', 'skin.brick':'工業紅磚', 'skin.wood':'原木紋理', 'skin.marble':'大理石紋', 'skin.steel':'鋼板螺絲', 'skin.knit':'毛線織布',
+  'skin.default':'原色果凍', 'skin.brick':'工業風(磁磚)', 'skin.wood':'原木紋理', 'skin.marble':'大理石紋', 'skin.steel':'鋼板螺絲',
+  'skin.rib':'毛線風(羅紋針)', 'skin.moss':'毛線風(桂花針)', 'skin.honeycomb':'毛線風(蜂巢編)', 'skin.shell':'毛線風(貝殼編)', 'skin.cable':'毛線風(麻花辮)',
   'trial.title':'🎁 剛剛試玩的皮膚，喜歡嗎？',
   'combo.skinBought':'🎉 已擁有「{n}」！', 'combo.skinEquipped':'🎨 已裝備「{n}」',
   'gallery.title':'🎨 皮膚圖鑑', 'gallery.sub':'關卡中偶爾會隨機邂逅材質，贏下那一關才能拿到碎片，集滿即可兌換',
@@ -862,12 +1008,12 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'PuffyBlast', 'menu.tagline':'Drop blocks, clear lines, feed the puffies!',
-  'menu.footer':'v40 · PuffyBlast · Skin Encounters + Fragments + Dual Economy',
+  'menu.footer':'v47 · PuffyBlast · Soft-lock Safeguard + Tester Gate',
   'menu.best':'Best: Lv {n}',
   'mode.endless.name':'Endless', 'mode.endless.desc':'No finish line — play until the board fills up. Chase your high score.',
   'mode.gem.name':'Puffy Collect', 'mode.gem.desc':'Feed the puffies to clear each level. You only lose when the board jams. Level after level!',
   'mode.balloon.name':'Balloon Escape', 'mode.balloon.desc':'The balloon keeps inflating toward the cactus — clear lines to deflate it. Faster every level!',
-  'gear.sound':'Sound', 'gear.shop':'Shop', 'gear.skin':'Themes', 'gear.home':'Main Menu',
+  'gear.sound':'Sound', 'gear.haptic':'Vibration', 'gear.shop':'Shop', 'gear.skin':'Themes', 'gear.tester':'Tester Mode', 'gear.home':'Main Menu',
   'side.level':'LEVEL', 'side.score':'SCORE', 'side.best':'BEST', 'side.hint':'Hint', 'side.bomb':'Bomb', 'side.dm':'💎 Gems', 'side.gold':'🪙 Gold',
   'gear.profile':'Account',
   'welcome.title':'Welcome to PuffyBlast!', 'welcome.sub':'Pick a nickname first — you\'ll need it for the global leaderboard',
@@ -877,6 +1023,7 @@ const I18N = {
   'profile.renameBtn':'Rename', 'profile.renameHint':'First custom name is free; renaming after that uses a rename card',
   'profile.cooldown':'Rename card on cooldown, {d} day(s) left',
   'login.guest':'Guest', 'login.using':'Active', 'login.google':'Sign in with Google', 'login.apple':'Sign in with Apple', 'login.soon':'Coming soon',
+  'lang.title':'🌐 Select Language', 'lang.using':'Active',
   'win.title':'🎉 Level Clear!', 'win.text':'Level {lv} complete! Score {s}　🪙+{n}',
   'win.balloonTitle':'🎈 Balloon Saved!', 'win.balloonText':'Level {lv} complete! The cactus sighs in relief (score {s})　🪙+{n}',
   'win.textDefault':'All puffies are full and happy!', 'win.next':'Next Level →', 'win.home':'Main Menu',
@@ -912,7 +1059,8 @@ const I18N = {
   'combo.warnGem':'🎈 Hazard level! Keep the balloon off the cactus', 'combo.warn':'🎈 Keep the balloon off the cactus!',
   'combo.noAds':'🚫 Ads removed forever!', 'combo.dm':'💎 +{n}!', 'combo.daily':'🎁 Daily gift +{n}💎',
   'combo.dmShort':'💎 Not enough gems', 'combo.goldShort':'🪙 Not enough gold', 'combo.bomb':'💣 +{n}!', 'combo.aim':'💣 Tap the board to blast 3×3', 'combo.bombRevive':'💣 Bomb rescue!',
-  'skin.default':'Classic Jelly', 'skin.brick':'Industrial Brick', 'skin.wood':'Wood Grain', 'skin.marble':'Marble', 'skin.steel':'Riveted Steel', 'skin.knit':'Knit Fabric',
+  'skin.default':'Classic Jelly', 'skin.brick':'Industrial Tile', 'skin.wood':'Wood Grain', 'skin.marble':'Marble', 'skin.steel':'Riveted Steel',
+  'skin.rib':'Rib Knit', 'skin.moss':'Moss Stitch', 'skin.honeycomb':'Honeycomb Knit', 'skin.shell':'Shell Stitch', 'skin.cable':'Cable Knit',
   'trial.title':'🎁 Liked the skin you just tried?',
   'combo.skinBought':'🎉 Unlocked "{n}"!', 'combo.skinEquipped':'🎨 Equipped "{n}"',
   'gallery.title':'🎨 Skin Gallery', 'gallery.sub':'Random skin encounters appear in levels — win that level to earn a fragment, collect enough to unlock',
@@ -932,12 +1080,12 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'パフィーブラスト', 'menu.tagline':'ブロックを置いて、ライン消して、もぐもぐタイム！',
-  'menu.footer':'v40・パフィーブラスト・きせかえ遭遇＋欠片収集＋二重通貨',
+  'menu.footer':'v47・パフィーブラスト・詰み防止＋テスターゲート',
   'menu.best':'最高 {n} 面',
   'mode.endless.name':'エンドレス', 'mode.endless.desc':'終わりなき挑戦。盤面が埋まるまでハイスコアを狙おう。',
   'mode.gem.name':'もぐもぐコレクト', 'mode.gem.desc':'どうぶつたちを満腹にすればクリア。盤面が詰まるまで終わらない。どんどん先へ！',
   'mode.balloon.name':'バルーン大脱走', 'mode.balloon.desc':'風船はサボテンめがけて膨らみ続ける。ライン消しで空気を抜こう。面が進むほど加速！',
-  'gear.sound':'サウンド', 'gear.shop':'ショップ', 'gear.skin':'きせかえ', 'gear.home':'メニュー',
+  'gear.sound':'サウンド', 'gear.haptic':'バイブ', 'gear.shop':'ショップ', 'gear.skin':'きせかえ', 'gear.tester':'テスターモード', 'gear.home':'メニュー',
   'side.level':'レベル', 'side.score':'スコア', 'side.best':'ベスト', 'side.hint':'ヒント', 'side.bomb':'ボム', 'side.dm':'💎 ジェム', 'side.gold':'🪙 ゴールド',
   'gear.profile':'アカウント',
   'welcome.title':'パフィーブラストへようこそ！', 'welcome.sub':'まずニックネームを決めよう。世界ランキングで使うよ',
@@ -947,6 +1095,7 @@ const I18N = {
   'profile.renameBtn':'改名', 'profile.renameHint':'初回の名前設定は無料、それ以降は改名カードを消費します',
   'profile.cooldown':'改名カードはクールダウン中（あと{d}日）',
   'login.guest':'ゲストモード', 'login.using':'使用中', 'login.google':'Googleでログイン', 'login.apple':'Appleでログイン', 'login.soon':'近日公開',
+  'lang.title':'🌐 言語を選択', 'lang.using':'使用中',
   'win.title':'🎉 クリア！', 'win.text':'レベル {lv} クリア！スコア {s}　🪙+{n}',
   'win.balloonTitle':'🎈 風船を守った！', 'win.balloonText':'レベル {lv} クリア！サボテンもひと安心（スコア {s}）　🪙+{n}',
   'win.textDefault':'みんな満腹、大満足！', 'win.next':'次のレベル →', 'win.home':'メニューへ',
@@ -982,7 +1131,8 @@ const I18N = {
   'combo.warnGem':'🎈 ギミック面！風船をサボテンに当てないで', 'combo.warn':'🎈 風船をサボテンに当てないで！',
   'combo.noAds':'🚫 広告を永久削除しました！', 'combo.dm':'💎 +{n}！', 'combo.daily':'🎁 デイリーギフト +{n}💎',
   'combo.dmShort':'💎 ジェムが足りません', 'combo.goldShort':'🪙 ゴールドが足りません', 'combo.bomb':'💣 +{n}！', 'combo.aim':'💣 盤面をタップして 3×3 爆破', 'combo.bombRevive':'💣 ボムで復活！',
-  'skin.default':'クラシックゼリー', 'skin.brick':'インダストリアルレンガ', 'skin.wood':'木目', 'skin.marble':'大理石', 'skin.steel':'リベット鋼板', 'skin.knit':'ニット生地',
+  'skin.default':'クラシックゼリー', 'skin.brick':'インダストリアルタイル', 'skin.wood':'木目', 'skin.marble':'大理石', 'skin.steel':'リベット鋼板',
+  'skin.rib':'リブ編み', 'skin.moss':'ガーター編み', 'skin.honeycomb':'ハニカム編み', 'skin.shell':'シェル編み', 'skin.cable':'ケーブル編み',
   'trial.title':'🎁 さっき試したきせかえ、気に入った？',
   'combo.skinBought':'🎉「{n}」を手に入れた！', 'combo.skinEquipped':'🎨「{n}」に着せ替えた',
   'gallery.title':'🎨 きせかえ図鑑', 'gallery.sub':'ステージ中にランダムで素材と遭遇。そのステージに勝てば欠片を獲得、集めれば手に入る',
@@ -1226,17 +1376,34 @@ function gemMaterial(color, materialId){
 }
 
 /* ============================================================
-   ★ v39 方塊材質皮膚（工業風／織布風）
+   ★ v39 方塊材質皮膚（工業風／毛線編織風）
    ─────────────────────────────────────────────
    純 CSS 圖層疊在 gemMaterial 的糖果漸層「之上」，不取代它——
    食物色彩與圖示辨識度完全保留，只是表面多了磚縫/木紋/織理。
    零外部圖片依賴，跟既有的果凍材質哲學一致。
+
+   ★ v44 毛線編織系列：紋理規律取材自真實棒針/鉤針針法的結構特徵
+   （羅紋＝直向凸條、桂花針＝滿版顆粒、蜂巢編＝六角格、貝殼編＝弧形扇貝、
+   麻花＝斜向交叉扭轉），純屬「參考技法的幾何規律重新繪製」，
+   不臨摹任何特定品牌或設計師的成品圖案，跟畫魚形餅乾／香蕉圖示的
+   原創繪製邏輯一致。針法本身（羅紋、桂花、蜂巢、麻花…）是全球通用的
+   傳統工藝技術名詞，非著作權保護標的。
+
+   五款排序皆通過「抹布測試」（縮小到手機方塊尺寸仍可辨識花樣特徵，
+   而非糊成一片無特徵灰布）才收錄；分級依三維評分
+   （辨識度衰減／CSS 實作成本／情緒契合度）：
+   basic：rib（羅紋）、moss（桂花針）——簡潔百搭、實作成本低
+   premium：honeycomb（蜂巢編）、shell（貝殼編）、cable（麻花辮，旗艦款）
+            ——結構複雜、CSS 疊層費工難被抄，溫馨手作感最強
    ============================================================ */
 function materialTexture(id){
   switch(id){
-    case 'brick':   // 工業風：紅磚，水平砌縫 + 交錯直縫
-      return `repeating-linear-gradient(0deg, rgba(0,0,0,.28) 0 2px, rgba(0,0,0,0) 2px 11px),`+
-             `repeating-linear-gradient(90deg, rgba(0,0,0,.20) 0 2px, rgba(0,0,0,0) 2px 50%)`;
+    case 'brick':   // 工業風：磁磚，規則格狀縫線（水平+垂直等距，磁磚鑲嵌感；
+                     // 不叫「紅磚」是刻意的——磚會被玩家預期成紅色，跟七彩方塊衝突，
+                     // 磁磚本身色系自由，名字不會把路堵死）
+      return `repeating-linear-gradient(0deg, rgba(0,0,0,.24) 0 2px, rgba(0,0,0,0) 2px 16px),`+
+             `repeating-linear-gradient(90deg, rgba(0,0,0,.24) 0 2px, rgba(0,0,0,0) 2px 16px),`+
+             `radial-gradient(circle at 30% 26%, rgba(255,255,255,.16) 0%, rgba(255,255,255,0) 40%)`;
     case 'wood':    // 工業風：木板，細密橫向年輪紋理
       return `repeating-linear-gradient(3deg, rgba(60,30,10,.22) 0 1px, rgba(255,220,180,.10) 1px 3px, rgba(60,30,10,0) 3px 7px)`;
     case 'marble':  // 工業風：大理石，斜向雲紋脈絡
@@ -1247,27 +1414,52 @@ function materialTexture(id){
              `radial-gradient(circle at 14% 86%, rgba(0,0,0,.55) 0 2px, rgba(0,0,0,0) 2.6px),`+
              `radial-gradient(circle at 86% 86%, rgba(0,0,0,.55) 0 2px, rgba(0,0,0,0) 2.6px),`+
              `repeating-linear-gradient(0deg, rgba(255,255,255,.14) 0 1px, rgba(0,0,0,0) 1px 3px)`;
-    case 'knit':    // 織布風：毛線編織，雙向交叉織紋
-      return `repeating-linear-gradient(45deg, rgba(255,255,255,.22) 0 2px, rgba(0,0,0,0) 2px 6px),`+
-             `repeating-linear-gradient(-45deg, rgba(0,0,0,.20) 0 2px, rgba(0,0,0,0) 2px 6px)`;
+
+    /* ── 毛線編織系列（basic）── */
+    case 'rib':     // 羅紋針：規則直向凸條，一眼可辨、CSS成本最低（入門款）
+      return `repeating-linear-gradient(90deg, rgba(255,255,255,.24) 0 3px, rgba(0,0,0,.16) 3px 6px)`;
+    case 'moss':    // 桂花針：均勻滿版小顆粒，樸實家常感
+      return `radial-gradient(circle, rgba(0,0,0,.20) 0 1.4px, rgba(255,255,255,0) 1.4px 100%) 0 0/9px 9px,`+
+             `radial-gradient(circle, rgba(255,255,255,.18) 0 1.4px, rgba(255,255,255,0) 1.4px 100%) 4.5px 4.5px/9px 9px`;
+
+    /* ── 毛線編織系列（premium）── */
+    case 'honeycomb': // 蜂巢編：六角格排列，CSS需精算角度、溫暖手作感強
+      return `repeating-linear-gradient(60deg, rgba(0,0,0,.16) 0 1.6px, rgba(0,0,0,0) 1.6px 11px),`+
+             `repeating-linear-gradient(120deg, rgba(0,0,0,.16) 0 1.6px, rgba(0,0,0,0) 1.6px 11px),`+
+             `repeating-linear-gradient(0deg, rgba(255,255,255,.14) 0 1.6px, rgba(0,0,0,0) 1.6px 11px)`;
+    case 'shell':   // 貝殼編：弧形扇貝排列，曲線疊層純CSS最難還原、少女精緻感
+      return `radial-gradient(circle at 50% -30%, rgba(0,0,0,0) 0 56%, rgba(0,0,0,.32) 56% 62%, rgba(255,255,255,.22) 62% 66%, rgba(0,0,0,0) 66% 100%) 0 0/22px 16px,`+
+             `radial-gradient(circle at 50% -30%, rgba(0,0,0,0) 0 56%, rgba(0,0,0,.32) 56% 62%, rgba(255,255,255,.22) 62% 66%, rgba(0,0,0,0) 66% 100%) 11px 8px/22px 16px,`+
+             `radial-gradient(circle at 28% 20%, rgba(255,255,255,.20) 0%, rgba(255,255,255,0) 45%)`;
+    case 'cable':   // 麻花辮（Aran）：旗艦稀有款——立體交叉扭轉紋，多層疊加還原扭辮光影，
+                     // 三維評分（辨識度／CSS成本／情緒契合）皆最高分，編織圈公認經典招牌花樣
+      return `repeating-linear-gradient(55deg, rgba(0,0,0,.24) 0 2px, rgba(0,0,0,0) 2px 5px, rgba(255,255,255,.20) 5px 7px, rgba(0,0,0,0) 7px 12px) 0 0/16px 16px,`+
+             `repeating-linear-gradient(-55deg, rgba(0,0,0,.24) 0 2px, rgba(0,0,0,0) 2px 5px, rgba(255,255,255,.20) 5px 7px, rgba(0,0,0,0) 7px 12px) 8px 0/16px 16px,`+
+             `repeating-linear-gradient(90deg, rgba(0,0,0,.14) 0 1px, rgba(0,0,0,0) 1px 16px)`;
     default: return '';
   }
 }
 
 /* 材質皮膚資料表（商業接口：新增材質只要在這張表加一行 + materialTexture 加一個 case，
    引擎、經濟、圖鑑、試玩流程全部自動生效，不用碰任何其它函式）。
-   basic 只用金幣買（免課金玩家的日常小確幸）；premium 只用鑽石買（課金玩家的稀有邂逅）。 */
+   basic 只用金幣買（免課金玩家的日常小確幸）；premium 只用鑽石買（課金玩家的稀有邂逅）。
+   ★ v44：brick 更名為「工業風(磁磚)」，紋理同步改為格狀磁磚縫（不再是磚牆錯縫），
+   名字與呈現一致；knit 拆分為五款真實編織針法（見上方 materialTexture 排序依據）。 */
 const SKIN_MATERIALS = [
-  { id:'default', tier:'basic',   price:{gold:0},    name:'skin.default', icon:'🟢' },
-  { id:'brick',   tier:'basic',   price:{gold:300},  name:'skin.brick',   icon:'🧱' },
-  { id:'wood',    tier:'basic',   price:{gold:350},  name:'skin.wood',    icon:'🪵' },
-  { id:'marble',  tier:'premium', price:{dm:80},     name:'skin.marble',  icon:'⬜' },
-  { id:'steel',   tier:'premium', price:{dm:80},     name:'skin.steel',   icon:'⚙️' },
-  { id:'knit',    tier:'premium', price:{dm:80},     name:'skin.knit',    icon:'🧶' },
+  { id:'default',   tier:'basic',   price:{gold:0},    name:'skin.default',   icon:'🟢' },
+  { id:'brick',     tier:'basic',   price:{gold:300},  name:'skin.brick',     icon:'🀄' },
+  { id:'wood',      tier:'basic',   price:{gold:350},  name:'skin.wood',      icon:'🪵' },
+  { id:'rib',       tier:'basic',   price:{gold:320},  name:'skin.rib',       icon:'🧣' },
+  { id:'moss',      tier:'basic',   price:{gold:320},  name:'skin.moss',      icon:'🧵' },
+  { id:'marble',    tier:'premium', price:{dm:80},     name:'skin.marble',    icon:'⬜' },
+  { id:'steel',     tier:'premium', price:{dm:80},     name:'skin.steel',     icon:'⚙️' },
+  { id:'honeycomb', tier:'premium', price:{dm:80},     name:'skin.honeycomb', icon:'🐝' },
+  { id:'shell',     tier:'premium', price:{dm:90},     name:'skin.shell',     icon:'🐚' },
+  { id:'cable',     tier:'premium', price:{dm:100},    name:'skin.cable',     icon:'🧶' },
 ];
 function skinDef(id){ return SKIN_MATERIALS.find(s=>s.id===id); }
-/* 目前該用哪個材質渲染：試玩中的關卡優先於玩家已裝備的皮膚 */
-function activeSkinId(){ return trialSkinId || currentSkin; }
+/* 目前該用哪個材質渲染：邂逅試玩 > 輪播算出的皮膚 > 玩家手動裝備的固定皮膚 */
+function activeSkinId(){ return trialSkinId || rotationSkinId || currentSkin; }
 
 /* ============================================================
    音效引擎（Web Audio 即時合成，零外部檔案、零延遲）
@@ -1289,6 +1481,7 @@ function actx(){
    之後包成原生 App（Capacitor 等）可把 haptic() 內部換成原生 Haptics API，iOS 即可補回。 */
 const _isIOS = /iP(hone|ad|od)/.test(navigator.platform) ||
   (navigator.userAgent.includes('Mac') && 'ontouchend' in document); // iPadOS 偽裝成 Mac
+let hapticOn = true;    // ★ v41 震動獨立開關（玩家可省電關震動，不影響音效）
 const hapticConfig = {
   enabled: true,        // 總開關
   onPick: true,         // ★ v22 拿起方塊時震動（手感回饋）
@@ -1301,7 +1494,7 @@ const hapticConfig = {
 };
 // 手機震動（桌機自動忽略；iOS 若確認無效則跳過）
 function haptic(ms){
-  if(!hapticConfig.enabled || !soundOn) return;
+  if(!hapticConfig.enabled || !hapticOn) return;
   if(_isIOS && !hapticConfig.iosVibrateWorks) return;
   if(navigator.vibrate){ navigator.vibrate(ms); }
 }
@@ -2210,10 +2403,16 @@ function attachDrag(el, idx){
     // ★ v27 手感修正：v25 把抬升量縮到約一格，導致高方塊幾乎貼著手指、被指頭壓住，
     // 出現「手指到了、方塊還在下方不動」的錯覺。改回「方塊底緣固定浮在手指上方兩格」，
     // 不論方塊幾格高，指頭下方永遠留兩格淨空、看得到落點，跟手最跟。
-    const liftOffset = (e.pointerType === 'touch')
+    // ★ v42 手感修正：改用「基礎偏移＋動態追加」取代原本的固定值。
+    //   baseOffset＝拿起瞬間的偏移量（維持原本熟悉的手感，不突兀）；
+    //   拖曳過程中手指往上移動得越多，動態追加量跟著放大，方塊被推得更高、
+    //   更不會被指腹擋住視線——這是「跟手指距離會隨拖曳距離拉開」的體感由來，
+    //   數值算法見 moveFloat() 內的 dynamicLift。
+    const baseOffset = (e.pointerType === 'touch')
       ? Math.round(CELL * 1.5)   // ★ v29 觸控：0.7→1.5 格，視覺較舒服；不影響敏銳度（僅視覺偏移）
       : 14;        // 滑鼠：游標細，稍微偏移即可
-    dragState = { idx, p, pw:p.cols*CELL, ph:p.rows*CELL, lastR:null, lastC:null, liftOffset, pid:e.pointerId, el, fp }; // ★ v21 lastR/C
+    dragState = { idx, p, pw:p.cols*CELL, ph:p.rows*CELL, lastR:null, lastC:null,
+      baseOffset, liftOffset:baseOffset, startY:e.clientY, pid:e.pointerId, el, fp }; // ★ v21 lastR/C
     el.classList.add('dragging');
     fp.classList.add('lifted'); // ★ v22 拿起瞬間放大＋陰影，營造「拎起來」的手感
     // ★ v31 真兇：托盤牌 el 用 transform:scale(...) 塞進槽，且左右兩塊縮放比例各不同，
@@ -2233,7 +2432,16 @@ function attachDrag(el, idx){
 
 function moveFloat(x,y){
   const fp=document.getElementById('floatPiece');
-  // ★ v22 方塊浮在手指上方，用 liftOffset 確保完整露出、不被指頭壓住
+  // ★ v42 動態偏移：手指從拿起點往上（或任意方向）移動得越遠，
+  //   方塊被推離手指的距離就跟著放大，模擬同類遊戲「拖得越遠、手感越輕鬆」的體感。
+  //   拿起瞬間（travel=0）維持 baseOffset，不會有起手就跳一大截的突兀感；
+  //   純用垂直位移量 abs(y - startY) 當放大依據——貼合「往上拖」這個最常見的操作方向，
+  //   往下拖也一樣算位移量，避免拖曳距離判斷出現死角。
+  const travel = Math.abs(y - dragState.startY);
+  // 每移動 60px 的拖曳距離，額外多推開約 0.35 個 CELL，並設一個上限（3 個 CELL）
+  // 避免拖到螢幕外緣時方塊被推得太誇張、反而看不到落點。
+  const dynamicLift = Math.min(CELL * 3, travel * 0.35);
+  dragState.liftOffset = dragState.baseOffset + dynamicLift;
   fp.style.left = (x - dragState.pw/2)+'px';
   fp.style.top  = (y - dragState.ph - dragState.liftOffset)+'px';
 }
@@ -2467,6 +2675,18 @@ function anyPlaceable(){
   return false;
 }
 
+/* ★ v47 造一塊乾淨的單格(1x1)救命牌。
+   用途：防死局的最後保底。因為填滿一排就會自動消行，棋盤永遠至少留得下一個 1x1 空格，
+   所以單格牌必定放得下 —— 這是打破軟鎖(soft-lock)的數學保證。
+   刻意不鑲鑽石、不發光，就是一塊最純粹的解圍牌。 */
+function makeSingleCellPiece(){
+  return {
+    cells: [{ r:0, c:0, gem:null, glow:false }],
+    color: pick(PIECE_COLORS),
+    rows: 1, cols: 1, used: false, tier: 'rare'
+  };
+}
+
 function autoShuffleTray(){
   // 重新生成直到至少有一塊可放（最多嘗試 30 次）
   let tries=0;
@@ -2474,6 +2694,12 @@ function autoShuffleTray(){
     trayPieces = trayPieces.map(p=> p.used ? p : makePiece());
     tries++;
   } while(!anyPlaceable() && tries<30);
+  // ★ v47 軟鎖保底：30 次重洗仍全放不下（病態刁鑽盤面），
+  //    強制把第一張「還沒用掉」的牌換成單格救命牌，保證玩家一定能繼續，不會卡死乾瞪眼。
+  if(!anyPlaceable()){
+    const idx = trayPieces.findIndex(p=>!p.used);
+    if(idx >= 0) trayPieces[idx] = makeSingleCellPiece();
+  }
   renderTray();
   showCombo(T('combo.shuffle'));
 }
@@ -2669,6 +2895,41 @@ let rescueUsedThisLevel = false;  // 本關是否用過救援（廣告/炸彈續
 let seenSkins = {};            // 玩家邂逅過的皮膚紀錄 { id: level }，用於圖鑑「第 X 關嚐過」（存檔）
 let skinFragments = {};        // 玩家目前持有的碎片 { id: count }（存檔，集滿會被 grantSkinFragment 自動清空+兌換）
 
+/* ============================================================
+   ★ v46 皮膚輪播（仿音樂播放器：固定／輪播／隨機）
+   ─────────────────────────────────────────────
+   優先權設計（活用既有的 trialSkinId || currentSkin 架構，完全不衝突）：
+     trialSkinId（本關邂逅）→ 永遠最優先，邂逅是稀缺/驚喜體驗，不該被輪播蓋掉
+     rotationSkinId（本關輪播算出來的皮膚）→ 第二優先，只在沒邂逅時生效
+     currentSkin（玩家手動裝備）→ 沒開輪播（fixed）時的預設行為，完全維持原本邏輯
+   輪播只在「玩家擁有 ≥2 款皮膚」時才有意義；只有 1 款時自動視為 fixed，UI 也不必勉強顯示切換動畫。
+   ============================================================ */
+let rotateMode = 'fixed';      // 'fixed' | 'cycle' | 'shuffle'（存檔）
+let rotationSkinId = null;     // 本關輪播/隨機算出來的皮膚 id（session-only，不存檔，每關 startLevel() 時重算）
+let lastShuffleId = null;      // 隨機模式的「避免連續同款」記憶（session-only）
+
+/* 每關開始時推進輪播一步；沒開輪播或皮膚不足 2 款時直接跳過，rotationSkinId 維持 null */
+function advanceSkinRotation(){
+  rotationSkinId = null;
+  if(rotateMode === 'fixed') return;
+  if(ownedSkins.length < 2) return;      // 只有 1 款皮膚時輪播沒意義，安靜跳過
+  if(rotateMode === 'cycle'){
+    // 清單輪播：依 ownedSkins 陣列順序，找到目前 currentSkin 的下一個位置
+    const idx = ownedSkins.indexOf(currentSkin);
+    const nextIdx = (idx >= 0 ? idx + 1 : 0) % ownedSkins.length;
+    rotationSkinId = ownedSkins[nextIdx];
+    currentSkin = rotationSkinId;        // 同步 currentSkin，讓下次「回到固定模式」時停在最後播放的那款，符合直覺
+  } else if(rotateMode === 'shuffle'){
+    // 隨機播放：避免連續兩關抽到同一款（跟音樂 app 的洗牌邏輯一樣，體感比純隨機更好）
+    let pool = ownedSkins.filter(id => id !== lastShuffleId);
+    if(pool.length === 0) pool = ownedSkins;   // 保底：只有 1 款可選時就不避開了
+    rotationSkinId = pool[Math.floor(Math.random() * pool.length)];
+    lastShuffleId = rotationSkinId;
+    currentSkin = rotationSkinId;
+  }
+  saveGame();
+}
+
 /* 每關獨立擲骰：premium 與 basic 分開判定、互斥（premium 優先判），完全不設保底 */
 function rollSkinEncounter(){
   const premiumPool = SKIN_MATERIALS.filter(s=>s.tier==='premium');
@@ -2682,10 +2943,11 @@ function rollSkinEncounter(){
   return null;
 }
 
-/* 關卡開始時擲骰是否觸發邂逅；同時重置本關的救援旗標 */
+/* 關卡開始時擲骰是否觸發邂逅；同時重置本關的救援旗標，並推進皮膚輪播 */
 function checkSkinTrial(){
   trialSkinId = null;
   rescueUsedThisLevel = false;                   // ★ v40 新關卡重新計算，救援與否只看「這關」
+  advanceSkinRotation();                         // ★ v46 輪播/隨機先算好本關要穿哪款（邂逅命中的話下面會蓋掉它，正是設計要的優先權）
   if(currentMode!=='gem') return;                // 目前只在闖關模式（gem）觸發
   if(level<=1) return;
   const picked = rollSkinEncounter();
@@ -2909,7 +3171,7 @@ function refreshEconomyUI(){
   set('menuNameVal', playerName || randomName());
   // 每日禮物未領 → 齒輪、商店項目、選單膠囊亮紅點（把人釣進商店）
   const on = dailyAvailable();
-  ['gearDot','shopItemDot','menuDmDot'].forEach(id=>{
+  ['gearDot','shopItemDot','menuDmDot','menuGearDot'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.classList.toggle('on', on);
   });
   renderShopStates();
@@ -2917,16 +3179,16 @@ function refreshEconomyUI(){
 
 /* ===== 商店開關（開商店 = 暫停氣球，跟齒輪選單同一套凍結禮儀） ===== */
 function openShop(){
-  cancelBombAim();
+  if(currentMode) cancelBombAim();
   closeGear();
-  HZ.paused = true;
+  if(currentMode) HZ.paused = true;   // ★ v45 選單頁（尚未進對局）沒有 HZ 引擎，跳過凍結
   renderShopStates();
   document.getElementById('shopOverlay').classList.add('show');
 }
 function closeShop(){
   document.getElementById('shopOverlay').classList.remove('show');
   // 解凍禮儀：失敗視窗或齒輪選單還開著就不放氣球出來（沿用 v35 規則）
-  if(!document.getElementById('loseOverlay').classList.contains('show')
+  if(currentMode && !document.getElementById('loseOverlay').classList.contains('show')
      && !document.getElementById('gearMenu').classList.contains('show')) HZ.paused = false;
 }
 
@@ -2935,26 +3197,29 @@ function closeShop(){
    ============================================================ */
 function openSkinGallery(){
   closeGear();
-  HZ.paused = true;
+  if(currentMode) HZ.paused = true;   // ★ v45 選單頁沒有 HZ 引擎，跳過凍結
   renderSkinGallery();
   document.getElementById('skinGalleryOverlay').classList.add('show');
 }
 function closeSkinGallery(){
   document.getElementById('skinGalleryOverlay').classList.remove('show');
-  if(!document.getElementById('loseOverlay').classList.contains('show')
+  if(currentMode && !document.getElementById('loseOverlay').classList.contains('show')
      && !document.getElementById('gearMenu').classList.contains('show')) HZ.paused = false;
 }
 function renderSkinGallery(){
   const gg = document.getElementById('gallGold'); if(gg) gg.textContent = goldCoin;
   const gd = document.getElementById('gallDm');   if(gd) gd.textContent = diamonds;
+  renderRotateModes();          // ★ v46 播放模式列（固定／輪播／隨機）
   const grid = document.getElementById('skinGrid');
   if(!grid) return;
   grid.innerHTML = SKIN_MATERIALS.map(s=>{
     const owned = ownedSkins.includes(s.id);
     const seenAt = seenSkins[s.id];
     const equipped = currentSkin === s.id;
+    const inRotation = rotateMode !== 'fixed' && owned && rotationSkinId === s.id;   // ★ v46 本關輪播剛好選中這款
     if(owned){
-      return `<div class="skin-card owned${equipped?' equipped':''}">
+      return `<div class="skin-card owned${equipped?' equipped':''}${inRotation?' in-rotation':''}">
+        ${inRotation?'<span class="sc-rotate-tag">🎵 輪播中</span>':''}
         <div class="sc-swatch" style="background:${gemMaterial('#7ba9e0', s.id)}"></div>
         <div class="sc-name">${T(s.name)}</div>
         <button class="shop-buy${equipped?' owned-tag':''}" data-equip="${s.id}" ${equipped?'disabled':''}>${equipped?T('gallery.equipped'):T('gallery.equip')}</button>
@@ -2995,6 +3260,153 @@ function renderSkinGallery(){
     btn.onclick = ()=>{ buyFragmentPack(btn.dataset.fragbuy, btn.dataset.fragcurr); };
   });
 }
+
+/* ============================================================
+   ★ v46 皮膚輪播模式列（固定／輪播／隨機）
+   點下去立刻切換並存檔；輪播/隨機模式的效果要等「下一關」才會實際套用
+   （因為 rotationSkinId 是 startLevel()→checkSkinTrial() 時才重算的），
+   但玩家點下去要能馬上感受到「選到了」的回饋，所以按鈕狀態與提示文字即時反映。
+   ============================================================ */
+function renderRotateModes(){
+  const box = document.getElementById('rotateModes');
+  const hint = document.getElementById('rotateHint');
+  if(!box) return;
+  box.querySelectorAll('.rotate-mode-btn').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.rmode === rotateMode);
+  });
+  if(hint){
+    if(ownedSkins.length < 2){
+      hint.textContent = '再收集 1 款以上的皮膚，就能開啟輪播／隨機播放囉！';
+    } else if(rotateMode === 'fixed'){
+      hint.textContent = '目前固定使用你手動裝備的皮膚。切到輪播或隨機，每過一關就會自動換一款。';
+    } else if(rotateMode === 'cycle'){
+      hint.textContent = '輪播中：依收藏順序，每過一關自動換下一款。邂逅到新款材質時優先蓋過輪播。';
+    } else {
+      hint.textContent = '隨機播放中：每過一關隨機抽一款（不連續同款）。邂逅到新款材質時優先蓋過隨機結果。';
+    }
+  }
+}
+function setRotateMode(mode){
+  if(rotateMode === mode) return;
+  rotateMode = mode;
+  if(mode === 'fixed') rotationSkinId = null;   // 切回固定 → 立刻停用輪播覆蓋，改回 currentSkin
+  saveGame();
+  renderRotateModes();
+  renderSkinGallery();
+  renderBoard(); renderTray();   // 若正在對局中，切模式要馬上反映在盤面上
+  showCombo(mode==='fixed' ? '📌 已切換為固定皮膚' : mode==='cycle' ? '🔁 已開啟輪播播放' : '🔀 已開啟隨機播放');
+}
+document.querySelectorAll('.rotate-mode-btn').forEach(btn=>{
+  btn.onclick = ()=> setRotateMode(btn.dataset.rmode);
+});
+
+/* ============================================================
+   ★ v45 測試員模式：開發者／私人測試員（老婆）專用面板
+   ─────────────────────────────────────────────
+   跟正式商業機制完全共用底層資料（SKIN_MATERIALS / ownedSkins / ECON），
+   只是提供「繞過機率鎖、一鍵擁有」的捷徑按鈕，方便快速評分美術與手感，
+   不新增任何獨立資料表，未來新皮膚只要進 SKIN_MATERIALS 就自動出現在這裡。
+   ============================================================ */
+function openTesterPanel(){
+  closeGear();
+  if(currentMode) HZ.paused = true;
+  renderTesterPanel();
+  document.getElementById('testerOverlay').classList.add('show');
+}
+function closeTesterPanel(){
+  document.getElementById('testerOverlay').classList.remove('show');
+  if(currentMode && !document.getElementById('loseOverlay').classList.contains('show')
+     && !document.getElementById('gearMenu').classList.contains('show')) HZ.paused = false;
+}
+function renderTesterPanel(){
+  const countEl = document.getElementById('testerSkinCount');
+  if(countEl) countEl.textContent = SKIN_MATERIALS.length;
+
+  const list = document.getElementById('testerSkinList');
+  if(list){
+    list.innerHTML = SKIN_MATERIALS.map(s=>{
+      const owned = ownedSkins.includes(s.id);
+      const tierTag = s.tier==='premium' ? '💎 進階' : '🪙 基礎';
+      return `<div class="shop-item">
+        <span class="si-ic">${s.icon}</span>
+        <div class="si-info">
+          <div class="si-name">${T(s.name)}${owned?'<span class="tester-check">✓ 已擁有</span>':''}</div>
+          <div class="si-desc">${tierTag}${s.id==='default'?'（預設，永久擁有）':''}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  const unlockBtn = document.getElementById('testerUnlockSkinsBtn');
+  if(unlockBtn){
+    const allOwned = SKIN_MATERIALS.every(s=>ownedSkins.includes(s.id));
+    unlockBtn.classList.toggle('done', allOwned);
+    unlockBtn.textContent = allOwned
+      ? '✓ 全部皮膚已擁有（可直接去換膚頁試用）'
+      : '🎨 一鍵解鎖全部皮膚（自己先擁有再評分）';
+  }
+}
+/* 一鍵讓開發者/測試員擁有全部皮膚：跳過邂逅機率與付費，直接塞進 ownedSkins。
+   不影響一般玩家的機率/定價邏輯 —— 純測試工具，只有這顆按鈕會呼叫它。 */
+function testerUnlockAllSkins(){
+  let added = 0;
+  SKIN_MATERIALS.forEach(s=>{
+    if(!ownedSkins.includes(s.id)){ ownedSkins.push(s.id); added++; }
+    delete skinFragments[s.id];              // 清掉殘留碎片進度，狀態保持乾淨
+    if(!seenSkins[s.id]) seenSkins[s.id] = level || 1;   // 圖鑑也順便標記「見過」，不留鎖頭問號
+  });
+  saveGame(); refreshEconomyUI(); renderTesterPanel();
+  showCombo(added > 0 ? `🎉 已解鎖 ${added} 款新皮膚，全部到齊！` : '本來就全部擁有囉～');
+}
+/* 補滿資源：純測試用，方便反覆試買、試邂逅、試炸彈救援，不用一直等或課金。
+   不接 IAP、不動 firstPurchaseUsed 等正式商業旗標，避免污染上線後的真實數據。 */
+function testerRefillResources(){
+  goldCoin = Math.max(goldCoin, 99999);
+  diamonds = Math.max(diamonds, 9999);
+  bombCount = Math.max(bombCount, 99);
+  saveGame(); refreshEconomyUI(); renderTesterPanel();
+  showCombo('💰 金幣／鑽石／炸彈已補滿，儘管測！');
+}
+document.getElementById('testerBtn').onclick = openTesterPanel;
+document.getElementById('testerCloseBtn').onclick = closeTesterPanel;
+document.getElementById('testerUnlockSkinsBtn').onclick = testerUnlockAllSkins;
+document.getElementById('testerGiveResourceBtn').onclick = testerRefillResources;
+
+/* ★ v47 測試員模式暗門：連點主選單版本號 7 下解鎖（仿 Android 開發者模式慣例）。
+   ─ 一般玩家不會想到去連點版本號，等於天然隱藏；開發者自己好記。
+   ─ 解鎖狀態存進 localStorage，解鎖過一次後這台裝置就一直顯示測試員按鈕，
+     不必每次重點（開發者體驗優先）；玩家若真誤觸，也只是多一個按鈕，仍需自行進入才生效。 */
+(function(){
+  const TESTER_UNLOCK_KEY = 'puffyblast_tester_unlocked';
+  const footer = document.getElementById('footerNote');
+  const testerBtn = document.getElementById('testerBtn');
+  // 開機時：若這台裝置先前已解鎖，直接顯示測試員按鈕
+  try{
+    if(localStorage.getItem(TESTER_UNLOCK_KEY) === '1' && testerBtn){
+      testerBtn.style.display = '';
+    }
+  }catch(e){}
+  if(!footer || !testerBtn) return;
+  let tapCount = 0, tapTimer = null;
+  const NEED = 7, WINDOW_MS = 3000;   // 3 秒內連點 7 下
+  footer.style.cursor = 'default';    // 不露痕跡：外觀維持一般版本號
+  footer.addEventListener('click', ()=>{
+    tapCount++;
+    clearTimeout(tapTimer);
+    tapTimer = setTimeout(()=>{ tapCount = 0; }, WINDOW_MS);   // 超時歸零，避免慢點誤觸
+    // 剩 3 下內給一點回饋，讓開發者知道快到了（一般玩家點到這通常是故意的）
+    if(tapCount >= NEED - 3 && tapCount < NEED){
+      showCombo(`測試員模式：再點 ${NEED - tapCount} 下`);
+    }
+    if(tapCount >= NEED){
+      tapCount = 0;
+      clearTimeout(tapTimer);
+      testerBtn.style.display = '';
+      try{ localStorage.setItem(TESTER_UNLOCK_KEY, '1'); }catch(e){}
+      showCombo('🧪 測試員模式已解鎖（齒輪選單內）');
+    }
+  });
+})();
 
 /* 商店內所有按鈕的即時狀態（買得起/買不起/已領/已擁有） */
 function renderShopStates(){
@@ -3239,7 +3651,9 @@ function saveGame(){
     const data = {
       bestScore, maxLevelReached, maxBalloonLevel, isPremium,
       ownedSkins, currentSkin, seenSkins, skinFragments, soundOn,
+      rotateMode,                            // ★ v46 皮膚輪播模式偏好
       hapticEnabled: hapticConfig.enabled,
+      hapticOn,                              // ★ v41 玩家的震動開關偏好
       diamonds, bombCount, lastDailyClaim,   // ★ v36 經濟系統（買了東西重開失效 = 客訴，必存）
       goldCoin, adGoldDate, adGoldCount, firstPurchaseUsed, playerName, lastRenameAt,   // ★ v37 雙貨幣＋暱稱（含改名卡冷卻）
       lang,                                  // ★ v36 語言偏好
@@ -3261,8 +3675,10 @@ function loadGame(){
     if(typeof d.currentSkin==='string')     currentSkin = d.currentSkin;
     if(d.seenSkins && typeof d.seenSkins==='object') seenSkins = d.seenSkins;         // ★ v39
     if(d.skinFragments && typeof d.skinFragments==='object') skinFragments = d.skinFragments; // ★ v40
+    if(d.rotateMode==='fixed' || d.rotateMode==='cycle' || d.rotateMode==='shuffle') rotateMode = d.rotateMode;   // ★ v46
     if(typeof d.soundOn==='boolean')        soundOn = d.soundOn;
     if(typeof d.hapticEnabled==='boolean')  hapticConfig.enabled = d.hapticEnabled;
+    if(typeof d.hapticOn==='boolean')       hapticOn = d.hapticOn;   // ★ v41
     if(typeof d.diamonds==='number')        diamonds  = Math.max(0, Math.floor(d.diamonds));   // ★ v36
     if(typeof d.bombCount==='number')       bombCount = Math.max(0, Math.floor(d.bombCount));  // ★ v36
     if(typeof d.lastDailyClaim==='string')  lastDailyClaim = d.lastDailyClaim;                 // ★ v36
@@ -3453,13 +3869,15 @@ document.getElementById('hintBtn').onclick = ()=>{ closeGear(); watchAdForHint()
 
 /* ===== 齒輪收納選單開關（點齒輪展開，點外面或選項收起）===== */
 function openGear(){
-  HZ.paused = true;    // ★ v35 開設定選單 = 暫停氣球（玩家調音效不該被扣血）
+  // ★ v45 只有已經進對局（currentMode 有值、HZ 引擎才存在）才需要暫停氣球；
+  //   選單頁按齒輪時 currentMode 是 null，直接跳過，避免對還沒建立的 HZ 動手。
+  if(currentMode) HZ.paused = true;    // ★ v35 開設定選單 = 暫停氣球（玩家調音效不該被扣血）
   document.getElementById('gearMenu').classList.add('show');
   document.getElementById('gearBackdrop').classList.add('show');
 }
 function closeGear(){
   // 解凍前先確認失敗視窗沒開著 —— 從失敗視窗上開齒輪再關，不能把氣球放出來
-  if(!document.getElementById('loseOverlay').classList.contains('show')) HZ.paused = false;
+  if(currentMode && !document.getElementById('loseOverlay').classList.contains('show')) HZ.paused = false;
   document.getElementById('gearMenu').classList.remove('show');
   document.getElementById('gearBackdrop').classList.remove('show');
 }
@@ -3470,6 +3888,26 @@ document.getElementById('gearBtn').onclick = (e)=>{
 };
 document.getElementById('gearBackdrop').onclick = closeGear;
 
+/* ★ v45 開場選單齒輪：同一顆 #gearMenu 節點借過來用，
+   按下時把它從 .gear-wrap（對局用）搬到 .menu-gear-wrap（選單用），
+   關閉/離開選單時不用搬回去也沒差，因為下次進對局畫面會由 goHome()/選模式流程再搬回原位。 */
+document.getElementById('menuGearBtn').onclick = (e)=>{
+  e.stopPropagation();
+  const menu = document.getElementById('gearMenu');
+  const menuWrap = document.getElementById('menuGearWrap');
+  if(menu.parentElement !== menuWrap) menuWrap.appendChild(menu);
+  const open = menu.classList.contains('show');
+  open ? closeGear() : openGear();
+};
+/* 從主選單開的齒輪，收起時要把節點放回 .gear-wrap，下次進對局才找得到它 */
+const _origCloseGear = closeGear;
+closeGear = function(){
+  _origCloseGear();
+  const menu = document.getElementById('gearMenu');
+  const gearWrap = document.querySelector('.gear-wrap');
+  if(gearWrap && menu.parentElement !== gearWrap) gearWrap.appendChild(menu);
+};
+
 // 音效開關：收在齒輪選單裡，圖示即時反映開/關狀態
 document.getElementById('soundBtn').onclick = function(){
   soundOn = !soundOn;
@@ -3477,6 +3915,17 @@ document.getElementById('soundBtn').onclick = function(){
   this.style.opacity = soundOn ? '1' : '.55';
   if(soundOn){ actx(); playCrack(); }   // 開啟時解鎖音訊 + 試聽一聲
   saveGame();                            // ★ v21 記住玩家的音效偏好
+};
+
+// ★ v41 震動開關：獨立於音效之外，玩家可單獨關閉省電，圖示固定不變、用紅線劃掉表示關閉（避免 emoji 字型跨平台失真）
+document.getElementById('hapticBtn').onclick = function(){
+  hapticOn = !hapticOn;
+  const ic = this.querySelector('.gm-ic');
+  ic.textContent = '📳';
+  ic.classList.toggle('ic-off', !hapticOn);
+  this.style.opacity = hapticOn ? '1' : '.55';
+  if(hapticOn){ haptic(22); }            // 開啟時試震一下，讓玩家立即感受到
+  saveGame();                            // 記住玩家的震動偏好
 };
 // 換膚（商業接口，開發中）
 document.getElementById('skinBtn').onclick = openSkinGallery;
@@ -3499,6 +3948,8 @@ function applyLang(){
   document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ el.placeholder = T(el.dataset.i18nPh); });   // ★ v37
   const ln = document.getElementById('langName');
   if(ln) ln.textContent = I18N[lang]._name;
+  renderLangList();   // ★ v43 語言彈窗清單同步刷新（使用中標籤跟著換）
+  if(document.getElementById('welcomeLangRow')) renderWelcomeLangRow();   // ★ v44 開場語言快選列同步刷新（active 狀態跟著換）
   // 複合元素：帶內嵌 span 的行，整段重組
   const own = document.getElementById('shopOwnLine');
   if(own) own.innerHTML = T('shop.own', {n:`<span id="shopBomb">${bombCount}</span>`});
@@ -3516,12 +3967,51 @@ function applyLang(){
   if(document.getElementById('loseOverlay').classList.contains('show')) refreshReviveBtn();
 }
 
-/* 語言切換鈕：循環三語，即時全站刷新並存檔（選單保持開啟，方便連按預覽） */
-document.getElementById('langBtn').onclick = ()=>{
-  lang = LANGS[(LANGS.indexOf(lang)+1) % LANGS.length];
-  applyLang();
-  saveGame();
-};
+/* ============================================================
+   ★ v43 語言選單：地球圖示 🌐 → 彈出清單，玩家自選（通用 App 標準行為）
+   ─────────────────────────────────────────────
+   • renderLangList()：依 LANGS 動態畫出每個語言選項，當前語言標「使用中」
+   • openLangMenu()：關閉齒輪選單，開語言彈窗
+   • selectLang(code)：真正切換語言 + 存檔 + 關彈窗，若選的就是目前語言則只關窗不重繪
+   ============================================================ */
+const LANG_ICON = { 'zh-Hant':'🇹🇼', 'en':'🇺🇸', 'ja':'🇯🇵' };   // 各語言的小圖示
+
+function renderLangList(){
+  const box = document.getElementById('langList');
+  if(!box) return;
+  box.innerHTML = LANGS.map(code=>{
+    const active = code === lang;
+    return `<button class="lang-item${active ? ' active' : ''}" data-lang="${code}">
+      <span class="li-ic">${LANG_ICON[code] || '🌐'}</span>
+      <span class="li-name">${I18N[code]._name}</span>
+      <span class="li-tag">${active ? T('lang.using') : ''}</span>
+    </button>`;
+  }).join('');
+  box.querySelectorAll('.lang-item').forEach(btn=>{
+    btn.onclick = ()=> selectLang(btn.dataset.lang);
+  });
+}
+
+function openLangMenu(){
+  document.getElementById('gearMenu').classList.remove('show');   // 先收起齒輪選單，避免疊窗
+  renderLangList();
+  document.getElementById('langOverlay').classList.add('show');
+}
+function closeLangMenu(){
+  document.getElementById('langOverlay').classList.remove('show');
+}
+function selectLang(code){
+  if(!LANGS.includes(code)) return;
+  if(code !== lang){
+    lang = code;
+    applyLang();     // 全站文字即時刷新（含 langList 自己，因為 applyLang 會呼叫 renderLangList）
+    saveGame();
+  }
+  closeLangMenu();
+}
+
+document.getElementById('langBtn').onclick   = openLangMenu;
+document.getElementById('langCloseBtn').onclick = closeLangMenu;
 
 document.getElementById('shopBtn').onclick   = ()=> openShop();                 // 齒輪 → 商店
 document.getElementById('menuDm').onclick    = ()=> openShop();                 // 主選單鑽石膠囊 → 商店
@@ -3579,6 +4069,17 @@ loadGame();
     sb.querySelector('.gm-ic').textContent = soundOn ? '🔊' : '🔇';
     sb.style.opacity = soundOn ? '1' : '.55';
   }
+  const hb = document.getElementById('hapticBtn');   // ★ v41
+  if(hb){
+    if(_isIOS && !hapticConfig.iosVibrateWorks){
+      hb.style.display = 'none';   // iOS 網頁版本來就震不了，藏起來避免玩家按了沒反應而困惑
+    }else{
+      const ic = hb.querySelector('.gm-ic');
+      ic.textContent = '📳';
+      ic.classList.toggle('ic-off', !hapticOn);
+      hb.style.opacity = hapticOn ? '1' : '.55';
+    }
+  }
   refreshMenuBadges();   // ★ v33
   applyLang();           // ★ v36 讀完存檔才套語言（內含經濟 UI 與每日紅點刷新）
 })();
@@ -3589,9 +4090,26 @@ loadGame();
    變數預設值發放（跟舊存檔玩家不會衝突，因為 loadGame 讀到值就覆蓋）；
    這個視窗只負責「讓玩家看見禮包、順手取個名字」。
    ============================================================ */
+/* ★ v44 開場語言快選列：跟齒輪選單裡的 renderLangList 用同一套資料（LANGS/I18N/lang），
+   只是渲染成緊湊的膠囊列，塞進歡迎視窗最上方。點了直接呼叫既有的 selectLang()，
+   全站文字（含這個視窗自己）立刻刷新，不用重寫任何切換邏輯。 */
+function renderWelcomeLangRow(){
+  const box = document.getElementById('welcomeLangRow');
+  if(!box) return;
+  box.innerHTML = LANGS.map(code=>{
+    const active = code === lang;
+    return `<button class="wm-lang-chip${active ? ' active' : ''}" data-lang="${code}">
+      <span class="ic">${LANG_ICON[code] || '🌐'}</span><span>${I18N[code]._name}</span>
+    </button>`;
+  }).join('');
+  box.querySelectorAll('.wm-lang-chip').forEach(btn=>{
+    btn.onclick = ()=> selectLang(btn.dataset.lang);
+  });
+}
 if(isFirstLaunch){
   const ni = document.getElementById('nameInput');
   ni.value = '';
+  renderWelcomeLangRow();
   document.getElementById('welcomeOverlay').classList.add('show');
 }
 document.getElementById('welcomeStartBtn').onclick = ()=>{
@@ -3608,13 +4126,13 @@ document.getElementById('welcomeStartBtn').onclick = ()=>{
 function openProfile(){
   closeGear();
   document.getElementById('profileNameInput').value = playerName || randomName();
-  HZ.paused = true;
+  if(currentMode) HZ.paused = true;   // ★ v45 選單頁沒有 HZ 引擎，跳過凍結
   document.getElementById('profileOverlay').classList.add('show');
   refreshRenameUI();
 }
 function closeProfile(){
   document.getElementById('profileOverlay').classList.remove('show');
-  if(!document.getElementById('loseOverlay').classList.contains('show')
+  if(currentMode && !document.getElementById('loseOverlay').classList.contains('show')
      && !document.getElementById('gearMenu').classList.contains('show')) HZ.paused = false;
 }
 document.getElementById('menuName').onclick   = openProfile;
