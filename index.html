@@ -150,6 +150,45 @@
     40%{ transform:translate(3px,-2px); } 60%{ transform:translate(-2px,1px); }
     80%{ transform:translate(2px,-1px); } 100%{ transform:translate(0,0); }
   }
+  /* ★ v48 ① 情緒讚美字：依「一次消幾行」分級跳大字（2行GREAT/3行FANTASTIC/4行UNBELIEVABLE）。
+     整層 pointer-events:none —— 它是煙火，不是彈窗，玩家手指照樣拖方塊。 */
+  #praise { position:fixed; top:32%; left:50%; z-index:930; pointer-events:none;
+    transform:translateX(-50%); text-align:center; opacity:0; }
+  #praise .p-word { font-size:50px; font-weight:900; letter-spacing:2px; line-height:1; white-space:nowrap;
+    background:var(--praise-grad, linear-gradient(180deg,#fff,#ffd54f));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    filter:drop-shadow(0 3px 0 rgba(0,0,0,.30)) drop-shadow(0 7px 14px rgba(0,0,0,.35)); }
+  #praise .p-sub { margin-top:6px; font-size:21px; font-weight:900; color:#fff;
+    text-shadow:0 2px 6px rgba(0,0,0,.5); }
+  #praise img.p-animal { width:84px; height:84px; margin-bottom:2px;
+    filter:drop-shadow(0 4px 8px rgba(0,0,0,.35));
+    animation:praiseAnimal .9s cubic-bezier(.34,1.56,.64,1) both; }
+  #praise.show { animation:praisePop 1.05s cubic-bezier(.22,.9,.32,1) forwards; }
+  @keyframes praisePop {
+    0%{opacity:0; transform:translateX(-50%) scale(.3) rotate(-6deg);}
+    20%{opacity:1; transform:translateX(-50%) scale(1.18) rotate(2deg);}
+    36%{transform:translateX(-50%) scale(.96) rotate(0deg);}
+    50%{transform:translateX(-50%) scale(1.04);}
+    78%{opacity:1; transform:translateX(-50%) scale(1);}
+    100%{opacity:0; transform:translateX(-50%) scale(1) translateY(-46px);} }
+  @keyframes praiseAnimal {
+    0%{transform:translateY(26px) scale(.4);} 60%{transform:translateY(-6px) scale(1.08);}
+    100%{transform:translateY(0) scale(1);} }
+
+  /* ★ v48 ② 消行「垮掉掉落」：被消掉的方塊不再原地縮小消失，
+     而是複製成獨立浮層 → 微微上拋 → 帶旋轉翻滾、受重力加速墜出畫面。
+     cubic-bezier(.34,.03,.74,.32) = 前慢後快的重力加速曲線。 */
+  .fall-block { position:fixed; z-index:945; pointer-events:none; border-radius:3px;
+    will-change:transform,opacity;
+    animation:fallBlock var(--fb-dur,.72s) cubic-bezier(.34,.03,.74,.32) var(--fb-delay,0s) forwards; }
+  .fall-block .filled { border-radius:3px; }
+  @keyframes fallBlock {
+    0%   { transform:translate(0,0) rotate(0deg); opacity:1; }
+    16%  { transform:translate(calc(var(--fb-dx,0px) * .25), -12px) rotate(calc(var(--fb-rot,180deg) * .18)); }
+    85%  { opacity:1; }
+    100% { transform:translate(var(--fb-dx,0px), var(--fb-fall,600px)) rotate(var(--fb-rot,180deg)); opacity:0; }
+  }
+
   /* ★ v38 氣球爆炸：全螢幕白閃 + 更強的鏡頭震動，讓「災難級」的爆炸份量感傳到整個畫面 */
   .hz-flash { position:fixed; inset:0; z-index:1080; pointer-events:none; background:#fff;
     opacity:0; animation:hzFlash .5s ease-out forwards; }
@@ -580,7 +619,7 @@
     </span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v39・胖嘟嘟消消樂・皮膚試玩＋圖鑑＋雙貨幣經濟</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v48・胖嘟嘟消消樂・情緒回饋包：讚美字＋崩落特效</div>
 </div>
 
 <div id="app">
@@ -644,6 +683,8 @@
 
 <div id="floatPiece"></div>
 <div id="combo"></div>
+<!-- ★ v48 情緒讚美字容器：大字＋動物道謝，pointer-events:none 絕不擋操作 -->
+<div id="praise"></div>
 
 <div class="overlay" id="winOverlay">
   <div class="modal">
@@ -936,7 +977,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'胖嘟嘟消消樂', 'menu.tagline':'放方塊・消整排・餵飽胖嘟嘟',
-  'menu.footer':'v47・胖嘟嘟消消樂・防死局保底＋測試員暗門',
+  'menu.footer':'v48・胖嘟嘟消消樂・情緒回饋包：讚美字＋崩落特效',
   'menu.best':'最高 {n} 關',
   'mode.endless.name':'無盡模式', 'mode.endless.desc':'沒有終點，放到沒空間為止。挑戰你的最高分。',
   'mode.gem.name':'胖嘟嘟收集', 'mode.gem.desc':'餵飽三隻胖嘟嘟就過關，盤面塞滿才結束，一關接一關往下闖。',
@@ -1008,7 +1049,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'PuffyBlast', 'menu.tagline':'Drop blocks, clear lines, feed the puffies!',
-  'menu.footer':'v47 · PuffyBlast · Soft-lock Safeguard + Tester Gate',
+  'menu.footer':'v48 · PuffyBlast · Juice Pack: Praise + Collapse FX',
   'menu.best':'Best: Lv {n}',
   'mode.endless.name':'Endless', 'mode.endless.desc':'No finish line — play until the board fills up. Chase your high score.',
   'mode.gem.name':'Puffy Collect', 'mode.gem.desc':'Feed the puffies to clear each level. You only lose when the board jams. Level after level!',
@@ -1080,7 +1121,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'パフィーブラスト', 'menu.tagline':'ブロックを置いて、ライン消して、もぐもぐタイム！',
-  'menu.footer':'v47・パフィーブラスト・詰み防止＋テスターゲート',
+  'menu.footer':'v48・パフィーブラスト・演出強化：称賛＋崩落エフェクト',
   'menu.best':'最高 {n} 面',
   'mode.endless.name':'エンドレス', 'mode.endless.desc':'終わりなき挑戦。盤面が埋まるまでハイスコアを狙おう。',
   'mode.gem.name':'もぐもぐコレクト', 'mode.gem.desc':'どうぶつたちを満腹にすればクリア。盤面が詰まるまで終わらない。どんどん先へ！',
@@ -1589,6 +1630,72 @@ function spawnPopRing(cellEl, color){
   ring.style.setProperty('--ring-color', color || '#fff');
   document.body.appendChild(ring);
   setTimeout(()=> ring.remove(), 480);
+}
+
+// ★ v48 ②「垮掉掉落」：把被消掉的方塊 cloneNode 成獨立浮層（掛 body、position:fixed），
+//    帶隨機水平漂移＋旋轉方向/圈數，微上拋後受重力加速墜出畫面底部再淡出。
+//    用「複製 DOM 節點」而非重畫背景 —— 皮膚材質、食物圖示、發光狀態原封不動跟著掉，
+//    現有與未來所有皮膚全部自動生效，零額外維護成本。
+//    純視覺浮層：消行判定、renderBoard、計分一行未動，與核心引擎完全解耦。
+function spawnFallBlock(cellHost, delayMs){
+  const filled = cellHost && cellHost.querySelector('.filled');
+  if(!filled) return;
+  const rect = cellHost.getBoundingClientRect();
+  const wrap = document.createElement('div');
+  wrap.className = 'fall-block';
+  wrap.style.left = rect.left+'px';  wrap.style.top = rect.top+'px';
+  wrap.style.width = rect.width+'px'; wrap.style.height = rect.height+'px';
+  const dx   = (Math.random()*72 - 36).toFixed(0) + 'px';                          // 左右隨機漂移
+  const rot  = ((Math.random()<0.5?-1:1)*(140+Math.random()*260)).toFixed(0)+'deg'; // 隨機翻滾方向與圈數
+  const fall = ((window.innerHeight||800) - rect.top + 80).toFixed(0) + 'px';       // 保證墜出畫面底部
+  const dur  = (0.62 + Math.random()*0.22).toFixed(2) + 's';                        // 每塊時長微差，崩得更自然
+  wrap.style.setProperty('--fb-dx', dx);
+  wrap.style.setProperty('--fb-rot', rot);
+  wrap.style.setProperty('--fb-fall', fall);
+  wrap.style.setProperty('--fb-dur', dur);
+  wrap.style.setProperty('--fb-delay', (delayMs/1000).toFixed(2)+'s');
+  wrap.appendChild(filled.cloneNode(true));   // 材質/食物/發光整包帶走
+  document.body.appendChild(wrap);
+  filled.style.visibility = 'hidden';         // 原格立即隱形，視覺交棒給掉落分身，不會出現雙胞胎
+  setTimeout(()=> wrap.remove(), delayMs + 1100);
+}
+
+/* ★ v48 ① 情緒讚美字分級表：依「這一步一次消掉幾行」決定跳什麼字。
+   1 行不跳大字 —— 碎裂＋崩落＋音效已是節奏骨架，天天喊「太棒了」反而廉價；
+   2 行起才是值得慶祝的操作，字級與色彩隨行數升級，製造情緒階梯。
+   讚美詞刻意用英文：全球玩家通用的遊戲語彙（同類頂級作品皆如此），不進 I18N 表。 */
+const PRAISE_TIERS = [
+  null,                                                            // 1 行：不跳
+  { word:'GREAT!',        grad:'linear-gradient(180deg,#e3f6ff,#4fc3f7)' },   // 2 行：清爽藍
+  { word:'FANTASTIC!',    grad:'linear-gradient(180deg,#fff6d8,#ffb300)' },   // 3 行：燦金
+  { word:'UNBELIEVABLE!', grad:'linear-gradient(180deg,#ffe0f3,#e040fb)' },   // 4 行以上：華麗紫
+];
+function showPraise(lines, animalKey){
+  const tier = PRAISE_TIERS[Math.min(Math.max(lines,1),4) - 1];
+  if(!tier) return;
+  const el = document.getElementById('praise');
+  if(!el) return;
+  // 3 行以上 = 高光時刻：這次消除「吃到最多食物」的動物跳出來道謝（複用現成 ASSETS.animal 資產）
+  const img = (lines>=3 && animalKey && ASSETS.animal[animalKey])
+    ? `<img class="p-animal" src="${ASSETS.animal[animalKey]}" alt="" draggable="false">` : '';
+  el.innerHTML = `${img}<div class="p-word" style="--praise-grad:${tier.grad}">${tier.word}</div>`+
+                 `<div class="p-sub">COMBO x${lines}</div>`;
+  el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+  playPraise(Math.min(lines,4));
+}
+
+/* ★ v48 讚美音階梯：疊在 playClearSparkle 之上的「掌聲層」。
+   2 行=兩音上行；3 行=大三和弦琶音；4 行=跨八度燦爛琶音＋高音亮片尾韻。
+   全部走既有 tone() 即時合成，零外部音檔。 */
+function playPraise(tier){
+  if(!soundOn || tier<2) return; if(!actx()) return;
+  const runs = {
+    2:[[523,0],[784,0.09]],
+    3:[[523,0],[659,0.08],[784,0.16],[1047,0.26]],
+    4:[[523,0],[659,0.07],[784,0.14],[1047,0.21],[1319,0.30],[1568,0.40]],
+  }[Math.min(tier,4)];
+  runs.forEach(([f,t])=> tone(f, 0.05+t, 0.16, 'triangle', 0.16));
+  if(tier>=4) tone(2093, 0.55, 0.22, 'sine', 0.12);   // 最高級才有的收尾亮片
 }
 
 // 小工具：單一振盪器音（給動物叫聲當積木）
@@ -2588,6 +2695,7 @@ function clearLines(){
   fullCols.forEach(c=>{ for(let r=0;r<SIZE;r++) toClear.add(r+'_'+c); });
 
   let collected=0;
+  let fallIdx=0;         // ★ v48 崩塌波計數器：每格掉落延遲遞增，形成波浪式崩落
   const justDone = [];   // 這一次「剛好收齊達標」的動物 → 只有這些才叫
   const flyList = [];    // ★ v21 待飛的食物：{gem, cellEl} → 稍後拋向任務欄
   toClear.forEach(key=>{
@@ -2608,9 +2716,13 @@ function clearLines(){
       collected++;
       HZ.onFood(!!data.glow);   // ★ v32 機關引擎唯一入口（非機關關時內部直接 return）
     }
-    const cellEl=document.querySelector(`.cell[data-r="${r}"][data-c="${c}"] .filled`);
+    const cellHost=document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+    const cellEl=cellHost ? cellHost.querySelector('.filled') : null;
     if(cellEl){
-      cellEl.classList.add('clearing');
+      // ★ v48 ②「垮掉掉落」取代原本的縮小爆開（pop）：
+      //    方塊複製成浮層翻滾墜落，每格延遲遞增 16ms → 形成由左而右的「崩塌波」
+      //    （炸彈 explodeAt 維持原 pop 爆開 —— 爆炸該炸飛、消行該崩塌，各有各的物理語言）
+      spawnFallBlock(cellHost, Math.min(fallIdx*16, 240)); fallIdx++;
       // ★ v24 每個清除格噴出碎片，顏色取自方塊本身，強化「破碎」視覺
       const clearColor = data ? data.color : getComputedStyle(cellEl).backgroundColor;
       spawnShards(cellEl, clearColor);
@@ -2628,9 +2740,19 @@ function clearLines(){
   // ── 表層音效（稀有）：某動物剛好收齊 → 叫一聲；多隻同時達標依序叫 ──
   justDone.forEach((animal,i)=> setTimeout(()=>playAnimal(animal), 180 + i*420));
 
-  // combo 提示
+  // ★ v48 ① 讚美字分級（取代舊的 showCombo COMBO 小字）：
+  //    2 行以上跳大字；3 行以上加碼「這次吃到最多食物的動物」跳出來道謝，高光時刻情緒拉滿
   const totalLines=fullRows.length+fullCols.length;
-  if(totalLines>=2){ showCombo(`COMBO x${totalLines}!`); }
+  if(totalLines>=2){
+    let topAnimal = null;
+    if(flyList.length){
+      const cnt = {};
+      flyList.forEach(f=>{ cnt[f.gem]=(cnt[f.gem]||0)+1; });
+      const topGem = Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0];
+      topAnimal = GEMS[topGem].animal;
+    }
+    showPraise(totalLines, topAnimal);
+  }
 
   // ===== 計分：單行 10 分，一次多行有倍率加成（鼓勵憋大招）=====
   if(MODE().useScore){
