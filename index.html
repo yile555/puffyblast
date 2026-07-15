@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>胖嘟嘟消消樂 v47</title>
+<title>胖嘟嘟消消樂 v52</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; }
   html,body { height:100%; overflow:hidden; }
@@ -119,10 +119,28 @@
     box-shadow:inset 0 0 0 1px rgba(0,0,0,.16); }
   .cell.hint-ok { background:rgba(79,195,247,.45); }
   .cell.hint-bad { background:rgba(229,75,74,.4); }
-  /* 填滿整格、幾乎不留縫；靠內陰影+高光邊做出「磁磚鑲嵌」立體感（對齊 Block Blast） */
+  /* ★ v52 胖嘟嘟軟糖方塊：舊版「內陰影貼邊條」升級為「四邊框 45° 斜接」——
+     瀏覽器對不同色的四邊框天生以 45° 斜角相接（相框接角原理），
+     形成四塊真正的梯形斜面，這才是 Block Blast 級立體感的關鍵特徵。
+     半透明白/黑讓斜面自動染上方塊本身顏色 → 七彩與所有皮膚材質零修改全相容。
+     5px ≈ 格寬 12%（棋盤格 30~48px），厚度與對手同級。 */
   .filled { position:absolute; inset:0; border-radius:3px; display:flex; align-items:center; justify-content:center;
-    box-shadow:inset 0 -3px 0 rgba(0,0,0,.28), inset 0 3px 0 rgba(255,255,255,.28),
-               inset 3px 0 0 rgba(255,255,255,.10), inset -3px 0 0 rgba(0,0,0,.14); }
+    z-index:0;
+    border:5px solid;
+    border-color:rgba(255,255,255,.42) rgba(0,0,0,.16) rgba(0,0,0,.34) rgba(255,255,255,.15); }
+  /* ★ v52 果凍頂面柔光（青出於藍的部分）：對手是硬塑膠，我們是軟糖——
+     左上一抹霧潤高光 + 底部微暗，頂面看起來圓潤飽滿、像捏下去會回彈。
+     z-index:-1 的訣竅：柔光鋪在「底色之上、食物圖示之下」，圖示永遠清晰；
+     inset:0 恰好只蓋頂面（padding box），斜面稜線保持銳利不被糊掉。 */
+  .filled::before, .piece .pcell:not(.empty)::before, #floatPiece .pcell:not(.empty)::before,
+  .stp-swatch::before, .sc-swatch::before {
+    content:''; position:absolute; inset:0; z-index:-1; pointer-events:none;
+    background:radial-gradient(120% 95% at 28% 16%, rgba(255,255,255,.36) 0%, rgba(255,255,255,.10) 36%, rgba(255,255,255,0) 60%),
+               linear-gradient(180deg, rgba(255,255,255,.08) 0%, rgba(255,255,255,0) 45%, rgba(0,0,0,.10) 100%); }
+  /* ★ v52 圖示回補：斜面邊框吃掉內容區 → 盤面/托盤的食物放大補回原視覺大小，
+     甚至微微「坐」上斜面邊緣，更顯胖嘟嘟（123% 是 30~48px 格寬的最佳折衷；
+     只作用在有斜面的容器內，任務欄/飛行食物等其它 .gem-svg 不受影響）。 */
+  .filled .gem-svg, .pcell .gem-svg { width:123%; height:123%; max-width:none; }
   .clearing { animation:pop .46s cubic-bezier(.22,.9,.32,1) forwards; }
   @keyframes pop { 0%{transform:scale(1,1) rotate(0deg);}
     /* ★ v38 先被戳一下擠扁，像果凍被按到 → 再膨脹爆開，比原本「直接放大」更有彈性回饋 */
@@ -236,6 +254,24 @@
     box-shadow:inset 0 0 0 3px #ffd54f, 0 0 18px rgba(255,90,20,.95); }
   @keyframes bombPreviewPulse { 0%,100%{ opacity:.55; } 50%{ opacity:1; } }
 
+  /* ★ v51 ② 炸彈幽靈：提取拖曳時整顆 💣 跟著手指飛 —— 手上有貨才叫「提取」。
+     微搖擺（有重量的懸吊感）＋引信火花閃爍（危險品的緊張感），
+     放開時砸進爆心（縮小墜落）再接爆炸 —— 因果一氣呵成。 */
+  #bombGhost { position:fixed; left:0; top:0; z-index:1090; pointer-events:none;
+    font-size:46px; line-height:1; transform:translate(-50%,-64%);
+    will-change:left,top; filter:drop-shadow(0 8px 12px rgba(0,0,0,.4)); }
+  #bombGhost .bg-body { display:block; transform-origin:50% 82%;
+    animation:bombSway .5s ease-in-out infinite alternate; }
+  #bombGhost .bg-fuse { position:absolute; top:-5px; right:1px; width:9px; height:9px;
+    border-radius:50%; background:#ffee58;
+    box-shadow:0 0 12px 5px rgba(255,145,0,.95);
+    animation:fuseFlick .16s steps(2) infinite; }
+  @keyframes bombSway { from{ transform:rotate(-8deg); } to{ transform:rotate(8deg); } }
+  @keyframes fuseFlick { from{ opacity:1; transform:scale(1); } to{ opacity:.45; transform:scale(.6); } }
+  #bombGhost.slam .bg-body { animation:bombSlam .15s ease-in forwards; }
+  #bombGhost.slam .bg-fuse { display:none; }
+  @keyframes bombSlam { from{ transform:scale(1.08); opacity:1; } to{ transform:scale(.38); opacity:0; } }
+
   /* ★ v50 ③ 爆炸專屬視覺：付費道具必須「感覺值錢」——
      橘白radial閃光（圓心對準爆點）＋雙層衝擊波光環＋火星粒子（JS算拋物線）＋加重全畫面震屏。 */
   .boom-flash { position:fixed; inset:0; z-index:1080; pointer-events:none; opacity:0;
@@ -249,6 +285,18 @@
   @keyframes boomRing { 0%{ transform:translate(-50%,-50%) scale(0); opacity:1; }
     100%{ transform:translate(-50%,-50%) scale(1); opacity:0; } }
   .fire-spark { position:fixed; z-index:1085; pointer-events:none; border-radius:50%; will-change:transform,opacity; }
+  /* ★ v51 ③ 爆心火球：radial 白熱核心快速膨脹燒盡，screen 混合模式讓它「發光」而非「蓋色」 */
+  .boom-fireball { position:fixed; z-index:1082; pointer-events:none; width:170px; height:170px;
+    border-radius:50%; transform:translate(-50%,-50%) scale(.12); mix-blend-mode:screen;
+    background:radial-gradient(circle, #fff 0%, #ffe082 26%, #ff9100 55%, rgba(230,60,10,.55) 74%, transparent 82%);
+    animation:boomFireball .4s cubic-bezier(.2,.8,.3,1) forwards; }
+  @keyframes boomFireball { 0%{ transform:translate(-50%,-50%) scale(.12); opacity:1; }
+    55%{ transform:translate(-50%,-50%) scale(1); opacity:.95; }
+    100%{ transform:translate(-50%,-50%) scale(1.28); opacity:0; } }
+  /* ★ v51 ③ 白熱流星條：細長漸層條沿飛行方向旋轉對齊 —— 有「拖尾」的火花才叫火花 */
+  .fire-streak { position:fixed; z-index:1086; pointer-events:none; border-radius:3px;
+    will-change:transform,opacity; mix-blend-mode:screen;
+    box-shadow:0 0 8px rgba(255,167,38,.9); }
   .app-quake { animation:appQuake .55s cubic-bezier(.36,.07,.19,.97); }
   @keyframes appQuake {
     0%{ transform:translate(0,0) rotate(0); } 8%{ transform:translate(-10px,7px) rotate(-1.6deg); }
@@ -354,20 +402,20 @@
      不影響視覺（transparent），只影響「能點到」的範圍。 */
   .piece::before { content:''; position:absolute; left:-14px; right:-14px; top:-14px; bottom:-14px; }
   .piece.used { opacity:0; pointer-events:none; transform:scale(.5); }
-  .piece .pcell { border-radius:3px; box-shadow:inset 0 -3px 0 rgba(0,0,0,.28), inset 0 3px 0 rgba(255,255,255,.28),
-    inset 3px 0 0 rgba(255,255,255,.10), inset -3px 0 0 rgba(0,0,0,.14);
+  .piece .pcell { border-radius:3px; z-index:0; border:4px solid;
+    border-color:rgba(255,255,255,.42) rgba(0,0,0,.16) rgba(0,0,0,.34) rgba(255,255,255,.15);
     display:flex; align-items:center; justify-content:center; }
-  .piece .pcell.empty { background:transparent !important; box-shadow:none; }
+  .piece .pcell.empty { background:transparent !important; box-shadow:none; border:none; }
   .piece.dragging { opacity:.35; }
   #floatPiece { position:fixed; pointer-events:none; z-index:999; display:grid; gap:0; opacity:.95;
     filter:drop-shadow(0 3px 6px rgba(0,0,0,.25));
     transition:filter .12s ease-out; }
   /* ★ v24 拿起時不再放大方塊，維持與棋盤格一致的大小，只加強陰影營造「拎起來」的懸浮感 */
   #floatPiece.lifted { filter:drop-shadow(0 14px 18px rgba(0,0,0,.4)); }
-  #floatPiece .pcell { border-radius:3px; box-shadow:inset 0 -3px 0 rgba(0,0,0,.28), inset 0 3px 0 rgba(255,255,255,.28),
-    inset 3px 0 0 rgba(255,255,255,.10), inset -3px 0 0 rgba(0,0,0,.14);
+  #floatPiece .pcell { border-radius:3px; z-index:0; border:5px solid;
+    border-color:rgba(255,255,255,.42) rgba(0,0,0,.16) rgba(0,0,0,.34) rgba(255,255,255,.15);
     display:flex; align-items:center; justify-content:center; }
-  #floatPiece .pcell.empty { background:transparent !important; box-shadow:none; }
+  #floatPiece .pcell.empty { background:transparent !important; box-shadow:none; border:none; }
 
   /* 待命區下方留一點呼吸空間 */
   #tray { margin-bottom:10px; }
@@ -584,7 +632,8 @@
   .skin-trial-promo { display:flex; align-items:center; gap:11px; background:rgba(255,255,255,.1);
     border:1px solid rgba(255,255,255,.18); border-radius:14px; padding:10px 12px; margin:12px 0; text-align:left; }
   .stp-swatch { width:44px; height:44px; border-radius:10px; flex-shrink:0;
-    box-shadow:inset 0 -3px 0 rgba(0,0,0,.28), inset 0 3px 0 rgba(255,255,255,.28); }
+    position:relative; z-index:0; border:4px solid;
+    border-color:rgba(255,255,255,.42) rgba(0,0,0,.16) rgba(0,0,0,.34) rgba(255,255,255,.15); }
   .stp-info { flex:1; min-width:0; }
   .stp-title { font-size:11px; opacity:.7; font-weight:700; }
   .stp-name { font-size:15px; font-weight:800; margin-top:1px; }
@@ -624,7 +673,8 @@
     flex-direction:column; align-items:center; gap:6px; text-align:center; }
   .skin-card.equipped { outline:2px solid #4fc3f7; }
   .sc-swatch { width:100%; aspect-ratio:1; border-radius:10px;
-    box-shadow:inset 0 -3px 0 rgba(0,0,0,.28), inset 0 3px 0 rgba(255,255,255,.28); }
+    position:relative; z-index:0; border:4px solid;
+    border-color:rgba(255,255,255,.42) rgba(0,0,0,.16) rgba(0,0,0,.34) rgba(255,255,255,.15); }
   .sc-silhouette { background:rgba(255,255,255,.08); position:relative; }
   .sc-silhouette::after { content:'🔒'; position:absolute; inset:0; display:flex; align-items:center;
     justify-content:center; font-size:20px; opacity:.5; }
@@ -744,7 +794,7 @@
     </span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v50・胖嘟嘟消消樂・爆裂手感包：連消大字＋炸彈拖瞄＋震撼爆炸</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v52・胖嘟嘟消消樂・軟糖方塊：立體斜面＋果凍光澤</div>
 </div>
 
 <div id="app">
@@ -1107,7 +1157,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'胖嘟嘟消消樂', 'menu.tagline':'放方塊・消整排・餵飽胖嘟嘟',
-  'menu.footer':'v50・胖嘟嘟消消樂・爆裂手感包：連消大字＋炸彈拖瞄＋震撼爆炸',
+  'menu.footer':'v52・胖嘟嘟消消樂・軟糖方塊：立體斜面＋果凍光澤',
   'menu.best':'最高 {n} 關',
   'mode.endless.name':'無盡模式', 'mode.endless.desc':'沒有終點，放到沒空間為止。挑戰你的最高分。',
   'mode.gem.name':'胖嘟嘟收集', 'mode.gem.desc':'餵飽三隻胖嘟嘟就過關，盤面塞滿才結束，一關接一關往下闖。',
@@ -1179,7 +1229,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'PuffyBlast', 'menu.tagline':'Drop blocks, clear lines, feed the puffies!',
-  'menu.footer':'v50 · PuffyBlast · Blast Pack: Streak Popups + Bomb Drag-Aim + Epic Booms',
+  'menu.footer':'v52 · PuffyBlast · Gummy Blocks: Beveled 3D + Jelly Gloss',
   'menu.best':'Best: Lv {n}',
   'mode.endless.name':'Endless', 'mode.endless.desc':'No finish line — play until the board fills up. Chase your high score.',
   'mode.gem.name':'Puffy Collect', 'mode.gem.desc':'Feed the puffies to clear each level. You only lose when the board jams. Level after level!',
@@ -1251,7 +1301,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'パフィーブラスト', 'menu.tagline':'ブロックを置いて、ライン消して、もぐもぐタイム！',
-  'menu.footer':'v50・パフィーブラスト・爆裂パック：連続消し表示＋ボム照準＋大爆発',
+  'menu.footer':'v52・パフィーブラスト・グミブロック：立体ベベル＋ゼリー光沢',
   'menu.best':'最高 {n} 面',
   'mode.endless.name':'エンドレス', 'mode.endless.desc':'終わりなき挑戦。盤面が埋まるまでハイスコアを狙おう。',
   'mode.gem.name':'もぐもぐコレクト', 'mode.gem.desc':'どうぶつたちを満腹にすればクリア。盤面が詰まるまで終わらない。どんどん先へ！',
@@ -1510,19 +1560,21 @@ function difficultyOf(lv){
 let curDiff = { tier:'normal', label:'', trapCap:1, rareBoost:1, goalMul:1, moveMul:1.1 };
 
 
-/* ===== 收集物定義（模組化：三種動物的食物；未來換膚只要換這組） =====
-   每種食物綁定一隻動物 + 一種達標叫聲。food 決定盤面圖案，animal 決定達標音效。 */
+/* ===== 收集物定義（模組化：換膚只要換這組） =====
+   每種收集物綁定一隻動物 + 一種達標叫聲。gemShape 決定盤面寶石外觀，animal 決定任務欄圖與達標音效。 */
+/* ★ v53 盤面食物 → 寶石：一獸一形一色。
+   ・color   同時決定「方塊底色」與「寶石主色」→ 換寶石＝盤面配色一起煥新。
+   ・gemShape 對應 gemShapeSVG() 裡的七款切面形狀（純程式繪製，零檔案增量）。
+   ・food    舊食物圖 key 原封保留 → ASSETS.food 資產不刪，哪天想切回只改 gemSVG 一行（見下）。
+   ・animal  任務欄動物 + 達標音效，這次完全不動。 */
 const GEMS = {
-  // ★ v15：改用 Gemini 原創美術素材。food = 盤面純食物圖，animal = 任務欄動物抱食物圖。
-  // ★ v26：角色池擴充 3→7 種。每關隨機抽取（種類數隨關卡漸進 3→4→5，見 MODES.gem.setup）。
-  //        新增素材一律 WebP（q85，較 PNG 省約 9 成容量，卡通大色塊肉眼無損）。
-  banana:  { name:'香蕉',   color:'#f5c518', food:'banana',   animal:'monkey',  emoji:'🐵' },
-  taiyaki: { name:'鯛魚燒', color:'#e0a53a', food:'taiyaki',  animal:'cat',     emoji:'🐱' },
-  bone:    { name:'骨頭',   color:'#d8cba8', food:'bone',     animal:'dog',     emoji:'🐶' },
-  fish:    { name:'小魚',   color:'#5cb8e6', food:'fish',     animal:'penguin', emoji:'🐧' },
-  leafwrap:{ name:'葉子包', color:'#8bbf5a', food:'leafwrap', animal:'frog',    emoji:'🐸' },
-  carrot:  { name:'蘿蔔',   color:'#f39c4b', food:'carrot',   animal:'rabbit',  emoji:'🐰' },
-  seed:    { name:'瓜子',   color:'#7a7a7a', food:'seed',     animal:'hamster', emoji:'🐹' },
+  banana:  { name:'黃水晶', color:'#f2b705', food:'banana',   animal:'monkey',  emoji:'🐵', gemShape:'citrine'  },
+  taiyaki: { name:'紅寶石', color:'#e23b52', food:'taiyaki',  animal:'cat',     emoji:'🐱', gemShape:'ruby'     },
+  bone:    { name:'鑽石',   color:'#bfe6f2', food:'bone',     animal:'dog',     emoji:'🐶', gemShape:'diamond'  },
+  fish:    { name:'藍寶石', color:'#3f7ad6', food:'fish',     animal:'penguin', emoji:'🐧', gemShape:'sapphire' },
+  leafwrap:{ name:'祖母綠', color:'#2ea86a', food:'leafwrap', animal:'frog',    emoji:'🐸', gemShape:'emerald'  },
+  carrot:  { name:'粉晶',   color:'#f58fb0', food:'carrot',   animal:'rabbit',  emoji:'🐰', gemShape:'rose'     },
+  seed:    { name:'紫水晶', color:'#9b5de5', food:'seed',     animal:'hamster', emoji:'🐹', gemShape:'amethyst' },
 };
 const GEM_KEYS = Object.keys(GEMS);
 
@@ -1651,6 +1703,19 @@ function actx(){
    多層音效同時疊（碎裂＋收集音＋動物叫＋爆炸）時自動壓住尖峰、不破音不刺耳，
    整體聽感從「生硬電子音」變「圓潤糖果音」。錄音室母帶處理的同一招，零外部檔案。 */
 let _adest = null;
+/* ★ v51 ① 殘響 impulse response：程式即時生成 1.3 秒指數衰減立體聲噪音 ——
+   等於免費造出一顆「小音樂廳」的空間指紋，零外部音檔、維持單檔架構。 */
+function _makeIR(ctx){
+  const dur = 1.3, sr = ctx.sampleRate, len = Math.floor(sr*dur);
+  const buf = ctx.createBuffer(2, len, sr);
+  for(let ch=0; ch<2; ch++){
+    const d = buf.getChannelData(ch);
+    for(let i=0; i<len; i++){
+      d[i] = (Math.random()*2-1) * Math.pow(1 - i/len, 3.4);
+    }
+  }
+  return buf;
+}
 function adest(ctx){
   if(_adest && _adest.ctx === ctx) return _adest.node;
   const comp = ctx.createDynamicsCompressor();
@@ -1658,8 +1723,21 @@ function adest(ctx){
   comp.attack.value = 0.003;  comp.release.value = 0.2;
   const master = ctx.createGain(); master.gain.value = 0.9;
   comp.connect(master); master.connect(ctx.destination);
-  _adest = { ctx, node: comp };
-  return comp;
+  /* ★ v51 ① 音效總線改「乾／濕雙軌」：input 分流 →
+     乾軌直進壓縮器（清晰度）＋濕軌過高通(380Hz)→convolution殘響→壓縮器（空間感）。
+     高通擋住低頻進殘響 —— 爆炸的重低音不會糊成一鍋粥，只有中高頻獲得漂亮尾韻。
+     「機器廉價感」的病根就是「乾」：一顆殘響，全場音效瞬間有錄音室質感。 */
+  const input = ctx.createGain();
+  const dry = ctx.createGain(); dry.gain.value = 0.85;
+  input.connect(dry).connect(comp);
+  try{
+    const conv = ctx.createConvolver(); conv.buffer = _makeIR(ctx);
+    const hp = ctx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value = 380;
+    const wet = ctx.createGain(); wet.gain.value = 0.28;
+    input.connect(hp).connect(conv).connect(wet).connect(comp);
+  }catch(_){ /* 極舊瀏覽器沒 ConvolverNode → 乾軌照跑，優雅降級 */ }
+  _adest = { ctx, node: input };
+  return input;
 }
 /* ★ v21 觸覺回饋設定（全參數化，可分別開關；iOS 幾乎封鎖 vibrate → 自動偵測降級）
    注意：H5 的 navigator.vibrate 在 iOS Safari 幾乎無效，且僅在使用者觸控互動中較穩定。
@@ -1686,16 +1764,31 @@ function haptic(ms){
 // 消 1 排輕震；多排(combo)稍重 → 給節奏一點層次
 function totalLinesHaptic(n){ return n<=1 ? 18 : Math.min(18+(n-1)*22, 70); }
 
-/* ★ v21 落下「喀嚓」聲：短促木質點擊感（放下方塊時）。純合成、乾淨不膩。 */
+/* ★ v51 ① 落下聲重製：square 電子嗶 → 真實「木質喀噠」——
+   ① 短噪音過帶通濾波器 = 敲擊的「喀」（頻率每次微隨機 → 連放不機械、不疲乏）
+   ② 短 sine 190→70Hz 下沉 = 落定的「咚」（重量感）。
+   放方塊是全場最高頻的音，這一顆的質感 = 玩家對整個遊戲手感的第一印象。 */
 function playClick(){
   if(!soundOn){ return; } const ctx=actx(); if(!ctx) return;
-  const dur=0.05;
+  const t = ctx.currentTime, out = adest(ctx);
+  // ① 木質敲擊 transient
+  const dur=0.045, sr=ctx.sampleRate;
+  const buf=ctx.createBuffer(1, Math.floor(sr*dur), sr), d=buf.getChannelData(0);
+  for(let i=0;i<d.length;i++){ d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length, 2.2); }
+  const src=ctx.createBufferSource(); src.buffer=buf;
+  const bp=ctx.createBiquadFilter(); bp.type='bandpass';
+  bp.frequency.value = 1400 + Math.random()*500; bp.Q.value = 1.3;
+  const ng=ctx.createGain(); ng.gain.value = 0.5;
+  src.connect(bp).connect(ng).connect(out); src.start(t);
+  // ② 落定「咚」body
   const o=ctx.createOscillator(), g=ctx.createGain();
-  o.type='square'; o.frequency.setValueAtTime(620, ctx.currentTime);
-  o.frequency.exponentialRampToValueAtTime(180, ctx.currentTime+dur);
-  g.gain.setValueAtTime(0.14, ctx.currentTime);
-  g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+dur);
-  o.connect(g).connect(adest(ctx)); o.start(); o.stop(ctx.currentTime+dur+0.02);
+  o.type='sine';
+  o.frequency.setValueAtTime(190, t);
+  o.frequency.exponentialRampToValueAtTime(70, t+0.08);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.34, t+0.006);
+  g.gain.exponentialRampToValueAtTime(0.0001, t+0.09);
+  o.connect(g).connect(out); o.start(t); o.stop(t+0.12);
 }
 
 /* ★ v21 消除「特殊音」：清脆上揚的收集音（消行成功時，疊在碎裂聲之上，給獎勵感）。 */
@@ -1747,7 +1840,15 @@ function playCrack(){
 function playBoom(){
   if(!soundOn) return; const ctx=actx(); if(!ctx) return;
   const t = ctx.currentTime, out = adest(ctx);
-  // ① 重低音俯衝
+  // ★ v51 ⓪ 0ms 尖銳「爆點」transient：極短寬頻噪音爆發 ——
+  //   真實爆炸的第一毫秒是「啪」不是「轟」，缺這一下就像悶在棉被裡。
+  const csr=ctx.sampleRate, cbuf=ctx.createBuffer(1, Math.floor(csr*0.03), csr), cd=cbuf.getChannelData(0);
+  for(let i=0;i<cd.length;i++){ cd[i]=(Math.random()*2-1)*Math.pow(1-i/cd.length, 0.7); }
+  const csrc=ctx.createBufferSource(); csrc.buffer=cbuf;
+  const chp=ctx.createBiquadFilter(); chp.type='highpass'; chp.frequency.value=1200;
+  const cg=ctx.createGain(); cg.gain.value=0.85;
+  csrc.connect(chp).connect(cg).connect(out); csrc.start(t);
+  // ① 重低音俯衝（★ v51 加 WaveShaper 飽和失真：低音「破一點點」才有電影爆炸的粗獷肌肉感）
   const o=ctx.createOscillator(), og=ctx.createGain();
   o.type='sine';
   o.frequency.setValueAtTime(120, t);
@@ -1755,7 +1856,11 @@ function playBoom(){
   og.gain.setValueAtTime(0.0001, t);
   og.gain.exponentialRampToValueAtTime(0.9, t+0.012);
   og.gain.exponentialRampToValueAtTime(0.0001, t+0.6);
-  o.connect(og).connect(out); o.start(t); o.stop(t+0.65);
+  const shaper=ctx.createWaveShaper();
+  const curve=new Float32Array(257);
+  for(let i=0;i<257;i++){ const x=i/128-1; curve[i]=Math.tanh(x*2.4); }
+  shaper.curve=curve;
+  o.connect(og).connect(shaper).connect(out); o.start(t); o.stop(t+0.65);
   // ② 中頻厚度
   const b=ctx.createOscillator(), bg=ctx.createGain();
   b.type='triangle';
@@ -2119,16 +2224,40 @@ function playPraise(tier){
   if(tier>=4) tone(2093, 0.55, 0.22, 'sine', 0.12);   // 最高級才有的收尾亮片
 }
 
-// 小工具：單一振盪器音（給動物叫聲當積木）
+/* ★ v51 ① 音色積木大升級：「裸振盪器嗶聲」→「敲鐘琴／音樂盒」——
+   古早遊戲感的病根就在這一顆函式（全場 13 個旋律呼叫點共用）。三帖藥：
+   ① 雙振盪器微失諧（±5 cents）：單線條變合唱，立刻有「厚度」
+   ② 2.76 倍頻鐘琴泛音亮片：真實鐘/木琴的物理泛音比，敲下去有「金屬光澤」
+   ③ 低通濾波器修圓稜角＋衰減尾巴拉長 0.18s 交給殘響 —— 餘韻是質感的一半。
+   函式簽名一字未動，13 個呼叫點零修改、全部自動質變。 */
 function tone(freq, t0, dur, type='sine', vol=0.25, bendTo=null){
   const ctx=actx(); if(!ctx) return;
-  const o=ctx.createOscillator(), g=ctx.createGain();
-  o.type=type; o.frequency.setValueAtTime(freq, ctx.currentTime+t0);
-  if(bendTo){ o.frequency.exponentialRampToValueAtTime(bendTo, ctx.currentTime+t0+dur); }
-  g.gain.setValueAtTime(0.0001, ctx.currentTime+t0);
-  g.gain.exponentialRampToValueAtTime(vol, ctx.currentTime+t0+0.02);
-  g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+t0+dur);
-  o.connect(g).connect(adest(ctx)); o.start(ctx.currentTime+t0); o.stop(ctx.currentTime+t0+dur+0.02);
+  const t = ctx.currentTime + t0, out = adest(ctx);
+  // 濾波＋包絡共用鏈：body(混音) → lowpass(修圓) → g(音量包絡) → 總線
+  const body = ctx.createGain(); body.gain.value = 0.55;   // 雙振盪器疊加 → 減半防爆
+  const lp = ctx.createBiquadFilter();
+  lp.type='lowpass'; lp.frequency.value = Math.min(freq*5.5, 8500); lp.Q.value = 0.4;
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol, t+0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, t+dur+0.18);
+  body.connect(lp).connect(g).connect(out);
+  // ① 主音：兩顆微失諧振盪器（square 太刺 → 自動柔化成 triangle）
+  [-5, 4].forEach(cents=>{
+    const o = ctx.createOscillator();
+    o.type = (type==='square') ? 'triangle' : type;
+    o.frequency.setValueAtTime(freq, t);
+    o.detune.setValueAtTime(cents, t);
+    if(bendTo){ o.frequency.exponentialRampToValueAtTime(bendTo, t+dur); }
+    o.connect(body); o.start(t); o.stop(t+dur+0.22);
+  });
+  // ② 鐘琴泛音：2.76 倍頻短促亮片，敲擊瞬間的「叮」光澤
+  const p = ctx.createOscillator(), pg = ctx.createGain();
+  p.type='sine'; p.frequency.setValueAtTime(freq*2.76, t);
+  pg.gain.setValueAtTime(0.0001, t);
+  pg.gain.exponentialRampToValueAtTime(vol*0.32, t+0.008);
+  pg.gain.exponentialRampToValueAtTime(0.0001, t+Math.min(dur*0.5, 0.12));
+  p.connect(pg).connect(out); p.start(t); p.stop(t+0.16);
 }
 
 // ★ v26 統一達標音：任意一種收齊 → 同一個清脆愉悅的「叮叮鈴✨」中獎音。
@@ -2281,8 +2410,116 @@ function animalSVG(gemKey){
   return `<img class="animal-svg" src="${src}" alt="" draggable="false">`;
 }
 
-// 兼容舊呼叫點：盤面/tray/浮動塊全部改用「純食物」
-function gemSVG(gemKey){ return foodSVG(gemKey); }
+/* ============================================================
+   ★ v53 盤面寶石：一獸一形一色的切面寶石（純程式 SVG，零檔案增量）
+   ------------------------------------------------------------
+   設計哲學：跟 v38 果凍材質同一套光學語言 —— 實色面 + 白色高光切面 + 深色暗面，
+   靠「切面亮暗對比」長出立體感，不靠外部貼圖。七款輪廓刻意各異，縮到手機格子
+   （30~48px）仍一眼可辨（抹布測試通過）：
+     citrine 橄欖尖橢圓・ruby 心形・diamond 經典菱形・sapphire 水滴
+     emerald 八角矩形・rose 圓角三角・amethyst 六角晶柱
+   每款用 GEMS[key].color 當主色，程式即時算出亮面/暗面，換色自動生效。
+   ============================================================ */
+function gemShapeSVG(gemKey){
+  const g = GEMS[gemKey];
+  if(!g) return '';
+  const c   = g.color;
+  const hi  = shadeColor(c,  0.55);   // 亮切面（迎光）
+  const hi2 = shadeColor(c,  0.85);   // 高光鋒（最亮的一道稜）
+  const dk  = shadeColor(c, -0.30);   // 暗切面（背光）
+  const dk2 = shadeColor(c, -0.48);   // 最深的底稜
+  const ln  = shadeColor(c, -0.60);   // 切面分隔線
+  const id  = 'gg_' + gemKey;         // gradient id，避免同頁多顆衝突
+
+  // 共用：外框描邊 + 內部切面。各形狀用多邊形拼切面，模擬寶石琢面。
+  const stroke = `stroke="${ln}" stroke-width="1.4" stroke-linejoin="round"`;
+  let body = '';
+
+  switch(g.gemShape){
+    case 'diamond': // 鑽石：經典圓明亮式菱形，頂部檯面 + 放射亭部
+      body = `
+        <polygon points="50,8 78,34 50,34 22,34" fill="${hi}" ${stroke}/>
+        <polygon points="22,34 50,34 36,54 14,40" fill="${c}" ${stroke}/>
+        <polygon points="78,34 50,34 64,54 86,40" fill="${dk}" ${stroke}/>
+        <polygon points="50,34 64,54 50,92 36,54" fill="${hi2}" ${stroke}/>
+        <polygon points="14,40 36,54 50,92" fill="${dk}" ${stroke}/>
+        <polygon points="86,40 64,54 50,92" fill="${dk2}" ${stroke}/>
+        <polygon points="22,34 78,34 50,8" fill="${hi2}" opacity=".5"/>`;
+      break;
+    case 'ruby': // 紅寶石：心形，左右兩瓣 + 中央高光
+      body = `
+        <path d="M50 88 C 14 60, 12 30, 30 20 C 42 13, 50 24, 50 32 C 50 24, 58 13, 70 20 C 88 30, 86 60, 50 88 Z"
+              fill="${c}" ${stroke}/>
+        <path d="M50 32 C 50 24, 42 13, 30 20 C 20 26, 20 42, 30 54 C 40 46, 48 40, 50 32 Z" fill="${hi}"/>
+        <path d="M50 32 C 50 24, 58 13, 70 20 C 80 26, 80 42, 70 54 C 60 46, 52 40, 50 32 Z" fill="${dk}"/>
+        <path d="M50 88 C 40 74, 30 62, 30 54 C 40 60, 46 68, 50 78 Z" fill="${hi2}" opacity=".55"/>
+        <path d="M50 88 C 60 74, 70 62, 70 54 C 60 60, 54 68, 50 78 Z" fill="${dk2}"/>`;
+      break;
+    case 'sapphire': // 藍寶石：水滴形（上尖下圓）+ 中央高光柱
+      body = `
+        <path d="M50 8 C 34 34, 20 52, 20 66 A 30 30 0 0 0 80 66 C 80 52, 66 34, 50 8 Z"
+              fill="${c}" ${stroke}/>
+        <path d="M50 8 C 40 26, 32 44, 34 62 A 16 22 0 0 0 50 72 Z" fill="${hi}"/>
+        <path d="M50 8 C 60 26, 68 44, 66 62 A 16 22 0 0 1 50 72 Z" fill="${dk}"/>
+        <ellipse cx="42" cy="40" rx="5" ry="14" fill="${hi2}" opacity=".6" transform="rotate(-12 42 40)"/>
+        <path d="M30 74 A 26 26 0 0 0 70 74 A 30 30 0 0 1 30 74 Z" fill="${dk2}" opacity=".7"/>`;
+      break;
+    case 'emerald': // 祖母綠：八角階梯式矩形切面（emerald cut）
+      body = `
+        <polygon points="30,14 70,14 86,30 86,70 70,86 30,86 14,70 14,30" fill="${c}" ${stroke}/>
+        <polygon points="34,22 66,22 74,30 74,70 66,78 34,78 26,70 26,30" fill="none" ${stroke}/>
+        <polygon points="30,14 70,14 66,22 34,22" fill="${hi2}" opacity=".85"/>
+        <polygon points="14,30 30,14 34,22 26,30" fill="${hi}"/>
+        <polygon points="70,14 86,30 74,30 66,22" fill="${dk}"/>
+        <polygon points="14,70 26,70 34,78 30,86" fill="${dk}"/>
+        <polygon points="86,70 74,70 66,78 70,86" fill="${dk2}"/>
+        <rect x="34" y="30" width="14" height="18" fill="${hi}" opacity=".45"/>`;
+      break;
+    case 'amethyst': // 紫水晶：六角晶柱（頂面 + 三道柱面）
+      body = `
+        <polygon points="50,10 74,24 74,74 50,90 26,74 26,24" fill="${c}" ${stroke}/>
+        <polygon points="50,10 74,24 50,38 26,24" fill="${hi2}" ${stroke}/>
+        <polygon points="26,24 50,38 50,90 26,74" fill="${hi}" ${stroke}/>
+        <polygon points="74,24 50,38 50,90 74,74" fill="${dk}" ${stroke}/>
+        <polygon points="50,38 50,90 38,82 38,32" fill="${hi2}" opacity=".35"/>`;
+      break;
+    case 'rose': // 粉晶：圓角正三角，柔和切面
+      body = `
+        <path d="M50 12 Q 56 12, 60 18 L 84 66 Q 88 76, 78 80 L 22 80 Q 12 76, 16 66 L 40 18 Q 44 12, 50 12 Z"
+              fill="${c}" ${stroke}/>
+        <path d="M50 12 Q 56 12, 60 18 L 62 54 L 50 60 Z" fill="${hi2}"/>
+        <path d="M40 18 Q 44 12, 50 12 L 50 60 L 38 54 Z" fill="${hi}"/>
+        <path d="M50 60 L 62 54 L 84 66 Q 88 76, 78 80 L 50 80 Z" fill="${dk}"/>
+        <path d="M50 60 L 38 54 L 16 66 Q 12 76, 22 80 L 50 80 Z" fill="${hi}" opacity=".5"/>
+        <path d="M50 60 L 50 80 L 22 80 L 16 66 Z" fill="${dk2}" opacity=".4"/>`;
+      break;
+    case 'citrine': // 黃水晶：橄欖尖橢圓（marquise），兩端尖、中間高光帶
+      default:
+      body = `
+        <path d="M50 8 C 70 26, 80 40, 80 50 C 80 60, 70 74, 50 92 C 30 74, 20 60, 20 50 C 20 40, 30 26, 50 8 Z"
+              fill="${c}" ${stroke}/>
+        <path d="M50 8 C 40 26, 34 40, 34 50 L 50 50 Z" fill="${hi2}"/>
+        <path d="M50 8 C 60 26, 66 40, 66 50 L 50 50 Z" fill="${hi}"/>
+        <path d="M34 50 L 50 50 C 40 66, 44 78, 50 92 Z" fill="${dk}"/>
+        <path d="M66 50 L 50 50 C 60 66, 56 78, 50 92 Z" fill="${dk2}"/>
+        <path d="M50 50 L 50 92 L 40 74 L 44 56 Z" fill="${hi2}" opacity=".3"/>`;
+      break;
+  }
+
+  return `<svg class="gem-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">`+
+         `<defs><radialGradient id="${id}" cx="34%" cy="26%" r="80%">`+
+         `<stop offset="0%" stop-color="rgba(255,255,255,.55)"/>`+
+         `<stop offset="55%" stop-color="rgba(255,255,255,0)"/>`+
+         `</radialGradient></defs>`+
+         body +
+         `<rect x="0" y="0" width="100" height="100" fill="url(#${id})" pointer-events="none"/>`+
+         `</svg>`;
+}
+
+/* 兼容舊呼叫點：盤面/tray/浮動塊統一走「寶石」。
+   ★ 後悔藥開關：想切回食物圖，把下面這行改成 return foodSVG(gemKey); 即可，
+     ASSETS.food 資產完整保留、GEMS.food 欄位未動，一鍵回滾零風險。 */
+function gemSVG(gemKey){ return gemShapeSVG(gemKey); }
 
 /* ============================================================
    初始化棋盤
@@ -2331,8 +2568,12 @@ function generateGoals(){
   MODE().setup(level);
 }
 
-/* ★ v21 寶石飛向目標動畫：在消除格生成食物精靈，拋物線飛進對應動物任務卡。
-   純視覺、不影響計分邏輯（got 已在 clearLines 先加好）。delay 讓多顆錯開，像連發。 */
+/* ★ v53 寶石飛向目標動畫，重寫為三拍子（原本 520ms 一條直線太快，玩家看不清收到什麼）：
+   ① 亮相 200ms：寶石在消除格原地放大浮起，先讓玩家看清「收到的是哪顆」
+   ② 弧線前段 300ms：飛向一個真實存在的「頂點」座標（不是靠 cubic-bezier 硬凹，短距離凹不出弧感）
+   ③ 弧線後段 380ms：從頂點落向動物，命中瞬間卡片彈跳＋數字跳動
+   總長 ~880ms，多顆連發間隔也拉到 95ms（見呼叫端），數得出「一顆、一顆、一顆」。
+   純視覺、不影響計分邏輯（got 已在 clearLines 先加好）。 */
 function flyGemToGoal(gemKey, fromEl, delay){
   if(!fromEl) return;
   const goalEls = document.querySelectorAll('#goals .goal');
@@ -2345,27 +2586,42 @@ function flyGemToGoal(gemKey, fromEl, delay){
   const startY = from.top  + from.height/2 - 17;
   const endX   = to.left + to.width/2 - 17;
   const endY   = to.top  + to.height/2 - 17;
+  // 拋物線頂點：起訖點中間，往上抬一截 → 真的移動經過這一點，弧線感是「走出來的」不是「凹出來的」
+  const peakX = (startX+endX)/2;
+  const peakY = Math.min(startY, endY) - 46;
 
   const fly = document.createElement('div');
   fly.className = 'fly-gem';
-  fly.innerHTML = foodSVG(gemKey);
+  fly.innerHTML = gemSVG(gemKey);
   fly.style.left='0'; fly.style.top='0';
-  fly.style.transform=`translate(${startX}px,${startY}px) scale(1)`;
+  fly.style.transform=`translate(${startX}px,${startY}px) scale(.3)`;
   fly.style.opacity='0';
   document.body.appendChild(fly);
 
-  const dur=520;
+  const revealDur = 200, upDur = 300, downDur = 380;
+
+  // ① 亮相：原地放大浮起，讓這顆寶石先被「看見」
   setTimeout(()=>{
-    fly.style.transition=`transform ${dur}ms cubic-bezier(.5,-0.3,.3,1), opacity ${dur}ms ease-in`;
-    fly.style.opacity='1';
-    // 拋物線感：先上飄一點再落向目標（用中途 transform 模擬弧線）
-    fly.style.transform=`translate(${endX}px,${endY}px) scale(.7)`;
+    fly.style.transition = `transform ${revealDur}ms cubic-bezier(.34,1.56,.64,1), opacity ${revealDur}ms ease-out`;
+    fly.style.transform = `translate(${startX}px,${startY}px) scale(1.25)`;
+    fly.style.opacity = '1';
   }, delay);
+  // ② 飛向頂點
+  setTimeout(()=>{
+    fly.style.transition = `transform ${upDur}ms ease-out`;
+    fly.style.transform = `translate(${peakX}px,${peakY}px) scale(.9)`;
+  }, delay + revealDur);
+  // ③ 頂點落向動物
+  setTimeout(()=>{
+    fly.style.transition = `transform ${downDur}ms cubic-bezier(.45,0,.55,1)`;
+    fly.style.transform = `translate(${endX}px,${endY}px) scale(.55)`;
+  }, delay + revealDur + upDur);
+  // 命中
   setTimeout(()=>{
     fly.remove();
     if(targetIcon){ targetIcon.classList.add('bump'); setTimeout(()=>targetIcon.classList.remove('bump'),320); }
     renderGoals();   // 命中瞬間才更新數字 → 數字跳動與飛入同步，爽感對齊
-  }, delay+dur);
+  }, delay + revealDur + upDur + downDur);
 }
 
 function renderGoals(){
@@ -3173,6 +3429,12 @@ function clearLines(){
     const cellHost=document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
     const cellEl=cellHost ? cellHost.querySelector('.filled') : null;
     if(cellEl){
+      // ★ v53「摘寶石」：寶石已經記進 flyList、準備飛向動物 →
+      //    原地的方塊必須立刻變回「空殼」，否則墜落分身（cloneNode）會把寶石一起複製走，
+      //    玩家會同時看到「寶石飛去任務欄」+「寶石還躺在墜落的方塊上」，穿幫。
+      //    只摘圖示、不動材質背景 —— 崩塌的還是那塊糖果，只是裡面的寶藏已經被收走了。
+      const gemIcon = cellEl.querySelector('.gem-svg');
+      if(gemIcon) gemIcon.remove();
       // ★ v48 ②「垮掉掉落」取代原本的縮小爆開（pop）：
       //    方塊複製成浮層翻滾墜落，每格延遲遞增 16ms → 形成由左而右的「崩塌波」
       //    （炸彈 explodeAt 維持原 pop 爆開 —— 爆炸該炸飛、消行該崩塌，各有各的物理語言）
@@ -3232,9 +3494,10 @@ function clearLines(){
     updateStatus();
   }
 
-  // ★ v21 寶石飛向目標：每顆食物錯開飛入，命中時才跳數字（renderGoals 由 flyGemToGoal 觸發）
+  // ★ v21 寶石飛向目標：每顆錯開飛入，命中時才跳數字（renderGoals 由 flyGemToGoal 觸發）
+  // ★ v53 間隔 70→95ms：搭配新的三拍子飛行時序，多顆連發時數得出「一顆、一顆、一顆」
   if(flyList.length){
-    flyList.forEach((f,i)=> flyGemToGoal(f.gem, f.el, Math.min(i*70, 600)));
+    flyList.forEach((f,i)=> flyGemToGoal(f.gem, f.el, Math.min(i*95, 700)));
   } else {
     renderGoals();  // 沒有可收集食物（理論上少見）→ 保底更新
   }
@@ -4142,6 +4405,7 @@ function exchangeDiamond(idx){
 let bombAim = false;
 function cancelBombAim(){
   bombAim = false;
+  hideBombGhost();   // ★ v51 ② 收掉跟手幽靈
   clearBombPreview();   // ★ v50 ② 收掉轟炸標記
   const b = document.getElementById('board');
   if(b) b.classList.remove('bomb-aim');
@@ -4195,7 +4459,12 @@ function explodeAt(r0, c0){
       HZ.onFood(!!data.glow);   // ★ 與消行同一入口：機關關炸食物照樣洩氣
     }
     const el = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"] .filled`);
-    if(el){ el.classList.add('clearing'); spawnShards(el, data.color); spawnPopRing(el, data.color); }
+    if(el){
+      // ★ v53 同消行手術：寶石已收進 flyList，爆開動畫前先摘掉圖示，只留空殼方塊被炸飛
+      const gemIcon = el.querySelector('.gem-svg');
+      if(gemIcon) gemIcon.remove();
+      el.classList.add('clearing'); spawnShards(el, data.color); spawnPopRing(el, data.color);
+    }
   }
   // ★ v50 ③ 爆炸回饋全面升級：付費道具必須「感覺值錢」，威力要壓過連消 ——
   //   專屬重低音轟鳴 + radial 閃光 + 雙層衝擊波 + 火星四射 + 全畫面震屏 + 重脈衝震動
@@ -4203,7 +4472,8 @@ function explodeAt(r0, c0){
   haptic([28, 36, 90]);   // 連續脈衝「喀-喀-轟」（navigator.vibrate 原生支援 pattern 陣列）
   spawnBoomFX(r0, c0);
   justDone.forEach((animal,i)=> setTimeout(()=>playAnimal(animal), 180 + i*420));
-  if(flyList.length) flyList.forEach((f,i)=> flyGemToGoal(f.gem, f.el, Math.min(i*70, 600)));
+  // ★ v53 與消行同步：連發間隔拉到 95ms，搭配新的三拍子飛行時序
+  if(flyList.length) flyList.forEach((f,i)=> flyGemToGoal(f.gem, f.el, Math.min(i*95, 700)));
 
   setTimeout(()=>{
     hits.forEach(([r,c])=> board[r][c]=null);
@@ -4238,24 +4508,73 @@ function spawnBoomFX(r0, c0){
     document.body.appendChild(ring);
     setTimeout(()=> ring.remove(), 720+delay);
   });
-  // ③ 火星四射：先衝出去、再被重力拉下來的拋物線
-  for(let i=0;i<26;i++){
+  // ③ ★ v51 大火花全面升級：爆心火球 ＋ 三波段共 64 顆粒子
+  //   （爆炸是低頻事件，Web Animations 走合成器執行緒，手機扛得住）
+  // ⓐ 爆心火球：白熱核心快速膨脹燒盡
+  const ball = document.createElement('div');
+  ball.className = 'boom-fireball';
+  ball.style.left = cx+'px'; ball.style.top = cy+'px';
+  document.body.appendChild(ball);
+  setTimeout(()=> ball.remove(), 430);
+  // ⓑ 第一波：30 條白熱「流星」高速射出 —— 細長條旋轉對齊飛行方向，才有拖尾感
+  for(let i=0;i<30;i++){
     const s = document.createElement('div');
-    const sz = 3 + Math.random()*5;
+    const len = 16 + Math.random()*18, w = 3 + Math.random()*2;
+    const ang = Math.random()*Math.PI*2;
+    const dist = 120 + Math.random()*160;
+    const dx = Math.cos(ang)*dist, dy = Math.sin(ang)*dist*0.85;
+    const rot = (Math.atan2(dy, dx)*180/Math.PI + 90).toFixed(1);   // 長軸對齊飛行方向
+    s.className = 'fire-streak';
+    s.style.cssText = `left:${cx}px; top:${cy}px; width:${w}px; height:${len}px;`+
+      `background:linear-gradient(180deg,#fff,#ffe082 55%,rgba(255,145,0,0));`;
+    document.body.appendChild(s);
+    const dur = 420 + Math.random()*260;
+    s.animate([
+      { transform:`translate(-50%,-50%) rotate(${rot}deg) translateY(0) scaleY(1)`, opacity:1 },
+      { transform:`translate(-50%,-50%) rotate(${rot}deg) translateY(-${Math.round(dist*0.75)}px) scaleY(1.25)`, opacity:1, offset:0.55 },
+      { transform:`translate(-50%,-50%) rotate(${rot}deg) translateY(-${dist}px) scaleY(.45)`, opacity:0 },
+    ], { duration:dur, easing:'cubic-bezier(.15,.75,.35,1)' });
+    setTimeout(()=> s.remove(), dur+60);
+  }
+  // ⓒ 第二波：24 顆橘紅餘燼加大加重（尺寸 5~10px），慢 40ms 拋出、重力下墜
+  for(let i=0;i<24;i++){
+    const s = document.createElement('div');
+    const sz = 5 + Math.random()*5;
     s.className = 'fire-spark';
     s.style.cssText = `left:${cx}px; top:${cy}px; width:${sz}px; height:${sz}px;`+
       `background:${pick(['#fff59d','#ffb74d','#ff7043','#ffd740'])};`+
-      `box-shadow:0 0 ${Math.round(4+sz)}px ${pick(['#ff9100','#ffab40'])};`;
+      `box-shadow:0 0 ${Math.round(6+sz)}px ${pick(['#ff9100','#ffab40'])};`;
     document.body.appendChild(s);
     const ang = Math.random()*Math.PI*2;
-    const dist = 60 + Math.random()*130;
+    const dist = 80 + Math.random()*150;
     const dx = Math.cos(ang)*dist, dy = Math.sin(ang)*dist*0.8;
-    const dur = 550 + Math.random()*350;
+    const dur = 600 + Math.random()*380;
     s.animate([
       { transform:'translate(0,0) scale(1)', opacity:1 },
-      { transform:`translate(${dx*0.7}px, ${dy*0.7 - 26}px) scale(.85)`, opacity:1, offset:0.55 },
-      { transform:`translate(${dx}px, ${dy + 90}px) scale(.15)`, opacity:0 },
-    ], { duration:dur, easing:'cubic-bezier(.2,.7,.4,1)' });
+      { transform:`translate(${dx*0.7}px, ${dy*0.7 - 30}px) scale(.9)`, opacity:1, offset:0.5 },
+      { transform:`translate(${dx}px, ${dy + 110}px) scale(.2)`, opacity:0 },
+    ], { duration:dur, delay:40, easing:'cubic-bezier(.2,.7,.4,1)', fill:'backwards' });
+    setTimeout(()=> s.remove(), dur+140);
+  }
+  // ⓓ 第三波：10 顆火屑慢慢「飄」下來 —— 爆炸的餘韻，讓大場面有收尾不突兀
+  for(let i=0;i<10;i++){
+    const s = document.createElement('div');
+    const sz = 3 + Math.random()*4;
+    s.className = 'fire-spark';
+    s.style.cssText = `left:${cx}px; top:${cy}px; width:${sz}px; height:${sz}px;`+
+      `background:${pick(['#ffcc80','#ff8a65','#ffd740'])};`+
+      `box-shadow:0 0 ${Math.round(5+sz)}px rgba(255,140,0,.9);`;
+    document.body.appendChild(s);
+    const dx = (Math.random()*2-1)*140;
+    const up = 60 + Math.random()*110;
+    const fall = 160 + Math.random()*140;
+    const dur = 1100 + Math.random()*600;
+    s.animate([
+      { transform:'translate(0,0) scale(1)', opacity:1 },
+      { transform:`translate(${Math.round(dx*0.6)}px, -${up}px) scale(.9)`, opacity:1, offset:0.3 },
+      { transform:`translate(${Math.round(dx*0.85)}px, ${Math.round(fall*0.35)}px) scale(.8)`, opacity:.85, offset:0.62 },
+      { transform:`translate(${dx}px, ${fall}px) scale(.5)`, opacity:0 },
+    ], { duration:dur, easing:'cubic-bezier(.3,.5,.5,1)' });
     setTimeout(()=> s.remove(), dur+80);
   }
   // ④ 全畫面震屏
@@ -4710,37 +5029,75 @@ function _bombCellFromPoint(x, y){
   const t = document.elementFromPoint(x, y);
   return t ? t.closest('.cell') : null;
 }
+
+/* ★ v51 ② 炸彈幽靈三件組：拖曳中整顆💣跟手飛（pointer-events:none，
+   不擋 elementFromPoint 的落點偵測，與 3×3 標記系統天然共存）。 */
+let _bombGhostEl = null;
+function showBombGhost(x, y){
+  if(!_bombGhostEl){
+    _bombGhostEl = document.createElement('div');
+    _bombGhostEl.id = 'bombGhost';
+    _bombGhostEl.innerHTML = '<span class="bg-body">💣</span><span class="bg-fuse"></span>';
+    document.body.appendChild(_bombGhostEl);
+  }
+  _bombGhostEl.style.left = x + 'px';
+  _bombGhostEl.style.top  = y + 'px';
+}
+function hideBombGhost(){
+  if(_bombGhostEl){ _bombGhostEl.remove(); _bombGhostEl = null; }
+}
+/* 砸落收尾：幽靈滑進爆心格中央、縮小墜落消失 → 才接爆炸。
+   150ms 的「因果劇場」讓爆炸看起來是「這顆炸彈」炸的，不是憑空一聲響。 */
+function slamBombGhost(r, c, done){
+  if(!_bombGhostEl){ done(); return; }
+  const cell = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+  if(cell){
+    const rc = cell.getBoundingClientRect();
+    _bombGhostEl.style.transition = 'left .13s ease-in, top .13s ease-in';
+    _bombGhostEl.style.left = (rc.left + rc.width/2) + 'px';
+    _bombGhostEl.style.top  = (rc.top  + rc.height/2) + 'px';
+  }
+  _bombGhostEl.classList.add('slam');
+  setTimeout(()=>{ hideBombGhost(); done(); }, 150);
+}
+
 function _bombDetonate(r, c){
-  cancelBombAim();
-  bombCount--;
+  bombCount--;                       // 先扣帳（防 150ms 動畫期間的重複觸發）
   saveGame(); refreshEconomyUI();
-  explodeAt(r, c);
+  slamBombGhost(r, c, ()=>{          // ★ v51 ② 砸落 → 爆炸，因果連貫
+    cancelBombAim();
+    explodeAt(r, c);
+  });
 }
 
 const _bombBtnEl = document.getElementById('bombBtn');
-let _bombDragFromBtn = false;
+let _bombDragFromBtn = false, _bombDownX = 0, _bombDownY = 0;
 _bombBtnEl.addEventListener('pointerdown', (e)=>{
   if(!currentMode || bombCount <= 0) return;   // 沒貨 → 留給下方 pointerup 開商店
   e.preventDefault();
   _bombDragFromBtn = false;
+  _bombDownX = e.clientX; _bombDownY = e.clientY;   // ★ v51 ② 記錄起點，8px 門檻分辨「點按 vs 提取」
   try{ _bombBtnEl.setPointerCapture(e.pointerId); }catch(_){}
 });
 _bombBtnEl.addEventListener('pointermove', (e)=>{
   if(!currentMode || bombCount <= 0) return;
   if(e.pointerType === 'mouse' && e.buttons === 0) return;   // 滑鼠須按住才算拖曳
+  // ★ v51 ② 移動未超過 8px = 手指顫抖，仍視為點按，不進提取模式
+  if(!_bombDragFromBtn && Math.hypot(e.clientX-_bombDownX, e.clientY-_bombDownY) < 8) return;
+  _bombDragFromBtn = true;
+  showBombGhost(e.clientX, e.clientY);         // ★ v51 ② 整顆炸彈跟著手指飛，不再是隱形搬運
   const cell = _bombCellFromPoint(e.clientX, e.clientY);
-  if(cell){                                    // 拖出按鈕、指到棋盤 → 即時亮出轟炸標記
+  if(cell){                                    // 指到棋盤 → 同步亮出 3×3 轟炸標記
     if(!bombAim) startBombAim();
-    _bombDragFromBtn = true;
     showBombPreview(+cell.dataset.r, +cell.dataset.c);
-  } else if(_bombDragFromBtn){ clearBombPreview(); }
+  } else { clearBombPreview(); }
 });
 _bombBtnEl.addEventListener('pointerup', (e)=>{
-  if(_bombDragFromBtn){                        // 提取拖曳收尾：指在棋盤上 → 引爆；否則留在瞄準模式
+  if(_bombDragFromBtn){                        // 提取拖曳收尾：指在棋盤上 → 砸落引爆
     _bombDragFromBtn = false;
     const cell = _bombCellFromPoint(e.clientX, e.clientY);
     if(cell){ _bombDetonate(+cell.dataset.r, +cell.dataset.c); }
-    else{ clearBombPreview(); }
+    else{ cancelBombAim(); }                   // ★ v51 ② 拖出去又放掉 = 把炸彈收回口袋（手上有實體後，這才直覺）
     return;
   }
   // 純點按：切換瞄準模式（原本手感）；沒貨 → 直接開商店（消費入口就在指尖）
@@ -4758,12 +5115,14 @@ _bombBoardEl.addEventListener('pointerdown', (e)=>{
   e.preventDefault();
   _bombAimHold = true;
   try{ _bombBoardEl.setPointerCapture(e.pointerId); }catch(_){}
+  showBombGhost(e.clientX, e.clientY);         // ★ v51 ② 按住棋盤瞄準 → 炸彈也現身跟手
   const cell = _bombCellFromPoint(e.clientX, e.clientY);
   if(cell) showBombPreview(+cell.dataset.r, +cell.dataset.c);
 });
 _bombBoardEl.addEventListener('pointermove', (e)=>{
   if(!bombAim) return;
   if(_bombAimHold){                            // 按住拖移：手機/滑鼠通用
+    showBombGhost(e.clientX, e.clientY);       // ★ v51 ② 幽靈跟手
     const cell = _bombCellFromPoint(e.clientX, e.clientY);
     if(cell) showBombPreview(+cell.dataset.r, +cell.dataset.c);
     else clearBombPreview();
@@ -4778,10 +5137,10 @@ _bombBoardEl.addEventListener('pointerup', (e)=>{
   _bombAimHold = false;
   const cell = _bombCellFromPoint(e.clientX, e.clientY);
   if(cell) _bombDetonate(+cell.dataset.r, +cell.dataset.c);
-  else clearBombPreview();
+  else { clearBombPreview(); hideBombGhost(); }   // ★ v51 ② 拖出棋盤放開：收幽靈、留在瞄準模式可重來
 });
 _bombBoardEl.addEventListener('pointercancel', ()=>{
-  if(_bombAimHold){ _bombAimHold = false; clearBombPreview(); }
+  if(_bombAimHold){ _bombAimHold = false; clearBombPreview(); hideBombGhost(); }
 });
 
 window.addEventListener('resize', ()=>{
