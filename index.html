@@ -3,7 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>胖嘟嘟消消樂 v55</title>
+<title>繽紛樂 v57</title>
+<meta property="og:title" content="繽紛樂 v57">
+<meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://yile555.github.io/puffyblast/">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; }
   html,body { height:100%; overflow:hidden; }
@@ -468,6 +472,11 @@
     display:flex; align-items:center; justify-content:center; }
   .piece .pcell.empty { background:transparent !important; box-shadow:none; border:none; }
   .piece.dragging { opacity:.35; }
+  /* ★ v57 戰況透視：牌架上「當下盤面無處可放」的牌壓暗＋去彩度。
+     玩家一眼看清哪張牌卡住了，及早決策（先消行騰位？動用炸彈？），
+     而不是拖到一半才發現完蛋。仍可拖曳嘗試——壓暗是情報，不是封鎖。 */
+  .piece.dimmed { opacity:.38; filter:grayscale(.65); }
+  .piece.dimmed:hover { opacity:.55; }
   #floatPiece { position:fixed; pointer-events:none; z-index:999; display:grid; gap:0; opacity:.95;
     filter:drop-shadow(0 3px 6px rgba(0,0,0,.25));
     transition:filter .12s ease-out; }
@@ -840,12 +849,12 @@
 
 <!-- ===== 模式選單 ===== -->
 <div id="menu">
-  <div class="logo">PUFFY BLAST</div>
-  <div class="title" data-i18n="menu.title">胖嘟嘟消消樂</div>
-  <div class="tagline" data-i18n="menu.tagline">放方塊・消整排・餵飽胖嘟嘟</div>
+  <div class="logo">VIVID BLAST</div>
+  <div class="title" data-i18n="menu.title">繽紛樂</div>
+  <div class="tagline" data-i18n="menu.tagline">放方塊・消整排・餵飽小動物</div>
 
   <!-- ★ v37 暱稱膠囊（點了開個人資料／改名） -->
-  <button id="menuName">🎭 <span id="menuNameVal">胖嘟嘟玩家</span></button>
+  <button id="menuName">🎭 <span id="menuNameVal">繽紛玩家</span></button>
 
   <!-- ★ v36 鑽石餘額（點了開商店；紅點 = 每日禮物未領） -->
   <button id="menuDm">💎 <span id="menuDmVal">0</span><span class="noti-dot" id="menuDmDot"></span></button>
@@ -854,6 +863,15 @@
   <div class="menu-gear-wrap" id="menuGearWrap">
     <button class="icon-btn" id="menuGearBtn" title="選單">⚙️<span class="noti-dot" id="menuGearDot"></span></button>
   </div>
+
+  <button class="mode-card balloon" data-mode="balloon">
+    <span class="soon" id="balloonBest" style="display:none"></span>
+    <span class="emoji">🎈</span>
+    <span>
+      <div class="mc-name" data-i18n="mode.balloon.name">氣球大逃亡</div>
+      <div class="mc-desc" data-i18n="mode.balloon.desc">氣球一路膨脹爬向仙人掌，靠消行洩氣把它拉回來。關關加速，撐得越久越險。</div>
+    </span>
+  </button>
 
   <button class="mode-card endless" data-mode="endless">
     <span class="emoji">♾️</span>
@@ -866,21 +884,12 @@
   <button class="mode-card gem" data-mode="gem">
     <span class="emoji">🍡</span>
     <span>
-      <div class="mc-name" data-i18n="mode.gem.name">胖嘟嘟收集</div>
-      <div class="mc-desc" data-i18n="mode.gem.desc">餵飽三隻胖嘟嘟就過關，盤面塞滿才結束，一關接一關往下闖。</div>
+      <div class="mc-name" data-i18n="mode.gem.name">繽紛收集</div>
+      <div class="mc-desc" data-i18n="mode.gem.desc">餵飽三隻小動物就過關，盤面塞滿才結束，一關接一關往下闖。</div>
     </span>
   </button>
 
-  <button class="mode-card balloon" data-mode="balloon">
-    <span class="soon" id="balloonBest" style="display:none"></span>
-    <span class="emoji">🎈</span>
-    <span>
-      <div class="mc-name" data-i18n="mode.balloon.name">氣球大逃亡</div>
-      <div class="mc-desc" data-i18n="mode.balloon.desc">氣球一路膨脹爬向仙人掌，靠消行洩氣把它拉回來。關關加速，撐得越久越險。</div>
-    </span>
-  </button>
-
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v55・胖嘟嘟消消樂・氣球跑道重見天日＋放置得分＋燎原之火</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v57・繽紛樂・公平發牌＋甜蜜節奏</div>
 </div>
 
 <div id="app">
@@ -1007,7 +1016,7 @@
     <!-- ★ v44 開場語言快選：JS 依 LANGS 動態生成，選了立刻套用全站文字（含這個視窗本身） -->
     <div class="wm-langrow" id="welcomeLangRow"></div>
     <div class="wm-emoji">🐾</div>
-    <h2 data-i18n="welcome.title">歡迎來到胖嘟嘟消消樂！</h2>
+    <h2 data-i18n="welcome.title">歡迎來到繽紛樂！</h2>
     <p class="wm-sub" data-i18n="welcome.sub">先幫自己取個名字，將來全球排行榜會用到喔</p>
     <input class="name-input" id="nameInput" maxlength="12" data-i18n-ph="welcome.placeholder" placeholder="輸入暱稱">
     <div class="wm-gifts">
@@ -1194,7 +1203,7 @@
 
       <div class="shop-sec-title">🎮 三大玩法模式</div>
       <div class="shop-item"><span class="si-ic">♾️</span><div class="si-info"><div class="si-name">無盡模式</div><div class="si-desc">沒有終點，測試手感、消除爽度、防死局重洗牌</div></div></div>
-      <div class="shop-item"><span class="si-ic">🍡</span><div class="si-info"><div class="si-name">胖嘟嘟收集</div><div class="si-desc">主線關卡，測試皮膚邂逅機率、碎片收集、難度曲線</div></div></div>
+      <div class="shop-item"><span class="si-ic">🍡</span><div class="si-info"><div class="si-name">繽紛收集</div><div class="si-desc">主線關卡，測試皮膚邂逅機率、碎片收集、難度曲線</div></div></div>
       <div class="shop-item"><span class="si-ic">🎈</span><div class="si-info"><div class="si-name">氣球大逃亡</div><div class="si-desc">物理機關救援，測試威脅／解藥碰撞、炸彈瞄準、震動回饋</div></div></div>
 
       <div class="shop-sec-title">💎 商業變現項目</div>
@@ -1220,7 +1229,7 @@
 <div class="ad-veil" id="adVeil">
   <div class="ad-veil-tag" data-i18n="ad.tag">廣告</div>
   <div class="ad-veil-box">
-    <div class="ad-veil-title" data-i18n="ad.brand">🐾 胖嘟嘟消消樂</div>
+    <div class="ad-veil-title" data-i18n="ad.brand">🐾 繽紛樂</div>
     <div class="ad-veil-sub" data-i18n="ad.sub">感謝你的支持，讓遊戲免費又好玩</div>
   </div>
   <div class="ad-veil-cd" id="adVeilCd">廣告結束：<span id="adCountdown">5</span> 秒</div>
@@ -1228,12 +1237,12 @@
 
 <script>
 /* ============================================================
-   胖嘟嘟消消樂 PuffyBlast — 核心引擎 v1.0
+   繽紛樂 Vivid Blast — 核心引擎 v1.0
    架構：Block Blast 拖放 + 食物鑲嵌收集 + 隨機關卡目標
    ============================================================ */
 
 /* ============================================================
-   胖嘟嘟消消樂 PuffyBlast — 核心引擎 v5
+   繽紛樂 Vivid Blast — 核心引擎 v5
    架構：Block Blast 拖放核心 + 可插拔模式系統
    ─ 核心引擎（拖放/消行/防死局）完全不變
    ─ 模式只決定三件事：初始化、勝負條件、壓力來源
@@ -1256,17 +1265,17 @@ let lang = 'zh-Hant';
 const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
-  'menu.title':'胖嘟嘟消消樂', 'menu.tagline':'放方塊・消整排・餵飽胖嘟嘟',
-  'menu.footer':'v55・胖嘟嘟消消樂・氣球跑道重見天日＋放置得分＋燎原之火',
+  'menu.title':'繽紛樂', 'menu.tagline':'放方塊・消整排・餵飽小動物',
+  'menu.footer':'v57・繽紛樂・公平發牌＋甜蜜節奏',
   'menu.best':'最高 {n} 關',
   'mode.endless.name':'無盡模式', 'mode.endless.desc':'沒有終點，放到沒空間為止。挑戰你的最高分。',
-  'mode.gem.name':'胖嘟嘟收集', 'mode.gem.desc':'餵飽三隻胖嘟嘟就過關，盤面塞滿才結束，一關接一關往下闖。',
+  'mode.gem.name':'繽紛收集', 'mode.gem.desc':'餵飽三隻小動物就過關，盤面塞滿才結束，一關接一關往下闖。',
   'mode.balloon.name':'氣球大逃亡', 'mode.balloon.desc':'氣球一路膨脹爬向仙人掌，靠消行洩氣把它拉回來。關關加速，撐得越久越險。',
   'gear.sound':'音效', 'gear.haptic':'震動', 'gear.shop':'商店', 'gear.skin':'換膚', 'gear.tester':'測試員模式', 'gear.home':'主選單',
   'side.level':'關卡', 'side.score':'分數', 'side.best':'最佳', 'side.hint':'提示', 'side.bomb':'炸彈', 'side.dm':'💎 鑽石', 'side.gold':'🪙 金幣',
   'gear.profile':'帳號',
-  'welcome.title':'歡迎來到胖嘟嘟消消樂！', 'welcome.sub':'先幫自己取個名字，將來全球排行榜會用到喔',
-  'welcome.placeholder':'輸入暱稱', 'welcome.defaultName':'胖嘟嘟玩家',
+  'welcome.title':'歡迎來到繽紛樂！', 'welcome.sub':'先幫自己取個名字，將來全球排行榜會用到喔',
+  'welcome.placeholder':'輸入暱稱', 'welcome.defaultName':'繽紛玩家',
   'welcome.gold':'新手金幣', 'welcome.dm':'新手鑽石', 'welcome.bomb':'新手炸彈', 'welcome.start':'開始冒險 →',
   'profile.title':'👤 個人資料', 'profile.save':'儲存暱稱', 'profile.close':'關閉',
   'profile.renameBtn':'改名', 'profile.renameHint':'首次自訂免費，之後每次改名消耗改名卡',
@@ -1325,21 +1334,21 @@ const I18N = {
   'combo.adGold':'🪙 +{n}！', 'combo.exchange':'🔁 兌換成功 +{n}🪙', 'combo.firstBonus':'🎉 首購加碼！鑽石 +{n}',
   'combo.nameBad':'暱稱需 2~12 個字', 'combo.nameSaved':'✅ 暱稱已儲存',
   'diff.boss':'⚠ 魔王關', 'diff.spike':'🔥 挑戰關',
-  'ad.tag':'廣告', 'ad.brand':'🐾 胖嘟嘟消消樂', 'ad.sub':'感謝你的支持，讓遊戲免費又好玩', 'ad.end':'廣告結束：{n} 秒',
+  'ad.tag':'廣告', 'ad.brand':'🐾 繽紛樂', 'ad.sub':'感謝你的支持，讓遊戲免費又好玩', 'ad.end':'廣告結束：{n} 秒',
 },
 'en': {
   _name:'English',
-  'menu.title':'PuffyBlast', 'menu.tagline':'Drop blocks, clear lines, feed the puffies!',
-  'menu.footer':'v55 · PuffyBlast · Balloon Track Fix + Placement Scoring + Big Fire',
+  'menu.title':'Vivid Blast', 'menu.tagline':'Drop blocks, clear lines, feed the critters!',
+  'menu.footer':'v57 · Vivid Blast · Fair Deal + Sweet Rhythm',
   'menu.best':'Best: Lv {n}',
   'mode.endless.name':'Endless', 'mode.endless.desc':'No finish line — play until the board fills up. Chase your high score.',
-  'mode.gem.name':'Puffy Collect', 'mode.gem.desc':'Feed the puffies to clear each level. You only lose when the board jams. Level after level!',
+  'mode.gem.name':'Critter Collect', 'mode.gem.desc':'Feed the critters to clear each level. You only lose when the board jams. Level after level!',
   'mode.balloon.name':'Balloon Escape', 'mode.balloon.desc':'The balloon keeps inflating toward the cactus — clear lines to deflate it. Faster every level!',
   'gear.sound':'Sound', 'gear.haptic':'Vibration', 'gear.shop':'Shop', 'gear.skin':'Themes', 'gear.tester':'Tester Mode', 'gear.home':'Main Menu',
   'side.level':'LEVEL', 'side.score':'SCORE', 'side.best':'BEST', 'side.hint':'Hint', 'side.bomb':'Bomb', 'side.dm':'💎 Gems', 'side.gold':'🪙 Gold',
   'gear.profile':'Account',
-  'welcome.title':'Welcome to PuffyBlast!', 'welcome.sub':'Pick a nickname first — you\'ll need it for the global leaderboard',
-  'welcome.placeholder':'Enter nickname', 'welcome.defaultName':'Puffy Player',
+  'welcome.title':'Welcome to Vivid Blast!', 'welcome.sub':'Pick a nickname first — you\'ll need it for the global leaderboard',
+  'welcome.placeholder':'Enter nickname', 'welcome.defaultName':'Vivid Player',
   'welcome.gold':'Starter Gold', 'welcome.dm':'Starter Gems', 'welcome.bomb':'Starter Bomb', 'welcome.start':'Start Adventure →',
   'profile.title':'👤 Account', 'profile.save':'Save Nickname', 'profile.close':'Close',
   'profile.renameBtn':'Rename', 'profile.renameHint':'First custom name is free; renaming after that uses a rename card',
@@ -1398,12 +1407,12 @@ const I18N = {
   'combo.adGold':'🪙 +{n}!', 'combo.exchange':'🔁 Exchanged +{n}🪙', 'combo.firstBonus':'🎉 First-purchase bonus! +{n} gems',
   'combo.nameBad':'Nickname must be 2-12 characters', 'combo.nameSaved':'✅ Nickname saved',
   'diff.boss':'⚠ BOSS LEVEL', 'diff.spike':'🔥 CHALLENGE',
-  'ad.tag':'AD', 'ad.brand':'🐾 PuffyBlast', 'ad.sub':'Thanks for your support — it keeps the game free!', 'ad.end':'Ad ends in {n}s',
+  'ad.tag':'AD', 'ad.brand':'🐾 Vivid Blast', 'ad.sub':'Thanks for your support — it keeps the game free!', 'ad.end':'Ad ends in {n}s',
 },
 'ja': {
   _name:'日本語',
-  'menu.title':'パフィーブラスト', 'menu.tagline':'ブロックを置いて、ライン消して、もぐもぐタイム！',
-  'menu.footer':'v55・パフィーブラスト・バルーン軌道修正＋配置スコア＋大炎上',
+  'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを置いて、ライン消して、もぐもぐタイム！',
+  'menu.footer':'v57・ビビッドブラスト・フェア配牌＋スイートリズム',
   'menu.best':'最高 {n} 面',
   'mode.endless.name':'エンドレス', 'mode.endless.desc':'終わりなき挑戦。盤面が埋まるまでハイスコアを狙おう。',
   'mode.gem.name':'もぐもぐコレクト', 'mode.gem.desc':'どうぶつたちを満腹にすればクリア。盤面が詰まるまで終わらない。どんどん先へ！',
@@ -1411,8 +1420,8 @@ const I18N = {
   'gear.sound':'サウンド', 'gear.haptic':'バイブ', 'gear.shop':'ショップ', 'gear.skin':'きせかえ', 'gear.tester':'テスターモード', 'gear.home':'メニュー',
   'side.level':'レベル', 'side.score':'スコア', 'side.best':'ベスト', 'side.hint':'ヒント', 'side.bomb':'ボム', 'side.dm':'💎 ジェム', 'side.gold':'🪙 ゴールド',
   'gear.profile':'アカウント',
-  'welcome.title':'パフィーブラストへようこそ！', 'welcome.sub':'まずニックネームを決めよう。世界ランキングで使うよ',
-  'welcome.placeholder':'ニックネームを入力', 'welcome.defaultName':'パフィープレイヤー',
+  'welcome.title':'ビビッドブラストへようこそ！', 'welcome.sub':'まずニックネームを決めよう。世界ランキングで使うよ',
+  'welcome.placeholder':'ニックネームを入力', 'welcome.defaultName':'ビビッドプレイヤー',
   'welcome.gold':'初回ゴールド', 'welcome.dm':'初回ジェム', 'welcome.bomb':'初回ボム', 'welcome.start':'冒険を始める →',
   'profile.title':'👤 アカウント', 'profile.save':'ニックネームを保存', 'profile.close':'閉じる',
   'profile.renameBtn':'改名', 'profile.renameHint':'初回の名前設定は無料、それ以降は改名カードを消費します',
@@ -1471,7 +1480,7 @@ const I18N = {
   'combo.adGold':'🪙 +{n}！', 'combo.exchange':'🔁 交換成功 +{n}🪙', 'combo.firstBonus':'🎉 初回購入ボーナス！ジェム +{n}',
   'combo.nameBad':'ニックネームは2〜12文字で入力してください', 'combo.nameSaved':'✅ ニックネームを保存しました',
   'diff.boss':'⚠ ボス面', 'diff.spike':'🔥 チャレンジ面',
-  'ad.tag':'広告', 'ad.brand':'🐾 パフィーブラスト', 'ad.sub':'応援ありがとう！おかげでゲームは無料です', 'ad.end':'広告終了まで {n} 秒',
+  'ad.tag':'広告', 'ad.brand':'🐾 ビビッドブラスト', 'ad.sub':'応援ありがとう！おかげでゲームは無料です', 'ad.end':'広告終了まで {n} 秒',
 },
 };
 
@@ -1517,7 +1526,7 @@ const MODES = {
   },
   // ───────── 胖嘟嘟收集：餵飽動物過關，盤面塞死才失敗（不限步數，公平） ─────────
   gem: {
-    name:'胖嘟嘟收集', useGoals:true, useMoves:false, useScore:true,
+    name:'繽紛收集', useGoals:true, useMoves:false, useScore:true,
     setup(lv){
       // ★ v26：角色池擴為 7 種後，目標種類數改「隨關卡漸進」而非固定值。
       //        設計考量（留存）：新手若第一關就同時追 5 種，認知負擔過重、傷 honeymoon。
@@ -2394,15 +2403,17 @@ function playWin(){   // 過關小旋律
 const SHAPE_LIB = [
   // ============ 常態牌（日常主力） ============
   // 3x3 大塊頭（養輕敵王牌，常出）
-  { tier:'common', weight:7, cells:[[0,0],[0,1],[0,2],[1,0],[1,1],[1,2],[2,0],[2,1],[2,2]] },
-  // 2x2 正方形
-  { tier:'common', weight:8, cells:[[0,0],[0,1],[1,0],[1,1]] },
+  // ★ v57 sweet 標籤：甜蜜連發節奏系統的牌池分組（A=大塊爽消 / B=方磚短條 / C=長條）。
+  //    連發時只從同池抽牌，玩家進入「隨手放都對」的自動駕駛節奏——Block Blast 精髓。
+  { tier:'common', weight:7, sweet:'A', cells:[[0,0],[0,1],[0,2],[1,0],[1,1],[1,2],[2,0],[2,1],[2,2]] },
+  // 2x2 正方形（v57 加權 8→9：最百搭的爽牌）
+  { tier:'common', weight:9, sweet:'B', cells:[[0,0],[0,1],[1,0],[1,1]] },
   // 三格長條（橫 / 直）
-  { tier:'common', weight:7, cells:[[0,0],[0,1],[0,2]] },
-  { tier:'common', weight:7, cells:[[0,0],[1,0],[2,0]] },
+  { tier:'common', weight:7, sweet:'B', cells:[[0,0],[0,1],[0,2]] },
+  { tier:'common', weight:7, sweet:'B', cells:[[0,0],[1,0],[2,0]] },
   // 四格長條（橫 / 直）
-  { tier:'common', weight:5, cells:[[0,0],[0,1],[0,2],[0,3]] },
-  { tier:'common', weight:5, cells:[[0,0],[1,0],[2,0],[3,0]] },
+  { tier:'common', weight:5, sweet:'C', cells:[[0,0],[0,1],[0,2],[0,3]] },
+  { tier:'common', weight:5, sweet:'C', cells:[[0,0],[1,0],[2,0],[3,0]] },
   // L 型四格（4 個旋轉方向）
   { tier:'common', weight:4, cells:[[0,0],[1,0],[2,0],[2,1]] },   // L
   { tier:'common', weight:4, cells:[[0,0],[0,1],[0,2],[1,0]] },   // L 轉90
@@ -2414,14 +2425,16 @@ const SHAPE_LIB = [
   { tier:'common', weight:4, cells:[[0,0],[0,1],[1,0],[2,0]] },   // J 轉180
   { tier:'common', weight:4, cells:[[0,0],[0,1],[0,2],[1,2]] },   // J 轉270
   // Z 型（2 個方向）
-  { tier:'common', weight:4, cells:[[0,1],[0,2],[1,0],[1,1]] },   // Z 橫
-  { tier:'common', weight:4, cells:[[0,0],[1,0],[1,1],[2,1]] },   // Z 直
+  // ★ v57 Z/S 大降權 4→1.5：真機實測回報「出現率高到像被系統刁難」。
+  //    Z/S 是唯一「放下去必留缺口」的常態牌，密度一高挫折感暴衝。保留少量維持變化即可。
+  { tier:'common', weight:1.5, cells:[[0,1],[0,2],[1,0],[1,1]] },   // Z 橫
+  { tier:'common', weight:1.5, cells:[[0,0],[1,0],[1,1],[2,1]] },   // Z 直
   // S 型（Z 的鏡像，2 個方向）
-  { tier:'common', weight:4, cells:[[0,0],[0,1],[1,1],[1,2]] },   // S 橫
-  { tier:'common', weight:4, cells:[[0,1],[1,0],[1,1],[2,0]] },   // S 直
-  // 3x2 / 2x3 矩形（橫 / 豎）
-  { tier:'common', weight:4, cells:[[0,0],[0,1],[0,2],[1,0],[1,1],[1,2]] }, // 2x3 橫
-  { tier:'common', weight:4, cells:[[0,0],[0,1],[1,0],[1,1],[2,0],[2,1]] }, // 3x2 豎
+  { tier:'common', weight:1.5, cells:[[0,0],[0,1],[1,1],[1,2]] },   // S 橫
+  { tier:'common', weight:1.5, cells:[[0,1],[1,0],[1,1],[2,0]] },   // S 直
+  // 3x2 / 2x3 矩形（橫 / 豎）（v57 加權 4→6：與 3x3 同屬「看起來很簡單」的安心牌）
+  { tier:'common', weight:6, sweet:'A', cells:[[0,0],[0,1],[0,2],[1,0],[1,1],[1,2]] }, // 2x3 橫
+  { tier:'common', weight:6, sweet:'A', cells:[[0,0],[0,1],[1,0],[1,1],[2,0],[2,1]] }, // 3x2 豎
 
   // ============ 中等牌（空間殺手 / 需要思考） ============
   // T 型（4 個旋轉方向）
@@ -2430,10 +2443,11 @@ const SHAPE_LIB = [
   { tier:'trap', weight:3, cells:[[0,1],[1,0],[1,1],[1,2]] },     // T 轉180
   { tier:'trap', weight:3, cells:[[0,0],[1,0],[1,1],[2,0]] },     // T 轉270
   // 三格等邊小 L（4 個旋轉方向）
-  { tier:'trap', weight:3, cells:[[0,0],[0,1],[1,0]] },           // 小L
-  { tier:'trap', weight:3, cells:[[0,0],[0,1],[1,1]] },           // 小L 轉90
-  { tier:'trap', weight:3, cells:[[0,1],[1,0],[1,1]] },           // 小L 轉180
-  { tier:'trap', weight:3, cells:[[0,0],[1,0],[1,1]] },           // 小L 轉270
+  // ★ v57 小L 降權 3→1.5：與 Z/S 同案處理——四個方向累積出現率過高，體感被夾擊。
+  { tier:'trap', weight:1.5, cells:[[0,0],[0,1],[1,0]] },           // 小L
+  { tier:'trap', weight:1.5, cells:[[0,0],[0,1],[1,1]] },           // 小L 轉90
+  { tier:'trap', weight:1.5, cells:[[0,1],[1,0],[1,1]] },           // 小L 轉180
+  { tier:'trap', weight:1.5, cells:[[0,0],[1,0],[1,1]] },           // 小L 轉270
   // 五格長條（橫 / 直）
   { tier:'trap', weight:3, cells:[[0,0],[0,1],[0,2],[0,3],[0,4]] },
   { tier:'trap', weight:3, cells:[[0,0],[1,0],[2,0],[3,0],[4,0]] },
@@ -3185,8 +3199,9 @@ addEventListener('resize', ()=>{ clearTimeout(_hzRz); _hzRz = setTimeout(()=>{ i
 /* ============================================================
    方塊生成（含隨機鑽石鑲嵌）
    ============================================================ */
-function makePiece(){
-  const shapeDef = pickWeightedShape();
+function makePiece(forceDef){
+  // ★ v57：可傳入指定形狀（甜蜜連發從同池抽牌用）；不傳則照常權重隨機
+  const shapeDef = forceDef || pickWeightedShape();
   const shape = shapeDef.cells;
   const color = pick(PIECE_COLORS);
   // 對角線斜牌最難對齊 → 多鑲鑽石作「高風險高回報」補償
@@ -3243,15 +3258,84 @@ function refillTray(){
 
 /* 平衡出牌：一組三張裡的「空間殺手(trap)」數量上限，由本關難度 trapCap 決定。
    放水關 cap=0（完全不夾擊）、日常 cap=1、小考 cap=2、魔王 cap=3（火力全開）。
-   稀有救命小牌不受限制 —— 它們是來解圍的，多給一點玩家更舒服。 */
+   稀有救命小牌不受限制 —— 它們是來解圍的，多給一點玩家更舒服。
+
+   ★ v57 兩大升級：
+   ① 公平發牌鐵律：三張牌「每一張」都必須在發牌當下的盤面放得下才准成組。
+      舊規則只保證「至少一張放得下」，會出現「發牌瞬間就註定死」的系統陰人局
+      （真機實測：盤面剩 36 格空位但 3x3 無處可放＋剩餘兩張無法消任何行列）。
+      新規則消滅發牌死刑；玩家中途放牌互相卡死仍會輸——那是策略責任，輸得心服口服。
+      公平是「順序陷阱」設計能成立的地基：玩家100%信任牌有解，才會怪自己不怪系統。
+   ② 甜蜜連發節奏：盤面夠空時有機率進入 2~3 手「同池爽牌連發」（3x3/矩形/方磚/長條），
+      玩家進入自動駕駛的爽快節奏；連發結束悄悄切回混合牌——節奏催眠，Block Blast 精髓。 */
+
+/* 單張牌在「當下盤面」是否存在至少一個合法落點 */
+function pieceFitsSomewhere(p){
+  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
+    if(canPlace(p, r, c)) return true;
+  }
+  return false;
+}
+
+/* 盤面佔用比例（決定要不要開甜蜜連發：太擠時大牌塞不進，連發只會空轉） */
+function boardFillRatio(){
+  let f=0;
+  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++) if(board[r][c]) f++;
+  return f/(SIZE*SIZE);
+}
+
+/* 甜蜜連發狀態機：streak = 剩餘連發手數；pool = 本輪連發使用的同型牌池 */
+const RHYTHM = { streak:0, pool:null };
+
 function makeBalancedTrio(){
   const cap = (curDiff.trapCap ?? 1);
-  let trio, trapCount, tries=0;
-  do{
-    trio = [makePiece(), makePiece(), makePiece()];
-    trapCount = trio.filter(p=>p.tier==='trap').length;
+
+  // ── 節奏決策：不在連發中 → 擲骰子決定要不要開一輪甜蜜連發 ──
+  if(RHYTHM.streak <= 0 && boardFillRatio() < 0.5){
+    const chance = (curDiff.tier==='boss') ? 0.10 : 0.28;   // 魔王關少放糖
+    if(Math.random() < chance){
+      RHYTHM.streak = 2 + rand(2);                          // 連發 2~3 手
+      const tag = pick(['A','B','C']);
+      RHYTHM.pool = SHAPE_LIB.filter(s=> s.sweet === tag);
+    }
+  }
+  const sweetPool = (RHYTHM.streak > 0 && RHYTHM.pool && RHYTHM.pool.length) ? RHYTHM.pool : null;
+
+  // ── 主生成迴圈：trap 上限 + 三張皆有解，兩關全過才放行 ──
+  let trio = null, tries = 0;
+  while(tries < 40){
+    // 甜牌池試 15 次還過不了公平鐵律 → 盤面容不下爽牌，放棄本輪連發回歸常規
+    const useSweet = sweetPool && tries < 15;
+    const t = [0,1,2].map(()=> useSweet ? makePiece(pick(sweetPool)) : makePiece());
+    const trapCount = t.filter(p=>p.tier==='trap').length;
+    if(trapCount <= cap && t.every(pieceFitsSomewhere)){
+      trio = t;
+      if(useSweet) RHYTHM.streak--;   // 甜蜜連發成功發出一手
+      else         RHYTHM.streak = 0; // 用常規牌完成 → 中止連發（悄悄換牌的時刻）
+      break;
+    }
     tries++;
-  } while(trapCount>cap && tries<25);
+  }
+
+  // ── 保底修復：40 次都湊不齊「三張皆有解」（盤面極刁）→ 逐張換成放得下的牌 ──
+  if(!trio){
+    RHYTHM.streak = 0;
+    trio = [];
+    for(let i=0;i<3;i++){
+      let p = null;
+      for(let k=0;k<12;k++){
+        const cand = makePiece();
+        if(pieceFitsSomewhere(cand)){ p = cand; break; }
+      }
+      if(!p){
+        // 降級階梯：橫2 → 單格（消行機制保證盤面永遠至少一格空，單格牌必定放得下）
+        const duo = { cells:[{r:0,c:0,gem:null,glow:false},{r:0,c:1,gem:null,glow:false}],
+                      color:pick(PIECE_COLORS), rows:1, cols:2, used:false, tier:'rare' };
+        p = pieceFitsSomewhere(duo) ? duo : makeSingleCellPiece();
+      }
+      trio.push(p);
+    }
+  }
   return trio;
 }
 
@@ -3287,6 +3371,8 @@ function renderTray(){
     const scale = Math.min(SLOT_W/rawW, SLOT_H/rawH, 1);
     pe.style.transform = `scale(${scale})`;
     pe.dataset.scale = scale;
+    // ★ v57 戰況透視：當下無處可放 → 壓暗提示（renderTray 每次放牌後都會重跑，自動保持最新）
+    if(!pieceFitsSomewhere(p)) pe.classList.add('dimmed');
     attachDrag(pe, idx);
     slot.appendChild(pe);
     tray.appendChild(slot);
