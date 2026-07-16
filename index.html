@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title> v54</title>
+<title>胖嘟嘟消消樂 v55</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; }
   html,body { height:100%; overflow:hidden; }
@@ -97,7 +97,8 @@
 
   /* ★ v54 里程碑中文飄字：達到分數門檻時，中央飄出「大小通吃」的中文讚美。
      複用 #praise 的漸層文字語言，風格與既有煙火一致。pointer-events:none 絕不擋操作。 */
-  #scoreMile { position:fixed; top:22%; left:50%; z-index:934; pointer-events:none;
+  /* ★ v55 z-index 934→951：里程碑常在消行瞬間觸發，必須壓過掉落方塊浮層(.fall-block z:945) */
+  #scoreMile { position:fixed; top:22%; left:50%; z-index:951; pointer-events:none;
     transform:translateX(-50%); text-align:center; opacity:0; white-space:nowrap; }
   #scoreMile .sm-word { font-size:44px; font-weight:900; letter-spacing:2px; line-height:1;
     background:linear-gradient(180deg,#fff,#ffca28); -webkit-background-clip:text; background-clip:text; color:transparent;
@@ -270,16 +271,24 @@
 
   /* ★ v50 ① 連消中央大字：×2 才開始跳（第一消是日常、連上才是煙火 —— 稀有才會爽、不疲乏）。
      連越多 → 字越大、色越燙：×2~3 橘火 → ×4~5 烈焰紅（換狂震動畫）→ ×6+ 燒成金白。 */
-  #streakPop { position:fixed; top:46%; left:50%; z-index:936; pointer-events:none;
+  #streakPop { position:fixed; top:46%; left:50%; z-index:952; pointer-events:none;
     transform:translate(-50%,-50%); opacity:0; text-align:center; will-change:transform,opacity; }
-  #streakPop .sp-fire { display:block; font-size:calc(var(--sp-size,64px)*.42); line-height:1;
-    margin-bottom:-4px; filter:drop-shadow(0 2px 4px rgba(0,0,0,.3)); }
-  #streakPop .sp-x { font-weight:900; line-height:1; font-size:var(--sp-size,64px); letter-spacing:1px;
+  /* ★ v55 「星星之火可以燎原」：火苗從數字上方的小配菜（0.42×）升格為數字背後的主舞台。
+     十元硬幣壓五元的比例——火 ≈ 1.5~1.8× 數字，×N 疊在火上、蓋不住它，燒起來才有燎原感。
+     z-index 936→952：消行瞬間生成的掉落方塊浮層(.fall-block z:945)先前正好蓋住大字，
+     這就是「連消提醒被自己的方塊遮住」的兇手。 */
+  #streakPop .sp-fire { position:absolute; left:50%; top:50%;
+    transform:translate(-50%,-56%); line-height:1; z-index:0;
+    font-size:calc(var(--sp-size,64px) * var(--sp-fire-scale,1.5));
+    filter:drop-shadow(0 4px 10px rgba(0,0,0,.35)); }
+  #streakPop .sp-x { position:relative; z-index:1; display:inline-block;
+    font-weight:900; line-height:1; font-size:var(--sp-size,64px); letter-spacing:1px;
     background:var(--sp-grad,linear-gradient(180deg,#ffe0b2,#ff9100));
     -webkit-background-clip:text; background-clip:text; color:transparent;
-    filter:drop-shadow(0 3px 0 rgba(120,40,0,.35)) drop-shadow(0 6px 16px rgba(255,111,0,.5)); }
-  #streakPop.show { animation:streakPopIn .9s cubic-bezier(.2,1.4,.35,1) forwards; }
-  #streakPop.mega.show { animation:streakPopMega 1s cubic-bezier(.2,1.4,.35,1) forwards; }
+    filter:drop-shadow(0 2px 0 rgba(90,25,0,.6)) drop-shadow(0 3px 3px rgba(0,0,0,.45)) drop-shadow(0 6px 16px rgba(255,111,0,.5)); }
+  /* 大而短促：0.9s/1s → 0.78s/0.88s，爽完就走、不擋視線 */
+  #streakPop.show { animation:streakPopIn .78s cubic-bezier(.2,1.4,.35,1) forwards; }
+  #streakPop.mega.show { animation:streakPopMega .88s cubic-bezier(.2,1.4,.35,1) forwards; }
   @keyframes streakPopIn {
     0%{ opacity:0; transform:translate(-50%,-50%) scale(.3); }
     22%{ opacity:1; transform:translate(-50%,-50%) scale(1.18); }
@@ -574,6 +583,16 @@
   /* UI 全部抬到氣球之上（原本是 static，會被 positioned 圖層蓋住） */
   #goals, #playArea, #tray { position:relative; z-index:1; }
 
+  /* ★ v55 機關關版面：#app.hz-on（由 HZ.syncGoals 掛上）
+     ① 棋盤讓出左側走廊 —— v54 隱藏側欄後棋盤變寬，把氣球的左側跑道整條蓋住。
+        padding-left 配合 calcCellSize 的 gutter 扣寬，跑道 x≈32 完整重見天日。
+     ② 大分數改亮白＋天藍光暈 —— 原本的暗金色在深藍底＋藍色管線旁對比不足，
+        機關模式的分數必須一眼即讀。 */
+  #app.hz-on #boardWrap { padding-left:50px; }
+  #app.hz-on #streakBadge { left:58px; }   /* 連消徽章讓開走廊，別壓在氣球管上 */
+  #app.hz-on #bigScore .bs-num { color:#ffffff;
+    text-shadow:0 0 14px rgba(79,195,247,.85), 0 2px 3px rgba(0,0,0,.6), 0 6px 18px rgba(0,0,0,.45); }
+
   #hzSvg { position:absolute; inset:0; width:100%; height:100%; }
 
   /* 噴氣嘴：金屬管，氣球嘴從外面套住它 */
@@ -861,7 +880,7 @@
     </span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v53・胖嘟嘟消消樂・軟糖方塊：立體斜面＋果凍光澤</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v55・胖嘟嘟消消樂・氣球跑道重見天日＋放置得分＋燎原之火</div>
 </div>
 
 <div id="app">
@@ -1238,7 +1257,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'胖嘟嘟消消樂', 'menu.tagline':'放方塊・消整排・餵飽胖嘟嘟',
-  'menu.footer':'v53・胖嘟嘟消消樂・軟糖方塊：立體斜面＋果凍光澤',
+  'menu.footer':'v55・胖嘟嘟消消樂・氣球跑道重見天日＋放置得分＋燎原之火',
   'menu.best':'最高 {n} 關',
   'mode.endless.name':'無盡模式', 'mode.endless.desc':'沒有終點，放到沒空間為止。挑戰你的最高分。',
   'mode.gem.name':'胖嘟嘟收集', 'mode.gem.desc':'餵飽三隻胖嘟嘟就過關，盤面塞滿才結束，一關接一關往下闖。',
@@ -1311,7 +1330,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'PuffyBlast', 'menu.tagline':'Drop blocks, clear lines, feed the puffies!',
-  'menu.footer':'v53 · PuffyBlast · Gummy Blocks: Beveled 3D + Jelly Gloss',
+  'menu.footer':'v55 · PuffyBlast · Balloon Track Fix + Placement Scoring + Big Fire',
   'menu.best':'Best: Lv {n}',
   'mode.endless.name':'Endless', 'mode.endless.desc':'No finish line — play until the board fills up. Chase your high score.',
   'mode.gem.name':'Puffy Collect', 'mode.gem.desc':'Feed the puffies to clear each level. You only lose when the board jams. Level after level!',
@@ -1384,7 +1403,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'パフィーブラスト', 'menu.tagline':'ブロックを置いて、ライン消して、もぐもぐタイム！',
-  'menu.footer':'v53・パフィーブラスト・グミブロック：立体ベベル＋ゼリー光沢',
+  'menu.footer':'v55・パフィーブラスト・バルーン軌道修正＋配置スコア＋大炎上',
   'menu.best':'最高 {n} 面',
   'mode.endless.name':'エンドレス', 'mode.endless.desc':'終わりなき挑戦。盤面が埋まるまでハイスコアを狙おう。',
   'mode.gem.name':'もぐもぐコレクト', 'mode.gem.desc':'どうぶつたちを満腹にすればクリア。盤面が詰まるまで終わらない。どんどん先へ！',
@@ -2074,13 +2093,17 @@ function showStreakPop(n){
   const el = document.getElementById('streakPop');
   if(!el) return;
   const size = Math.min(56 + n*10, 128);
-  let grad, fire;
-  if(n >= 6){ grad='linear-gradient(180deg,#fffde7,#ffd740 45%,#ff8f00)'; fire='🔥🔥🔥'; }
-  else if(n >= 4){ grad='linear-gradient(180deg,#ffe082,#ff5722 60%,#d32f2f)'; fire='🔥🔥'; }
-  else { grad='linear-gradient(180deg,#ffe0b2,#ff9100)'; fire='🔥'; }
+  // ★ v55 改「一顆大火」：舊版連 4/6 是加火苗數量（🔥🔥🔥），但三顆小火排排站
+  //    反而像香火。新版火只有一顆、越連越巨大 —— 燎原的是尺寸，不是數量。
+  //    層級感交給數字漸層（橘→烈焰紅→金白）與 mega 狂震動畫，原分級一個不少。
+  let grad, fireScale;
+  if(n >= 6){ grad='linear-gradient(180deg,#fffde7,#ffd740 45%,#ff8f00)'; fireScale=1.8; }
+  else if(n >= 4){ grad='linear-gradient(180deg,#ffe082,#ff5722 60%,#d32f2f)'; fireScale=1.65; }
+  else { grad='linear-gradient(180deg,#ffe0b2,#ff9100)'; fireScale=1.5; }
   el.style.setProperty('--sp-size', size+'px');
+  el.style.setProperty('--sp-fire-scale', fireScale);
   el.style.setProperty('--sp-grad', grad);
-  el.innerHTML = `<span class="sp-fire">${fire}</span><span class="sp-x">×${n}</span>`;
+  el.innerHTML = `<span class="sp-fire">🔥</span><span class="sp-x">×${n}</span>`;
   el.classList.toggle('mega', n>=4);
   el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
 }
@@ -2615,7 +2638,10 @@ function initBoard(){
 
 function calcCellSize(){
   const wrap = document.getElementById('boardWrap');
-  const avail = Math.min(wrap.clientWidth, wrap.clientHeight) - 16;
+  // ★ v55 機關關左側讓道：氣球跑道走 x≈32 的左側走廊，寬度計算先扣掉走廊保留區，
+  //    棋盤右移縮一點點 → 玩家整局都看得到氣球（時間線）的完整軌跡，這是機關模式的生命線。
+  const gutter = (typeof HZ !== 'undefined' && HZ.active) ? 44 : 0;
+  const avail = Math.min(wrap.clientWidth - gutter, wrap.clientHeight) - 16;
   // gap 已歸零、#board padding 改 6px（左右各 6 = 12）→ 縫隙不再占空間，格子可放大一點
   CELL = Math.floor((avail - 12) / SIZE);
   CELL = Math.max(30, Math.min(CELL, 48));
@@ -2850,7 +2876,19 @@ HZ.layout = function(){
   const goalsH = HZ.$('goals').offsetHeight;
   const trayH  = HZ.$('tray').offsetHeight + 10;
   const M = 32, R = 16;
-  const yTop = Math.round(goalsH + 24);
+  // ★ v55 頂部走廊避開大分數：v54 在任務欄下方新增了 #bigScore，但這裡的 yTop
+  //    仍只算 goalsH → 管線剛好壓在分數正中央（「分數害羞了」事故的根源）。
+  //    修正：yTop 起算點加上 bigScore 高度；若量得到棋盤頂端，管線鎖在
+  //    「分數下緣 ～ 棋盤上緣」的正中間，兩邊都不碰。
+  const bigEl = HZ.$('bigScore');
+  const bigH = (bigEl && !bigEl.classList.contains('hidden')) ? bigEl.offsetHeight : 0;
+  let yTop = Math.round(goalsH + bigH + 22);
+  const boardEl = HZ.$('board');
+  if(boardEl){
+    const appRect = app.getBoundingClientRect();
+    const bTop = boardEl.getBoundingClientRect().top - appRect.top;
+    if(bTop - (goalsH + bigH) > 30) yTop = Math.round((goalsH + bigH + bTop) / 2);
+  }
   const yBot = Math.round(H - trayH - 26);
   if(yBot - yTop < 80) return;                 // 版面太矮，放棄重繪（避免路徑自交）
   const xR = W - 34, xEnd = W - 46;
@@ -2893,6 +2931,12 @@ HZ.syncGoals = function(){
   // ★ 必須在 refillTray() 之前執行 —— active 決定第一批托盤牌有沒有發光食物
   HZ.active = (currentMode === 'balloon')                          // 氣球模式：整局都是機關關
            || (currentMode === 'gem' && HZ.isLevel(level));        // 收集模式：每 20 關一次
+  // ★ v55 機關關版面：#app 掛上 hz-on → 棋盤讓出左側走廊給氣球（v54 隱藏側欄後
+  //    棋盤變寬，把 x≈32 的左側跑道整條蓋住 = 玩家看不到生命線）。
+  //    這裡是 startLevel 裡最早知道 HZ.active 的時機點，且早於 calcCellSize()，
+  //    格子尺寸計算才吃得到縮減後的寬度。
+  { const app = document.getElementById('app');
+    if(app) app.classList.toggle('hz-on', HZ.active); }
   if(!HZ.active) return;
   HZ.tuneFor();
   const chosen = [...GEM_KEYS].sort(()=>Math.random()-.5).slice(0, HZ.run.types);
@@ -2920,6 +2964,9 @@ HZ.stop = function(){
   clearTimeout(HZ.boomTimer); HZ.boomTimer = null;
   const layer = HZ.$('hzLayer');
   if(layer) layer.classList.remove('on');
+  // ★ v55 機關停用 → 收回左側走廊，棋盤版面復原
+  const app = document.getElementById('app');
+  if(app) app.classList.remove('hz-on');
 };
 
 HZ.reset = function(){
@@ -3440,6 +3487,15 @@ function placePiece(p, idx, baseR, baseC){
     board[baseR+cell.r][baseC+cell.c] = { color:p.color, gem:cell.gem, glow:cell.glow };
   });
   trayPieces[idx].used = true;
+
+  // ★ v55 放置得分（Block Blast 式）：成功把牌塞進棋盤本身就是動腦，每格 +1 分。
+  //    無盡模式的分數從此「每一手都在跳」——成就感不再乾等消行，
+  //    消行的大分＋連消倍率照舊，仍是分數的主菜；這裡是穩定的小費。
+  if(MODE().useScore){
+    score += p.cells.length;
+    if(score > bestScore) bestScore = score;
+    updateStatus();
+  }
 
   lastPlacement = {
     cells: p.cells.map(cell=> [baseR+cell.r, baseC+cell.c]),
