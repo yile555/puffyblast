@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>繽紛樂 v57</title>
-<meta property="og:title" content="繽紛樂 v57">
+<title>繽紛樂 v58</title>
+<meta property="og:title" content="繽紛樂 v58">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://yile555.github.io/puffyblast/">
@@ -38,7 +38,7 @@
   .action-wrap .act-btn { position:relative; width:44px; height:44px; border:none; border-radius:14px;
     color:#fff; font-size:22px; font-weight:800; cursor:pointer; padding:0;
     display:flex; align-items:center; justify-content:center;
-    background:rgba(60,72,110,.75); box-shadow:0 2px 8px rgba(0,0,0,.25); }
+    background:#3c486e; box-shadow:0 2px 8px rgba(0,0,0,.25); }   /* ★ v58 改全不透明：75% 透明度會被亮色棋盤穿透混色 */
   .action-wrap .act-btn:active { transform:scale(.92); }
   .action-wrap .act-btn span { display:none; }   /* 縮成純圖示，省空間 */
   .action-wrap .cnt { position:absolute; top:-6px; right:-6px; min-width:19px; height:19px;
@@ -93,7 +93,8 @@
   /* 里程碑達成：分數本身燒成金色、放大狂跳，比一般加分更盛大 */
   #bigScore .bs-num.milestone {
     background:linear-gradient(180deg,#fff6d5,#ffb300); -webkit-background-clip:text; background-clip:text;
-    color:transparent; filter:drop-shadow(0 2px 0 rgba(120,70,0,.35)) drop-shadow(0 8px 20px rgba(255,179,0,.6));
+    color:transparent; text-shadow:none;   /* ★ v58 關鍵修正：透明文字會讓底層黑影透出來，把金色染成髒古銅 */
+    filter:drop-shadow(0 2px 0 rgba(120,70,0,.35)) drop-shadow(0 8px 20px rgba(255,179,0,.6));
     animation:bsMilestone .8s cubic-bezier(.2,1.4,.35,1); }
   @keyframes bsMilestone {
     0%{transform:scale(1);} 25%{transform:scale(1.42) rotate(-3deg);}
@@ -475,8 +476,11 @@
   /* ★ v57 戰況透視：牌架上「當下盤面無處可放」的牌壓暗＋去彩度。
      玩家一眼看清哪張牌卡住了，及早決策（先消行騰位？動用炸彈？），
      而不是拖到一半才發現完蛋。仍可拖曳嘗試——壓暗是情報，不是封鎖。 */
-  .piece.dimmed { opacity:.38; filter:grayscale(.65); }
-  .piece.dimmed:hover { opacity:.55; }
+  /* ★ v58 改法：不再用透明度（會透出背景、看起來像破圖），
+     改「全不透明＋壓暗＋去彩度」——牌還是實心的，只是變成灰暗色，
+     「放不下」的情報一樣清楚，畫面卻乾淨紮實。 */
+  .piece.dimmed { opacity:1; filter:grayscale(.8) brightness(.48); }
+  .piece.dimmed:hover { filter:grayscale(.6) brightness(.62); }
   #floatPiece { position:fixed; pointer-events:none; z-index:999; display:grid; gap:0; opacity:.95;
     filter:drop-shadow(0 3px 6px rgba(0,0,0,.25));
     transition:filter .12s ease-out; }
@@ -597,7 +601,11 @@
         padding-left 配合 calcCellSize 的 gutter 扣寬，跑道 x≈32 完整重見天日。
      ② 大分數改亮白＋天藍光暈 —— 原本的暗金色在深藍底＋藍色管線旁對比不足，
         機關模式的分數必須一眼即讀。 */
-  #app.hz-on #boardWrap { padding-left:50px; }
+  /* ★ v58 走廊補全：v55 只讓出左側，上/下走廊靠「剛好有縫」硬撐——
+     矮螢幕上棋盤吃滿高度，頂部管線直接被棋盤蓋住（真機截圖實錘）。
+     現在上下各保留 38px 專屬跑道，配合 calcCellSize 的垂直扣高，
+     氣球（時間線）的完整軌跡在任何螢幕上都保證可見。 */
+  #app.hz-on #boardWrap { padding:38px 12px 38px 50px; }
   #app.hz-on #streakBadge { left:58px; }   /* 連消徽章讓開走廊，別壓在氣球管上 */
   #app.hz-on #bigScore .bs-num { color:#ffffff;
     text-shadow:0 0 14px rgba(79,195,247,.85), 0 2px 3px rgba(0,0,0,.6), 0 6px 18px rgba(0,0,0,.45); }
@@ -889,7 +897,7 @@
     </span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v57・繽紛樂・公平發牌＋甜蜜節奏</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v58・繽紛樂・手感急救包</div>
 </div>
 
 <div id="app">
@@ -1266,7 +1274,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'放方塊・消整排・餵飽小動物',
-  'menu.footer':'v57・繽紛樂・公平發牌＋甜蜜節奏',
+  'menu.footer':'v58・繽紛樂・手感急救包',
   'menu.best':'最高 {n} 關',
   'mode.endless.name':'無盡模式', 'mode.endless.desc':'沒有終點，放到沒空間為止。挑戰你的最高分。',
   'mode.gem.name':'繽紛收集', 'mode.gem.desc':'餵飽三隻小動物就過關，盤面塞滿才結束，一關接一關往下闖。',
@@ -1339,7 +1347,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Drop blocks, clear lines, feed the critters!',
-  'menu.footer':'v57 · Vivid Blast · Fair Deal + Sweet Rhythm',
+  'menu.footer':'v58 · Vivid Blast · Feel-Good Fix Pack',
   'menu.best':'Best: Lv {n}',
   'mode.endless.name':'Endless', 'mode.endless.desc':'No finish line — play until the board fills up. Chase your high score.',
   'mode.gem.name':'Critter Collect', 'mode.gem.desc':'Feed the critters to clear each level. You only lose when the board jams. Level after level!',
@@ -1412,7 +1420,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを置いて、ライン消して、もぐもぐタイム！',
-  'menu.footer':'v57・ビビッドブラスト・フェア配牌＋スイートリズム',
+  'menu.footer':'v58・ビビッドブラスト・手ざわり改善パック',
   'menu.best':'最高 {n} 面',
   'mode.endless.name':'エンドレス', 'mode.endless.desc':'終わりなき挑戦。盤面が埋まるまでハイスコアを狙おう。',
   'mode.gem.name':'もぐもぐコレクト', 'mode.gem.desc':'どうぶつたちを満腹にすればクリア。盤面が詰まるまで終わらない。どんどん先へ！',
@@ -2409,8 +2417,11 @@ const SHAPE_LIB = [
   // 2x2 正方形（v57 加權 8→9：最百搭的爽牌）
   { tier:'common', weight:9, sweet:'B', cells:[[0,0],[0,1],[1,0],[1,1]] },
   // 三格長條（橫 / 直）
-  { tier:'common', weight:7, sweet:'B', cells:[[0,0],[0,1],[0,2]] },
-  { tier:'common', weight:7, sweet:'B', cells:[[0,0],[1,0],[2,0]] },
+  // ★ v58 sweet2 雙池標籤：三格長條同時屬於 B 池（方磚短條）與 C 池（長條）。
+  //    C 池原本只有 2 個成員（4 格橫/直），連發 3 抽極易全同——「三根一樣的長條」
+  //    看起來像 bug。擴充到 4 個成員後，同池連發仍有節奏感，但不再複製貼上。
+  { tier:'common', weight:7, sweet:'B', sweet2:'C', cells:[[0,0],[0,1],[0,2]] },
+  { tier:'common', weight:7, sweet:'B', sweet2:'C', cells:[[0,0],[1,0],[2,0]] },
   // 四格長條（橫 / 直）
   { tier:'common', weight:5, sweet:'C', cells:[[0,0],[0,1],[0,2],[0,3]] },
   { tier:'common', weight:5, sweet:'C', cells:[[0,0],[1,0],[2,0],[3,0]] },
@@ -2655,7 +2666,10 @@ function calcCellSize(){
   // ★ v55 機關關左側讓道：氣球跑道走 x≈32 的左側走廊，寬度計算先扣掉走廊保留區，
   //    棋盤右移縮一點點 → 玩家整局都看得到氣球（時間線）的完整軌跡，這是機關模式的生命線。
   const gutter = (typeof HZ !== 'undefined' && HZ.active) ? 44 : 0;
-  const avail = Math.min(wrap.clientWidth - gutter, wrap.clientHeight) - 16;
+  // ★ v58 垂直走廊扣高：機關關上下各保留 38px 給氣球管線（見 #app.hz-on #boardWrap），
+  //    高度計算必須同步扣掉，否則矮螢幕上棋盤照樣吃滿、把跑道蓋回去。
+  const vGut = (typeof HZ !== 'undefined' && HZ.active) ? 76 : 0;
+  const avail = Math.min(wrap.clientWidth - gutter, wrap.clientHeight - vGut) - 16;
   // gap 已歸零、#board padding 改 6px（左右各 6 = 12）→ 縫隙不再占空間，格子可放大一點
   CELL = Math.floor((avail - 12) / SIZE);
   CELL = Math.max(30, Math.min(CELL, 48));
@@ -2902,6 +2916,10 @@ HZ.layout = function(){
     const appRect = app.getBoundingClientRect();
     const bTop = boardEl.getBoundingClientRect().top - appRect.top;
     if(bTop - (goalsH + bigH) > 30) yTop = Math.round((goalsH + bigH + bTop) / 2);
+    // ★ v58 鐵則夾限：不管上面怎麼算，管線中心至少離棋盤頂緣 20px
+    //    （管線 22px 寬 → 半寬 11px，留 20px 保證整條可見不被蓋）。
+    //    這是舊版的隱形漏洞：縫隙 ≤30px 時走「固定 +22」路徑，可能直接落在棋盤裡。
+    yTop = Math.min(yTop, Math.round(bTop - 20));
   }
   const yBot = Math.round(H - trayH - 26);
   if(yBot - yTop < 80) return;                 // 版面太矮，放棄重繪（避免路徑自交）
@@ -3233,7 +3251,9 @@ function makePiece(forceDef){
   });
   const maxR = Math.max(...shape.map(s=>s[0]));
   const maxC = Math.max(...shape.map(s=>s[1]));
-  return { cells, color, rows:maxR+1, cols:maxC+1, used:false, tier:shapeDef.tier };
+  // ★ v58 sig：形狀身分證（直接引用 SHAPE_LIB 的定義物件）。
+  //    發牌驗收用它比對「三張是否完全相同」——同形狀連抽 3 次看起來像 bug，要擋。
+  return { cells, color, rows:maxR+1, cols:maxC+1, used:false, tier:shapeDef.tier, sig:shapeDef };
 }
 
 /* 判斷是否為對角線形狀（每格與下一格都是斜向相鄰，且無正交相鄰） */
@@ -3296,7 +3316,7 @@ function makeBalancedTrio(){
     if(Math.random() < chance){
       RHYTHM.streak = 2 + rand(2);                          // 連發 2~3 手
       const tag = pick(['A','B','C']);
-      RHYTHM.pool = SHAPE_LIB.filter(s=> s.sweet === tag);
+      RHYTHM.pool = SHAPE_LIB.filter(s=> s.sweet === tag || s.sweet2 === tag);   // ★ v58 支援雙池標籤
     }
   }
   const sweetPool = (RHYTHM.streak > 0 && RHYTHM.pool && RHYTHM.pool.length) ? RHYTHM.pool : null;
@@ -3308,7 +3328,10 @@ function makeBalancedTrio(){
     const useSweet = sweetPool && tries < 15;
     const t = [0,1,2].map(()=> useSweet ? makePiece(pick(sweetPool)) : makePiece());
     const trapCount = t.filter(p=>p.tier==='trap').length;
-    if(trapCount <= cap && t.every(pieceFitsSomewhere)){
+    // ★ v58 防複製貼上：三張形狀完全相同 → 打回重抽。
+    //    兩張相同是節奏（玩家能接受），三張全同看起來像發牌機壞掉。
+    const allSame = t[0].sig && t[0].sig === t[1].sig && t[1].sig === t[2].sig;
+    if(!allSame && trapCount <= cap && t.every(pieceFitsSomewhere)){
       trio = t;
       if(useSweet) RHYTHM.streak--;   // 甜蜜連發成功發出一手
       else         RHYTHM.streak = 0; // 用常規牌完成 → 中止連發（悄悄換牌的時刻）
@@ -3835,7 +3858,14 @@ function checkScoreMilestone(){
 }
 function fireScoreMilestone(){
   const num = document.getElementById('bigScoreVal');
-  if(num){ num.classList.remove('milestone'); void num.offsetWidth; num.classList.add('milestone'); }
+  if(num){
+    num.classList.remove('milestone'); void num.offsetWidth; num.classList.add('milestone');
+    // ★ v58 修正殘留 bug：class 加了永遠沒拿掉 → 動畫跑完後分數一直卡在
+    //    「透明文字」狀態，被底層黑影染成髒古銅色（真機截圖實錘）。
+    //    動畫 0.8s，0.9s 後摘掉 class，分數回到乾淨的實色金黃。
+    clearTimeout(fireScoreMilestone._t);
+    fireScoreMilestone._t = setTimeout(()=>{ num.classList.remove('milestone'); }, 900);
+  }
   const { word, sub } = milestoneWord(score);
   const el = document.getElementById('scoreMile');
   if(el){
