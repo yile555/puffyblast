@@ -18,7 +18,8 @@
     --bg:#2b3a67; --board-bg:#1e2a4f; --cell:#283766; --cell-line:#34457a;
     --panel:#243059; --accent:#4fc3f7; --text:#ffffff;
   }
-  #app { width:100%; max-width:440px; height:100%; max-height:880px; display:flex; flex-direction:column; position:relative; }
+  #app { width:100%; max-width:440px; height:100%; max-height:880px; display:flex; flex-direction:column; position:relative;
+    background:var(--bg,#2b3a67); }   /* ★ v54 補背景打底：整個遊戲區從上到下都是沉穩深色，上半部不再露白 */
 
   .icon-btn { width:40px; height:40px; border-radius:12px; background:rgba(255,255,255,.12);
     display:flex; align-items:center; justify-content:center; font-size:20px; cursor:pointer; border:none; color:#fff; }
@@ -26,6 +27,21 @@
 
   /* ★ v14 齒輪：固定浮在右上角，貼齊右邊界，不佔版面 */
   .gear-wrap { position:absolute; right:12px; top:12px; z-index:60; }
+  /* ★ v54 左上角操作鈕：提示💡＋炸彈💣 縮小浮在左上，跟右上角齒輪左右對稱。
+     遊戲進行中才顯示；讓中段版面完全讓給棋盤，簡單大方。 */
+  .action-wrap { position:absolute; left:12px; top:12px; z-index:60; display:flex; flex-direction:column; gap:8px; }
+  .action-wrap.hidden { display:none; }
+  .action-wrap .act-btn { position:relative; width:44px; height:44px; border:none; border-radius:14px;
+    color:#fff; font-size:22px; font-weight:800; cursor:pointer; padding:0;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(60,72,110,.75); box-shadow:0 2px 8px rgba(0,0,0,.25); }
+  .action-wrap .act-btn:active { transform:scale(.92); }
+  .action-wrap .act-btn span { display:none; }   /* 縮成純圖示，省空間 */
+  .action-wrap .cnt { position:absolute; top:-6px; right:-6px; min-width:19px; height:19px;
+    border-radius:10px; background:#ff5252; color:#fff; font-size:11px; font-weight:800;
+    display:flex; align-items:center; justify-content:center; padding:0 5px;
+    box-shadow:0 2px 6px rgba(0,0,0,.4); border:1.5px solid rgba(255,255,255,.9); }
+  .action-wrap #bombBtn.aim { outline:3px solid #ffd54f; animation:capPulse .8s infinite; }
   #gearMenu { position:absolute; right:0; top:48px; background:var(--panel,#243059);
     border-radius:16px; padding:6px; box-shadow:0 12px 30px rgba(0,0,0,.45);
     display:flex; flex-direction:column; gap:2px; min-width:130px;
@@ -60,6 +76,43 @@
 
      右側 padding 一律 ≥56px：浮動齒輪佔 right:12 起算 40px 寬，
      flex 填滿後右緣 = W - padR，必須把齒輪讓開。 */
+  /* ★ v54 頂部大分數：置中、超大字、簡單大方。這是玩家一眼就看到的「本局成就感」主角。 */
+  #bigScore { display:flex; justify-content:center; align-items:flex-end; padding:0 56px 4px;
+    pointer-events:none; user-select:none; }
+  #bigScore.hidden { display:none; }
+  #bigScore .bs-num { font-size:52px; font-weight:900; line-height:1; letter-spacing:1px;
+    color:#ffd54f; text-shadow:0 2px 3px rgba(0,0,0,.55), 0 6px 18px rgba(0,0,0,.4);
+    font-variant-numeric:tabular-nums; transition:transform .12s; }
+  /* 每次加分的小跳動：輕巧不吵，讓分數「活」起來 */
+  #bigScore .bs-num.bump { animation:bsBump .32s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes bsBump { 0%{transform:scale(1);} 45%{transform:scale(1.16);} 100%{transform:scale(1);} }
+  /* 里程碑達成：分數本身燒成金色、放大狂跳，比一般加分更盛大 */
+  #bigScore .bs-num.milestone {
+    background:linear-gradient(180deg,#fff6d5,#ffb300); -webkit-background-clip:text; background-clip:text;
+    color:transparent; filter:drop-shadow(0 2px 0 rgba(120,70,0,.35)) drop-shadow(0 8px 20px rgba(255,179,0,.6));
+    animation:bsMilestone .8s cubic-bezier(.2,1.4,.35,1); }
+  @keyframes bsMilestone {
+    0%{transform:scale(1);} 25%{transform:scale(1.42) rotate(-3deg);}
+    50%{transform:scale(1.12) rotate(2deg);} 70%{transform:scale(1.24);} 100%{transform:scale(1) rotate(0);} }
+
+  /* ★ v54 里程碑中文飄字：達到分數門檻時，中央飄出「大小通吃」的中文讚美。
+     複用 #praise 的漸層文字語言，風格與既有煙火一致。pointer-events:none 絕不擋操作。 */
+  #scoreMile { position:fixed; top:22%; left:50%; z-index:934; pointer-events:none;
+    transform:translateX(-50%); text-align:center; opacity:0; white-space:nowrap; }
+  #scoreMile .sm-word { font-size:44px; font-weight:900; letter-spacing:2px; line-height:1;
+    background:linear-gradient(180deg,#fff,#ffca28); -webkit-background-clip:text; background-clip:text; color:transparent;
+    filter:drop-shadow(0 3px 0 rgba(0,0,0,.28)) drop-shadow(0 7px 14px rgba(0,0,0,.35)); }
+  #scoreMile .sm-sub { margin-top:4px; font-size:18px; font-weight:900; color:#fff;
+    text-shadow:0 2px 6px rgba(0,0,0,.5); }
+  #scoreMile.show { animation:scoreMilePop 1.4s cubic-bezier(.22,.9,.32,1) forwards; }
+  @keyframes scoreMilePop {
+    0%{opacity:0; transform:translateX(-50%) scale(.3) rotate(-5deg);}
+    16%{opacity:1; transform:translateX(-50%) scale(1.2) rotate(2deg);}
+    30%{transform:translateX(-50%) scale(.96);}
+    46%{transform:translateX(-50%) scale(1.04);}
+    76%{opacity:1; transform:translateX(-50%) scale(1);}
+    100%{opacity:0; transform:translateX(-50%) scale(1) translateY(-40px);} }
+
   #goals { display:flex; justify-content:center; gap:16px; padding:16px 56px 10px; }
   #goals .goal  { flex:1 1 0; min-width:0; }   /* min-width:0 是關鍵：否則 flex item 不肯縮到內容寬以下 */
   #goals .gicon { width:100%; height:auto; aspect-ratio:1/1; }
@@ -79,17 +132,17 @@
   #goals[data-n="5"] .gtext { font-size:12.5px; padding:2px 5px; border-radius:9px; }
   #goals[data-n="5"] .goal-check { right:-2px; bottom:-1px; font-size:14px; }
 
-  .goal { background:rgba(255,255,255,.08); border-radius:20px; padding:8px 14px 6px; display:flex;
+  .goal { background:transparent; border-radius:20px; padding:8px 14px 6px; display:flex;
     flex-direction:column; align-items:center; gap:2px; min-width:84px; transition:.25s; }
-  .goal.done { background:rgba(76,195,80,.28); }
+  .goal.done { background:transparent; }
   .goal .gicon { position:relative; width:64px; height:64px; display:flex; align-items:center; justify-content:center;
-    background:radial-gradient(circle at 50% 40%, rgba(255,255,255,.14), rgba(255,255,255,.05));
+    background:transparent;
     border-radius:16px; overflow:hidden; }
-  /* ★ v25 修正數字跟背景顏色太接近看不清楚：改用深色底的小膠囊 + 白字，任何主題背景下都維持足夠對比 */
-  .goal .gtext { font-size:15px; font-weight:800; color:#ffffff;
-    background:rgba(0,0,0,.38); padding:2px 10px; border-radius:10px;
-    text-shadow:0 1px 2px rgba(0,0,0,.6); }
-  .goal.done .gtext { background:rgba(0,0,0,.22); opacity:.85; }
+  /* ★ v54 目標數字：去背景膠囊，改黃色數字＋深色描邊，任何背景下都清楚又不笨重 */
+  .goal .gtext { font-size:16px; font-weight:900; color:#ffd54f;
+    background:transparent; padding:2px 6px;
+    text-shadow:0 1px 2px rgba(0,0,0,.85), 0 0 3px rgba(0,0,0,.6); }
+  .goal.done .gtext { background:transparent; color:#a5f0a0; opacity:.95; }
   .animal-svg { width:100%; height:100%; object-fit:contain; display:block;
     filter:drop-shadow(0 2px 3px rgba(0,0,0,.35)); }
   .goal-check { position:absolute; right:-4px; bottom:-2px; font-size:16px; color:#7be084;
@@ -97,8 +150,7 @@
 
   /* ★ v14 中段：左側資訊欄（貼最左）+ 右側棋盤 */
   #playArea { flex:1; display:flex; align-items:stretch; min-height:0; }
-  #sideBar { width:64px; flex-shrink:0; display:flex; flex-direction:column; align-items:center;
-    gap:9px; padding:4px 4px 4px 8px; justify-content:flex-start; }
+  #sideBar { display:none; }   /* ★ v54 側欄整體隱藏：資料卡仍在 DOM 供 JS 寫入，但不顯示。id 權重確保蓋過任何 flex 顯示。 */
   #sideBar .stat-cap { width:100%; }
   .stat-cap.level { background:rgba(21,101,144,.55); box-shadow:inset 0 0 0 1px rgba(79,195,247,.55); }
   .stat-cap.level .lbl { opacity:.9; color:#bfe9ff; text-shadow:0 1px 2px rgba(0,0,0,.5); }
@@ -454,6 +506,21 @@
   #combo.show { animation:comboPop .8s forwards; }
   @keyframes comboPop { 0%{opacity:0; transform:translateX(-50%) scale(.4);} 30%{opacity:1; transform:translateX(-50%) scale(1.2);}
     70%{opacity:1; transform:translateX(-50%) scale(1);} 100%{opacity:0; transform:translateX(-50%) scale(1) translateY(-40px);} }
+
+  /* ★ v54 關卡開場提示：置中飄出「第 X 關」，比 combo 更大氣，當作每關的進場儀式。 */
+  #levelIntro { position:fixed; top:40%; left:50%; transform:translateX(-50%); z-index:932;
+    pointer-events:none; opacity:0; text-align:center; white-space:nowrap; }
+  #levelIntro .li-big { font-size:56px; font-weight:900; letter-spacing:3px; line-height:1;
+    background:linear-gradient(180deg,#fff,#ffd54f); -webkit-background-clip:text; background-clip:text; color:transparent;
+    filter:drop-shadow(0 3px 0 rgba(0,0,0,.3)) drop-shadow(0 8px 18px rgba(0,0,0,.4)); }
+  #levelIntro.show { animation:levelIntroPop 1.6s cubic-bezier(.22,.9,.32,1) forwards; }
+  @keyframes levelIntroPop {
+    0%{opacity:0; transform:translateX(-50%) scale(.4) translateY(10px);}
+    18%{opacity:1; transform:translateX(-50%) scale(1.15);}
+    32%{transform:translateX(-50%) scale(.98);}
+    46%{transform:translateX(-50%) scale(1.02);}
+    72%{opacity:1; transform:translateX(-50%) scale(1);}
+    100%{opacity:0; transform:translateX(-50%) scale(1) translateY(-40px);} }
 
   /* ===== 左側直排小卡（分數 / 最佳）★ v13 移到棋盤左邊 ===== */
   /* ★ v25 底色加深、文字加陰影：避免淺色主題背景下文字跟底色混在一起看不清楚 */
@@ -830,20 +897,30 @@
     </div>
   </div>
 
+  <!-- ★ v54 左上角操作鈕：提示💡＋炸彈💣。從側欄搬來，縮成純圖示，跟右上齒輪左右對稱。
+       炸彈右上紅色角標顯示剩餘數量。所有點擊/拖曳事件沿用原本綁在 #hintBtn/#bombBtn 的邏輯，不受搬家影響。 -->
+  <div class="action-wrap hidden" id="actionWrap">
+    <button class="act-btn" id="hintBtn" title="提示">💡<span data-i18n="side.hint">提示</span></button>
+    <!-- ★ v36 炸彈鈕：點了進入瞄準模式，再點盤面引爆 3×3；沒炸彈時直接開商店 -->
+    <button class="act-btn" id="bombBtn" title="炸彈">💣<span data-i18n="side.bomb">炸彈</span><span class="cnt" id="bombCnt">0</span></button>
+  </div>
+
   <!-- ★ v14 任務欄：三隻動物放大置中（盤面只放食物） -->
   <div id="goals"></div>
 
+  <!-- ★ v54 頂部大分數：置於動物任務欄下方、棋盤上方，大字級置中當「本局成就感」主視覺。
+       非計分模式（如某些機關關）自動隱藏；里程碑達成時整塊放大發光慶祝。 -->
+  <div id="bigScore"><div class="bs-num" id="bigScoreVal">0</div></div>
+
   <!-- ★ v14 中段：左側資訊欄（關卡/分數/最佳/提示，貼最左邊）+ 右側棋盤 -->
   <div id="playArea">
-    <div id="sideBar">
+    <!-- ★ v54 側欄整體隱藏：分數已移到頂部大字、提示/炸彈移到左上角、關卡/最佳/金幣/鑽石在對局中不常駐。
+         這些資料卡仍保留在 DOM（updateStatus / refreshEconomyUI 會寫入），只是視覺隱藏，
+         金幣/鑽石餘額改在商店與齒輪選單內查看。版面完全讓給棋盤 → 簡單大方。 -->
+    <div id="sideBar" hidden>
       <div class="stat-cap level" id="levelCap"><div class="lbl" data-i18n="side.level">關卡</div><div class="val" id="levelVal">1</div></div>
       <div class="stat-cap" id="scoreCap"><div class="lbl" data-i18n="side.score">分數</div><div class="val" id="scoreVal">0</div></div>
       <div class="stat-cap" id="bestCap"><div class="lbl" data-i18n="side.best">最佳</div><div class="val" id="bestVal">0</div></div>
-      <button class="side-ad-btn" id="hintBtn">💡<span data-i18n="side.hint">提示</span></button>
-      <!-- ★ v36 炸彈鈕：點了進入瞄準模式，再點盤面引爆 3×3；沒炸彈時直接開商店 -->
-      <button class="side-bomb-btn" id="bombBtn">💣<span data-i18n="side.bomb">炸彈</span><span class="cnt" id="bombCnt">0</span></button>
-      <!-- ★ v36 鑽石餘額小卡（點了開商店） -->
-      <!-- ★ v37 金幣卡片（點了開商店） -->
       <div class="stat-cap dm" id="goldCap"><div class="lbl" data-i18n="side.gold">🪙 金幣</div><div class="val" id="goldVal">0</div></div>
       <div class="stat-cap dm" id="dmCap"><div class="lbl" data-i18n="side.dm">💎 鑽石</div><div class="val" id="dmVal">0</div></div>
     </div>
@@ -861,10 +938,14 @@
 
 <div id="floatPiece"></div>
 <div id="combo"></div>
+<!-- ★ v54 關卡開場提示：每關開頭飄「第 X 關」，純顯示層 pointer-events:none -->
+<div id="levelIntro"></div>
 <!-- ★ v48 情緒讚美字容器：大字＋動物道謝，pointer-events:none 絕不擋操作 -->
 <div id="praise"></div>
 <!-- ★ v50 ① 連消中央大字（×2 起跳）：純顯示層，pointer-events:none 不擋手指 -->
 <div id="streakPop"></div>
+<!-- ★ v54 分數里程碑飄字：達到分數門檻時飄出中文讚美，純顯示層不擋操作 -->
+<div id="scoreMile"></div>
 
 <div class="overlay" id="winOverlay">
   <div class="modal">
@@ -1174,6 +1255,7 @@ const I18N = {
   'login.guest':'遊客模式', 'login.using':'使用中', 'login.google':'Google 登入', 'login.apple':'Apple 登入', 'login.soon':'即將推出',
   'lang.title':'🌐 選擇語言', 'lang.using':'使用中',
   'win.title':'🎉 過關！', 'win.text':'第 {lv} 關完成！本關得分 {s}　🪙+{n}',
+  'intro.level':'第 {n} 關', 'mode.endless':'無盡模式',
   'win.balloonTitle':'🎈 氣球守住了！', 'win.balloonText':'第 {lv} 關完成！仙人掌鬆了一口氣（得分 {s}）　🪙+{n}',
   'win.textDefault':'小動物都吃飽囉！', 'win.next':'下一關 →', 'win.home':'回主選單',
   'lose.title':'😿 沒空間了',
@@ -1246,6 +1328,7 @@ const I18N = {
   'login.guest':'Guest', 'login.using':'Active', 'login.google':'Sign in with Google', 'login.apple':'Sign in with Apple', 'login.soon':'Coming soon',
   'lang.title':'🌐 Select Language', 'lang.using':'Active',
   'win.title':'🎉 Level Clear!', 'win.text':'Level {lv} complete! Score {s}　🪙+{n}',
+  'intro.level':'Level {n}', 'mode.endless':'Endless',
   'win.balloonTitle':'🎈 Balloon Saved!', 'win.balloonText':'Level {lv} complete! The cactus sighs in relief (score {s})　🪙+{n}',
   'win.textDefault':'All puffies are full and happy!', 'win.next':'Next Level →', 'win.home':'Main Menu',
   'lose.title':'😿 No Space Left',
@@ -1318,6 +1401,7 @@ const I18N = {
   'login.guest':'ゲストモード', 'login.using':'使用中', 'login.google':'Googleでログイン', 'login.apple':'Appleでログイン', 'login.soon':'近日公開',
   'lang.title':'🌐 言語を選択', 'lang.using':'使用中',
   'win.title':'🎉 クリア！', 'win.text':'レベル {lv} クリア！スコア {s}　🪙+{n}',
+  'intro.level':'レベル {n}', 'mode.endless':'エンドレス',
   'win.balloonTitle':'🎈 風船を守った！', 'win.balloonText':'レベル {lv} クリア！サボテンもひと安心（スコア {s}）　🪙+{n}',
   'win.textDefault':'みんな満腹、大満足！', 'win.next':'次のレベル →', 'win.home':'メニューへ',
   'lose.title':'😿 置き場がない…',
@@ -3567,6 +3651,58 @@ function showCombo(txt){
   el.textContent=txt; el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
 }
 
+/* ★ v54 關卡開場提示：每關開頭飄出「第 X 關」，給玩家明確的進場儀式感（不佔常駐版面）。
+   lv 為 null 時顯示「無盡模式」。v55 會再升級成可點擊開始的進場卡。 */
+function showLevelIntro(lv){
+  const el = document.getElementById('levelIntro');
+  if(!el) return;
+  const big = (lv==null) ? T('mode.endless') : T('intro.level', {n:lv});
+  el.innerHTML = '<div class="li-big">'+big+'</div>';
+  el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+}
+
+/* ★ v54 分數里程碑：門檻級距隨分數放大（避免高分後太頻繁）。
+   中文採「大小通吃」風格——越高分、字越澎湃。回傳 {word, sub} 或 null。 */
+let lastMilestone = 0;   // 本局已觸發到的最高門檻（換關/重開時歸零）
+function milestoneStep(s){
+  // 分數越高，兩個里程碑之間的間距越大：讓成就感的節奏由密漸疏，稀有才珍貴
+  if(s < 1000)   return 200;
+  if(s < 5000)   return 500;
+  if(s < 20000)  return 1000;
+  if(s < 50000)  return 2500;
+  return 5000;
+}
+function milestoneWord(s){
+  // 大小通吃：依分數高低給不同澎湃度的中文讚美
+  if(s >= 50000) return { word:'封神了！', sub:'傳說級的表現 🏆' };
+  if(s >= 20000) return { word:'勢不可擋！', sub:'你就是高手 🔥' };
+  if(s >= 10000) return { word:'太狂啦！', sub:'分數破萬 💎' };
+  if(s >= 5000)  return { word:'火力全開！', sub:'越戰越勇 ⚡' };
+  if(s >= 2000)  return { word:'超讚的！', sub:'手感發燙 ✨' };
+  if(s >= 1000)  return { word:'漂亮！', sub:'節奏抓到了 🎯' };
+  return { word:'不錯喔！', sub:'繼續衝 👍' };
+}
+/* 檢查本次加分有沒有跨過新的里程碑門檻；有 → 觸發慶祝（大分數金色狂跳＋中文飄字） */
+function checkScoreMilestone(){
+  const step = milestoneStep(score);
+  const crossed = Math.floor(score / step) * step;
+  if(crossed > lastMilestone && crossed > 0){
+    lastMilestone = crossed;
+    fireScoreMilestone();
+  }
+}
+function fireScoreMilestone(){
+  const num = document.getElementById('bigScoreVal');
+  if(num){ num.classList.remove('milestone'); void num.offsetWidth; num.classList.add('milestone'); }
+  const { word, sub } = milestoneWord(score);
+  const el = document.getElementById('scoreMile');
+  if(el){
+    el.innerHTML = '<div class="sm-word">'+word+'</div><div class="sm-sub">'+sub+'</div>';
+    el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+  }
+  try{ tone(880, 0, .12, 'triangle', .18); tone(1320, .06, .16, 'sine', .16); }catch(_){}   // 輕巧上揚的慶祝音
+}
+
 /* 更新頂部狀態膠囊（分數 / 最佳 / 步數）+ near-miss 警示 */
 function updateStatus(){
   const m = MODE();
@@ -3574,6 +3710,18 @@ function updateStatus(){
   document.getElementById('bestCap').classList.toggle('hidden', !m.useScore);
   document.getElementById('scoreVal').textContent = score;
   document.getElementById('bestVal').textContent = bestScore;
+  // ★ v54 頂部大分數同步 + 加分小跳動
+  const big = document.getElementById('bigScore');
+  const bigNum = document.getElementById('bigScoreVal');
+  if(big) big.classList.toggle('hidden', !m.useScore);
+  if(bigNum && m.useScore){
+    const prev = bigNum.textContent;
+    bigNum.textContent = score;
+    if(String(score) !== prev){   // 分數真的變了才跳，避免無謂動畫
+      bigNum.classList.remove('bump'); void bigNum.offsetWidth; bigNum.classList.add('bump');
+    }
+    checkScoreMilestone();
+  }
 }
 
 function showWin(){
@@ -4752,6 +4900,7 @@ function startLevel(){
 
   adRevivesUsed = 0;        // ★ v36 免費救援每關重置（上限 ECON.adReviveCap 次）
   clearStreak = 0;          // ★ v49 連消每關重新起算
+  lastMilestone = 0;        // ★ v54 分數里程碑每關重新起算
   lastPlacement = null;
   updateStreakBadge(false);
   cancelBombAim();          // ★ v36 換關收掉炸彈瞄準模式
@@ -4770,10 +4919,12 @@ function startLevel(){
   const levelVal = document.getElementById('levelVal');
   if(currentMode!=='endless'){
     levelVal.textContent = level;
-    // 魔王 / 挑戰關：用飄字提示製造心跳，不佔版面
+    // ★ v54 每關開場飄「第 X 關」進場說明；魔王/挑戰關則飄專屬 label 維持心跳感
     if(curDiff.label){ setTimeout(()=>showCombo(T(curDiff.label)), 250); }   // ★ v36 label 為 i18n key
+    else { setTimeout(()=>showLevelIntro(level), 200); }                     // ★ v54 一般關開場提示
   } else {
     levelVal.textContent = '∞';
+    setTimeout(()=>showLevelIntro(null), 200);   // 無盡模式：飄「無盡模式」
   }
   HZ.syncStage();           // ★ v32 起舞台（非機關關會自動關閉圖層）
   document.getElementById('winOverlay').classList.remove('show');
@@ -4787,6 +4938,7 @@ function enterMode(mode){
   score = 0;
   winStreak = 0;            // ★ v6：新一局從蜜月期重新開始
   document.getElementById('menu').classList.add('hidden');
+  const aw = document.getElementById('actionWrap'); if(aw) aw.classList.remove('hidden');  // ★ v54 進對局才顯示左上操作鈕
   startLevel();
 }
 
@@ -4797,6 +4949,7 @@ function goHome(){
   document.getElementById('winOverlay').classList.remove('show');
   document.getElementById('loseOverlay').classList.remove('show');
   document.getElementById('menu').classList.remove('hidden');
+  const aw = document.getElementById('actionWrap'); if(aw) aw.classList.add('hidden');  // ★ v54 回選單收起左上操作鈕
 }
 
 /* 選單徽章：氣球模式的歷史最高關。破紀錄的數字擺在按鈕上，比任何文案都會叫人再按一次。 */
