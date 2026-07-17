@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v61</title>
-<meta property="og:title" content="繽紛樂 v61">
+<title>繽紛樂 v62</title>
+<meta property="og:title" content="繽紛樂 v62">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://yile555.github.io/puffyblast/">
@@ -608,7 +608,10 @@
      矮螢幕上棋盤吃滿高度，頂部管線直接被棋盤蓋住（真機截圖實錘）。
      現在上下各保留 38px 專屬跑道，配合 calcCellSize 的垂直扣高，
      氣球（時間線）的完整軌跡在任何螢幕上都保證可見。 */
-  #app.hz-on #boardWrap { padding:38px 12px 38px 50px; }
+  /* ★ v62 底部保留區 38 → 62px：走廊要塞「管線(22px) + 仙人掌(34px)」兩層，
+     38px 根本不夠 —— 擠壓環境（瀏覽器工具列吃掉高度）下管線被迫躺到托盤方塊頭上。
+     62 = 仙人掌 38（34 高 + 4 呼吸）+ 管線半寬 11 + 托盤安全距 13。 */
+  #app.hz-on #boardWrap { padding:38px 12px 62px 50px; }
   #app.hz-on #streakBadge { left:58px; }   /* 連消徽章讓開走廊，別壓在氣球管上 */
   #app.hz-on #bigScore .bs-num { color:#ffffff;
     text-shadow:0 0 14px rgba(79,195,247,.85), 0 2px 3px rgba(0,0,0,.6), 0 6px 18px rgba(0,0,0,.45); }
@@ -900,7 +903,7 @@
     </span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v61・繽紛樂・仙人掌讓位＋長條海終結</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v62・繽紛樂・氣球走廊雙鐵則</div>
 </div>
 
 <div id="app">
@@ -1277,7 +1280,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'放方塊・消整排・餵飽小動物',
-  'menu.footer':'v61・繽紛樂・仙人掌讓位＋長條海終結',
+  'menu.footer':'v62・繽紛樂・氣球走廊雙鐵則',
   'menu.best':'最高 {n} 關',
   'mode.endless.name':'無盡模式', 'mode.endless.desc':'沒有終點，放到沒空間為止。挑戰你的最高分。',
   'mode.gem.name':'繽紛收集', 'mode.gem.desc':'餵飽三隻小動物就過關，盤面塞滿才結束，一關接一關往下闖。',
@@ -1350,7 +1353,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Drop blocks, clear lines, feed the critters!',
-  'menu.footer':'v61 · Vivid Blast · Cactus Fix + Bar Flood Cap',
+  'menu.footer':'v62 · Vivid Blast · Corridor Double Clamp',
   'menu.best':'Best: Lv {n}',
   'mode.endless.name':'Endless', 'mode.endless.desc':'No finish line — play until the board fills up. Chase your high score.',
   'mode.gem.name':'Critter Collect', 'mode.gem.desc':'Feed the critters to clear each level. You only lose when the board jams. Level after level!',
@@ -1423,7 +1426,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを置いて、ライン消して、もぐもぐタイム！',
-  'menu.footer':'v61・ビビッドブラスト・サボテン修正＋バー制限',
+  'menu.footer':'v62・ビビッドブラスト・通路レイアウト修正',
   'menu.best':'最高 {n} 面',
   'mode.endless.name':'エンドレス', 'mode.endless.desc':'終わりなき挑戦。盤面が埋まるまでハイスコアを狙おう。',
   'mode.gem.name':'もぐもぐコレクト', 'mode.gem.desc':'どうぶつたちを満腹にすればクリア。盤面が詰まるまで終わらない。どんどん先へ！',
@@ -2673,9 +2676,10 @@ function calcCellSize(){
   // ★ v55 機關關左側讓道：氣球跑道走 x≈32 的左側走廊，寬度計算先扣掉走廊保留區，
   //    棋盤右移縮一點點 → 玩家整局都看得到氣球（時間線）的完整軌跡，這是機關模式的生命線。
   const gutter = (typeof HZ !== 'undefined' && HZ.active) ? 44 : 0;
-  // ★ v58 垂直走廊扣高：機關關上下各保留 38px 給氣球管線（見 #app.hz-on #boardWrap），
+  // ★ v58 垂直走廊扣高：機關關上下保留空間給氣球管線（見 #app.hz-on #boardWrap），
   //    高度計算必須同步扣掉，否則矮螢幕上棋盤照樣吃滿、把跑道蓋回去。
-  const vGut = (typeof HZ !== 'undefined' && HZ.active) ? 76 : 0;
+  // ★ v62 同步加大：上 38 + 下 62 = 100（下方走廊要塞管線＋整株仙人掌，38 不夠住）。
+  const vGut = (typeof HZ !== 'undefined' && HZ.active) ? 100 : 0;
   const avail = Math.min(wrap.clientWidth - gutter, wrap.clientHeight - vGut) - 16;
   // gap 已歸零、#board padding 改 6px（左右各 6 = 12）→ 縫隙不再占空間，格子可放大一點
   CELL = Math.floor((avail - 12) / SIZE);
@@ -2936,11 +2940,16 @@ HZ.layout = function(){
   //    (a) 量得到棋盤底緣且縫隙夠寬 → 走廊鎖在「棋盤下緣 ～ 托盤上緣」正中間；
   //    (b) 鐵則夾限 yBot ≥ 棋盤底緣 + 38px（仙人掌全高 34 + 4px 呼吸空間），
   //        保證仙人掌整株站在棋盤外，一根刺都不被蓋。
+  // ★ v62 托盤天花板：v61 鐵則只顧仙人掌、沒顧托盤 —— 擠壓環境（瀏覽器工具列吃高度）
+  //    下管線被推到托盤方塊頭上（真機實錘）。補上另一頭的鐵則：管線下緣（半寬 11px）
+  //    離托盤頂至少 2px → yBot ≤ 托盤頂 - 13。天花板最後套用：兩頭衝突的極端矮螢幕，
+  //    優先保住「管線不踩托盤」（v62 已加大保留區，實務上兩頭都顧得到）。
   if(boardEl){
     const bBot = boardEl.getBoundingClientRect().bottom - app.getBoundingClientRect().top;
     const trayTop = H - trayH;
     if(trayTop - bBot > 30) yBot = Math.round((bBot + trayTop) / 2);
     yBot = Math.max(yBot, Math.round(bBot + 38));
+    yBot = Math.min(yBot, Math.round(trayTop - 13));
   }
   if(yBot - yTop < 80) return;                 // 版面太矮，放棄重繪（避免路徑自交）
   const xR = W - 34, xEnd = W - 46;
