@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v60</title>
-<meta property="og:title" content="繽紛樂 v60">
+<title>繽紛樂 v61</title>
+<meta property="og:title" content="繽紛樂 v61">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://yile555.github.io/puffyblast/">
@@ -481,14 +481,9 @@
     display:flex; align-items:center; justify-content:center; }
   .piece .pcell.empty { background:transparent !important; box-shadow:none; border:none; }
   .piece.dragging { opacity:.35; }
-  /* ★ v57 戰況透視：牌架上「當下盤面無處可放」的牌壓暗＋去彩度。
-     玩家一眼看清哪張牌卡住了，及早決策（先消行騰位？動用炸彈？），
-     而不是拖到一半才發現完蛋。仍可拖曳嘗試——壓暗是情報，不是封鎖。 */
-  /* ★ v58 改法：不再用透明度（會透出背景、看起來像破圖），
-     改「全不透明＋壓暗＋去彩度」——牌還是實心的，只是變成灰暗色，
-     「放不下」的情報一樣清楚，畫面卻乾淨紮實。 */
-  .piece.dimmed { opacity:1; filter:grayscale(.8) brightness(.48); }
-  .piece.dimmed:hover { filter:grayscale(.6) brightness(.62); }
+  /* ★ v61 已拆除：v57「戰況透視」壓暗提示（放不下的牌變灰黑）——
+     真機觀感像「牌壞掉了 / 出不了的黑磚」，情報價值低於視覺干擾，整套退役。
+     所有牌永遠以原色顯示，放不放得下交給玩家自己判斷（拖曳時仍有紅/綠落點提示）。 */
   #floatPiece { position:fixed; pointer-events:none; z-index:999; display:grid; gap:0; opacity:.95;
     filter:drop-shadow(0 3px 6px rgba(0,0,0,.25));
     transition:filter .12s ease-out; }
@@ -905,7 +900,7 @@
     </span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v60・繽紛樂・全螢幕優化＋連消特效精簡</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v61・繽紛樂・仙人掌讓位＋長條海終結</div>
 </div>
 
 <div id="app">
@@ -1282,7 +1277,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'放方塊・消整排・餵飽小動物',
-  'menu.footer':'v60・繽紛樂・全螢幕優化＋連消特效精簡',
+  'menu.footer':'v61・繽紛樂・仙人掌讓位＋長條海終結',
   'menu.best':'最高 {n} 關',
   'mode.endless.name':'無盡模式', 'mode.endless.desc':'沒有終點，放到沒空間為止。挑戰你的最高分。',
   'mode.gem.name':'繽紛收集', 'mode.gem.desc':'餵飽三隻小動物就過關，盤面塞滿才結束，一關接一關往下闖。',
@@ -1355,7 +1350,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Drop blocks, clear lines, feed the critters!',
-  'menu.footer':'v60 · Vivid Blast · Fullscreen Fix + Streak FX Cleanup',
+  'menu.footer':'v61 · Vivid Blast · Cactus Fix + Bar Flood Cap',
   'menu.best':'Best: Lv {n}',
   'mode.endless.name':'Endless', 'mode.endless.desc':'No finish line — play until the board fills up. Chase your high score.',
   'mode.gem.name':'Critter Collect', 'mode.gem.desc':'Feed the critters to clear each level. You only lose when the board jams. Level after level!',
@@ -1428,7 +1423,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを置いて、ライン消して、もぐもぐタイム！',
-  'menu.footer':'v60・ビビッドブラスト・フルスクリーン最適化＋連鎖演出調整',
+  'menu.footer':'v61・ビビッドブラスト・サボテン修正＋バー制限',
   'menu.best':'最高 {n} 面',
   'mode.endless.name':'エンドレス', 'mode.endless.desc':'終わりなき挑戦。盤面が埋まるまでハイスコアを狙おう。',
   'mode.gem.name':'もぐもぐコレクト', 'mode.gem.desc':'どうぶつたちを満腹にすればクリア。盤面が詰まるまで終わらない。どんどん先へ！',
@@ -2933,7 +2928,20 @@ HZ.layout = function(){
     //    這是舊版的隱形漏洞：縫隙 ≤30px 時走「固定 +22」路徑，可能直接落在棋盤裡。
     yTop = Math.min(yTop, Math.round(bTop - 20));
   }
-  const yBot = Math.round(H - trayH - 26);
+  let yBot = Math.round(H - trayH - 26);
+  // ★ v61 底部走廊鐵則：v58 只夾了頂部（管線離棋盤頂緣 ≥20px），底部卻仍盲算
+  //    「托盤上方固定 26px」、完全沒量棋盤底緣在哪 —— 高瘦螢幕上棋盤底緣吃進走廊，
+  //    仙人掌（34px 高、z 層在棋盤之下）半截身體躲進棋盤後面，真機實錘「仙人掌被擋住」。
+  //    修正（照抄 v58 頂部的成功處方）：
+  //    (a) 量得到棋盤底緣且縫隙夠寬 → 走廊鎖在「棋盤下緣 ～ 托盤上緣」正中間；
+  //    (b) 鐵則夾限 yBot ≥ 棋盤底緣 + 38px（仙人掌全高 34 + 4px 呼吸空間），
+  //        保證仙人掌整株站在棋盤外，一根刺都不被蓋。
+  if(boardEl){
+    const bBot = boardEl.getBoundingClientRect().bottom - app.getBoundingClientRect().top;
+    const trayTop = H - trayH;
+    if(trayTop - bBot > 30) yBot = Math.round((bBot + trayTop) / 2);
+    yBot = Math.max(yBot, Math.round(bBot + 38));
+  }
   if(yBot - yTop < 80) return;                 // 版面太矮，放棄重繪（避免路徑自交）
   const xR = W - 34, xEnd = W - 46;
 
@@ -3301,6 +3309,12 @@ function refillTray(){
    ② 甜蜜連發節奏：盤面夠空時有機率進入 2~3 手「同池爽牌連發」（3x3/矩形/方磚/長條），
       玩家進入自動駕駛的爽快節奏；連發結束悄悄切回混合牌——節奏催眠，Block Blast 精髓。 */
 
+/* ★ v61 長條判定：單行或單列、長度 ≥3 的一字牌（3/4/5 格長條都算）。
+   makeBalancedTrio 用它執行「一手最多 2 根長條」鐵律。 */
+function isBarPiece(p){
+  return (p.rows === 1 && p.cols >= 3) || (p.cols === 1 && p.rows >= 3);
+}
+
 /* 單張牌在「當下盤面」是否存在至少一個合法落點 */
 function pieceFitsSomewhere(p){
   for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
@@ -3331,8 +3345,12 @@ function makeBalancedTrio(){
       RHYTHM.streak = 2 + rand(2);                          // 連發 2~3 手
       // ★ v59 鐵則：下一輪連發永遠不能跟上一輪同池。
       //   （原設計曾用倒數計數的冷卻，但失敗的擲骰會把冷卻悄悄耗光、實測擋不住；
-      //    改成無條件排除上一輪的池子，「長條海連續出現好幾組」從結構上絕跡。）
-      let tagPool = ['A','B','C'];
+      //    改成無條件排除上一輪的池子。）
+      // ★ v61 C 池（純長條池）從連發名單除名：即使 v59 保證三根形狀互不相同，
+      //   「一手三根全是長條」的觀感依然像被系統刁難（真機回報實錘）。
+      //   連發只保留 A（大塊爽消）與 B（方磚短條）；長條回歸常規隨機發牌，
+      //   並由下方新增的「一手最多 2 根長條」鐵律兜底。
+      let tagPool = ['A','B'];
       if(RHYTHM.lastTag) tagPool = tagPool.filter(t=> t !== RHYTHM.lastTag);
       const tag = pick(tagPool);
       RHYTHM.pool = SHAPE_LIB.filter(s=> s.sweet === tag || s.sweet2 === tag);   // ★ v58 支援雙池標籤
@@ -3359,7 +3377,11 @@ function makeBalancedTrio(){
     // ★ v58 防複製貼上：三張形狀完全相同 → 打回重抽（v59 不放回抽樣後這裡多半用不到，留著當保險）。
     //    兩張相同是節奏（玩家能接受），三張全同看起來像發牌機壞掉。
     const allSame = t[0].sig && t[0].sig === t[1].sig && t[1].sig === t[2].sig;
-    if(!allSame && trapCount <= cap && t.every(pieceFitsSomewhere)){
+    // ★ v61 長條鐵律：一手最多 2 根長條（3/4/5 格一字牌）。
+    //    連發除名 C 池後，純隨機仍有 ~4% 機率湊出三根長條 —— 這裡直接打回重抽，
+    //    「三根長條同時出現」從結構上絕跡；兩根是正常節奏，保留。
+    const barCount = t.filter(isBarPiece).length;
+    if(!allSame && barCount <= 2 && trapCount <= cap && t.every(pieceFitsSomewhere)){
       trio = t;
       if(useSweet) RHYTHM.streak--;   // 甜蜜連發成功發出一手
       else         RHYTHM.streak = 0; // 用常規牌完成 → 中止連發（悄悄換牌的時刻）
@@ -3422,8 +3444,7 @@ function renderTray(){
     const scale = Math.min(SLOT_W/rawW, SLOT_H/rawH, 1);
     pe.style.transform = `scale(${scale})`;
     pe.dataset.scale = scale;
-    // ★ v57 戰況透視：當下無處可放 → 壓暗提示（renderTray 每次放牌後都會重跑，自動保持最新）
-    if(!pieceFitsSomewhere(p)) pe.classList.add('dimmed');
+    // ★ v61：v57「壓暗提示」已退役（黑磚觀感嚇玩家），牌一律原色顯示。
     attachDrag(pe, idx);
     slot.appendChild(pe);
     tray.appendChild(slot);
