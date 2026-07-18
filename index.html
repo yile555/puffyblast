@@ -2,9 +2,13 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>繽紛樂 v58</title>
-<meta property="og:title" content="繽紛樂 v58">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<!-- ★ v60 PWA全螢幕模式：加到主畫面後，這三行讓iOS用「獨立App模式」開啟，不再殘留網址列/工具列 -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<title>繽紛樂 v63</title>
+<meta property="og:title" content="繽紛樂 v63">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://yile555.github.io/puffyblast/">
@@ -23,7 +27,8 @@
     --panel:#243059; --accent:#4fc3f7; --text:#ffffff;
   }
   #app { width:100%; max-width:440px; height:100%; max-height:880px; display:flex; flex-direction:column; position:relative;
-    background:var(--bg,#2b3a67); }   /* ★ v54 補背景打底：整個遊戲區從上到下都是沉穩深色，上半部不再露白 */
+    background:var(--bg,#2b3a67);   /* ★ v54 補背景打底：整個遊戲區從上到下都是沉穩深色，上半部不再露白 */
+    padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom); }   /* ★ v60 全螢幕PWA模式避開瀏海與Home指示條 */
 
   .icon-btn { width:40px; height:40px; border-radius:12px; background:rgba(255,255,255,.12);
     display:flex; align-items:center; justify-content:center; font-size:20px; cursor:pointer; border:none; color:#fff; }
@@ -252,8 +257,11 @@
     100%{transform:translateY(0) scale(1);} }
 
   /* ★ v49 ① 連消(Streak)徽章：平時完全隱形，連 2 才浮現，連 6 燒成金色。
-     絕對定位貼在棋盤左上角，pointer-events:none，不佔版面、不擋操作。 */
-  #streakBadge { position:absolute; top:-4px; left:14px; z-index:60; pointer-events:none;
+     絕對定位貼在棋盤左上角，pointer-events:none，不佔版面、不擋操作。
+     ★ v60 中央大字(#streakPop)已經把這個情緒撐起來了，左上角小徽章跟大字同時出現互搶注意力 → 直接隱藏。
+     邏輯層（clearStreak 計數、updateStreakBadge 呼叫）完全保留不動，未來想拿回來刪掉 display:none 這行就好。 */
+  #streakBadge { display:none !important;
+    position:absolute; top:-4px; left:14px; z-index:60; pointer-events:none;
     display:flex; align-items:center; gap:3px; padding:3px 10px 3px 7px; border-radius:999px;
     background:linear-gradient(180deg,#ff8a50,#f4511e); border:2px solid rgba(255,255,255,.85);
     box-shadow:0 3px 10px rgba(244,81,30,.45), inset 0 1px 0 rgba(255,255,255,.4);
@@ -473,14 +481,9 @@
     display:flex; align-items:center; justify-content:center; }
   .piece .pcell.empty { background:transparent !important; box-shadow:none; border:none; }
   .piece.dragging { opacity:.35; }
-  /* ★ v57 戰況透視：牌架上「當下盤面無處可放」的牌壓暗＋去彩度。
-     玩家一眼看清哪張牌卡住了，及早決策（先消行騰位？動用炸彈？），
-     而不是拖到一半才發現完蛋。仍可拖曳嘗試——壓暗是情報，不是封鎖。 */
-  /* ★ v58 改法：不再用透明度（會透出背景、看起來像破圖），
-     改「全不透明＋壓暗＋去彩度」——牌還是實心的，只是變成灰暗色，
-     「放不下」的情報一樣清楚，畫面卻乾淨紮實。 */
-  .piece.dimmed { opacity:1; filter:grayscale(.8) brightness(.48); }
-  .piece.dimmed:hover { filter:grayscale(.6) brightness(.62); }
+  /* ★ v61 已拆除：v57「戰況透視」壓暗提示（放不下的牌變灰黑）——
+     真機觀感像「牌壞掉了 / 出不了的黑磚」，情報價值低於視覺干擾，整套退役。
+     所有牌永遠以原色顯示，放不放得下交給玩家自己判斷（拖曳時仍有紅/綠落點提示）。 */
   #floatPiece { position:fixed; pointer-events:none; z-index:999; display:grid; gap:0; opacity:.95;
     filter:drop-shadow(0 3px 6px rgba(0,0,0,.25));
     transition:filter .12s ease-out; }
@@ -605,7 +608,10 @@
      矮螢幕上棋盤吃滿高度，頂部管線直接被棋盤蓋住（真機截圖實錘）。
      現在上下各保留 38px 專屬跑道，配合 calcCellSize 的垂直扣高，
      氣球（時間線）的完整軌跡在任何螢幕上都保證可見。 */
-  #app.hz-on #boardWrap { padding:38px 12px 38px 50px; }
+  /* ★ v62 底部保留區 38 → 62px：走廊要塞「管線(22px) + 仙人掌(34px)」兩層，
+     38px 根本不夠 —— 擠壓環境（瀏覽器工具列吃掉高度）下管線被迫躺到托盤方塊頭上。
+     62 = 仙人掌 38（34 高 + 4 呼吸）+ 管線半寬 11 + 托盤安全距 13。 */
+  #app.hz-on #boardWrap { padding:38px 12px 62px 50px; }
   #app.hz-on #streakBadge { left:58px; }   /* 連消徽章讓開走廊，別壓在氣球管上 */
   #app.hz-on #bigScore .bs-num { color:#ffffff;
     text-shadow:0 0 14px rgba(79,195,247,.85), 0 2px 3px rgba(0,0,0,.6), 0 6px 18px rgba(0,0,0,.45); }
@@ -633,7 +639,11 @@
   #hzNozzle.popped .cuff { width:11px; height:20px; top:5px; border-radius:6px 3px 3px 6px;
         background:linear-gradient(#4f9ec2,#2a6f92 60%,#1c4f68); transform:rotate(-7deg); }
 
-  #hzCactus { position:absolute; font-size:34px; line-height:1; transform-origin:bottom center; }
+  /* ★ v63 抬層：仙人掌不再住在 z:0 的氣球圖層裡 —— 獨立 absolute 元素、z-index:2，
+     壓在棋盤(z:1)之上。顯示與否跟著 #hzLayer.on 走（相鄰選擇器），機關關以外完全不存在。 */
+  #hzCactus { position:absolute; font-size:34px; line-height:1; transform-origin:bottom center;
+              z-index:2; pointer-events:none; display:none; }
+  #hzLayer.on + #hzCactus { display:block; }
   #hzCactus .em { display:block; }
 
   #hzDanger { position:absolute; inset:0; opacity:0; transition:opacity .25s;
@@ -897,7 +907,7 @@
     </span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v58・繽紛樂・手感急救包</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v63・繽紛樂・仙人掌抬層＋收集節奏</div>
 </div>
 
 <div id="app">
@@ -913,9 +923,12 @@
       <circle id="hzHeadShine" r="3.6" fill="#fff" fill-opacity=".45"/>
     </svg>
     <div id="hzNozzle"><div class="barrel"></div><div class="ring"></div><div class="puff"></div><div class="cuff"></div></div>
-    <div id="hzCactus"><span class="em">🌵</span></div>
     <div id="hzDanger"></div>
   </div>
+  <!-- ★ v63 仙人掌抬層：搬出 hzLayer（z:0，躲在棋盤後面），改為 #app 直屬、z-index:2。
+       v61/v62 兩版數學鐵則都在極端擠壓螢幕上被「另一頭的鐵則」推翻 —— 與其繼續賭量測，
+       不如讓仙人掌物理上不可能被棋盤蓋住。緊貼 hzLayer 之後 → CSS 相鄰選擇器同步顯示/隱藏。 -->
+  <div id="hzCactus" aria-hidden="true"><span class="em">🌵</span></div>
   <!-- ★ v14 齒輪：浮在最右上角，貼齊右邊界（畫面很寬，元素推到兩側） -->
   <div class="gear-wrap">
     <button class="icon-btn" id="gearBtn" title="選單">⚙️<span class="noti-dot" id="gearDot"></span></button>
@@ -1274,7 +1287,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'放方塊・消整排・餵飽小動物',
-  'menu.footer':'v58・繽紛樂・手感急救包',
+  'menu.footer':'v63・繽紛樂・仙人掌抬層＋收集節奏',
   'menu.best':'最高 {n} 關',
   'mode.endless.name':'無盡模式', 'mode.endless.desc':'沒有終點，放到沒空間為止。挑戰你的最高分。',
   'mode.gem.name':'繽紛收集', 'mode.gem.desc':'餵飽三隻小動物就過關，盤面塞滿才結束，一關接一關往下闖。',
@@ -1347,7 +1360,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Drop blocks, clear lines, feed the critters!',
-  'menu.footer':'v58 · Vivid Blast · Feel-Good Fix Pack',
+  'menu.footer':'v63 · Vivid Blast · Cactus Layer & Gem Pacing',
   'menu.best':'Best: Lv {n}',
   'mode.endless.name':'Endless', 'mode.endless.desc':'No finish line — play until the board fills up. Chase your high score.',
   'mode.gem.name':'Critter Collect', 'mode.gem.desc':'Feed the critters to clear each level. You only lose when the board jams. Level after level!',
@@ -1420,7 +1433,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを置いて、ライン消して、もぐもぐタイム！',
-  'menu.footer':'v58・ビビッドブラスト・手ざわり改善パック',
+  'menu.footer':'v63・ビビッドブラスト・サボテン前面化＋収集調整',
   'menu.best':'最高 {n} 面',
   'mode.endless.name':'エンドレス', 'mode.endless.desc':'終わりなき挑戦。盤面が埋まるまでハイスコアを狙おう。',
   'mode.gem.name':'もぐもぐコレクト', 'mode.gem.desc':'どうぶつたちを満腹にすればクリア。盤面が詰まるまで終わらない。どんどん先へ！',
@@ -2468,12 +2481,16 @@ const SHAPE_LIB = [
   { tier:'trap', weight:2, cells:[[0,0],[1,0],[2,0],[2,1],[2,2]] },
 
   // ============ 稀有救命牌（極稀有，玩家要珍惜） ============
-  { tier:'rare', weight:1.2, cells:[[0,0]] },                     // 單格（最強救命牌）
-  { tier:'rare', weight:1.0, cells:[[0,0],[0,1]] },               // 橫2
-  { tier:'rare', weight:1.0, cells:[[0,0],[1,0]] },               // 直2
-  { tier:'rare', weight:0.8, cells:[[0,0],[1,1]] },               // 斜2
-  { tier:'rare', weight:0.5, cells:[[0,0],[1,1],[2,2]] },         // 斜3
-  { tier:'rare', weight:0.5, cells:[[0,1],[1,0]] },               // 反斜2
+  // ★ v59 1顆／2顆牌大降權：改走「幸運稀有牌形」路線——不再是「常常來救你」的安全網，
+  //   而是「好幾關才幸運遇到一次，運氣不好幾十關都碰不到」的稀有邂逅。
+  //   註：防死局的保底（autoShuffleTray 的 makeSingleCellPiece()）走的是另一條直接指定的
+  //   路徑，完全不吃這裡的權重，所以降到這麼低也不影響「絕不會卡死」的數學保證。
+  { tier:'rare', weight:0.08, cells:[[0,0]] },                    // 單格（最強救命牌）
+  { tier:'rare', weight:0.06, cells:[[0,0],[0,1]] },              // 橫2
+  { tier:'rare', weight:0.06, cells:[[0,0],[1,0]] },              // 直2
+  { tier:'rare', weight:0.05, cells:[[0,0],[1,1]] },              // 斜2
+  { tier:'rare', weight:0.5,  cells:[[0,0],[1,1],[2,2]] },        // 斜3（3格，不在本次降權範圍內）
+  { tier:'rare', weight:0.03, cells:[[0,1],[1,0]] },              // 反斜2
 ];
 const PIECE_COLORS = ['#3d7fd6','#7a52c9','#3fa66a','#d98a2b','#d6524e','#2a9db2','#c9a028','#9a4bc4'];
 
@@ -2666,9 +2683,10 @@ function calcCellSize(){
   // ★ v55 機關關左側讓道：氣球跑道走 x≈32 的左側走廊，寬度計算先扣掉走廊保留區，
   //    棋盤右移縮一點點 → 玩家整局都看得到氣球（時間線）的完整軌跡，這是機關模式的生命線。
   const gutter = (typeof HZ !== 'undefined' && HZ.active) ? 44 : 0;
-  // ★ v58 垂直走廊扣高：機關關上下各保留 38px 給氣球管線（見 #app.hz-on #boardWrap），
+  // ★ v58 垂直走廊扣高：機關關上下保留空間給氣球管線（見 #app.hz-on #boardWrap），
   //    高度計算必須同步扣掉，否則矮螢幕上棋盤照樣吃滿、把跑道蓋回去。
-  const vGut = (typeof HZ !== 'undefined' && HZ.active) ? 76 : 0;
+  // ★ v62 同步加大：上 38 + 下 62 = 100（下方走廊要塞管線＋整株仙人掌，38 不夠住）。
+  const vGut = (typeof HZ !== 'undefined' && HZ.active) ? 100 : 0;
   const avail = Math.min(wrap.clientWidth - gutter, wrap.clientHeight - vGut) - 16;
   // gap 已歸零、#board padding 改 6px（左右各 6 = 12）→ 縫隙不再占空間，格子可放大一點
   CELL = Math.floor((avail - 12) / SIZE);
@@ -2921,7 +2939,42 @@ HZ.layout = function(){
     //    這是舊版的隱形漏洞：縫隙 ≤30px 時走「固定 +22」路徑，可能直接落在棋盤裡。
     yTop = Math.min(yTop, Math.round(bTop - 20));
   }
-  const yBot = Math.round(H - trayH - 26);
+  let yBot = Math.round(H - trayH - 26);
+  // ★ v61 底部走廊鐵則：v58 只夾了頂部（管線離棋盤頂緣 ≥20px），底部卻仍盲算
+  //    「托盤上方固定 26px」、完全沒量棋盤底緣在哪 —— 高瘦螢幕上棋盤底緣吃進走廊，
+  //    仙人掌（34px 高、z 層在棋盤之下）半截身體躲進棋盤後面，真機實錘「仙人掌被擋住」。
+  //    修正（照抄 v58 頂部的成功處方）：
+  //    (a) 量得到棋盤底緣且縫隙夠寬 → 走廊鎖在「棋盤下緣 ～ 托盤上緣」正中間；
+  //    (b) 鐵則夾限 yBot ≥ 棋盤底緣 + 38px（仙人掌全高 34 + 4px 呼吸空間），
+  //        保證仙人掌整株站在棋盤外，一根刺都不被蓋。
+  // ★ v62 托盤天花板：v61 鐵則只顧仙人掌、沒顧托盤 —— 擠壓環境（瀏覽器工具列吃高度）
+  //    下管線被推到托盤方塊頭上（真機實錘）。補上另一頭的鐵則：管線下緣（半寬 11px）
+  //    離托盤頂至少 2px → yBot ≤ 托盤頂 - 13。天花板最後套用：兩頭衝突的極端矮螢幕，
+  //    優先保住「管線不踩托盤」（v62 已加大保留區，實務上兩頭都顧得到）。
+  if(boardEl){
+    const bBot = boardEl.getBoundingClientRect().bottom - app.getBoundingClientRect().top;
+    const trayTop = H - trayH;
+    // ★ v63 根治「兩鐵則打架」：v61 保仙人掌、v62 保托盤，但擠壓螢幕（LINE/FB 內建
+    //    瀏覽器工具列吃高度）上縫隙 < 51px 時兩者必衝突，天花板最後套用 = 仙人掌再度
+    //    被棋盤蓋住（真機三度實錘）。走廊需要的空間是物理事實，唯一有彈性的是格子
+    //    尺寸 —— 縫不夠就當場把 CELL 縮小到走廊塞得下為止，重排棋盤後再量一次。
+    //    _reflow 旗標保證整個回饋迴圈最多走一輪，杜絕無限循環。
+    const NEED = 51;                             // 38（仙人掌+呼吸）+ 13（托盤安全距）
+    if(trayTop - bBot < NEED && !HZ._reflow && typeof CELL === 'number'){
+      const overflow = Math.ceil(NEED - (trayTop - bBot));
+      const newCell = Math.floor((CELL * SIZE - overflow) / SIZE);
+      if(newCell >= 22 && newCell < CELL){
+        HZ._reflow = true;
+        CELL = newCell;
+        renderBoard(); renderTray();
+        requestAnimationFrame(()=>{ HZ.layout(); HZ._reflow = false; });
+        return;                                  // 本輪座標作廢，等重排後的第二輪
+      }
+    }
+    if(trayTop - bBot > 30) yBot = Math.round((bBot + trayTop) / 2);
+    yBot = Math.max(yBot, Math.round(bBot + 38));
+    yBot = Math.min(yBot, Math.round(trayTop - 13));
+  }
   if(yBot - yTop < 80) return;                 // 版面太矮，放棄重繪（避免路徑自交）
   const xR = W - 34, xEnd = W - 46;
 
@@ -3229,17 +3282,21 @@ function makePiece(forceDef){
   //        鑲嵌率必須夠高，玩家才收得到目標、不再受「鑽石長哪」的運氣懲罰。
   // ★ v9：基礎率 0.75 → 0.62。前一版給太滿，鑽石一放就收完、失去「追逐感」。
   //        降到 0.62 讓玩家要多消幾行才收得完，收集才有節奏。
-  let gemRate = 0.62;
-  if(isDiagonal(shape)) gemRate = 0.8;
-  else if(shape.length >= 6) gemRate = 0.45;
+  // ★ v63：0.62 → 0.40（斜牌 0.8 → 0.58、大牌 0.45 → 0.30）。真機實測 0.62 一放牌
+  //        就進帳三四顆、6 顆目標兩三下收完，「追逐感」蕩然無存。降四成後每關約要
+  //        多消五成的行數才收得齊 —— 收集重新變成目標，而不是順路撿的。
+  let gemRate = 0.40;
+  if(isDiagonal(shape)) gemRate = 0.58;
+  else if(shape.length >= 6) gemRate = 0.30;
   // 無盡模式：純刷分，不鑲鑽石（畫面乾淨、回歸 Block Blast 本格）
   if(!MODE().useGoals) gemRate = 0;
   // 隨機在部分格子鑲鑽石（偏向關卡需要的種類，幫助玩家達標）
   const cells = shape.map(([r,c])=>{
     let gem = null;
     if(Math.random() < gemRate){
-      // 60% 機率出本關目標鑽石，40% 隨機
-      if(Math.random()<0.6 && goals.length){
+      // ★ v63：目標偏向 60% → 50%。配合鑲嵌率調降，非目標寶石占比提高，
+      //        玩家得辨認「哪行有我要的」再下手，收集才有選擇的樂趣。
+      if(Math.random()<0.5 && goals.length){
         gem = pick(goals).gem;
       } else {
         gem = pick(GEM_KEYS);
@@ -3289,6 +3346,12 @@ function refillTray(){
    ② 甜蜜連發節奏：盤面夠空時有機率進入 2~3 手「同池爽牌連發」（3x3/矩形/方磚/長條），
       玩家進入自動駕駛的爽快節奏；連發結束悄悄切回混合牌——節奏催眠，Block Blast 精髓。 */
 
+/* ★ v61 長條判定：單行或單列、長度 ≥3 的一字牌（3/4/5 格長條都算）。
+   makeBalancedTrio 用它執行「一手最多 2 根長條」鐵律。 */
+function isBarPiece(p){
+  return (p.rows === 1 && p.cols >= 3) || (p.cols === 1 && p.rows >= 3);
+}
+
 /* 單張牌在「當下盤面」是否存在至少一個合法落點 */
 function pieceFitsSomewhere(p){
   for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
@@ -3304,8 +3367,10 @@ function boardFillRatio(){
   return f/(SIZE*SIZE);
 }
 
-/* 甜蜜連發狀態機：streak = 剩餘連發手數；pool = 本輪連發使用的同型牌池 */
-const RHYTHM = { streak:0, pool:null };
+/* 甜蜜連發狀態機：streak = 剩餘連發手數；pool = 本輪連發使用的同型牌池
+   ★ v59 新增 lastTag：記住上一輪用的池子，下一輪連發無條件排除它——
+   連續兩輪不得同池，根除「長條海」連續出現好幾組、像被系統刁難的觀感。 */
+const RHYTHM = { streak:0, pool:null, lastTag:null };
 
 function makeBalancedTrio(){
   const cap = (curDiff.trapCap ?? 1);
@@ -3315,8 +3380,18 @@ function makeBalancedTrio(){
     const chance = (curDiff.tier==='boss') ? 0.10 : 0.28;   // 魔王關少放糖
     if(Math.random() < chance){
       RHYTHM.streak = 2 + rand(2);                          // 連發 2~3 手
-      const tag = pick(['A','B','C']);
+      // ★ v59 鐵則：下一輪連發永遠不能跟上一輪同池。
+      //   （原設計曾用倒數計數的冷卻，但失敗的擲骰會把冷卻悄悄耗光、實測擋不住；
+      //    改成無條件排除上一輪的池子。）
+      // ★ v61 C 池（純長條池）從連發名單除名：即使 v59 保證三根形狀互不相同，
+      //   「一手三根全是長條」的觀感依然像被系統刁難（真機回報實錘）。
+      //   連發只保留 A（大塊爽消）與 B（方磚短條）；長條回歸常規隨機發牌，
+      //   並由下方新增的「一手最多 2 根長條」鐵律兜底。
+      let tagPool = ['A','B'];
+      if(RHYTHM.lastTag) tagPool = tagPool.filter(t=> t !== RHYTHM.lastTag);
+      const tag = pick(tagPool);
       RHYTHM.pool = SHAPE_LIB.filter(s=> s.sweet === tag || s.sweet2 === tag);   // ★ v58 支援雙池標籤
+      RHYTHM.lastTag = tag;
     }
   }
   const sweetPool = (RHYTHM.streak > 0 && RHYTHM.pool && RHYTHM.pool.length) ? RHYTHM.pool : null;
@@ -3326,12 +3401,24 @@ function makeBalancedTrio(){
   while(tries < 40){
     // 甜牌池試 15 次還過不了公平鐵律 → 盤面容不下爽牌，放棄本輪連發回歸常規
     const useSweet = sweetPool && tries < 15;
-    const t = [0,1,2].map(()=> useSweet ? makePiece(pick(sweetPool)) : makePiece());
+    // ★ v59 同池「不放回抽樣」：池子成員數 ≥3 時直接洗牌取前三個，一手三張形狀保證互不相同，
+    //    從結構上根除「長條看起來三個都一樣」的觀感，比事後比對 sig 更徹底。
+    let t;
+    if(useSweet && sweetPool.length >= 3){
+      const shuffled = [...sweetPool].sort(()=> Math.random()-0.5);
+      t = shuffled.slice(0,3).map(def=> makePiece(def));
+    } else {
+      t = [0,1,2].map(()=> useSweet ? makePiece(pick(sweetPool)) : makePiece());
+    }
     const trapCount = t.filter(p=>p.tier==='trap').length;
-    // ★ v58 防複製貼上：三張形狀完全相同 → 打回重抽。
+    // ★ v58 防複製貼上：三張形狀完全相同 → 打回重抽（v59 不放回抽樣後這裡多半用不到，留著當保險）。
     //    兩張相同是節奏（玩家能接受），三張全同看起來像發牌機壞掉。
     const allSame = t[0].sig && t[0].sig === t[1].sig && t[1].sig === t[2].sig;
-    if(!allSame && trapCount <= cap && t.every(pieceFitsSomewhere)){
+    // ★ v61 長條鐵律：一手最多 2 根長條（3/4/5 格一字牌）。
+    //    連發除名 C 池後，純隨機仍有 ~4% 機率湊出三根長條 —— 這裡直接打回重抽，
+    //    「三根長條同時出現」從結構上絕跡；兩根是正常節奏，保留。
+    const barCount = t.filter(isBarPiece).length;
+    if(!allSame && barCount <= 2 && trapCount <= cap && t.every(pieceFitsSomewhere)){
       trio = t;
       if(useSweet) RHYTHM.streak--;   // 甜蜜連發成功發出一手
       else         RHYTHM.streak = 0; // 用常規牌完成 → 中止連發（悄悄換牌的時刻）
@@ -3394,8 +3481,7 @@ function renderTray(){
     const scale = Math.min(SLOT_W/rawW, SLOT_H/rawH, 1);
     pe.style.transform = `scale(${scale})`;
     pe.dataset.scale = scale;
-    // ★ v57 戰況透視：當下無處可放 → 壓暗提示（renderTray 每次放牌後都會重跑，自動保持最新）
-    if(!pieceFitsSomewhere(p)) pe.classList.add('dimmed');
+    // ★ v61：v57「壓暗提示」已退役（黑磚觀感嚇玩家），牌一律原色顯示。
     attachDrag(pe, idx);
     slot.appendChild(pe);
     tray.appendChild(slot);
@@ -3754,6 +3840,10 @@ function clearLines(){
   setTimeout(()=>{
     toClear.forEach(key=>{ const [r,c]=key.split('_').map(Number); board[r][c]=null; });
     renderBoard();
+    // ★ v59 修正「預備區變色」根因：放牌當下 renderTray() 判斷的是「消行前」的滿盤，
+    //   剩餘沒用掉的牌可能被誤判「放不下」而壓暗去彩。消行動畫做完、盤面真正騰出空間
+    //   的這一刻，必須重新算一次，托盤才會照著「現在」的盤面顯示，不再頂著舊照片。
+    renderTray();
     afterMove();
   }, 360);
 }
@@ -5472,6 +5562,23 @@ window.addEventListener('resize', ()=>{
   if(!currentMode) return;              // ★ v18 還在開場選單就別重繪，避免 board 未建立時崩潰
   calcCellSize(); renderBoard(); renderTray();
 });
+
+/* ★ v63 內建瀏覽器補刀：iOS 的 LINE/FB 內嵌 WebView 收合工具列時「常常不發 window
+   resize 事件」（Safari 本尊會發，內嵌的不一定）—— 這就是 v62 明明留了 62px 保留區、
+   真機卻照樣擠壓的幕後真兇之一：開場量的是工具列展開前的高度，之後高度變了沒人通知。
+   visualViewport 是專門回報「實際可視區」變化的 API，聽它就抓得到。300ms 去彈跳
+   （工具列動畫期間會連發），重排完整套：格子 → 棋盤 → 托盤 → 氣球走廊。 */
+if(window.visualViewport){
+  let _vvRz;
+  window.visualViewport.addEventListener('resize', ()=>{
+    clearTimeout(_vvRz);
+    _vvRz = setTimeout(()=>{
+      if(!currentMode) return;
+      calcCellSize(); renderBoard(); renderTray();
+      if(HZ.active) HZ.layout();
+    }, 300);
+  });
+}
 
 /* ★ v21 啟動：先讀存檔，再把 UI 狀態（音效鈕）同步成存檔值 */
 const isFirstLaunch = (localStorage.getItem(SAVE_KEY) === null);   // ★ v37 讀檔前先記錄，loadGame 不會動到這個判斷
