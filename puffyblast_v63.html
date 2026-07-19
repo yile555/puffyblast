@@ -900,6 +900,7 @@
   </button>
 
   <button class="mode-card gem" data-mode="gem">
+    <span class="soon" id="gemBest" style="display:none"></span><!-- ★ v64 D3 續玩徽章：資料早就在存檔裡，只欠這個 UI -->
     <span class="emoji">🍡</span>
     <span>
       <div class="mc-name" data-i18n="mode.gem.name">繽紛收集</div>
@@ -907,7 +908,7 @@
     </span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v63・繽紛樂・仙人掌抬層＋收集節奏</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v64・繽紛樂・上架體檢修復包</div>
 </div>
 
 <div id="app">
@@ -1287,8 +1288,9 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'放方塊・消整排・餵飽小動物',
-  'menu.footer':'v63・繽紛樂・仙人掌抬層＋收集節奏',
+  'menu.footer':'v64・繽紛樂・上架體檢修復包',
   'menu.best':'最高 {n} 關',
+  'menu.resume':'▶ 續玩 第 {n} 關',
   'mode.endless.name':'無盡模式', 'mode.endless.desc':'沒有終點，放到沒空間為止。挑戰你的最高分。',
   'mode.gem.name':'繽紛收集', 'mode.gem.desc':'餵飽三隻小動物就過關，盤面塞滿才結束，一關接一關往下闖。',
   'mode.balloon.name':'氣球大逃亡', 'mode.balloon.desc':'氣球一路膨脹爬向仙人掌，靠消行洩氣把它拉回來。關關加速，撐得越久越險。',
@@ -1303,7 +1305,7 @@ const I18N = {
   'profile.cooldown':'改名卡冷卻中，還要等 {d} 天',
   'login.guest':'遊客模式', 'login.using':'使用中', 'login.google':'Google 登入', 'login.apple':'Apple 登入', 'login.soon':'即將推出',
   'lang.title':'🌐 選擇語言', 'lang.using':'使用中',
-  'win.title':'🎉 過關！', 'win.text':'第 {lv} 關完成！本關得分 {s}　🪙+{n}',
+  'win.title':'🎉 過關！', 'win.text':'第 {lv} 關完成！總分 {s}　🪙+{n}',
   'intro.level':'第 {n} 關', 'mode.endless':'無盡模式',
   'win.balloonTitle':'🎈 氣球守住了！', 'win.balloonText':'第 {lv} 關完成！仙人掌鬆了一口氣（得分 {s}）　🪙+{n}',
   'win.textDefault':'小動物都吃飽囉！', 'win.next':'下一關 →', 'win.home':'回主選單',
@@ -1338,7 +1340,7 @@ const I18N = {
   'combo.deflate':'🫧 氣球洩氣了一半！',
   'combo.warnGem':'🎈 機關關！別讓氣球碰到仙人掌', 'combo.warn':'🎈 別讓氣球碰到仙人掌！',
   'combo.noAds':'🚫 已永久去廣告！', 'combo.dm':'💎 +{n}！', 'combo.daily':'🎁 每日禮物 +{n}💎',
-  'combo.dmShort':'💎 鑽石不足', 'combo.goldShort':'🪙 金幣不足', 'combo.bomb':'💣 +{n}！', 'combo.aim':'💣 按住棋盤拖曳瞄準，放開引爆 3×3', 'combo.bombRevive':'💣 炸彈救援！',
+  'combo.dmShort':'💎 鑽石不足', 'combo.goldShort':'🪙 金幣不足', 'combo.hintMenu':'💡 進入關卡後才能使用提示', 'combo.bomb':'💣 +{n}！', 'combo.aim':'💣 按住棋盤拖曳瞄準，放開引爆 3×3', 'combo.bombRevive':'💣 炸彈救援！',
   'skin.default':'原色果凍', 'skin.brick':'工業風(磁磚)', 'skin.wood':'原木紋理', 'skin.marble':'大理石紋', 'skin.steel':'鋼板螺絲',
   'skin.rib':'毛線風(羅紋針)', 'skin.moss':'毛線風(桂花針)', 'skin.honeycomb':'毛線風(蜂巢編)', 'skin.shell':'毛線風(貝殼編)', 'skin.cable':'毛線風(麻花辮)',
   'trial.title':'🎁 剛剛試玩的皮膚，喜歡嗎？',
@@ -1347,7 +1349,7 @@ const I18N = {
   'gallery.close':'關閉', 'gallery.equip':'使用', 'gallery.equipped':'使用中 ✓',
   'gallery.seenAt':'第 {lv} 關嚐過', 'gallery.unknown':'？？？', 'gallery.locked':'尚未邂逅',
   'frag.title':'🧩 皮膚碎片', 'frag.progress':'碎片 {c}／{t}',
-  'frag.gain':'🧩 碎片 +1（{c}／{t}）', 'frag.complete':'🎉 碎片集滿！已擁有「{n}」',
+  'frag.gain':'🧩 碎片 +1（{c}／{t}）', 'frag.complete':'🎉 碎片集滿！已擁有「{n}」', 'frag.equipNow':'✨ 立刻換上！',
   'frag.dupGold':'🧩 碎片已擁有，重複碎片自動兌換 🪙+{v}', 'frag.dupDm':'🧩 碎片已擁有，重複碎片自動兌換 💎+{v}',
   'frag.rescueMiss':'（這關用了救援才過關，皮膚邂逅這次不算數）',
   'lose.skinMiss':'💔 差一點就能把「{n}」帶回家了，下次再遇到別手軟！',
@@ -1360,8 +1362,9 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Drop blocks, clear lines, feed the critters!',
-  'menu.footer':'v63 · Vivid Blast · Cactus Layer & Gem Pacing',
+  'menu.footer':'v64 · Vivid Blast · Pre-launch Fix Pack',
   'menu.best':'Best: Lv {n}',
+  'menu.resume':'▶ Resume Lv {n}',
   'mode.endless.name':'Endless', 'mode.endless.desc':'No finish line — play until the board fills up. Chase your high score.',
   'mode.gem.name':'Critter Collect', 'mode.gem.desc':'Feed the critters to clear each level. You only lose when the board jams. Level after level!',
   'mode.balloon.name':'Balloon Escape', 'mode.balloon.desc':'The balloon keeps inflating toward the cactus — clear lines to deflate it. Faster every level!',
@@ -1376,7 +1379,7 @@ const I18N = {
   'profile.cooldown':'Rename card on cooldown, {d} day(s) left',
   'login.guest':'Guest', 'login.using':'Active', 'login.google':'Sign in with Google', 'login.apple':'Sign in with Apple', 'login.soon':'Coming soon',
   'lang.title':'🌐 Select Language', 'lang.using':'Active',
-  'win.title':'🎉 Level Clear!', 'win.text':'Level {lv} complete! Score {s}　🪙+{n}',
+  'win.title':'🎉 Level Clear!', 'win.text':'Level {lv} complete! Total score {s}　🪙+{n}',
   'intro.level':'Level {n}', 'mode.endless':'Endless',
   'win.balloonTitle':'🎈 Balloon Saved!', 'win.balloonText':'Level {lv} complete! The cactus sighs in relief (score {s})　🪙+{n}',
   'win.textDefault':'All puffies are full and happy!', 'win.next':'Next Level →', 'win.home':'Main Menu',
@@ -1411,7 +1414,7 @@ const I18N = {
   'combo.deflate':'🫧 Balloon deflated halfway!',
   'combo.warnGem':'🎈 Hazard level! Keep the balloon off the cactus', 'combo.warn':'🎈 Keep the balloon off the cactus!',
   'combo.noAds':'🚫 Ads removed forever!', 'combo.dm':'💎 +{n}!', 'combo.daily':'🎁 Daily gift +{n}💎',
-  'combo.dmShort':'💎 Not enough gems', 'combo.goldShort':'🪙 Not enough gold', 'combo.bomb':'💣 +{n}!', 'combo.aim':'💣 Hold & drag to aim — release to blast 3×3', 'combo.bombRevive':'💣 Bomb rescue!',
+  'combo.dmShort':'💎 Not enough gems', 'combo.goldShort':'🪙 Not enough gold', 'combo.hintMenu':'💡 Hints only work during a level', 'combo.bomb':'💣 +{n}!', 'combo.aim':'💣 Hold & drag to aim — release to blast 3×3', 'combo.bombRevive':'💣 Bomb rescue!',
   'skin.default':'Classic Jelly', 'skin.brick':'Industrial Tile', 'skin.wood':'Wood Grain', 'skin.marble':'Marble', 'skin.steel':'Riveted Steel',
   'skin.rib':'Rib Knit', 'skin.moss':'Moss Stitch', 'skin.honeycomb':'Honeycomb Knit', 'skin.shell':'Shell Stitch', 'skin.cable':'Cable Knit',
   'trial.title':'🎁 Liked the skin you just tried?',
@@ -1420,7 +1423,7 @@ const I18N = {
   'gallery.close':'Close', 'gallery.equip':'Equip', 'gallery.equipped':'Equipped ✓',
   'gallery.seenAt':'Tried at Lv {lv}', 'gallery.unknown':'???', 'gallery.locked':'Not encountered yet',
   'frag.title':'🧩 Skin Fragments', 'frag.progress':'Fragments {c}/{t}',
-  'frag.gain':'🧩 Fragment +1 ({c}/{t})', 'frag.complete':'🎉 Fragments complete! Unlocked "{n}"',
+  'frag.gain':'🧩 Fragment +1 ({c}/{t})', 'frag.complete':'🎉 Fragments complete! Unlocked "{n}"', 'frag.equipNow':'✨ Wear it now!',
   'frag.dupGold':'🧩 Already owned — duplicate converted to 🪙+{v}', 'frag.dupDm':'🧩 Already owned — duplicate converted to 💎+{v}',
   'frag.rescueMiss':'(You used a rescue to clear this level, so the skin encounter did not count)',
   'lose.skinMiss':'💔 So close to bringing "{n}" home — do not miss it next time!',
@@ -1433,11 +1436,12 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを置いて、ライン消して、もぐもぐタイム！',
-  'menu.footer':'v63・ビビッドブラスト・サボテン前面化＋収集調整',
-  'menu.best':'最高 {n} 面',
+  'menu.footer':'v64・ビビッドブラスト・リリース前修正パック',
+  'menu.best':'ベスト：レベル {n}',
+  'menu.resume':'▶ レベル {n} から再開',
   'mode.endless.name':'エンドレス', 'mode.endless.desc':'終わりなき挑戦。盤面が埋まるまでハイスコアを狙おう。',
   'mode.gem.name':'もぐもぐコレクト', 'mode.gem.desc':'どうぶつたちを満腹にすればクリア。盤面が詰まるまで終わらない。どんどん先へ！',
-  'mode.balloon.name':'バルーン大脱走', 'mode.balloon.desc':'風船はサボテンめがけて膨らみ続ける。ライン消しで空気を抜こう。面が進むほど加速！',
+  'mode.balloon.name':'バルーン大脱走', 'mode.balloon.desc':'風船はサボテンめがけて膨らみ続ける。ライン消しで空気を抜こう。レベルが進むほど加速！',
   'gear.sound':'サウンド', 'gear.haptic':'バイブ', 'gear.shop':'ショップ', 'gear.skin':'きせかえ', 'gear.tester':'テスターモード', 'gear.home':'メニュー',
   'side.level':'レベル', 'side.score':'スコア', 'side.best':'ベスト', 'side.hint':'ヒント', 'side.bomb':'ボム', 'side.dm':'💎 ジェム', 'side.gold':'🪙 ゴールド',
   'gear.profile':'アカウント',
@@ -1449,7 +1453,7 @@ const I18N = {
   'profile.cooldown':'改名カードはクールダウン中（あと{d}日）',
   'login.guest':'ゲストモード', 'login.using':'使用中', 'login.google':'Googleでログイン', 'login.apple':'Appleでログイン', 'login.soon':'近日公開',
   'lang.title':'🌐 言語を選択', 'lang.using':'使用中',
-  'win.title':'🎉 クリア！', 'win.text':'レベル {lv} クリア！スコア {s}　🪙+{n}',
+  'win.title':'🎉 クリア！', 'win.text':'レベル {lv} クリア！合計スコア {s}　🪙+{n}',
   'intro.level':'レベル {n}', 'mode.endless':'エンドレス',
   'win.balloonTitle':'🎈 風船を守った！', 'win.balloonText':'レベル {lv} クリア！サボテンもひと安心（スコア {s}）　🪙+{n}',
   'win.textDefault':'みんな満腹、大満足！', 'win.next':'次のレベル →', 'win.home':'メニューへ',
@@ -1482,18 +1486,18 @@ const I18N = {
   'iap.l.name':'ジェム（大）', 'iap.l.desc':'豪華な大盛りパック',
   'combo.shuffle':'🔄 自動シャッフル', 'combo.hint':'💡 ここに置いてみて', 'combo.skin':'🎨 きせかえは準備中',
   'combo.deflate':'🫧 空気が半分抜けた！',
-  'combo.warnGem':'🎈 ギミック面！風船をサボテンに当てないで', 'combo.warn':'🎈 風船をサボテンに当てないで！',
+  'combo.warnGem':'🎈 ギミックレベル！風船をサボテンに当てないで', 'combo.warn':'🎈 風船をサボテンに当てないで！',
   'combo.noAds':'🚫 広告を永久削除しました！', 'combo.dm':'💎 +{n}！', 'combo.daily':'🎁 デイリーギフト +{n}💎',
-  'combo.dmShort':'💎 ジェムが足りません', 'combo.goldShort':'🪙 ゴールドが足りません', 'combo.bomb':'💣 +{n}！', 'combo.aim':'💣 ドラッグで狙って、離すと 3×3 爆破', 'combo.bombRevive':'💣 ボムで復活！',
+  'combo.dmShort':'💎 ジェムが足りません', 'combo.goldShort':'🪙 ゴールドが足りません', 'combo.hintMenu':'💡 ヒントはレベル中のみ使えます', 'combo.bomb':'💣 +{n}！', 'combo.aim':'💣 ドラッグで狙って、離すと 3×3 爆破', 'combo.bombRevive':'💣 ボムで復活！',
   'skin.default':'クラシックゼリー', 'skin.brick':'インダストリアルタイル', 'skin.wood':'木目', 'skin.marble':'大理石', 'skin.steel':'リベット鋼板',
   'skin.rib':'リブ編み', 'skin.moss':'ガーター編み', 'skin.honeycomb':'ハニカム編み', 'skin.shell':'シェル編み', 'skin.cable':'ケーブル編み',
   'trial.title':'🎁 さっき試したきせかえ、気に入った？',
   'combo.skinBought':'🎉「{n}」を手に入れた！', 'combo.skinEquipped':'🎨「{n}」に着せ替えた',
   'gallery.title':'🎨 きせかえ図鑑', 'gallery.sub':'ステージ中にランダムで素材と遭遇。そのステージに勝てば欠片を獲得、集めれば手に入る',
   'gallery.close':'閉じる', 'gallery.equip':'使用する', 'gallery.equipped':'使用中 ✓',
-  'gallery.seenAt':'{lv}関で体験済み', 'gallery.unknown':'？？？', 'gallery.locked':'未発見',
+  'gallery.seenAt':'レベル {lv} で体験済み', 'gallery.unknown':'？？？', 'gallery.locked':'未発見',
   'frag.title':'🧩 きせかえの欠片', 'frag.progress':'欠片 {c}／{t}',
-  'frag.gain':'🧩 欠片 +1（{c}／{t}）', 'frag.complete':'🎉 欠片が集まった！「{n}」を手に入れた！',
+  'frag.gain':'🧩 欠片 +1（{c}／{t}）', 'frag.complete':'🎉 欠片が集まった！「{n}」を手に入れた！', 'frag.equipNow':'✨ 今すぐ着替える！',
   'frag.dupGold':'🧩 すでに所持中。重複した欠片は 🪙+{v} に自動変換', 'frag.dupDm':'🧩 すでに所持中。重複した欠片は 💎+{v} に自動変換',
   'frag.rescueMiss':'（このステージは救援でクリアしたため、きせかえの遭遇は今回カウントされません）',
   'lose.skinMiss':'💔「{n}」まであと少しだった…次のチャンスは逃さないで！',
@@ -1523,7 +1527,11 @@ let dragState = null;
 /* ===== 模式系統狀態 ===== */
 let currentMode = null;    // 'endless' | 'gem'（'rescue' 留給 v7）
 let score = 0;             // 本局分數（無盡模式核心）
-let bestScore = 0;         // 歷史最佳（記憶體保存，之後可接存檔）
+/* ★ v64 D2 歷史最佳分「分家」：三模式各記各的帳。
+   舊制單一 bestScore 會被 gem 跨關累積分打到幾千分，endless 的 BEST 直接被污染。 */
+let bestScores = { gem:0, endless:0, balloon:0 };
+function getBest(){ return (currentMode && bestScores[currentMode]) || 0; }
+function bumpBest(){ if(currentMode && score > (bestScores[currentMode]||0)) bestScores[currentMode] = score; }
 let movesLeft = 0;         // 剩餘步數（寶石模式核心壓力源）
 
 /* ===== 模式設定表（萬能關卡：換模式 = 換這張表，核心不動） =====
@@ -1691,6 +1699,20 @@ function difficultyOf(lv){
 
 /* 本關的難度設定檔（startLevel 時抽一次，整關沿用） */
 let curDiff = { tier:'normal', label:'', trapCap:1, rareBoost:1, goalMul:1, moveMul:1.1 };
+
+/* ★ v64 A2 對局世代旗標：startLevel / goHome 各 +1。
+   所有「幾百毫秒後才落地」的計時器發射前記下世代，到點發現世代變了就自我作廢——
+   從此不會有玩家回到選單後，過期的過關視窗還魂蓋在選單上。 */
+let gameEpoch = 0;
+
+/* ★ v64 D1 重試沿用旗標：retry 同一關必須沿用同一份 curDiff。
+   否則 showLose 已把 winStreak 歸零，重擲 difficultyOf() 魔王牆瞬間變紙糊，
+   玩家會發現「卡關就自殺重開」的捷徑，難度曲線形同虛設。 */
+let retrySameDiff = false;
+
+/* ★ v64 D4 本關起始分快照：gem 模式分數跨關累積，retry 只回滾「這一關失敗的嘗試」，
+   不再沒收前面關卡辛苦攢的總分。 */
+let levelStartScore = 0;
 
 
 /* ===== 收集物定義（模組化：換膚只要換這組） =====
@@ -2296,7 +2318,7 @@ function showSmartPraise(cx, cy){
   spawnConfettiBurst(cx, cy, 12);
   playSmartDing();
   haptic([15,40,15]);
-  if(MODE().useScore){ score += 5; if(score>bestScore) bestScore=score; updateStatus(); }
+  if(MODE().useScore){ score += 5; bumpBest(); updateStatus(); }   // ★ v64 D2 分模式記帳
 }
 
 /* 放下但沒消行 → 判定這一手聰不聰明（冷卻 6 秒防氾濫） */
@@ -3483,6 +3505,13 @@ function renderTray(){
     pe.dataset.scale = scale;
     // ★ v61：v57「壓暗提示」已退役（黑磚觀感嚇玩家），牌一律原色顯示。
     attachDrag(pe, idx);
+    // ★ v64 A5 消行收尾的 renderTray() 若撞上「玩家已抓起下一張牌」：
+    //   新 DOM 補上 .dragging 壓暗（不出現托盤+手上的視覺分身），
+    //   並把 dragState.el 換成新元素 → 放開時脫掉樣式的是活的 DOM，不是被丟棄的舊參照。
+    if(dragState && dragState.idx === idx){
+      pe.classList.add('dragging');
+      dragState.el = pe;
+    }
     slot.appendChild(pe);
     tray.appendChild(slot);
   });
@@ -3493,6 +3522,7 @@ function renderTray(){
    ============================================================ */
 function attachDrag(el, idx){
   el.addEventListener('pointerdown', e=>{
+    if(dragState) return;   // ★ v64 A4 一次只認一根手指：第二指碰其他牌不准覆寫 dragState，第一指的拖曳不再懸空報廢
     e.preventDefault();
     const p = trayPieces[idx];
     if(p.used) return;
@@ -3688,7 +3718,7 @@ function placePiece(p, idx, baseR, baseC){
   //    消行的大分＋連消倍率照舊，仍是分數的主菜；這裡是穩定的小費。
   if(MODE().useScore){
     score += p.cells.length;
-    if(score > bestScore) bestScore = score;
+    bumpBest();   // ★ v64 D2 分模式記帳
     updateStatus();
   }
 
@@ -3746,6 +3776,8 @@ function clearLines(){
   toClear.forEach(key=>{
     const [r,c]=key.split('_').map(Number);
     const data=board[r][c];
+    board[r][c] = null;   // ★ v64 S1 資料當場清空（動畫層演的是屍體）：
+                          //   堵死 360ms 空窗內再放一張牌 → 重掃發現「該列還滿」→ 同列重複收集/計分/洩氣的白嫖漏洞
     if(data && data.gem){
       const goal=goals.find(g=>g.gem===data.gem);
       if(goal){
@@ -3825,7 +3857,7 @@ function clearLines(){
     const streakMul = Math.min(Math.max(clearStreak,1), 5);
     const gained = totalLines * 10 * totalLines * streakMul;  // 例：連3消1行 = 10×3 = 30
     score += gained;
-    if(score > bestScore) bestScore = score;
+    bumpBest();   // ★ v64 D2 分模式記帳
     updateStatus();
   }
 
@@ -3837,8 +3869,10 @@ function clearLines(){
     renderGoals();  // 沒有可收集食物（理論上少見）→ 保底更新
   }
 
+  const _clearEpoch = gameEpoch;   // ★ v64 A2 記下發射當下的世代
   setTimeout(()=>{
-    toClear.forEach(key=>{ const [r,c]=key.split('_').map(Number); board[r][c]=null; });
+    if(_clearEpoch !== gameEpoch) return;   // ★ v64 A2 玩家已回選單/換關 → 過期計時器直接作廢，不再蓋視窗
+    // ★ v64 S1 盤面資料已在消行判定當下清空（見上方），這裡只負責視覺收尾
     renderBoard();
     // ★ v59 修正「預備區變色」根因：放牌當下 renderTray() 判斷的是「消行前」的滿盤，
     //   剩餘沒用掉的牌可能被誤判「放不下」而壓暗去彩。消行動畫做完、盤面真正騰出空間
@@ -3849,11 +3883,12 @@ function clearLines(){
 }
 
 function afterMove(){
-  if(checkWin()){ setTimeout(showWin, 300); return; }
+  // ★ v64 A2 這兩顆延遲計時器同樣掛世代保險：回選單後絕不還魂
+  if(checkWin()){ const ep=gameEpoch; setTimeout(()=>{ if(ep===gameEpoch) showWin(); }, 300); return; }
   // 三塊都用完 → 補新的一組
   if(trayPieces.every(p=>p.used)){ refillTray(); }
   // 失敗判定：剩餘方塊都放不下（盤面塞死）—— 公平、靠實力，不靠步數運氣
-  else if(!anyPlaceable()){ setTimeout(showLose, 300); }
+  else if(!anyPlaceable()){ const ep=gameEpoch; setTimeout(()=>{ if(ep===gameEpoch) showLose(); }, 300); }
 }
 
 /* ============================================================
@@ -3971,7 +4006,7 @@ function updateStatus(){
   document.getElementById('scoreCap').classList.toggle('hidden', !m.useScore);
   document.getElementById('bestCap').classList.toggle('hidden', !m.useScore);
   document.getElementById('scoreVal').textContent = score;
-  document.getElementById('bestVal').textContent = bestScore;
+  document.getElementById('bestVal').textContent = getBest();   // ★ v64 D2 只秀「本模式」的最佳分
   // ★ v54 頂部大分數同步 + 加分小跳動
   const big = document.getElementById('bigScore');
   const bigNum = document.getElementById('bigScoreVal');
@@ -3987,11 +4022,12 @@ function updateStatus(){
 }
 
 function showWin(){
+  if(!currentMode) return;   // ★ v64 A2 雙保險：已回選單就絕不彈過關視窗（任何漏網計時器到此為止）
   const m = MODE();
   // ★ v32：機關關過關 → 仙人掌鬆一口氣，並凍結氣球（停在當下高度，當作勳章）
   if(HZ.active){ HZ.relief(); if(HZ.raf){ cancelAnimationFrame(HZ.raf); HZ.raf = 0; } }
   playWin();
-  if(m.useScore && score>bestScore) bestScore=score;
+  if(m.useScore) bumpBest();   // ★ v64 D2 分模式記帳
   if(currentMode==='gem'){
     // ★ v6：過關就累積連勝。連勝越長，下一輪丟魔王關的機率越高(成就感的引信)
     //       但剛打完魔王關就把連勝歸零，給玩家一段喘息的順風期
@@ -4045,6 +4081,13 @@ function resolveSkinEncounterOnWin(){
     box.querySelector('.stp-title').textContent = T(result.currency==='gold' ? 'frag.dupGold' : 'frag.dupDm', {v:result.value});
   } else if(result.kind==='complete'){
     box.querySelector('.stp-title').textContent = T('frag.complete', {n:T(s.name)});
+    // ★ v64 D5 集滿的獎勵時刻交回玩家手上：想換就按，不想換就留著現在這身
+    if(currentSkin !== s.id){
+      const b = document.createElement('button');
+      b.className='shop-buy gold'; b.textContent = T('frag.equipNow');
+      b.onclick = ()=>{ equipSkin(s.id); document.getElementById('skinTrialPromo').style.display='none'; };
+      buyRow.appendChild(b);
+    }
   } else {
     box.querySelector('.stp-title').textContent = T('frag.gain', {c:result.cur, t:result.need});
     // 還沒集滿：順勢提供「直接買斷」加速選項（買斷價沿用 SKIN_MATERIALS，比碎片划算，見商店定價哲學）
@@ -4063,13 +4106,14 @@ function resolveSkinEncounterOnWin(){
   }
 }
 function showLose(){
+  if(!currentMode) return;   // ★ v64 A2 雙保險：已回選單就絕不彈失敗視窗（含氣球 boomTimer 900ms 路徑）
   const m = MODE();
   // ★ v6：卡關失敗 → 連勝歸零，重新進入「放水→爬升」的舒服節奏
   winStreak = 0;
   document.getElementById('loseTitle').textContent = T(m.loseTitle);   // ★ v36 經 T() 查表
   // 無盡模式失敗順手秀出本局成績
   let txt = T(m.loseText);
-  if(currentMode==='endless'){ txt = T('lose.score', {s:score, b:bestScore, nr:(score>=bestScore&&score>0)?T('lose.newRecord'):''}); }
+  if(currentMode==='endless'){ const _b=getBest(); txt = T('lose.score', {s:score, b:_b, nr:(score>=_b&&score>0)?T('lose.newRecord'):''}); }   // ★ v64 D2
   // ★ v32：機關關「氣球爆炸」有自己的敘事（盤面塞死則沿用原文案）
   if(HZ.loseNow){
     document.getElementById('loseTitle').textContent = T('lose.boomTitle');
@@ -4239,10 +4283,11 @@ function grantSkinFragment(id){
   const need = FRAGMENT_REQUIRED[s.tier] || 10;
   const cur = (skinFragments[id]||0) + 1;
   if(cur >= need){
-    // 集滿 → 自動兌換整套皮膚並裝備，碎片歸零（不留餘量，乾淨俐落）
+    // 集滿 → 自動兌換整套皮膚，碎片歸零（不留餘量，乾淨俐落）
+    // ★ v64 D5 不再靜默換裝：玩家穿著麻花辮、隨手集滿羅紋就被偷換衣服＝先斬後奏。
+    //   改由過關視窗的「立刻換上」按鈕讓玩家自己決定（見 resolveSkinEncounterOnWin）。
     delete skinFragments[id];
     ownedSkins.push(id);
-    currentSkin = id;
     if(!seenSkins[id]) seenSkins[id] = level;
     refreshEconomyUI(); saveGame();
     return { kind:'complete', skin:s };
@@ -4782,6 +4827,7 @@ function buyBombPack(idx, currency){
 
 /* 買提示：金幣／鑽石雙軌，買完立即出提示（不用再看廣告） */
 function buyHint(currency){
+  if(!currentMode){ showCombo(T('combo.hintMenu')); return; }   // ★ v64 A3 選單狀態不受理：錢不扣、話講清楚，400 金幣不再蒸發
   if(currency === 'gold'){
     if(goldCoin < ECON.hint.gold){ showCombo(T('combo.goldShort')); return; }
     goldCoin -= ECON.hint.gold;
@@ -5041,7 +5087,7 @@ let maxBalloonLevel = 1;   // ★ v33 氣球模式歷史最高關（獨立計算
 function saveGame(){
   try{
     const data = {
-      bestScore, maxLevelReached, maxBalloonLevel, isPremium,
+      bestScores, maxLevelReached, maxBalloonLevel, isPremium,   // ★ v64 D2 三本帳簿一起落地
       ownedSkins, currentSkin, seenSkins, skinFragments, soundOn,
       rotateMode,                            // ★ v46 皮膚輪播模式偏好
       hapticEnabled: hapticConfig.enabled,
@@ -5059,7 +5105,10 @@ function loadGame(){
     const raw = localStorage.getItem(SAVE_KEY);
     if(!raw) return;
     const d = JSON.parse(raw);
-    if(typeof d.bestScore==='number')       bestScore = d.bestScore;
+    // ★ v64 D2 新版三本帳簿；舊存檔的單一 bestScore 已被 gem 累積分污染，遷移時同時抄進 gem 與 endless（寧多勿刪，不吃掉玩家紀錄）
+    if(d.bestScores && typeof d.bestScores==='object'){
+      ['gem','endless','balloon'].forEach(k=>{ if(typeof d.bestScores[k]==='number') bestScores[k]=Math.max(0,d.bestScores[k]); });
+    } else if(typeof d.bestScore==='number'){ bestScores.gem = d.bestScore; bestScores.endless = d.bestScore; }
     if(typeof d.maxLevelReached==='number') maxLevelReached = Math.max(1, d.maxLevelReached);
     if(typeof d.maxBalloonLevel==='number') maxBalloonLevel = Math.max(1, d.maxBalloonLevel);
     if(typeof d.isPremium==='boolean')      isPremium = d.isPremium;
@@ -5108,7 +5157,9 @@ let _lastAdLevel = 0;      // 上一支強制廣告時的關卡數
    只在 gem 模式、過關進下一關的過場呼叫。 */
 function shouldShowInterstitial(){
   if(isPremium) return false;                       // 付費去廣告
-  if(currentMode==='endless') return false;         // 無盡模式沒有「過關」這個中性過場，不插
+  if(currentMode!=='gem') return false;             // ★ v64 C1 黑名單改白名單：只有 gem 模式的中性過場能插。
+                                                    //   氣球是全遊戲最緊張的模式，過關喘口氣被塞 5 秒廣告 = 體驗謀殺；
+                                                    //   endless 沒有過場、選單(null)更不用說——一行擋光所有漏網模式。
   if(level <= adConfig.gracePeriodLevels) return false;         // 新手保護期
   if(level - _lastAdLevel < adConfig.minLevelInterval) return false; // 關數閘門
   if(Date.now() - _lastAdTime < adConfig.minCooldownSec*1000) return false; // 時間閘門
@@ -5155,10 +5206,14 @@ function proceedToNextLevel(){
    關卡 / 模式流程
    ============================================================ */
 function startLevel(){
+  gameEpoch++;              // ★ v64 A2 開新關 = 新世代，舊計時器全數作廢
+  levelStartScore = score;  // ★ v64 D4 記下進關時的累積分（retry 回滾用）
   // ★ v6：開關卡時先抽出本關「難度性格」，整關沿用（gem 模式才有層次，其它維持平穩）
+  // ★ v64 D1：重試同一關沿用同一份 curDiff——輸了，牆還在。魔王關不再是紙糊的。
   curDiff = (currentMode==='gem')
-    ? difficultyOf(level)
+    ? ((retrySameDiff && curDiff) ? curDiff : difficultyOf(level))
     : { tier:'normal', label:'', trapCap:1, rareBoost:1, goalMul:1, moveMul:1 };
+  retrySameDiff = false;
 
   adRevivesUsed = 0;        // ★ v36 免費救援每關重置（上限 ECON.adReviveCap 次）
   clearStreak = 0;          // ★ v49 連消每關重新起算
@@ -5196,7 +5251,8 @@ function startLevel(){
 /* 從選單進入某模式 */
 function enterMode(mode){
   currentMode = mode;
-  level = 1;
+  // ★ v64 D3 gem 模式從歷史最高關續玩（maxLevelReached 早有存檔，只差這一行）；其餘模式照舊從 1 開始
+  level = (mode==='gem' && maxLevelReached > 1) ? maxLevelReached : 1;
   score = 0;
   winStreak = 0;            // ★ v6：新一局從蜜月期重新開始
   document.getElementById('menu').classList.add('hidden');
@@ -5206,6 +5262,8 @@ function enterMode(mode){
 
 /* 回主選單 */
 function goHome(){
+  gameEpoch++;                   // ★ v64 A2 回選單 = 世代翻頁，所有在飛的過關/失敗計時器落地即作廢
+  currentMode = null;            // ★ v64 A2 回選單後系統不再誤以為「還在對局中」（商店買提示等誤觸的總根源）
   HZ.stop();                     // ★ v33 收掉機關圖層 + 停 rAF，否則氣球在選單背後繼續膨脹
   refreshMenuBadges();           // 剛打完的最高關，回選單就要看得到
   document.getElementById('winOverlay').classList.remove('show');
@@ -5217,9 +5275,16 @@ function goHome(){
 /* 選單徽章：氣球模式的歷史最高關。破紀錄的數字擺在按鈕上，比任何文案都會叫人再按一次。 */
 function refreshMenuBadges(){
   const b = document.getElementById('balloonBest');
-  if(!b) return;
-  if(maxBalloonLevel > 1){ b.textContent = T('menu.best', {n:maxBalloonLevel}); b.style.display = ''; }
-  else                   { b.style.display = 'none'; }
+  if(b){
+    if(maxBalloonLevel > 1){ b.textContent = T('menu.best', {n:maxBalloonLevel}); b.style.display = ''; }
+    else                   { b.style.display = 'none'; }
+  }
+  // ★ v64 D3 gem 模式續玩徽章：磨到第 25 關的玩家明天回來就從第 25 關繼續——留存的命根子
+  const g = document.getElementById('gemBest');
+  if(g){
+    if(maxLevelReached > 1){ g.textContent = T('menu.resume', {n:maxLevelReached}); g.style.display = ''; }
+    else                   { g.style.display = 'none'; }
+  }
 }
 
 /* ===== 選單按鈕 ===== */
@@ -5233,7 +5298,11 @@ document.querySelectorAll('.mode-card').forEach(card=>{
 
 /* ===== 過關 / 失敗 / 導覽 按鈕 ===== */
 document.getElementById('nextBtn').onclick = ()=>{ proceedToNextLevel(); };  // ★ v20：下一關過場，自動判斷是否插強制廣告
-document.getElementById('retryBtn').onclick = ()=>{ score=0; startLevel(); }; // 重新開始本局
+document.getElementById('retryBtn').onclick = ()=>{
+  score = levelStartScore;   // ★ v64 D4 只回滾「這一關失敗的嘗試」，前面關卡攢的總分不沒收（無盡模式起始分本來就是 0，行為不變）
+  retrySameDiff = true;      // ★ v64 D1 重試沿用同一份 curDiff——魔王牆輸了還在，「自殺重開」捷徑正式封路
+  startLevel();
+}; // 重新開始本關
 document.getElementById('winHomeBtn').onclick = goHome;
 document.getElementById('loseHomeBtn').onclick = goHome;
 document.getElementById('homeBtn').onclick = ()=>{ closeGear(); goHome(); };
@@ -5476,12 +5545,18 @@ function slamBombGhost(r, c, done){
   setTimeout(()=>{ hideBombGhost(); done(); }, 150);
 }
 
+let _bombBusy = false;   // ★ v64 A1 引爆忙碌鎖：150ms 砸落動畫期間，第二次引爆一律拒收
 function _bombDetonate(r, c){
-  bombCount--;                       // 先扣帳（防 150ms 動畫期間的重複觸發）
+  if(_bombBusy || bombCount <= 0) return;   // ★ v64 A1 沒貨或動畫進行中 → 直接擋。付費道具帳目絕不能出現負數
+  _bombBusy = true;
+  bombAim = false;                   // ★ v64 A1 扣帳當下就關瞄準：棋盤 pointerup 路徑立刻失效，連點無效
+  clearBombPreview();
+  bombCount--;                       // 先扣帳
   saveGame(); refreshEconomyUI();
   slamBombGhost(r, c, ()=>{          // ★ v51 ② 砸落 → 爆炸，因果連貫
     cancelBombAim();
     explodeAt(r, c);
+    _bombBusy = false;               // ★ v64 A1 爆炸落地才解鎖，下一顆炸彈照常受理
   });
 }
 
@@ -5581,7 +5656,11 @@ if(window.visualViewport){
 }
 
 /* ★ v21 啟動：先讀存檔，再把 UI 狀態（音效鈕）同步成存檔值 */
-const isFirstLaunch = (localStorage.getItem(SAVE_KEY) === null);   // ★ v37 讀檔前先記錄，loadGame 不會動到這個判斷
+let isFirstLaunch = false;   // ★ v37 讀檔前先記錄，loadGame 不會動到這個判斷
+try{ isFirstLaunch = (localStorage.getItem(SAVE_KEY) === null); }
+catch(e){ /* ★ v64 S2 封鎖 storage 的環境（內嵌 WebView/極端隱私設定）此行會丟 SecurityError，
+             不包 try/catch 會讓後面整段開機腳本（歡迎視窗/暱稱/UI 同步）全滅。
+             讀不到就當老玩家處理：不跳歡迎視窗（反正名字也存不下來），遊戲照常能玩。 */ }
 loadGame();
 (function syncSavedUI(){
   const sb = document.getElementById('soundBtn');
