@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v66</title>
-<meta property="og:title" content="繽紛樂 v66">
+<title>繽紛樂 v67</title>
+<meta property="og:title" content="繽紛樂 v67">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://yile555.github.io/puffyblast/">
@@ -181,7 +181,9 @@
   #board { background:var(--board-bg); border-radius:18px; padding:6px;
     display:grid; gap:0; box-shadow:0 8px 24px rgba(0,0,0,.35); position:relative; overflow:hidden; }
   /* 空格：極淡格線用「內描邊」畫，不占空間 → 方塊之間零縫隙 */
-  .cell { background:var(--cell); position:relative; transition:background .12s;
+  /* ★ v67 拆除 background .12s 過渡：落點影子必須「跟手零延遲、放手零殘影」——
+     淡入淡出的 120ms 就是舊版「放手後好像還拖了一下」的時間差來源。 */
+  .cell { background:var(--cell); position:relative;
     box-shadow:inset 0 0 0 1px rgba(0,0,0,.16); }
   .cell.hint-ok { background:rgba(79,195,247,.45); }
   .cell.hint-bad { background:rgba(229,75,74,.4); }
@@ -491,10 +493,12 @@
      真機觀感像「牌壞掉了 / 出不了的黑磚」，情報價值低於視覺干擾，整套退役。
      所有牌永遠以原色顯示，放不放得下交給玩家自己判斷（拖曳時仍有紅/綠落點提示）。 */
   #floatPiece { position:fixed; pointer-events:none; z-index:999; display:grid; gap:0; opacity:.95;
-    filter:drop-shadow(0 3px 6px rgba(0,0,0,.25));
-    transition:filter .12s ease-out; }
-  /* ★ v24 拿起時不再放大方塊，維持與棋盤格一致的大小，只加強陰影營造「拎起來」的懸浮感 */
-  #floatPiece.lifted { filter:drop-shadow(0 14px 18px rgba(0,0,0,.4)); }
+    filter:drop-shadow(0 3px 6px rgba(0,0,0,.25)); }
+  /* ★ v67 同層放置改革：v22~v24 的「高空陰影」(0 14px 18px) 是明確的「懸浮在上層」視覺語言，
+     放手瞬間影子消失＝大腦自動腦補一段墜落 → 這就是「放下卡頓」錯覺的病根。
+     改為與棋盤方塊同級的貼地陰影：方塊從頭到尾都在棋盤同一個平面上滑動，
+     放手只是「原地定位」，沒有高度差、就沒有掉落感。filter 過渡一併拆除（零時間差）。 */
+  #floatPiece.lifted { filter:drop-shadow(0 4px 7px rgba(0,0,0,.32)); }
   #floatPiece .pcell { border-radius:3px; z-index:0; border:5px solid;
     border-color:rgba(255,255,255,.42) rgba(0,0,0,.16) rgba(0,0,0,.34) rgba(255,255,255,.15);
     display:flex; align-items:center; justify-content:center; }
@@ -916,7 +920,7 @@
     </span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v66・繽紛樂・消除零卡頓引擎</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v67・繽紛樂・同層放置與靜音鐵閘</div>
 </div>
 
 <div id="app">
@@ -1296,7 +1300,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'放方塊・消整排・餵飽小動物',
-  'menu.footer':'v66・繽紛樂・消除零卡頓引擎',
+  'menu.footer':'v67・繽紛樂・同層放置與靜音鐵閘',
   'menu.best':'最高 {n} 關',
   'menu.resume':'▶ 續玩 第 {n} 關',
   'mode.endless.name':'無盡模式', 'mode.endless.desc':'沒有終點，放到沒空間為止。挑戰你的最高分。',
@@ -1370,7 +1374,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Drop blocks, clear lines, feed the critters!',
-  'menu.footer':'v66 · Vivid Blast · Zero-Jank Clear Engine',
+  'menu.footer':'v67 · Vivid Blast · Same-Plane Drop + True Mute',
   'menu.best':'Best: Lv {n}',
   'menu.resume':'▶ Resume Lv {n}',
   'mode.endless.name':'Endless', 'mode.endless.desc':'No finish line — play until the board fills up. Chase your high score.',
@@ -1444,7 +1448,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを置いて、ライン消して、もぐもぐタイム！',
-  'menu.footer':'v66・ビビッドブラスト・消去ゼロカクつきエンジン',
+  'menu.footer':'v67・ビビッドブラスト・同一平面ドロップと完全ミュート',
   'menu.best':'ベスト：レベル {n}',
   'menu.resume':'▶ レベル {n} から再開',
   'mode.endless.name':'エンドレス', 'mode.endless.desc':'終わりなき挑戦。盤面が埋まるまでハイスコアを狙おう。',
@@ -1750,6 +1754,12 @@ function shadeColor(hex, percent){
   const R = f>>16, G = (f>>8)&0xff, B = f&0xff;
   const r = Math.round((t-R)*p)+R, g = Math.round((t-G)*p)+G, b = Math.round((t-B)*p)+B;
   return '#'+(0x1000000+r*0x10000+g*0x100+b).toString(16).slice(1);
+}
+/* ★ v67 落點影子調色：把方塊本色轉半透明 rgba —— 拖曳時落點格直接染上「這塊方塊自己的影子」，
+   取代通用藍。影子全程貼著格線走＝方塊的同層分身；放手時影子原地實心化，零位移、零時間差。 */
+function ghostTint(hex){
+  const f = parseInt(hex.slice(1),16);
+  return `rgba(${f>>16},${(f>>8)&0xff},${f&0xff},.45)`;
 }
 function gemMaterial(color, materialId){
   const hi = shadeColor(color, 0.78);   // 高光核心：接近白
@@ -2403,6 +2413,9 @@ function playPraise(tier){
    ③ 低通濾波器修圓稜角＋衰減尾巴拉長 0.18s 交給殘響 —— 餘韻是質感的一半。
    函式簽名一字未動，13 個呼叫點零修改、全部自動質變。 */
 function tone(freq, t0, dur, type='sine', vol=0.25, bendTo=null){
+  /* ★ v67 靜音總鐵閘門：tone() 是全場 13+ 個旋律呼叫點的共用引擎，守衛裝在引擎上，
+     任何現在或未來的呼叫點忘了自查 soundOn，也一個音都漏不出去（v66 里程碑漏音實錘）。 */
+  if(!soundOn) return;
   const ctx=actx(); if(!ctx) return;
   const t = ctx.currentTime + t0, out = adest(ctx);
   // 濾波＋包絡共用鏈：body(混音) → lowpass(修圓) → g(音量包絡) → 總線
@@ -3627,7 +3640,8 @@ function attachDrag(el, idx){
       ? Math.round(CELL * 1.5)   // ★ v29 觸控：0.7→1.5 格，視覺較舒服；不影響敏銳度（僅視覺偏移）
       : 14;        // 滑鼠：游標細，稍微偏移即可
     dragState = { idx, p, pw:p.cols*CELL, ph:p.rows*CELL, lastR:null, lastC:null,
-      baseOffset, liftOffset:baseOffset, startY:e.clientY, pid:e.pointerId, el, fp }; // ★ v21 lastR/C
+      baseOffset, liftOffset:baseOffset, startY:e.clientY, pid:e.pointerId, el, fp,
+      ghostBg: ghostTint(p.color) };   // ★ v21 lastR/C；★ v67 影子本色（拿起時算一次，逐幀零成本）
     el.classList.add('dragging');
     fp.classList.add('lifted'); // ★ v22 拿起瞬間放大＋陰影，營造「拎起來」的手感
     // ★ v31 真兇：托盤牌 el 用 transform:scale(...) 塞進槽，且左右兩塊縮放比例各不同，
@@ -3688,7 +3702,7 @@ function canPlace(p, baseR, baseC){
    新版只記「這幀真的點亮了誰」，下幀只脫那幾格 —— 拖曳運算量再砍一刀，跟手更黏。 */
 let _hintedEls = [];
 function clearHints(){
-  _hintedEls.forEach(c=> c.classList.remove('hint-ok','hint-bad'));
+  _hintedEls.forEach(c=>{ c.classList.remove('hint-ok','hint-bad'); c.style.background=''; });  // ★ v67 影子(inline 本色)一併回收
   _hintedEls = [];
 }
 
@@ -3726,7 +3740,12 @@ function processDragFrame(){
   dragState.p.cells.forEach(cell=>{
     const rr=r+cell.r, cc=c+cell.c;
     const cls = (rr>=0 && rr<SIZE && cc>=0 && cc<SIZE) ? boardCellEl(rr,cc) : null;   // ★ v66 ① 快取直取
-    if(cls){ cls.classList.add(ok?'hint-ok':'hint-bad'); _hintedEls.push(cls); }      // ★ v66 ④ 記帳
+    if(cls){
+      cls.classList.add(ok?'hint-ok':'hint-bad'); _hintedEls.push(cls);               // ★ v66 ④ 記帳
+      // ★ v67 同層影子：合法落點染「方塊本色」半透明（inline 蓋過通用藍）＝方塊在棋盤上的分身；
+      //   非法落點維持紅色警示（不上 inline，讓 .hint-bad 紅色照常顯示）。
+      if(ok){ cls.style.background = dragState.ghostBg; }
+    }
   });
   dragState.dropR=r; dragState.dropC=c; dragState.dropOk=ok;
 }
@@ -4107,7 +4126,9 @@ function fireScoreMilestone(){
     el.innerHTML = '<div class="sm-word">'+word+'</div><div class="sm-sub">'+sub+'</div>';
     el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
   }
-  try{ tone(880, 0, .12, 'triangle', .18); tone(1320, .06, .16, 'sine', .16); }catch(_){}   // 輕巧上揚的慶祝音
+  // ★ v67 補上靜音守衛：此處先前裸呼叫 tone()、繞過喇叭開關 —— 正是「靜音仍漏音」的兇手。
+  //   （tone() 本體已裝總閘門，這行是自我註記的雙保險。）
+  if(soundOn){ try{ tone(880, 0, .12, 'triangle', .18); tone(1320, .06, .16, 'sine', .16); }catch(_){} }   // 輕巧上揚的慶祝音
 }
 
 /* 更新頂部狀態膠囊（分數 / 最佳 / 步數）+ near-miss 警示 */
