@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v64</title>
-<meta property="og:title" content="繽紛樂 v64">
+<title>繽紛樂 v65</title>
+<meta property="og:title" content="繽紛樂 v65">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://yile555.github.io/puffyblast/">
@@ -132,12 +132,15 @@
   #goals[data-n="3"] .goal  { max-width:92px; }
   #goals[data-n="3"] .gicon { max-width:64px; }
 
-  #goals[data-n="4"] { gap:8px; padding:13px 56px 9px 20px; }
+  /* ★ v65 ① 任務欄讓路：左邊距 20→56px 與右側對齊。左上角疊著 💡＋💣 按鈕柱（寬約 58px），
+     舊值 20px 讓第一隻動物直接鑽到按鈕底下（4/5 隻動物的關卡真機實錘）。
+     讓開後多餘的置中留白同時被吃掉，動物間隔更緊湊，一刀雙雕。 */
+  #goals[data-n="4"] { gap:8px; padding:13px 56px 9px 56px; }
   #goals[data-n="4"] .goal  { max-width:76px; padding:6px 6px 5px; }
   #goals[data-n="4"] .gicon { max-width:62px; border-radius:14px; }
   #goals[data-n="4"] .gtext { font-size:13.5px; padding:2px 7px; }
 
-  #goals[data-n="5"] { gap:4px; padding:12px 56px 8px 20px; }
+  #goals[data-n="5"] { gap:4px; padding:12px 56px 8px 56px; }   /* ★ v65 ① 同上：左側讓開按鈕柱 */
   #goals[data-n="5"] .goal  { max-width:66px; padding:4px; border-radius:16px; }
   #goals[data-n="5"] .gicon { max-width:58px; border-radius:13px; }
   #goals[data-n="5"] .gtext { font-size:12.5px; padding:2px 5px; border-radius:9px; }
@@ -480,7 +483,10 @@
     border-color:rgba(255,255,255,.42) rgba(0,0,0,.16) rgba(0,0,0,.34) rgba(255,255,255,.15);
     display:flex; align-items:center; justify-content:center; }
   .piece .pcell.empty { background:transparent !important; box-shadow:none; border:none; }
-  .piece.dragging { opacity:.35; }
+  /* ★ v65 ③ 殘影廢除：拖曳中的托盤分身從「壓暗 35%」改成完全隱形——拿走就拿走，
+     托盤格直接空著。舊的半透明殘影會與補牌後的新牌形狀混疊（v64 A5 交接失誤實錘），
+     玩家記憶被「假形狀」污染。保留 pointer-events：萬一未來又有殘留，牌仍抓得回來，不會失蹤。 */
+  .piece.dragging { opacity:0; }
   /* ★ v61 已拆除：v57「戰況透視」壓暗提示（放不下的牌變灰黑）——
      真機觀感像「牌壞掉了 / 出不了的黑磚」，情報價值低於視覺干擾，整套退役。
      所有牌永遠以原色顯示，放不放得下交給玩家自己判斷（拖曳時仍有紅/綠落點提示）。 */
@@ -597,7 +603,9 @@
                     overflow:hidden; display:none; }
   #app > #hzLayer.on { display:block; }
   /* UI 全部抬到氣球之上（原本是 static，會被 positioned 圖層蓋住） */
-  #goals, #playArea, #tray { position:relative; z-index:1; }
+  /* ★ v65 ② 補上 #bigScore：v55 當年抬了任務欄/棋盤/托盤，唯獨大分數漏在最底層，
+     氣球管一經過就把分數蓋住（真機實錘「分數被氣球擋住」）。現在分數永遠壓在管線之上。 */
+  #goals, #bigScore, #playArea, #tray { position:relative; z-index:1; }
 
   /* ★ v55 機關關版面：#app.hz-on（由 HZ.syncGoals 掛上）
      ① 棋盤讓出左側走廊 —— v54 隱藏側欄後棋盤變寬，把氣球的左側跑道整條蓋住。
@@ -908,7 +916,7 @@
     </span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v64・繽紛樂・上架體檢修復包</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v65・繽紛樂・操作直覺修復包</div>
 </div>
 
 <div id="app">
@@ -1288,7 +1296,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'放方塊・消整排・餵飽小動物',
-  'menu.footer':'v64・繽紛樂・上架體檢修復包',
+  'menu.footer':'v65・繽紛樂・操作直覺修復包',
   'menu.best':'最高 {n} 關',
   'menu.resume':'▶ 續玩 第 {n} 關',
   'mode.endless.name':'無盡模式', 'mode.endless.desc':'沒有終點，放到沒空間為止。挑戰你的最高分。',
@@ -1362,7 +1370,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Drop blocks, clear lines, feed the critters!',
-  'menu.footer':'v64 · Vivid Blast · Pre-launch Fix Pack',
+  'menu.footer':'v65 · Vivid Blast · Intuitive Controls Pack',
   'menu.best':'Best: Lv {n}',
   'menu.resume':'▶ Resume Lv {n}',
   'mode.endless.name':'Endless', 'mode.endless.desc':'No finish line — play until the board fills up. Chase your high score.',
@@ -1436,7 +1444,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを置いて、ライン消して、もぐもぐタイム！',
-  'menu.footer':'v64・ビビッドブラスト・リリース前修正パック',
+  'menu.footer':'v65・ビビッドブラスト・操作直感修正パック',
   'menu.best':'ベスト：レベル {n}',
   'menu.resume':'▶ レベル {n} から再開',
   'mode.endless.name':'エンドレス', 'mode.endless.desc':'終わりなき挑戦。盤面が埋まるまでハイスコアを狙おう。',
@@ -3671,11 +3679,10 @@ function onCancel(e){
   const st = dragState;
   st.el.classList.remove('dragging');
   dragState=null;
-  if(st.dropOk && st.dropR!==undefined){
-    playClick();
-    if(hapticConfig.onDrop){ haptic(hapticConfig.dropMs); }
-    placePiece(st.p, st.idx, st.dropR, st.dropC);
-  }
+  // ★ v65 ⑤ 取消一律退牌：舊版為吸收 iOS 假性 pointercancel，會在中斷瞬間自動把牌
+  //   放在最後一個合法落點——等於系統替玩家做決定，放牌數與玩家記憶對不上
+  //   （「幽靈補牌」疑案的最後嫌犯）。裁決定案：玩家常常手滑很正常，中斷一律退回
+  //   預備區，寧可偶爾重拖一次，也不代放。牌未標記 used，脫掉 dragging 即原地復原。
 }
 
 function onUp(e){
@@ -3689,13 +3696,17 @@ function onUp(e){
   document.querySelectorAll('.piece').forEach(p=>p.classList.remove('dragging'));
   if(!dragState){ return; }
   const {p, idx, dropR, dropC, dropOk}=dragState;
+  // ★ v65 ④ 交接順序矯正：先登記「手已放空」（dragState=null），再執行放置。
+  //   舊順序在 placePiece → refillTray → renderTray 一路殺到底時，dragState 仍握著舊牌，
+  //   A5 分身機制誤把「剛補進來的新牌」當成手上牌的分身壓暗（真機實錘：凸字形放下後，
+  //   新來的正方形頂著舊殘影登場）。手先放空，A5 就永遠不會認錯人。
+  dragState=null;
   if(dropOk && dropR!==undefined){
     // ★ v21 放下回饋：喀嚓聲 + 落定震動（在消行判定之前，讓「落定」與「消除」層次分明）
     playClick();
     if(hapticConfig.onDrop){ haptic(hapticConfig.dropMs); }
     placePiece(p, idx, dropR, dropC);
   }
-  dragState=null;
 }
 
 /* ============================================================
