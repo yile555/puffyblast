@@ -216,16 +216,6 @@
     32%{transform:scale(1.42,1.32) rotate(-5deg); filter:brightness(2.3) saturate(1.5);}
     58%{transform:scale(1.12,1.12) rotate(4deg); filter:brightness(1.7);}
     100%{transform:scale(0,0) rotate(14deg); opacity:0; filter:brightness(1);} }
-  /* ★ v38 消除爆閃光環：像戳破泡泡糖，一圈柔光瞬間擴散，強化「有感」的療癒回饋 */
-  /* ★ v68 ② 拆除 mix-blend-mode:screen：混合模式逼 GPU 拿每顆光環跟「背後整個畫面」做像素運算，
-     消 2 行＝16 顆同時混合＝一幀 16 次全畫面調色（真機卡頓主嫌之一）。
-     改純 radial 漸層＋透明度：白熱核心提亮、外圈提早淡出，視覺 95% 相似、合成成本斷崖下降。
-     炸彈的 .boom-fireball / .fire-streak 保留 screen —— 稀有大場面，發光特權留給付費級演出。 */
-  .pop-ring { position:fixed; z-index:940; pointer-events:none; border-radius:50%;
-    width:12px; height:12px; margin:-6px 0 0 -6px; opacity:.9;
-    background:radial-gradient(circle, rgba(255,255,255,.98) 0%, var(--ring-color,#fff) 34%, rgba(255,255,255,0) 66%);
-    will-change:transform,opacity; animation:popRing .46s cubic-bezier(.15,.7,.3,1) forwards; }
-  @keyframes popRing { 0%{ transform:scale(0); opacity:.95; } 100%{ transform:scale(8); opacity:0; } }
   /* ★ v24 碎片：消除時從方塊崩出的小碎屑，強化「破碎」視覺 */
   .shard { position:fixed; z-index:950; pointer-events:none; border-radius:2px;
     will-change:transform,opacity; animation:shardFly .5s cubic-bezier(.15,.7,.3,1) forwards; }
@@ -2114,19 +2104,6 @@ function spawnShards(cellEl, color, rect, frag, count){
     host.appendChild(s);
     setTimeout(()=> s.remove(), 520);
   }
-}
-
-// ★ v38 泡泡糖光環：消除瞬間在格子中心炸出一圈柔光，跟碎片搭配強化「戳破」的療癒回饋
-function spawnPopRing(cellEl, color, rect, frag){
-  if(!cellEl && !rect) return;
-  rect = rect || cellEl.getBoundingClientRect();
-  const ring = document.createElement('div');
-  ring.className = 'pop-ring';
-  ring.style.left = (rect.left + rect.width/2) + 'px';
-  ring.style.top  = (rect.top  + rect.height/2) + 'px';
-  ring.style.setProperty('--ring-color', color || '#fff');
-  (frag || document.body).appendChild(ring);
-  setTimeout(()=> ring.remove(), 480);
 }
 
 // ★ v48 ②「垮掉掉落」：把被消掉的方塊 cloneNode 成獨立浮層（掛 body、position:fixed），
@@ -4072,9 +4049,7 @@ function clearLines(){
       spawnFallBlock(cellHost, Math.min(fallIdx*9, 135), rect, fxFrag); fallIdx++;
       const clearColor = data ? data.color : '#fff';
       spawnShards(cellEl, clearColor, rect, fxFrag, shardsPer);
-      // ★ v70 冒泡泡修：泡泡糖光環只在「有鑽石」的格子冒 —— 它本是收集鑽石的療癒回饋，
-      //   無盡模式沒鑽石可收，每格冒泡反成「消除前的多餘停頓感」。跟著鑽石走，乾脆俐落。
-      if(data && data.gem) spawnPopRing(cellEl, clearColor, rect, fxFrag);   // ★ v38 泡泡糖光環（v68 ② 已拆混合模式）
+      // ★ v71 移除泡泡：泡泡糖光環（spawnPopRing）全面拿掉，消除只留碎片＋垮掉掉落，乾淨俐落。
       spawnTwinkle(cellEl, 'clear', rect, fxFrag, twinklePer);
     });
     document.body.appendChild(fxFrag);
@@ -5177,7 +5152,7 @@ function explodeAt(r0, c0){
       // ★ v53 同消行手術：寶石已收進 flyList，爆開動畫前先摘掉圖示，只留空殼方塊被炸飛
       const gemIcon = el.querySelector('.gem-svg');
       if(gemIcon) gemIcon.remove();
-      el.classList.add('clearing'); spawnShards(el, data.color); spawnPopRing(el, data.color);
+      el.classList.add('clearing'); spawnShards(el, data.color);
     }
   }
   // ★ v50 ③ 爆炸回饋全面升級：付費道具必須「感覺值錢」，威力要壓過連消 ——
