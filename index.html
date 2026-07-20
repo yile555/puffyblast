@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v68</title>
-<meta property="og:title" content="繽紛樂 v68">
+<title>繽紛樂 v69</title>
+<meta property="og:title" content="繽紛樂 v69">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://yile555.github.io/puffyblast/">
@@ -496,7 +496,9 @@
   /* ★ v61 已拆除：v57「戰況透視」壓暗提示（放不下的牌變灰黑）——
      真機觀感像「牌壞掉了 / 出不了的黑磚」，情報價值低於視覺干擾，整套退役。
      所有牌永遠以原色顯示，放不放得下交給玩家自己判斷（拖曳時仍有紅/綠落點提示）。 */
-  #floatPiece { position:fixed; pointer-events:none; z-index:999; display:grid; gap:0; opacity:.95;
+  /* ★ v69 手術①：opacity .95→1。舊值讓浮空方塊比落地方塊淡 5%，放手時兩層對調＝亮度跳一下，
+     就是「轉換感」的殘餘病根之一。拉齊成 1，替身與本尊同一張臉，對調瞬間無破綻。 */
+  #floatPiece { position:fixed; pointer-events:none; z-index:999; display:grid; gap:0; opacity:1;
     filter:drop-shadow(0 3px 6px rgba(0,0,0,.25)); }
   /* ★ v67 同層放置改革：v22~v24 的「高空陰影」(0 14px 18px) 是明確的「懸浮在上層」視覺語言，
      放手瞬間影子消失＝大腦自動腦補一段墜落 → 這就是「放下卡頓」錯覺的病根。
@@ -924,7 +926,7 @@
     </span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v68・繽紛樂・效能刀</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v69・繽紛樂・順放刀</div>
 </div>
 
 <div id="app">
@@ -1304,7 +1306,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'放方塊・消整排・餵飽小動物',
-  'menu.footer':'v68・繽紛樂・效能刀',
+  'menu.footer':'v69・繽紛樂・順放刀',
   'menu.best':'最高 {n} 關',
   'menu.resume':'▶ 續玩 第 {n} 關',
   'mode.endless.name':'無盡模式', 'mode.endless.desc':'沒有終點，放到沒空間為止。挑戰你的最高分。',
@@ -1378,7 +1380,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Drop blocks, clear lines, feed the critters!',
-  'menu.footer':'v68 · Vivid Blast · Performance Surgery',
+  'menu.footer':'v69 · Vivid Blast · Seamless Drop',
   'menu.best':'Best: Lv {n}',
   'menu.resume':'▶ Resume Lv {n}',
   'mode.endless.name':'Endless', 'mode.endless.desc':'No finish line — play until the board fills up. Chase your high score.',
@@ -1452,7 +1454,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを置いて、ライン消して、もぐもぐタイム！',
-  'menu.footer':'v68・ビビッドブラスト・パフォーマンス大手術',
+  'menu.footer':'v69・ビビッドブラスト・シームレス設置',
   'menu.best':'ベスト：レベル {n}',
   'menu.resume':'▶ レベル {n} から再開',
   'mode.endless.name':'エンドレス', 'mode.endless.desc':'終わりなき挑戦。盤面が埋まるまでハイスコアを狙おう。',
@@ -3873,10 +3875,15 @@ function onUp(e){
   if(dragRAF){ cancelAnimationFrame(dragRAF); dragRAF=null; }
   latestMoveEvent = null;
   const fp=document.getElementById('floatPiece');
-  fp.innerHTML=''; fp.classList.remove('lifted'); // ★ v22 重置拿起狀態
+  // ★ v69 手術②：時序改革（業界驗證的「先蓋新、後拆舊」）。
+  //   舊 v68 在這裡「無條件」先 fp.innerHTML=''，等於放手那一幀先把浮空方塊殺掉，
+  //   棋盤方塊卻要等 placePiece→renderBoard 才補上 —— 中間露出一幀空窗，就是「轉換卡頓」。
+  //   新解：合法放置時「不」在此清浮空層，改到 placePiece 後、用 rAF 卡在下一次 paint 之前拆除
+  //   （animation frame 跑在 style/layout/paint 之前，玩家眼睛永遠捕捉不到拆除瞬間）。
+  //   只在「退牌（不放）」時才維持立即清空 —— 那條路本來就沒有棋盤方塊接手，不存在空窗問題。
   clearHints();
   document.querySelectorAll('.piece').forEach(p=>p.classList.remove('dragging'));
-  if(!dragState){ return; }
+  if(!dragState){ fp.innerHTML=''; fp.classList.remove('lifted'); return; }
   const {p, idx, dropR, dropC, dropOk}=dragState;
   // ★ v65 ④ 交接順序矯正：先登記「手已放空」（dragState=null），再執行放置。
   //   舊順序在 placePiece → refillTray → renderTray 一路殺到底時，dragState 仍握著舊牌，
@@ -3887,7 +3894,13 @@ function onUp(e){
     // ★ v21 放下回饋：喀嚓聲 + 落定震動（在消行判定之前，讓「落定」與「消除」層次分明）
     playClick();
     if(hapticConfig.onDrop){ haptic(hapticConfig.dropMs); }
-    placePiece(p, idx, dropR, dropC);
+    placePiece(p, idx, dropR, dropC);   // 先讓棋盤方塊就位（renderBoard 在此同步完成）
+    // ★ v69 手術②接棒：棋盤已補上實心方塊，這一幀畫面「浮空層＋棋盤層」同格重疊（一模一樣）。
+    //   把浮空層拆除排進 rAF —— 下次 paint 前執行，玩家只會看到「棋盤方塊一直都在」，零空窗。
+    requestAnimationFrame(()=>{ fp.innerHTML=''; fp.classList.remove('lifted'); });
+  } else {
+    // 不合法：退牌，浮空層立即清空（無棋盤方塊接手，直接收掉）
+    fp.innerHTML=''; fp.classList.remove('lifted');
   }
 }
 
