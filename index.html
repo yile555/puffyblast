@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v65</title>
-<meta property="og:title" content="繽紛樂 v65">
+<title>繽紛樂 v66</title>
+<meta property="og:title" content="繽紛樂 v66">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://yile555.github.io/puffyblast/">
@@ -916,7 +916,7 @@
     </span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v65・繽紛樂・操作直覺修復包</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v66・繽紛樂・消除零卡頓引擎</div>
 </div>
 
 <div id="app">
@@ -1296,7 +1296,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'放方塊・消整排・餵飽小動物',
-  'menu.footer':'v65・繽紛樂・操作直覺修復包',
+  'menu.footer':'v66・繽紛樂・消除零卡頓引擎',
   'menu.best':'最高 {n} 關',
   'menu.resume':'▶ 續玩 第 {n} 關',
   'mode.endless.name':'無盡模式', 'mode.endless.desc':'沒有終點，放到沒空間為止。挑戰你的最高分。',
@@ -1370,7 +1370,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Drop blocks, clear lines, feed the critters!',
-  'menu.footer':'v65 · Vivid Blast · Intuitive Controls Pack',
+  'menu.footer':'v66 · Vivid Blast · Zero-Jank Clear Engine',
   'menu.best':'Best: Lv {n}',
   'menu.resume':'▶ Resume Lv {n}',
   'mode.endless.name':'Endless', 'mode.endless.desc':'No finish line — play until the board fills up. Chase your high score.',
@@ -1444,7 +1444,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを置いて、ライン消して、もぐもぐタイム！',
-  'menu.footer':'v65・ビビッドブラスト・操作直感修正パック',
+  'menu.footer':'v66・ビビッドブラスト・消去ゼロカクつきエンジン',
   'menu.best':'ベスト：レベル {n}',
   'menu.resume':'▶ レベル {n} から再開',
   'mode.endless.name':'エンドレス', 'mode.endless.desc':'終わりなき挑戦。盤面が埋まるまでハイスコアを狙おう。',
@@ -2050,9 +2050,14 @@ function playBoom(){
 }
 
 // ★ v24 碎片視覺：從清除格的螢幕座標噴出小方塊碎屑，落點隨機、旋轉飛散，強化破碎感
-function spawnShards(cellEl, color){
-  if(!cellEl) return;
-  const rect = cellEl.getBoundingClientRect();
+/* ★ v66 ② 全部粒子函式追加兩個選填參數（rect, frag）：
+   rect＝呼叫端預先算好的螢幕座標（省掉函式內的 getBoundingClientRect 強制重排）；
+   frag＝DocumentFragment，粒子先集合到暫存袋、呼叫端一次倒進 body（幾百次 appendChild → 1 次）。
+   不帶參數時行為與舊版完全相同 —— 炸彈 explodeAt 等既有呼叫點零改動照跑。 */
+function spawnShards(cellEl, color, rect, frag){
+  if(!cellEl && !rect) return;
+  rect = rect || cellEl.getBoundingClientRect();
+  const host = frag || document.body;
   const cx = rect.left + rect.width/2, cy = rect.top + rect.height/2;
   const n = 8 + Math.floor(Math.random()*4);   // ★ v38 碎片量加大，破碎感更飽滿有份量
   for(let i=0;i<n;i++){
@@ -2070,21 +2075,21 @@ function spawnShards(cellEl, color){
     const ex = Math.cos(angle)*dist, ey = Math.sin(angle)*dist - 10; // 略往上噴，再靠重力視覺感落下
     const rot = (Math.random()*720-360).toFixed(0);
     s.style.setProperty('--sfx-end', `translate(${ex.toFixed(0)}px, ${ey.toFixed(0)}px) rotate(${rot}deg) scale(.3)`);
-    document.body.appendChild(s);
+    host.appendChild(s);
     setTimeout(()=> s.remove(), 520);
   }
 }
 
 // ★ v38 泡泡糖光環：消除瞬間在格子中心炸出一圈柔光，跟碎片搭配強化「戳破」的療癒回饋
-function spawnPopRing(cellEl, color){
-  if(!cellEl) return;
-  const rect = cellEl.getBoundingClientRect();
+function spawnPopRing(cellEl, color, rect, frag){
+  if(!cellEl && !rect) return;
+  rect = rect || cellEl.getBoundingClientRect();
   const ring = document.createElement('div');
   ring.className = 'pop-ring';
   ring.style.left = (rect.left + rect.width/2) + 'px';
   ring.style.top  = (rect.top  + rect.height/2) + 'px';
   ring.style.setProperty('--ring-color', color || '#fff');
-  document.body.appendChild(ring);
+  (frag || document.body).appendChild(ring);
   setTimeout(()=> ring.remove(), 480);
 }
 
@@ -2093,10 +2098,10 @@ function spawnPopRing(cellEl, color){
 //    用「複製 DOM 節點」而非重畫背景 —— 皮膚材質、食物圖示、發光狀態原封不動跟著掉，
 //    現有與未來所有皮膚全部自動生效，零額外維護成本。
 //    純視覺浮層：消行判定、renderBoard、計分一行未動，與核心引擎完全解耦。
-function spawnFallBlock(cellHost, delayMs){
+function spawnFallBlock(cellHost, delayMs, rect, frag){
   const filled = cellHost && cellHost.querySelector('.filled');
   if(!filled) return;
-  const rect = cellHost.getBoundingClientRect();
+  rect = rect || cellHost.getBoundingClientRect();
   const wrap = document.createElement('div');
   wrap.className = 'fall-block';
   wrap.style.left = rect.left+'px';  wrap.style.top = rect.top+'px';
@@ -2111,7 +2116,7 @@ function spawnFallBlock(cellHost, delayMs){
   wrap.style.setProperty('--fb-dur', dur);
   wrap.style.setProperty('--fb-delay', (delayMs/1000).toFixed(2)+'s');
   wrap.appendChild(filled.cloneNode(true));   // 材質/食物/發光整包帶走
-  document.body.appendChild(wrap);
+  (frag || document.body).appendChild(wrap);
   filled.style.visibility = 'hidden';         // 原格立即隱形，視覺交棒給掉落分身，不會出現雙胞胎
   setTimeout(()=> wrap.remove(), delayMs + 1100);
 }
@@ -2169,9 +2174,9 @@ function showStreakPop(n){
 }
 
 /* ── ✦ 星芒粒子：place=放置微碎光（小而淡）、clear=消行星芒（大而亮，疊在彩色碎片上） ── */
-function spawnTwinkle(hostEl, kind){
-  if(!hostEl) return;
-  const rect = hostEl.getBoundingClientRect();
+function spawnTwinkle(hostEl, kind, rect, frag){
+  if(!hostEl && !rect) return;
+  rect = rect || hostEl.getBoundingClientRect();
   const big = (kind === 'clear');
   const n = big ? 2 : 1 + Math.floor(Math.random()*2);
   for(let i=0;i<n;i++){
@@ -2185,7 +2190,7 @@ function spawnTwinkle(hostEl, kind){
     t.style.setProperty('--tw-dur', (big ? .5 : .38) + 's');
     t.style.setProperty('--tw-delay', (Math.random()*0.12).toFixed(2) + 's');
     if(!big){ t.style.opacity = '0'; t.style.textShadow = '0 0 5px #fff'; }
-    document.body.appendChild(t);
+    (frag || document.body).appendChild(t);
     setTimeout(()=> t.remove(), 750);
   }
 }
@@ -2723,28 +2728,88 @@ function calcCellSize(){
   CELL = Math.max(30, Math.min(CELL, 48));
 }
 
+/* ★ v66 ① 棋盤增量渲染引擎 —— 「消除卡頓」的第一根病根：
+   舊 renderBoard 每次呼叫都 innerHTML='' 把 64 格「全拆全蓋」（每格還帶多層漸層材質），
+   放牌那一格畫面要同步吞下：全盤重建 + 樣式重算 + 重排 + 重繪。
+   新引擎：骨架（64 個 .cell）只蓋一次並快取節點；之後每次 renderBoard 只 diff
+   「這格的資料指紋變了沒」，沒變就跳過，變了才換那一格的 .filled。
+   放一張 3 格的牌 = 只動 3 格；消兩行 = 只動 16 格。格子上的 hint / bomb-preview
+   類別掛在 .cell 本體、不會被 diff 動到 —— 玩家拖曳中重繪也不再打斷預覽。 */
+let _cellEls = null;     // 2D 快取：_cellEls[r][c] = .cell 節點（同時終結全場 querySelector 掃描）
+let _cellKeys = null;    // 2D 指紋：上次渲染的資料簽名，diff 用
+let _boardGeom = { cell:0, size:0 };
+
+function boardCellEl(r,c){
+  return (_cellEls && _cellEls[r]) ? _cellEls[r][c] : null;
+}
+/* 動畫層在 renderBoard 之外動過這格的 DOM（藏 .filled、摘寶石）時呼叫：
+   把指紋踩髒，強迫下次 diff 一定重建 —— 防「新牌顏色恰好跟舊指紋相同 → diff 跳過 →
+   留下一塊隱形方塊」的邊角穿幫。 */
+function markCellDirty(r,c){
+  if(_cellKeys && _cellKeys[r] !== undefined) _cellKeys[r][c] = '\u0000dirty';
+}
+function _cellKeyOf(data){
+  return data ? (data.color+'|'+(data.gem||'')+'|'+(data.glow?1:0)+'|'+activeSkinId()) : '';
+}
+function _makeFilled(data){
+  const f = document.createElement('div');
+  f.className = 'filled';
+  f.style.background = gemMaterial(data.color, activeSkinId());
+  if(data.gem){ f.innerHTML = gemSVG(data.gem); if(data.glow) f.classList.add('glow'); }
+  return f;
+}
+function _buildBoardDOM(el){
+  el.style.gridTemplateColumns = `repeat(${SIZE}, ${CELL}px)`;
+  el.style.gridTemplateRows = `repeat(${SIZE}, ${CELL}px)`;
+  el.innerHTML = '';
+  _cellEls = []; _cellKeys = [];
+  for(let r=0;r<SIZE;r++){
+    _cellEls[r] = []; _cellKeys[r] = [];
+    for(let c=0;c<SIZE;c++){
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.style.width = cell.style.height = CELL+'px';
+      cell.dataset.r = r; cell.dataset.c = c;
+      const data = board[r][c];
+      if(data) cell.appendChild(_makeFilled(data));
+      el.appendChild(cell);
+      _cellEls[r][c] = cell;
+      _cellKeys[r][c] = _cellKeyOf(data);
+    }
+  }
+  _boardGeom = { cell: CELL, size: SIZE };
+}
 function renderBoard(){
   // ★ v18 安全門：棋盤資料未備妥時（例：開場選單階段觸發 resize）直接跳過，杜絕 board[r][c] 讀 undefined 崩潰
   if(!board || board.length === 0 || !board[0]) return;
   const el = document.getElementById('board');
-  el.style.gridTemplateColumns = `repeat(${SIZE}, ${CELL}px)`;
-  el.style.gridTemplateRows = `repeat(${SIZE}, ${CELL}px)`;
-  el.innerHTML = '';
-  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
-    const cell = document.createElement('div');
-    cell.className = 'cell';
-    cell.style.width = cell.style.height = CELL+'px';
-    cell.dataset.r = r; cell.dataset.c = c;
-    const data = board[r][c];
-    if(data){
-      const f = document.createElement('div');
-      f.className = 'filled';
-      f.style.background = gemMaterial(data.color, activeSkinId());
-      if(data.gem){ f.innerHTML = gemSVG(data.gem); if(data.glow) f.classList.add('glow'); }
-      cell.appendChild(f);
-    }
-    el.appendChild(cell);
+  // 骨架不存在 / 尺寸變了（resize、換模式）→ 全量重蓋一次
+  if(!_cellEls || _boardGeom.cell !== CELL || _boardGeom.size !== SIZE ||
+     el.childElementCount !== SIZE*SIZE){
+    _buildBoardDOM(el);
+    return;
   }
+  // 增量 diff：指紋沒變的格子一根手指都不碰
+  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
+    const data = board[r][c];
+    const key = _cellKeyOf(data);
+    if(key === _cellKeys[r][c]) continue;
+    const cell = _cellEls[r][c];
+    const old = cell.querySelector('.filled');
+    if(old) old.remove();
+    if(data) cell.appendChild(_makeFilled(data));
+    _cellKeys[r][c] = key;
+  }
+}
+/* 消行特效需要每個格子的螢幕座標。舊寫法：每格 getBoundingClientRect() —— 而且
+   讀寫交錯（量一格→插粒子→再量下一格），每次讀都逼瀏覽器重排整頁（layout thrash）。
+   新寫法：整個棋盤只量「一次」，其餘格子用純數學推（格距恆等於 CELL、padding 6px，
+   與 boardCellAt 的公式同源）—— 消 16 格從 60+ 次強制重排降到 1 次。 */
+function boardCellRect(boardRect, r, c){
+  const pad = 6;   // 對齊 #board padding（與 boardCellAt 一致）
+  return { left: boardRect.left + pad + c*CELL,
+           top:  boardRect.top  + pad + r*CELL,
+           width: CELL, height: CELL };
 }
 
 /* ============================================================
@@ -2760,14 +2825,16 @@ function generateGoals(){
    ③ 弧線後段 380ms：從頂點落向動物，命中瞬間卡片彈跳＋數字跳動
    總長 ~880ms，多顆連發間隔也拉到 95ms（見呼叫端），數得出「一顆、一顆、一顆」。
    純視覺、不影響計分邏輯（got 已在 clearLines 先加好）。 */
-function flyGemToGoal(gemKey, fromEl, delay){
-  if(!fromEl) return;
+function flyGemToGoal(gemKey, fromEl, delay, fromRect, toRect){
+  // ★ v66 ② fromRect/toRect 選填：呼叫端已「先讀」打包座標時直接用，
+  //   免掉本函式內的 getBoundingClientRect（多顆連發時每次都會逼一次整頁重排）。
+  if(!fromEl && !fromRect) return;
   const goalEls = document.querySelectorAll('#goals .goal');
   const gi = goals.findIndex(g=>g.gem===gemKey);
   if(gi<0 || !goalEls[gi]) return;
   const targetIcon = goalEls[gi].querySelector('.gicon');
-  const from = fromEl.getBoundingClientRect();
-  const to   = targetIcon.getBoundingClientRect();
+  const from = fromRect || fromEl.getBoundingClientRect();
+  const to   = toRect   || targetIcon.getBoundingClientRect();
   const startX = from.left + from.width/2 - 17;
   const startY = from.top  + from.height/2 - 17;
   const endX   = to.left + to.width/2 - 17;
@@ -3617,8 +3684,12 @@ function canPlace(p, baseR, baseC){
   return true;
 }
 
+/* ★ v66 ④ 提示格「記帳式清除」：舊版每個拖曳幀 querySelectorAll 掃全盤 64 格逐一脫類，
+   新版只記「這幀真的點亮了誰」，下幀只脫那幾格 —— 拖曳運算量再砍一刀，跟手更黏。 */
+let _hintedEls = [];
 function clearHints(){
-  document.querySelectorAll('.cell').forEach(c=>c.classList.remove('hint-ok','hint-bad'));
+  _hintedEls.forEach(c=> c.classList.remove('hint-ok','hint-bad'));
+  _hintedEls = [];
 }
 
 // ★ v25 修正「快速拖曳時方塊卡住、要來回拖幾次才動」的問題：
@@ -3653,8 +3724,9 @@ function processDragFrame(){
   }
   const ok=canPlace(dragState.p, r, c);
   dragState.p.cells.forEach(cell=>{
-    const cls = document.querySelector(`.cell[data-r="${r+cell.r}"][data-c="${c+cell.c}"]`);
-    if(cls) cls.classList.add(ok?'hint-ok':'hint-bad');
+    const rr=r+cell.r, cc=c+cell.c;
+    const cls = (rr>=0 && rr<SIZE && cc>=0 && cc<SIZE) ? boardCellEl(rr,cc) : null;   // ★ v66 ① 快取直取
+    if(cls){ cls.classList.add(ok?'hint-ok':'hint-bad'); _hintedEls.push(cls); }      // ★ v66 ④ 記帳
   });
   dragState.dropR=r; dragState.dropC=c; dragState.dropOk=ok;
 }
@@ -3748,10 +3820,17 @@ function placePiece(p, idx, baseR, baseC){
 
   // ★ v49 放置微碎光：每個落格冒 1~2 顆小星芒 —— 「收到了，已併入棋盤」的確認章。
   //   刻意小而淡：這是每步都有的常態回饋，太華麗會膩。
-  lastPlacement.cells.forEach(([r,c])=>{
-    const host = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
-    if(host) spawnTwinkle(host, 'place');
-  });
+  //   ★ v66 ②：座標改「量一次棋盤＋數學推格子」、粒子集中一袋一次插入，放牌幀零重排抖動。
+  { const boardEl = document.getElementById('board');
+    const br = boardEl ? boardEl.getBoundingClientRect() : null;
+    if(br){
+      const frag = document.createDocumentFragment();
+      lastPlacement.cells.forEach(([r,c])=>{
+        spawnTwinkle(null, 'place', boardCellRect(br, r, c), frag);
+      });
+      document.body.appendChild(frag);
+    }
+  }
 
   clearLines();
 }
@@ -3783,12 +3862,22 @@ function clearLines(){
   let collected=0;
   let fallIdx=0;         // ★ v48 崩塌波計數器：每格掉落延遲遞增，形成波浪式崩落
   const justDone = [];   // 這一次「剛好收齊達標」的動物 → 只有這些才叫
-  const flyList = [];    // ★ v21 待飛的食物：{gem, cellEl} → 稍後拋向任務欄
+  const flyList = [];    // ★ v21 待飛的食物：{gem, cellEl, rect} → 稍後拋向任務欄
+  // ★ v66 ②「先讀、後寫」：舊版每格「量座標→插粒子→量下一格→再插」讀寫交錯，
+  //   瀏覽器每次讀座標都被迫重排整頁（消兩行 ≈ 60+ 次強制重排 = 那一下「凍住」）。
+  //   新版：棋盤座標只量 1 次、其餘用數學推；所有粒子先裝進 fxFrag 暫存袋，
+  //   迴圈結束一次倒進 body —— 幾百次 DOM 插入變 1 次，消除幀從此絲滑。
+  const boardEl0 = document.getElementById('board');
+  const boardRect0 = boardEl0 ? boardEl0.getBoundingClientRect() : null;
+  const fxFrag = document.createDocumentFragment();
   toClear.forEach(key=>{
     const [r,c]=key.split('_').map(Number);
     const data=board[r][c];
     board[r][c] = null;   // ★ v64 S1 資料當場清空（動畫層演的是屍體）：
                           //   堵死 360ms 空窗內再放一張牌 → 重掃發現「該列還滿」→ 同列重複收集/計分/洩氣的白嫖漏洞
+    markCellDirty(r,c);   // ★ v66 ① 動畫層即將徒手改這格 DOM（藏方塊、摘寶石）→ 踩髒指紋，強迫下次 diff 重建
+    const cellHost = boardCellEl(r,c);   // ★ v66 ① 快取直取，終結逐格 querySelector 掃描
+    const rect = boardRect0 ? boardCellRect(boardRect0, r, c) : null;
     if(data && data.gem){
       const goal=goals.find(g=>g.gem===data.gem);
       if(goal){
@@ -3798,13 +3887,11 @@ function clearLines(){
           justDone.push(GEMS[goal.gem].animal);
         }
       }
-      // ★ v21 記下飛行起點（抓「消除格」的實際螢幕位置，趁 DOM 還在）
-      const srcEl=document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
-      flyList.push({ gem:data.gem, el:srcEl });
+      // ★ v21 記下飛行起點（座標已用數學推好，連 DOM 都不必再摸）
+      flyList.push({ gem:data.gem, el:cellHost, rect });
       collected++;
       HZ.onFood(!!data.glow);   // ★ v32 機關引擎唯一入口（非機關關時內部直接 return）
     }
-    const cellHost=document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
     const cellEl=cellHost ? cellHost.querySelector('.filled') : null;
     if(cellEl){
       // ★ v53「摘寶石」：寶石已經記進 flyList、準備飛向動物 →
@@ -3816,14 +3903,15 @@ function clearLines(){
       // ★ v48 ②「垮掉掉落」取代原本的縮小爆開（pop）：
       //    方塊複製成浮層翻滾墜落，每格延遲遞增 16ms → 形成由左而右的「崩塌波」
       //    （炸彈 explodeAt 維持原 pop 爆開 —— 爆炸該炸飛、消行該崩塌，各有各的物理語言）
-      spawnFallBlock(cellHost, Math.min(fallIdx*16, 240)); fallIdx++;
+      spawnFallBlock(cellHost, Math.min(fallIdx*16, 240), rect, fxFrag); fallIdx++;
       // ★ v24 每個清除格噴出碎片，顏色取自方塊本身，強化「破碎」視覺
-      const clearColor = data ? data.color : getComputedStyle(cellEl).backgroundColor;
-      spawnShards(cellEl, clearColor);
-      spawnPopRing(cellEl, clearColor);   // ★ v38 泡泡糖光環，強化療癒的「戳破感」
-      spawnTwinkle(cellEl, 'clear');      // ★ v49 白色星芒閃光：碎片是「重」、星芒是「亮」，一暗一亮打擊感更立體
+      const clearColor = data ? data.color : '#fff';
+      spawnShards(cellEl, clearColor, rect, fxFrag);
+      spawnPopRing(cellEl, clearColor, rect, fxFrag);   // ★ v38 泡泡糖光環，強化療癒的「戳破感」
+      spawnTwinkle(cellEl, 'clear', rect, fxFrag);      // ★ v49 白色星芒閃光：碎片是「重」、星芒是「亮」，一暗一亮打擊感更立體
     }
   });
+  document.body.appendChild(fxFrag);   // ★ v66 ② 所有消行粒子一次上車
 
   // ── 底層音效（每次消排都有）：碎裂聲 + 特殊收集音 + 輕震，當節奏骨架 ──
   playCrack();
@@ -3874,8 +3962,18 @@ function clearLines(){
 
   // ★ v21 寶石飛向目標：每顆錯開飛入，命中時才跳數字（renderGoals 由 flyGemToGoal 觸發）
   // ★ v53 間隔 70→95ms：搭配新的三拍子飛行時序，多顆連發時數得出「一顆、一顆、一顆」
+  // ★ v66 ② 起訖座標由呼叫端「先讀」打包餵入：起點用數學推、終點每種動物只量一次，
+  //   多顆連發不再「插一顆飛行寶石→量下一顆」來回抖動重排。
   if(flyList.length){
-    flyList.forEach((f,i)=> flyGemToGoal(f.gem, f.el, Math.min(i*95, 700)));
+    const goalRects = {};
+    const goalEls = document.querySelectorAll('#goals .goal');
+    flyList.forEach(f=>{
+      if(goalRects[f.gem] !== undefined) return;
+      const gi = goals.findIndex(g=>g.gem===f.gem);
+      const icon = (gi>=0 && goalEls[gi]) ? goalEls[gi].querySelector('.gicon') : null;
+      goalRects[f.gem] = icon ? icon.getBoundingClientRect() : null;
+    });
+    flyList.forEach((f,i)=> flyGemToGoal(f.gem, f.el, Math.min(i*95, 700), f.rect, goalRects[f.gem]));
   } else {
     renderGoals();  // 沒有可收集食物（理論上少見）→ 保底更新
   }
@@ -3884,11 +3982,12 @@ function clearLines(){
   setTimeout(()=>{
     if(_clearEpoch !== gameEpoch) return;   // ★ v64 A2 玩家已回選單/換關 → 過期計時器直接作廢，不再蓋視窗
     // ★ v64 S1 盤面資料已在消行判定當下清空（見上方），這裡只負責視覺收尾
+    // ★ v66 ①③ renderBoard 已是增量版：這裡只會摘掉被消格的空殼，成本近乎零。
+    //   舊版此處還有一次全量 renderTray() —— 那是 v59 為「壓暗提示」留的補算，
+    //   但 v61 壓暗已退役、托盤外觀不再依賴盤面，這次重建是純浪費，
+    //   而且正好砸在玩家「已抓起下一張牌」的瞬間（v64 A5 就是在救這個場）。
+    //   直接拆除：托盤資料沒變就不重畫，連消節奏中再也沒有第二下卡頓。
     renderBoard();
-    // ★ v59 修正「預備區變色」根因：放牌當下 renderTray() 判斷的是「消行前」的滿盤，
-    //   剩餘沒用掉的牌可能被誤判「放不下」而壓暗去彩。消行動畫做完、盤面真正騰出空間
-    //   的這一刻，必須重新算一次，托盤才會照著「現在」的盤面顯示，不再頂著舊照片。
-    renderTray();
     afterMove();
   }, 360);
 }
@@ -4178,8 +4277,8 @@ function doHint(){
 function highlightHint(p,r,c){
   clearHints();
   p.cells.forEach(cell=>{
-    const cls=document.querySelector(`.cell[data-r="${r+cell.r}"][data-c="${c+cell.c}"]`);
-    if(cls) cls.classList.add('hint-ok');
+    const cls=boardCellEl(r+cell.r, c+cell.c);   // ★ v66 ① 快取直取
+    if(cls){ cls.classList.add('hint-ok'); _hintedEls.push(cls); }   // ★ v66 ④ 記帳，clearHints 才收得回來
   });
   showCombo(T('combo.hint'));
   setTimeout(clearHints, 1800);
@@ -4925,7 +5024,9 @@ function explodeAt(r0, c0){
       flyList.push({ gem:data.gem, el:srcEl });
       HZ.onFood(!!data.glow);   // ★ 與消行同一入口：機關關炸食物照樣洩氣
     }
-    const el = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"] .filled`);
+    markCellDirty(r,c);   // ★ v66 ① 爆炸動畫要徒手改這格 DOM → 踩髒指紋，360ms 後的增量 renderBoard 必定重建
+    const host = boardCellEl(r,c);
+    const el = host ? host.querySelector('.filled') : null;
     if(el){
       // ★ v53 同消行手術：寶石已收進 flyList，爆開動畫前先摘掉圖示，只留空殼方塊被炸飛
       const gemIcon = el.querySelector('.gem-svg');
