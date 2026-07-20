@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v69</title>
-<meta property="og:title" content="繽紛樂 v69">
+<title>繽紛樂 v70</title>
+<meta property="og:title" content="繽紛樂 v70">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://yile555.github.io/puffyblast/">
@@ -926,7 +926,7 @@
     </span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v69・繽紛樂・順放刀</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v70・繽紛樂・順放刀</div>
 </div>
 
 <div id="app">
@@ -1306,7 +1306,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'放方塊・消整排・餵飽小動物',
-  'menu.footer':'v69・繽紛樂・順放刀',
+  'menu.footer':'v70・繽紛樂・順放刀',
   'menu.best':'最高 {n} 關',
   'menu.resume':'▶ 續玩 第 {n} 關',
   'mode.endless.name':'無盡模式', 'mode.endless.desc':'沒有終點，放到沒空間為止。挑戰你的最高分。',
@@ -1380,7 +1380,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Drop blocks, clear lines, feed the critters!',
-  'menu.footer':'v69 · Vivid Blast · Seamless Drop',
+  'menu.footer':'v70 · Vivid Blast · Seamless Drop',
   'menu.best':'Best: Lv {n}',
   'menu.resume':'▶ Resume Lv {n}',
   'mode.endless.name':'Endless', 'mode.endless.desc':'No finish line — play until the board fills up. Chase your high score.',
@@ -1454,7 +1454,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを置いて、ライン消して、もぐもぐタイム！',
-  'menu.footer':'v69・ビビッドブラスト・シームレス設置',
+  'menu.footer':'v70・ビビッドブラスト・シームレス設置',
   'menu.best':'ベスト：レベル {n}',
   'menu.resume':'▶ レベル {n} から再開',
   'mode.endless.name':'エンドレス', 'mode.endless.desc':'終わりなき挑戦。盤面が埋まるまでハイスコアを狙おう。',
@@ -4067,11 +4067,14 @@ function clearLines(){
       //    原地的方塊必須立刻變回「空殼」，否則墜落分身（cloneNode）會把寶石一起複製走。
       const gemIcon = cellEl.querySelector('.gem-svg');
       if(gemIcon) gemIcon.remove();
-      // ★ v48 ②「垮掉掉落」：方塊複製成浮層翻滾墜落，每格延遲遞增 16ms → 崩塌波
-      spawnFallBlock(cellHost, Math.min(fallIdx*16, 240), rect, fxFrag); fallIdx++;
+      // ★ v48 ②「垮掉掉落」：方塊複製成浮層翻滾墜落，每格延遲遞增 → 崩塌波
+      // ★ v70 卡頓修：波差 16→9ms、上限 240→135ms，崩塌起訖更緊湊，接下一張牌更快
+      spawnFallBlock(cellHost, Math.min(fallIdx*9, 135), rect, fxFrag); fallIdx++;
       const clearColor = data ? data.color : '#fff';
       spawnShards(cellEl, clearColor, rect, fxFrag, shardsPer);
-      spawnPopRing(cellEl, clearColor, rect, fxFrag);   // ★ v38 泡泡糖光環（v68 ② 已拆混合模式）
+      // ★ v70 冒泡泡修：泡泡糖光環只在「有鑽石」的格子冒 —— 它本是收集鑽石的療癒回饋，
+      //   無盡模式沒鑽石可收，每格冒泡反成「消除前的多餘停頓感」。跟著鑽石走，乾脆俐落。
+      if(data && data.gem) spawnPopRing(cellEl, clearColor, rect, fxFrag);   // ★ v38 泡泡糖光環（v68 ② 已拆混合模式）
       spawnTwinkle(cellEl, 'clear', rect, fxFrag, twinklePer);
     });
     document.body.appendChild(fxFrag);
@@ -4128,7 +4131,9 @@ function clearLines(){
     //   直接拆除：托盤資料沒變就不重畫，連消節奏中再也沒有第二下卡頓。
     renderBoard();
     afterMove();
-  }, 360);
+  }, 180);   // ★ v70 卡頓修：收尾 360→180ms。盤面資料早已在放下當下清空，
+             //   這裡只是「補空格、讓下一張牌能爽快接上」的視覺收尾 —— 提前一倍，
+             //   「放下→崩落中間乾等」的頓感消失。崩落分身仍活 1.1s，飄落畫面不受影響。
 }
 
 function afterMove(){
