@@ -3917,27 +3917,16 @@ function placePiece(p, idx, baseR, baseC){
   // v8：寶石模式不再消耗步數（已改為盤面塞死才失敗）
   renderBoard();   // 棋盤增量：放下的方塊「這一幀」就要出現在盤上，不能等
 
-  // ★ v68 ⑥ 放下幀瘦身：托盤重建＋放置微碎光延到下一幀（16ms，人眼無感）。
+  // ★ v68 ⑥ 放下幀瘦身：托盤重建延到下一幀（16ms，人眼無感）。
   //   pointerup 幀從此只做「資料更新＋棋盤增量＋喀噠聲」—— 輕裝上陣。
-  //   落格座標先抄一份：clearLines 消行時會把 lastPlacement 歸零，備份才不會撲空。
   //   世代保險（gameEpoch）：玩家在這 16ms 內回選單/換關 → 過期回呼直接作廢。
-  { const placedCells = lastPlacement.cells;
-    const ep = gameEpoch;
+  // ★ v72 移除「放置微碎光」(spawnTwinkle 'place')：連續快速放置時，750ms 存活的星芒會
+  //   逐格疊加殘留，肉眼／錄影看起來像每顆方塊中間卡了一顆泡泡，不乾淨。
+  //   放置回饋改由既有的喀噠聲＋震動獨力撐住，兩者本來就逐格瞬時觸發，不會殘留視覺。
+  { const ep = gameEpoch;
     requestAnimationFrame(()=>{
       if(ep !== gameEpoch) return;
       renderTray();   // ★ v68 ③ 增量版：普通放牌只清用掉的那一槽，近乎零成本
-      // ★ v49 放置微碎光：每個落格冒 1~2 顆小星芒 —— 「收到了，已併入棋盤」的確認章。
-      //   刻意小而淡：這是每步都有的常態回饋，太華麗會膩。
-      //   ★ v66 ②：座標改「量一次棋盤＋數學推格子」、粒子集中一袋一次插入。
-      const boardEl = document.getElementById('board');
-      const br = boardEl ? boardEl.getBoundingClientRect() : null;
-      if(br){
-        const frag = document.createDocumentFragment();
-        placedCells.forEach(([r,c])=>{
-          spawnTwinkle(null, 'place', boardCellRect(br, r, c), frag);
-        });
-        document.body.appendChild(frag);
-      }
     });
   }
 
