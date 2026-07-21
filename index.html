@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v75</title>
-<meta property="og:title" content="繽紛樂 v75">
+<title>繽紛樂 v77</title>
+<meta property="og:title" content="繽紛樂 v77">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://yile555.github.io/puffyblast/">
@@ -945,7 +945,7 @@
     </span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v75・繽紛樂・泡泡移除</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v77・繽紛樂・藍寶石微調</div>
 </div>
 
 <div id="app">
@@ -1325,7 +1325,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'放方塊・消整排・餵飽小動物',
-  'menu.footer':'v75・繽紛樂・泡泡移除',
+  'menu.footer':'v77・繽紛樂・藍寶石微調',
   'menu.best':'最高 {n} 關',
   'menu.resume':'▶ 續玩 第 {n} 關',
   'mode.endless.name':'無盡模式', 'mode.endless.desc':'沒有終點，放到沒空間為止。挑戰你的最高分。',
@@ -1399,7 +1399,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Drop blocks, clear lines, feed the critters!',
-  'menu.footer':'v75 · Vivid Blast · Bubble Removed',
+  'menu.footer':'v77 · Vivid Blast · Sapphire Tuned',
   'menu.best':'Best: Lv {n}',
   'menu.resume':'▶ Resume Lv {n}',
   'mode.endless.name':'Endless', 'mode.endless.desc':'No finish line — play until the board fills up. Chase your high score.',
@@ -2877,7 +2877,20 @@ function gemShapeSVG(gemKey){
       break;
   }
   const gem = _gemFlatFaceted(outlineD, c);
-  return `<svg class="gem-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true">${gem}</svg>`;
+  /* ★ v76 寶石治本放大：不加縮放群組、不動裁切遮罩，改用 viewBox「鏡頭拉近」。
+     原本寶石形狀只佔畫布 ~60%（例：鑽石 y20~80、水滴 y18~78），四周留白太多，
+     在手機小格子上被邊框一咬就變成「浮在中央的一小顆」，視覺吃力。
+     把攝影機窗口往中心縮（= 100/zoom 寬，繞中心 50,50 放大 zoom×），
+     整顆寶石＋切面＋稜線＋桌面＋反光＋閃爍點全部等比變大，佔比 ~60% 拉高，飽滿醒目。
+     純鏡頭參數，動不到任何幾何、裁切或遊戲邏輯。
+     ★ v77 單顆微調：預設 1.28（安全上限：紫水晶六邊形 y13~87＋描邊仍留餘裕，絕不切角）；
+        藍寶石是水滴形、又高又窄且重心偏下，1.28 看起來膨脹過頭，單獨降到 1.20 讓膨脹感與其它顆一致。
+        要再單獨調哪顆，只要在 GEM_ZOOM 加一行「gemShape: 倍率」即可，互不影響。 */
+  const GEM_ZOOM = { sapphire: 1.20 };          // 各形狀專屬放大倍率覆寫（未列者用預設）
+  const zoom = GEM_ZOOM[g.gemShape] || 1.28;    // 預設 1.28
+  const win = 100 / zoom, m = (100 - win) / 2;  // 繞中心(50,50)的取景窗
+  const vb = m.toFixed(2) + ' ' + m.toFixed(2) + ' ' + win.toFixed(2) + ' ' + win.toFixed(2);
+  return `<svg class="gem-svg" viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true">${gem}</svg>`;
 }
 
 /* 兼容舊呼叫點：盤面/tray/浮動塊統一走「寶石」。
