@@ -2,8 +2,16 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>胖嘟嘟消消樂 v72</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<!-- ★ v60 PWA全螢幕模式：加到主畫面後，這三行讓iOS用「獨立App模式」開啟，不再殘留網址列/工具列 -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<title>繽紛樂 v72</title>
+<meta property="og:title" content="繽紛樂 v72">
+<meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://yile555.github.io/puffyblast/">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; }
   html,body { height:100%; overflow:hidden; }
@@ -19,7 +27,8 @@
     --panel:#243059; --accent:#4fc3f7; --text:#ffffff;
   }
   #app { width:100%; max-width:440px; height:100%; max-height:880px; display:flex; flex-direction:column; position:relative;
-    background:var(--bg,#2b3a67); }   /* ★ v54 補背景打底：整個遊戲區從上到下都是沉穩深色，上半部不再露白 */
+    background:var(--bg,#2b3a67);   /* ★ v54 補背景打底：整個遊戲區從上到下都是沉穩深色，上半部不再露白 */
+    padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom); }   /* ★ v60 全螢幕PWA模式避開瀏海與Home指示條 */
 
   .icon-btn { width:40px; height:40px; border-radius:12px; background:rgba(255,255,255,.12);
     display:flex; align-items:center; justify-content:center; font-size:20px; cursor:pointer; border:none; color:#fff; }
@@ -34,7 +43,7 @@
   .action-wrap .act-btn { position:relative; width:44px; height:44px; border:none; border-radius:14px;
     color:#fff; font-size:22px; font-weight:800; cursor:pointer; padding:0;
     display:flex; align-items:center; justify-content:center;
-    background:rgba(60,72,110,.75); box-shadow:0 2px 8px rgba(0,0,0,.25); }
+    background:#3c486e; box-shadow:0 2px 8px rgba(0,0,0,.25); }   /* ★ v58 改全不透明：75% 透明度會被亮色棋盤穿透混色 */
   .action-wrap .act-btn:active { transform:scale(.92); }
   .action-wrap .act-btn span { display:none; }   /* 縮成純圖示，省空間 */
   .action-wrap .cnt { position:absolute; top:-6px; right:-6px; min-width:19px; height:19px;
@@ -89,7 +98,8 @@
   /* 里程碑達成：分數本身燒成金色、放大狂跳，比一般加分更盛大 */
   #bigScore .bs-num.milestone {
     background:linear-gradient(180deg,#fff6d5,#ffb300); -webkit-background-clip:text; background-clip:text;
-    color:transparent; filter:drop-shadow(0 2px 0 rgba(120,70,0,.35)) drop-shadow(0 8px 20px rgba(255,179,0,.6));
+    color:transparent; text-shadow:none;   /* ★ v58 關鍵修正：透明文字會讓底層黑影透出來，把金色染成髒古銅 */
+    filter:drop-shadow(0 2px 0 rgba(120,70,0,.35)) drop-shadow(0 8px 20px rgba(255,179,0,.6));
     animation:bsMilestone .8s cubic-bezier(.2,1.4,.35,1); }
   @keyframes bsMilestone {
     0%{transform:scale(1);} 25%{transform:scale(1.42) rotate(-3deg);}
@@ -122,12 +132,15 @@
   #goals[data-n="3"] .goal  { max-width:92px; }
   #goals[data-n="3"] .gicon { max-width:64px; }
 
-  #goals[data-n="4"] { gap:8px; padding:13px 56px 9px 20px; }
+  /* ★ v65 ① 任務欄讓路：左邊距 20→56px 與右側對齊。左上角疊著 💡＋💣 按鈕柱（寬約 58px），
+     舊值 20px 讓第一隻動物直接鑽到按鈕底下（4/5 隻動物的關卡真機實錘）。
+     讓開後多餘的置中留白同時被吃掉，動物間隔更緊湊，一刀雙雕。 */
+  #goals[data-n="4"] { gap:8px; padding:13px 56px 9px 56px; }
   #goals[data-n="4"] .goal  { max-width:76px; padding:6px 6px 5px; }
   #goals[data-n="4"] .gicon { max-width:62px; border-radius:14px; }
   #goals[data-n="4"] .gtext { font-size:13.5px; padding:2px 7px; }
 
-  #goals[data-n="5"] { gap:4px; padding:12px 56px 8px 20px; }
+  #goals[data-n="5"] { gap:4px; padding:12px 56px 8px 56px; }   /* ★ v65 ① 同上：左側讓開按鈕柱 */
   #goals[data-n="5"] .goal  { max-width:66px; padding:4px; border-radius:16px; }
   #goals[data-n="5"] .gicon { max-width:58px; border-radius:13px; }
   #goals[data-n="5"] .gtext { font-size:12.5px; padding:2px 5px; border-radius:9px; }
@@ -168,7 +181,9 @@
   #board { background:var(--board-bg); border-radius:18px; padding:6px;
     display:grid; gap:0; box-shadow:0 8px 24px rgba(0,0,0,.35); position:relative; overflow:hidden; }
   /* 空格：極淡格線用「內描邊」畫，不占空間 → 方塊之間零縫隙 */
-  .cell { background:var(--cell); position:relative; transition:background .12s;
+  /* ★ v67 拆除 background .12s 過渡：落點影子必須「跟手零延遲、放手零殘影」——
+     淡入淡出的 120ms 就是舊版「放手後好像還拖了一下」的時間差來源。 */
+  .cell { background:var(--cell); position:relative;
     box-shadow:inset 0 0 0 1px rgba(0,0,0,.16); }
   .cell.hint-ok { background:rgba(79,195,247,.45); }
   .cell.hint-bad { background:rgba(229,75,74,.4); }
@@ -201,12 +216,6 @@
     32%{transform:scale(1.42,1.32) rotate(-5deg); filter:brightness(2.3) saturate(1.5);}
     58%{transform:scale(1.12,1.12) rotate(4deg); filter:brightness(1.7);}
     100%{transform:scale(0,0) rotate(14deg); opacity:0; filter:brightness(1);} }
-  /* ★ v38 消除爆閃光環：像戳破泡泡糖，一圈柔光瞬間擴散，強化「有感」的療癒回饋 */
-  .pop-ring { position:fixed; z-index:940; pointer-events:none; border-radius:50%;
-    width:12px; height:12px; margin:-6px 0 0 -6px; mix-blend-mode:screen;
-    background:radial-gradient(circle, rgba(255,255,255,.95) 0%, var(--ring-color,#fff) 38%, rgba(255,255,255,0) 72%);
-    will-change:transform,opacity; animation:popRing .46s cubic-bezier(.15,.7,.3,1) forwards; }
-  @keyframes popRing { 0%{ transform:scale(0); opacity:.95; } 100%{ transform:scale(8); opacity:0; } }
   /* ★ v24 碎片：消除時從方塊崩出的小碎屑，強化「破碎」視覺 */
   .shard { position:fixed; z-index:950; pointer-events:none; border-radius:2px;
     will-change:transform,opacity; animation:shardFly .5s cubic-bezier(.15,.7,.3,1) forwards; }
@@ -247,8 +256,11 @@
     100%{transform:translateY(0) scale(1);} }
 
   /* ★ v49 ① 連消(Streak)徽章：平時完全隱形，連 2 才浮現，連 6 燒成金色。
-     絕對定位貼在棋盤左上角，pointer-events:none，不佔版面、不擋操作。 */
-  #streakBadge { position:absolute; top:-4px; left:14px; z-index:60; pointer-events:none;
+     絕對定位貼在棋盤左上角，pointer-events:none，不佔版面、不擋操作。
+     ★ v60 中央大字(#streakPop)已經把這個情緒撐起來了，左上角小徽章跟大字同時出現互搶注意力 → 直接隱藏。
+     邏輯層（clearStreak 計數、updateStreakBadge 呼叫）完全保留不動，未來想拿回來刪掉 display:none 這行就好。 */
+  #streakBadge { display:none !important;
+    position:absolute; top:-4px; left:14px; z-index:60; pointer-events:none;
     display:flex; align-items:center; gap:3px; padding:3px 10px 3px 7px; border-radius:999px;
     background:linear-gradient(180deg,#ff8a50,#f4511e); border:2px solid rgba(255,255,255,.85);
     box-shadow:0 3px 10px rgba(244,81,30,.45), inset 0 1px 0 rgba(255,255,255,.4);
@@ -467,12 +479,22 @@
     border-color:rgba(255,255,255,.42) rgba(0,0,0,.16) rgba(0,0,0,.34) rgba(255,255,255,.15);
     display:flex; align-items:center; justify-content:center; }
   .piece .pcell.empty { background:transparent !important; box-shadow:none; border:none; }
-  .piece.dragging { opacity:.35; }
-  #floatPiece { position:fixed; pointer-events:none; z-index:999; display:grid; gap:0; opacity:.95;
-    filter:drop-shadow(0 3px 6px rgba(0,0,0,.25));
-    transition:filter .12s ease-out; }
-  /* ★ v24 拿起時不再放大方塊，維持與棋盤格一致的大小，只加強陰影營造「拎起來」的懸浮感 */
-  #floatPiece.lifted { filter:drop-shadow(0 14px 18px rgba(0,0,0,.4)); }
+  /* ★ v65 ③ 殘影廢除：拖曳中的托盤分身從「壓暗 35%」改成完全隱形——拿走就拿走，
+     托盤格直接空著。舊的半透明殘影會與補牌後的新牌形狀混疊（v64 A5 交接失誤實錘），
+     玩家記憶被「假形狀」污染。保留 pointer-events：萬一未來又有殘留，牌仍抓得回來，不會失蹤。 */
+  .piece.dragging { opacity:0; }
+  /* ★ v61 已拆除：v57「戰況透視」壓暗提示（放不下的牌變灰黑）——
+     真機觀感像「牌壞掉了 / 出不了的黑磚」，情報價值低於視覺干擾，整套退役。
+     所有牌永遠以原色顯示，放不放得下交給玩家自己判斷（拖曳時仍有紅/綠落點提示）。 */
+  /* ★ v69 手術①：opacity .95→1。舊值讓浮空方塊比落地方塊淡 5%，放手時兩層對調＝亮度跳一下，
+     就是「轉換感」的殘餘病根之一。拉齊成 1，替身與本尊同一張臉，對調瞬間無破綻。 */
+  #floatPiece { position:fixed; pointer-events:none; z-index:999; display:grid; gap:0; opacity:1;
+    filter:drop-shadow(0 3px 6px rgba(0,0,0,.25)); }
+  /* ★ v67 同層放置改革：v22~v24 的「高空陰影」(0 14px 18px) 是明確的「懸浮在上層」視覺語言，
+     放手瞬間影子消失＝大腦自動腦補一段墜落 → 這就是「放下卡頓」錯覺的病根。
+     改為與棋盤方塊同級的貼地陰影：方塊從頭到尾都在棋盤同一個平面上滑動，
+     放手只是「原地定位」，沒有高度差、就沒有掉落感。filter 過渡一併拆除（零時間差）。 */
+  #floatPiece.lifted { filter:drop-shadow(0 4px 7px rgba(0,0,0,.32)); }
   #floatPiece .pcell { border-radius:3px; z-index:0; border:5px solid;
     border-color:rgba(255,255,255,.42) rgba(0,0,0,.16) rgba(0,0,0,.34) rgba(255,255,255,.15);
     display:flex; align-items:center; justify-content:center; }
@@ -581,14 +603,23 @@
                     overflow:hidden; display:none; }
   #app > #hzLayer.on { display:block; }
   /* UI 全部抬到氣球之上（原本是 static，會被 positioned 圖層蓋住） */
-  #goals, #playArea, #tray { position:relative; z-index:1; }
+  /* ★ v65 ② 補上 #bigScore：v55 當年抬了任務欄/棋盤/托盤，唯獨大分數漏在最底層，
+     氣球管一經過就把分數蓋住（真機實錘「分數被氣球擋住」）。現在分數永遠壓在管線之上。 */
+  #goals, #bigScore, #playArea, #tray { position:relative; z-index:1; }
 
   /* ★ v55 機關關版面：#app.hz-on（由 HZ.syncGoals 掛上）
      ① 棋盤讓出左側走廊 —— v54 隱藏側欄後棋盤變寬，把氣球的左側跑道整條蓋住。
         padding-left 配合 calcCellSize 的 gutter 扣寬，跑道 x≈32 完整重見天日。
      ② 大分數改亮白＋天藍光暈 —— 原本的暗金色在深藍底＋藍色管線旁對比不足，
         機關模式的分數必須一眼即讀。 */
-  #app.hz-on #boardWrap { padding-left:50px; }
+  /* ★ v58 走廊補全：v55 只讓出左側，上/下走廊靠「剛好有縫」硬撐——
+     矮螢幕上棋盤吃滿高度，頂部管線直接被棋盤蓋住（真機截圖實錘）。
+     現在上下各保留 38px 專屬跑道，配合 calcCellSize 的垂直扣高，
+     氣球（時間線）的完整軌跡在任何螢幕上都保證可見。 */
+  /* ★ v62 底部保留區 38 → 62px：走廊要塞「管線(22px) + 仙人掌(34px)」兩層，
+     38px 根本不夠 —— 擠壓環境（瀏覽器工具列吃掉高度）下管線被迫躺到托盤方塊頭上。
+     62 = 仙人掌 38（34 高 + 4 呼吸）+ 管線半寬 11 + 托盤安全距 13。 */
+  #app.hz-on #boardWrap { padding:38px 12px 62px 50px; }
   #app.hz-on #streakBadge { left:58px; }   /* 連消徽章讓開走廊，別壓在氣球管上 */
   #app.hz-on #bigScore .bs-num { color:#ffffff;
     text-shadow:0 0 14px rgba(79,195,247,.85), 0 2px 3px rgba(0,0,0,.6), 0 6px 18px rgba(0,0,0,.45); }
@@ -616,7 +647,11 @@
   #hzNozzle.popped .cuff { width:11px; height:20px; top:5px; border-radius:6px 3px 3px 6px;
         background:linear-gradient(#4f9ec2,#2a6f92 60%,#1c4f68); transform:rotate(-7deg); }
 
-  #hzCactus { position:absolute; font-size:34px; line-height:1; transform-origin:bottom center; }
+  /* ★ v63 抬層：仙人掌不再住在 z:0 的氣球圖層裡 —— 獨立 absolute 元素、z-index:2，
+     壓在棋盤(z:1)之上。顯示與否跟著 #hzLayer.on 走（相鄰選擇器），機關關以外完全不存在。 */
+  #hzCactus { position:absolute; font-size:34px; line-height:1; transform-origin:bottom center;
+              z-index:2; pointer-events:none; display:none; }
+  #hzLayer.on + #hzCactus { display:block; }
   #hzCactus .em { display:block; }
 
   #hzDanger { position:absolute; inset:0; opacity:0; transition:opacity .25s;
@@ -840,12 +875,12 @@
 
 <!-- ===== 模式選單 ===== -->
 <div id="menu">
-  <div class="logo">PUFFY BLAST</div>
-  <div class="title" data-i18n="menu.title">胖嘟嘟消消樂</div>
-  <div class="tagline" data-i18n="menu.tagline">放方塊・消整排・餵飽胖嘟嘟</div>
+  <div class="logo">VIVID BLAST</div>
+  <div class="title" data-i18n="menu.title">繽紛樂</div>
+  <div class="tagline" data-i18n="menu.tagline">放方塊・消整排・餵飽小動物</div>
 
   <!-- ★ v37 暱稱膠囊（點了開個人資料／改名） -->
-  <button id="menuName">🎭 <span id="menuNameVal">胖嘟嘟玩家</span></button>
+  <button id="menuName">🎭 <span id="menuNameVal">繽紛玩家</span></button>
 
   <!-- ★ v36 鑽石餘額（點了開商店；紅點 = 每日禮物未領） -->
   <button id="menuDm">💎 <span id="menuDmVal">0</span><span class="noti-dot" id="menuDmDot"></span></button>
@@ -854,22 +889,6 @@
   <div class="menu-gear-wrap" id="menuGearWrap">
     <button class="icon-btn" id="menuGearBtn" title="選單">⚙️<span class="noti-dot" id="menuGearDot"></span></button>
   </div>
-
-  <button class="mode-card endless" data-mode="endless">
-    <span class="emoji">♾️</span>
-    <span>
-      <div class="mc-name" data-i18n="mode.endless.name">無盡模式</div>
-      <div class="mc-desc" data-i18n="mode.endless.desc">沒有終點，放到沒空間為止。挑戰你的最高分。</div>
-    </span>
-  </button>
-
-  <button class="mode-card gem" data-mode="gem">
-    <span class="emoji">🍡</span>
-    <span>
-      <div class="mc-name" data-i18n="mode.gem.name">胖嘟嘟收集</div>
-      <div class="mc-desc" data-i18n="mode.gem.desc">餵飽三隻胖嘟嘟就過關，盤面塞滿才結束，一關接一關往下闖。</div>
-    </span>
-  </button>
 
   <button class="mode-card balloon" data-mode="balloon">
     <span class="soon" id="balloonBest" style="display:none"></span>
@@ -880,7 +899,24 @@
     </span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v72・胖嘟嘟消消樂・移除放置泡泡特效</div>
+  <button class="mode-card endless" data-mode="endless">
+    <span class="emoji">♾️</span>
+    <span>
+      <div class="mc-name" data-i18n="mode.endless.name">無盡模式</div>
+      <div class="mc-desc" data-i18n="mode.endless.desc">沒有終點，放到沒空間為止。挑戰你的最高分。</div>
+    </span>
+  </button>
+
+  <button class="mode-card gem" data-mode="gem">
+    <span class="soon" id="gemBest" style="display:none"></span><!-- ★ v64 D3 續玩徽章：資料早就在存檔裡，只欠這個 UI -->
+    <span class="emoji">🍡</span>
+    <span>
+      <div class="mc-name" data-i18n="mode.gem.name">繽紛收集</div>
+      <div class="mc-desc" data-i18n="mode.gem.desc">餵飽三隻小動物就過關，盤面塞滿才結束，一關接一關往下闖。</div>
+    </span>
+  </button>
+
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v72・繽紛樂・泡泡移除</div>
 </div>
 
 <div id="app">
@@ -896,9 +932,12 @@
       <circle id="hzHeadShine" r="3.6" fill="#fff" fill-opacity=".45"/>
     </svg>
     <div id="hzNozzle"><div class="barrel"></div><div class="ring"></div><div class="puff"></div><div class="cuff"></div></div>
-    <div id="hzCactus"><span class="em">🌵</span></div>
     <div id="hzDanger"></div>
   </div>
+  <!-- ★ v63 仙人掌抬層：搬出 hzLayer（z:0，躲在棋盤後面），改為 #app 直屬、z-index:2。
+       v61/v62 兩版數學鐵則都在極端擠壓螢幕上被「另一頭的鐵則」推翻 —— 與其繼續賭量測，
+       不如讓仙人掌物理上不可能被棋盤蓋住。緊貼 hzLayer 之後 → CSS 相鄰選擇器同步顯示/隱藏。 -->
+  <div id="hzCactus" aria-hidden="true"><span class="em">🌵</span></div>
   <!-- ★ v14 齒輪：浮在最右上角，貼齊右邊界（畫面很寬，元素推到兩側） -->
   <div class="gear-wrap">
     <button class="icon-btn" id="gearBtn" title="選單">⚙️<span class="noti-dot" id="gearDot"></span></button>
@@ -1007,7 +1046,7 @@
     <!-- ★ v44 開場語言快選：JS 依 LANGS 動態生成，選了立刻套用全站文字（含這個視窗本身） -->
     <div class="wm-langrow" id="welcomeLangRow"></div>
     <div class="wm-emoji">🐾</div>
-    <h2 data-i18n="welcome.title">歡迎來到胖嘟嘟消消樂！</h2>
+    <h2 data-i18n="welcome.title">歡迎來到繽紛樂！</h2>
     <p class="wm-sub" data-i18n="welcome.sub">先幫自己取個名字，將來全球排行榜會用到喔</p>
     <input class="name-input" id="nameInput" maxlength="12" data-i18n-ph="welcome.placeholder" placeholder="輸入暱稱">
     <div class="wm-gifts">
@@ -1194,7 +1233,7 @@
 
       <div class="shop-sec-title">🎮 三大玩法模式</div>
       <div class="shop-item"><span class="si-ic">♾️</span><div class="si-info"><div class="si-name">無盡模式</div><div class="si-desc">沒有終點，測試手感、消除爽度、防死局重洗牌</div></div></div>
-      <div class="shop-item"><span class="si-ic">🍡</span><div class="si-info"><div class="si-name">胖嘟嘟收集</div><div class="si-desc">主線關卡，測試皮膚邂逅機率、碎片收集、難度曲線</div></div></div>
+      <div class="shop-item"><span class="si-ic">🍡</span><div class="si-info"><div class="si-name">繽紛收集</div><div class="si-desc">主線關卡，測試皮膚邂逅機率、碎片收集、難度曲線</div></div></div>
       <div class="shop-item"><span class="si-ic">🎈</span><div class="si-info"><div class="si-name">氣球大逃亡</div><div class="si-desc">物理機關救援，測試威脅／解藥碰撞、炸彈瞄準、震動回饋</div></div></div>
 
       <div class="shop-sec-title">💎 商業變現項目</div>
@@ -1220,7 +1259,7 @@
 <div class="ad-veil" id="adVeil">
   <div class="ad-veil-tag" data-i18n="ad.tag">廣告</div>
   <div class="ad-veil-box">
-    <div class="ad-veil-title" data-i18n="ad.brand">🐾 胖嘟嘟消消樂</div>
+    <div class="ad-veil-title" data-i18n="ad.brand">🐾 繽紛樂</div>
     <div class="ad-veil-sub" data-i18n="ad.sub">感謝你的支持，讓遊戲免費又好玩</div>
   </div>
   <div class="ad-veil-cd" id="adVeilCd">廣告結束：<span id="adCountdown">5</span> 秒</div>
@@ -1228,12 +1267,12 @@
 
 <script>
 /* ============================================================
-   胖嘟嘟消消樂 PuffyBlast — 核心引擎 v1.0
+   繽紛樂 Vivid Blast — 核心引擎 v1.0
    架構：Block Blast 拖放 + 食物鑲嵌收集 + 隨機關卡目標
    ============================================================ */
 
 /* ============================================================
-   胖嘟嘟消消樂 PuffyBlast — 核心引擎 v5
+   繽紛樂 Vivid Blast — 核心引擎 v5
    架構：Block Blast 拖放核心 + 可插拔模式系統
    ─ 核心引擎（拖放/消行/防死局）完全不變
    ─ 模式只決定三件事：初始化、勝負條件、壓力來源
@@ -1256,24 +1295,25 @@ let lang = 'zh-Hant';
 const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
-  'menu.title':'胖嘟嘟消消樂', 'menu.tagline':'放方塊・消整排・餵飽胖嘟嘟',
-  'menu.footer':'v72・胖嘟嘟消消樂・移除放置泡泡特效',
+  'menu.title':'繽紛樂', 'menu.tagline':'放方塊・消整排・餵飽小動物',
+  'menu.footer':'v72・繽紛樂・泡泡移除',
   'menu.best':'最高 {n} 關',
+  'menu.resume':'▶ 續玩 第 {n} 關',
   'mode.endless.name':'無盡模式', 'mode.endless.desc':'沒有終點，放到沒空間為止。挑戰你的最高分。',
-  'mode.gem.name':'胖嘟嘟收集', 'mode.gem.desc':'餵飽三隻胖嘟嘟就過關，盤面塞滿才結束，一關接一關往下闖。',
+  'mode.gem.name':'繽紛收集', 'mode.gem.desc':'餵飽三隻小動物就過關，盤面塞滿才結束，一關接一關往下闖。',
   'mode.balloon.name':'氣球大逃亡', 'mode.balloon.desc':'氣球一路膨脹爬向仙人掌，靠消行洩氣把它拉回來。關關加速，撐得越久越險。',
   'gear.sound':'音效', 'gear.haptic':'震動', 'gear.shop':'商店', 'gear.skin':'換膚', 'gear.tester':'測試員模式', 'gear.home':'主選單',
   'side.level':'關卡', 'side.score':'分數', 'side.best':'最佳', 'side.hint':'提示', 'side.bomb':'炸彈', 'side.dm':'💎 鑽石', 'side.gold':'🪙 金幣',
   'gear.profile':'帳號',
-  'welcome.title':'歡迎來到胖嘟嘟消消樂！', 'welcome.sub':'先幫自己取個名字，將來全球排行榜會用到喔',
-  'welcome.placeholder':'輸入暱稱', 'welcome.defaultName':'胖嘟嘟玩家',
+  'welcome.title':'歡迎來到繽紛樂！', 'welcome.sub':'先幫自己取個名字，將來全球排行榜會用到喔',
+  'welcome.placeholder':'輸入暱稱', 'welcome.defaultName':'繽紛玩家',
   'welcome.gold':'新手金幣', 'welcome.dm':'新手鑽石', 'welcome.bomb':'新手炸彈', 'welcome.start':'開始冒險 →',
   'profile.title':'👤 個人資料', 'profile.save':'儲存暱稱', 'profile.close':'關閉',
   'profile.renameBtn':'改名', 'profile.renameHint':'首次自訂免費，之後每次改名消耗改名卡',
   'profile.cooldown':'改名卡冷卻中，還要等 {d} 天',
   'login.guest':'遊客模式', 'login.using':'使用中', 'login.google':'Google 登入', 'login.apple':'Apple 登入', 'login.soon':'即將推出',
   'lang.title':'🌐 選擇語言', 'lang.using':'使用中',
-  'win.title':'🎉 過關！', 'win.text':'第 {lv} 關完成！本關得分 {s}　🪙+{n}',
+  'win.title':'🎉 過關！', 'win.text':'第 {lv} 關完成！總分 {s}　🪙+{n}',
   'intro.level':'第 {n} 關', 'mode.endless':'無盡模式',
   'win.balloonTitle':'🎈 氣球守住了！', 'win.balloonText':'第 {lv} 關完成！仙人掌鬆了一口氣（得分 {s}）　🪙+{n}',
   'win.textDefault':'小動物都吃飽囉！', 'win.next':'下一關 →', 'win.home':'回主選單',
@@ -1308,7 +1348,7 @@ const I18N = {
   'combo.deflate':'🫧 氣球洩氣了一半！',
   'combo.warnGem':'🎈 機關關！別讓氣球碰到仙人掌', 'combo.warn':'🎈 別讓氣球碰到仙人掌！',
   'combo.noAds':'🚫 已永久去廣告！', 'combo.dm':'💎 +{n}！', 'combo.daily':'🎁 每日禮物 +{n}💎',
-  'combo.dmShort':'💎 鑽石不足', 'combo.goldShort':'🪙 金幣不足', 'combo.bomb':'💣 +{n}！', 'combo.aim':'💣 按住棋盤拖曳瞄準，放開引爆 3×3', 'combo.bombRevive':'💣 炸彈救援！',
+  'combo.dmShort':'💎 鑽石不足', 'combo.goldShort':'🪙 金幣不足', 'combo.hintMenu':'💡 進入關卡後才能使用提示', 'combo.bomb':'💣 +{n}！', 'combo.aim':'💣 按住棋盤拖曳瞄準，放開引爆 3×3', 'combo.bombRevive':'💣 炸彈救援！',
   'skin.default':'原色果凍', 'skin.brick':'工業風(磁磚)', 'skin.wood':'原木紋理', 'skin.marble':'大理石紋', 'skin.steel':'鋼板螺絲',
   'skin.rib':'毛線風(羅紋針)', 'skin.moss':'毛線風(桂花針)', 'skin.honeycomb':'毛線風(蜂巢編)', 'skin.shell':'毛線風(貝殼編)', 'skin.cable':'毛線風(麻花辮)',
   'trial.title':'🎁 剛剛試玩的皮膚，喜歡嗎？',
@@ -1317,7 +1357,7 @@ const I18N = {
   'gallery.close':'關閉', 'gallery.equip':'使用', 'gallery.equipped':'使用中 ✓',
   'gallery.seenAt':'第 {lv} 關嚐過', 'gallery.unknown':'？？？', 'gallery.locked':'尚未邂逅',
   'frag.title':'🧩 皮膚碎片', 'frag.progress':'碎片 {c}／{t}',
-  'frag.gain':'🧩 碎片 +1（{c}／{t}）', 'frag.complete':'🎉 碎片集滿！已擁有「{n}」',
+  'frag.gain':'🧩 碎片 +1（{c}／{t}）', 'frag.complete':'🎉 碎片集滿！已擁有「{n}」', 'frag.equipNow':'✨ 立刻換上！',
   'frag.dupGold':'🧩 碎片已擁有，重複碎片自動兌換 🪙+{v}', 'frag.dupDm':'🧩 碎片已擁有，重複碎片自動兌換 💎+{v}',
   'frag.rescueMiss':'（這關用了救援才過關，皮膚邂逅這次不算數）',
   'lose.skinMiss':'💔 差一點就能把「{n}」帶回家了，下次再遇到別手軟！',
@@ -1325,28 +1365,29 @@ const I18N = {
   'combo.adGold':'🪙 +{n}！', 'combo.exchange':'🔁 兌換成功 +{n}🪙', 'combo.firstBonus':'🎉 首購加碼！鑽石 +{n}',
   'combo.nameBad':'暱稱需 2~12 個字', 'combo.nameSaved':'✅ 暱稱已儲存',
   'diff.boss':'⚠ 魔王關', 'diff.spike':'🔥 挑戰關',
-  'ad.tag':'廣告', 'ad.brand':'🐾 胖嘟嘟消消樂', 'ad.sub':'感謝你的支持，讓遊戲免費又好玩', 'ad.end':'廣告結束：{n} 秒',
+  'ad.tag':'廣告', 'ad.brand':'🐾 繽紛樂', 'ad.sub':'感謝你的支持，讓遊戲免費又好玩', 'ad.end':'廣告結束：{n} 秒',
 },
 'en': {
   _name:'English',
-  'menu.title':'PuffyBlast', 'menu.tagline':'Drop blocks, clear lines, feed the puffies!',
-  'menu.footer':'v72 · PuffyBlast · Removed Placement Bubble Effect',
+  'menu.title':'Vivid Blast', 'menu.tagline':'Drop blocks, clear lines, feed the critters!',
+  'menu.footer':'v72 · Vivid Blast · Bubble Removed',
   'menu.best':'Best: Lv {n}',
+  'menu.resume':'▶ Resume Lv {n}',
   'mode.endless.name':'Endless', 'mode.endless.desc':'No finish line — play until the board fills up. Chase your high score.',
-  'mode.gem.name':'Puffy Collect', 'mode.gem.desc':'Feed the puffies to clear each level. You only lose when the board jams. Level after level!',
+  'mode.gem.name':'Critter Collect', 'mode.gem.desc':'Feed the critters to clear each level. You only lose when the board jams. Level after level!',
   'mode.balloon.name':'Balloon Escape', 'mode.balloon.desc':'The balloon keeps inflating toward the cactus — clear lines to deflate it. Faster every level!',
   'gear.sound':'Sound', 'gear.haptic':'Vibration', 'gear.shop':'Shop', 'gear.skin':'Themes', 'gear.tester':'Tester Mode', 'gear.home':'Main Menu',
   'side.level':'LEVEL', 'side.score':'SCORE', 'side.best':'BEST', 'side.hint':'Hint', 'side.bomb':'Bomb', 'side.dm':'💎 Gems', 'side.gold':'🪙 Gold',
   'gear.profile':'Account',
-  'welcome.title':'Welcome to PuffyBlast!', 'welcome.sub':'Pick a nickname first — you\'ll need it for the global leaderboard',
-  'welcome.placeholder':'Enter nickname', 'welcome.defaultName':'Puffy Player',
+  'welcome.title':'Welcome to Vivid Blast!', 'welcome.sub':'Pick a nickname first — you\'ll need it for the global leaderboard',
+  'welcome.placeholder':'Enter nickname', 'welcome.defaultName':'Vivid Player',
   'welcome.gold':'Starter Gold', 'welcome.dm':'Starter Gems', 'welcome.bomb':'Starter Bomb', 'welcome.start':'Start Adventure →',
   'profile.title':'👤 Account', 'profile.save':'Save Nickname', 'profile.close':'Close',
   'profile.renameBtn':'Rename', 'profile.renameHint':'First custom name is free; renaming after that uses a rename card',
   'profile.cooldown':'Rename card on cooldown, {d} day(s) left',
   'login.guest':'Guest', 'login.using':'Active', 'login.google':'Sign in with Google', 'login.apple':'Sign in with Apple', 'login.soon':'Coming soon',
   'lang.title':'🌐 Select Language', 'lang.using':'Active',
-  'win.title':'🎉 Level Clear!', 'win.text':'Level {lv} complete! Score {s}　🪙+{n}',
+  'win.title':'🎉 Level Clear!', 'win.text':'Level {lv} complete! Total score {s}　🪙+{n}',
   'intro.level':'Level {n}', 'mode.endless':'Endless',
   'win.balloonTitle':'🎈 Balloon Saved!', 'win.balloonText':'Level {lv} complete! The cactus sighs in relief (score {s})　🪙+{n}',
   'win.textDefault':'All puffies are full and happy!', 'win.next':'Next Level →', 'win.home':'Main Menu',
@@ -1381,7 +1422,7 @@ const I18N = {
   'combo.deflate':'🫧 Balloon deflated halfway!',
   'combo.warnGem':'🎈 Hazard level! Keep the balloon off the cactus', 'combo.warn':'🎈 Keep the balloon off the cactus!',
   'combo.noAds':'🚫 Ads removed forever!', 'combo.dm':'💎 +{n}!', 'combo.daily':'🎁 Daily gift +{n}💎',
-  'combo.dmShort':'💎 Not enough gems', 'combo.goldShort':'🪙 Not enough gold', 'combo.bomb':'💣 +{n}!', 'combo.aim':'💣 Hold & drag to aim — release to blast 3×3', 'combo.bombRevive':'💣 Bomb rescue!',
+  'combo.dmShort':'💎 Not enough gems', 'combo.goldShort':'🪙 Not enough gold', 'combo.hintMenu':'💡 Hints only work during a level', 'combo.bomb':'💣 +{n}!', 'combo.aim':'💣 Hold & drag to aim — release to blast 3×3', 'combo.bombRevive':'💣 Bomb rescue!',
   'skin.default':'Classic Jelly', 'skin.brick':'Industrial Tile', 'skin.wood':'Wood Grain', 'skin.marble':'Marble', 'skin.steel':'Riveted Steel',
   'skin.rib':'Rib Knit', 'skin.moss':'Moss Stitch', 'skin.honeycomb':'Honeycomb Knit', 'skin.shell':'Shell Stitch', 'skin.cable':'Cable Knit',
   'trial.title':'🎁 Liked the skin you just tried?',
@@ -1390,7 +1431,7 @@ const I18N = {
   'gallery.close':'Close', 'gallery.equip':'Equip', 'gallery.equipped':'Equipped ✓',
   'gallery.seenAt':'Tried at Lv {lv}', 'gallery.unknown':'???', 'gallery.locked':'Not encountered yet',
   'frag.title':'🧩 Skin Fragments', 'frag.progress':'Fragments {c}/{t}',
-  'frag.gain':'🧩 Fragment +1 ({c}/{t})', 'frag.complete':'🎉 Fragments complete! Unlocked "{n}"',
+  'frag.gain':'🧩 Fragment +1 ({c}/{t})', 'frag.complete':'🎉 Fragments complete! Unlocked "{n}"', 'frag.equipNow':'✨ Wear it now!',
   'frag.dupGold':'🧩 Already owned — duplicate converted to 🪙+{v}', 'frag.dupDm':'🧩 Already owned — duplicate converted to 💎+{v}',
   'frag.rescueMiss':'(You used a rescue to clear this level, so the skin encounter did not count)',
   'lose.skinMiss':'💔 So close to bringing "{n}" home — do not miss it next time!',
@@ -1398,28 +1439,29 @@ const I18N = {
   'combo.adGold':'🪙 +{n}!', 'combo.exchange':'🔁 Exchanged +{n}🪙', 'combo.firstBonus':'🎉 First-purchase bonus! +{n} gems',
   'combo.nameBad':'Nickname must be 2-12 characters', 'combo.nameSaved':'✅ Nickname saved',
   'diff.boss':'⚠ BOSS LEVEL', 'diff.spike':'🔥 CHALLENGE',
-  'ad.tag':'AD', 'ad.brand':'🐾 PuffyBlast', 'ad.sub':'Thanks for your support — it keeps the game free!', 'ad.end':'Ad ends in {n}s',
+  'ad.tag':'AD', 'ad.brand':'🐾 Vivid Blast', 'ad.sub':'Thanks for your support — it keeps the game free!', 'ad.end':'Ad ends in {n}s',
 },
 'ja': {
   _name:'日本語',
-  'menu.title':'パフィーブラスト', 'menu.tagline':'ブロックを置いて、ライン消して、もぐもぐタイム！',
-  'menu.footer':'v72・パフィーブラスト・配置バブル効果を削除',
-  'menu.best':'最高 {n} 面',
+  'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを置いて、ライン消して、もぐもぐタイム！',
+  'menu.footer':'v72・ビビッドブラスト・シームレス設置',
+  'menu.best':'ベスト：レベル {n}',
+  'menu.resume':'▶ レベル {n} から再開',
   'mode.endless.name':'エンドレス', 'mode.endless.desc':'終わりなき挑戦。盤面が埋まるまでハイスコアを狙おう。',
   'mode.gem.name':'もぐもぐコレクト', 'mode.gem.desc':'どうぶつたちを満腹にすればクリア。盤面が詰まるまで終わらない。どんどん先へ！',
-  'mode.balloon.name':'バルーン大脱走', 'mode.balloon.desc':'風船はサボテンめがけて膨らみ続ける。ライン消しで空気を抜こう。面が進むほど加速！',
+  'mode.balloon.name':'バルーン大脱走', 'mode.balloon.desc':'風船はサボテンめがけて膨らみ続ける。ライン消しで空気を抜こう。レベルが進むほど加速！',
   'gear.sound':'サウンド', 'gear.haptic':'バイブ', 'gear.shop':'ショップ', 'gear.skin':'きせかえ', 'gear.tester':'テスターモード', 'gear.home':'メニュー',
   'side.level':'レベル', 'side.score':'スコア', 'side.best':'ベスト', 'side.hint':'ヒント', 'side.bomb':'ボム', 'side.dm':'💎 ジェム', 'side.gold':'🪙 ゴールド',
   'gear.profile':'アカウント',
-  'welcome.title':'パフィーブラストへようこそ！', 'welcome.sub':'まずニックネームを決めよう。世界ランキングで使うよ',
-  'welcome.placeholder':'ニックネームを入力', 'welcome.defaultName':'パフィープレイヤー',
+  'welcome.title':'ビビッドブラストへようこそ！', 'welcome.sub':'まずニックネームを決めよう。世界ランキングで使うよ',
+  'welcome.placeholder':'ニックネームを入力', 'welcome.defaultName':'ビビッドプレイヤー',
   'welcome.gold':'初回ゴールド', 'welcome.dm':'初回ジェム', 'welcome.bomb':'初回ボム', 'welcome.start':'冒険を始める →',
   'profile.title':'👤 アカウント', 'profile.save':'ニックネームを保存', 'profile.close':'閉じる',
   'profile.renameBtn':'改名', 'profile.renameHint':'初回の名前設定は無料、それ以降は改名カードを消費します',
   'profile.cooldown':'改名カードはクールダウン中（あと{d}日）',
   'login.guest':'ゲストモード', 'login.using':'使用中', 'login.google':'Googleでログイン', 'login.apple':'Appleでログイン', 'login.soon':'近日公開',
   'lang.title':'🌐 言語を選択', 'lang.using':'使用中',
-  'win.title':'🎉 クリア！', 'win.text':'レベル {lv} クリア！スコア {s}　🪙+{n}',
+  'win.title':'🎉 クリア！', 'win.text':'レベル {lv} クリア！合計スコア {s}　🪙+{n}',
   'intro.level':'レベル {n}', 'mode.endless':'エンドレス',
   'win.balloonTitle':'🎈 風船を守った！', 'win.balloonText':'レベル {lv} クリア！サボテンもひと安心（スコア {s}）　🪙+{n}',
   'win.textDefault':'みんな満腹、大満足！', 'win.next':'次のレベル →', 'win.home':'メニューへ',
@@ -1452,18 +1494,18 @@ const I18N = {
   'iap.l.name':'ジェム（大）', 'iap.l.desc':'豪華な大盛りパック',
   'combo.shuffle':'🔄 自動シャッフル', 'combo.hint':'💡 ここに置いてみて', 'combo.skin':'🎨 きせかえは準備中',
   'combo.deflate':'🫧 空気が半分抜けた！',
-  'combo.warnGem':'🎈 ギミック面！風船をサボテンに当てないで', 'combo.warn':'🎈 風船をサボテンに当てないで！',
+  'combo.warnGem':'🎈 ギミックレベル！風船をサボテンに当てないで', 'combo.warn':'🎈 風船をサボテンに当てないで！',
   'combo.noAds':'🚫 広告を永久削除しました！', 'combo.dm':'💎 +{n}！', 'combo.daily':'🎁 デイリーギフト +{n}💎',
-  'combo.dmShort':'💎 ジェムが足りません', 'combo.goldShort':'🪙 ゴールドが足りません', 'combo.bomb':'💣 +{n}！', 'combo.aim':'💣 ドラッグで狙って、離すと 3×3 爆破', 'combo.bombRevive':'💣 ボムで復活！',
+  'combo.dmShort':'💎 ジェムが足りません', 'combo.goldShort':'🪙 ゴールドが足りません', 'combo.hintMenu':'💡 ヒントはレベル中のみ使えます', 'combo.bomb':'💣 +{n}！', 'combo.aim':'💣 ドラッグで狙って、離すと 3×3 爆破', 'combo.bombRevive':'💣 ボムで復活！',
   'skin.default':'クラシックゼリー', 'skin.brick':'インダストリアルタイル', 'skin.wood':'木目', 'skin.marble':'大理石', 'skin.steel':'リベット鋼板',
   'skin.rib':'リブ編み', 'skin.moss':'ガーター編み', 'skin.honeycomb':'ハニカム編み', 'skin.shell':'シェル編み', 'skin.cable':'ケーブル編み',
   'trial.title':'🎁 さっき試したきせかえ、気に入った？',
   'combo.skinBought':'🎉「{n}」を手に入れた！', 'combo.skinEquipped':'🎨「{n}」に着せ替えた',
   'gallery.title':'🎨 きせかえ図鑑', 'gallery.sub':'ステージ中にランダムで素材と遭遇。そのステージに勝てば欠片を獲得、集めれば手に入る',
   'gallery.close':'閉じる', 'gallery.equip':'使用する', 'gallery.equipped':'使用中 ✓',
-  'gallery.seenAt':'{lv}関で体験済み', 'gallery.unknown':'？？？', 'gallery.locked':'未発見',
+  'gallery.seenAt':'レベル {lv} で体験済み', 'gallery.unknown':'？？？', 'gallery.locked':'未発見',
   'frag.title':'🧩 きせかえの欠片', 'frag.progress':'欠片 {c}／{t}',
-  'frag.gain':'🧩 欠片 +1（{c}／{t}）', 'frag.complete':'🎉 欠片が集まった！「{n}」を手に入れた！',
+  'frag.gain':'🧩 欠片 +1（{c}／{t}）', 'frag.complete':'🎉 欠片が集まった！「{n}」を手に入れた！', 'frag.equipNow':'✨ 今すぐ着替える！',
   'frag.dupGold':'🧩 すでに所持中。重複した欠片は 🪙+{v} に自動変換', 'frag.dupDm':'🧩 すでに所持中。重複した欠片は 💎+{v} に自動変換',
   'frag.rescueMiss':'（このステージは救援でクリアしたため、きせかえの遭遇は今回カウントされません）',
   'lose.skinMiss':'💔「{n}」まであと少しだった…次のチャンスは逃さないで！',
@@ -1471,7 +1513,7 @@ const I18N = {
   'combo.adGold':'🪙 +{n}！', 'combo.exchange':'🔁 交換成功 +{n}🪙', 'combo.firstBonus':'🎉 初回購入ボーナス！ジェム +{n}',
   'combo.nameBad':'ニックネームは2〜12文字で入力してください', 'combo.nameSaved':'✅ ニックネームを保存しました',
   'diff.boss':'⚠ ボス面', 'diff.spike':'🔥 チャレンジ面',
-  'ad.tag':'広告', 'ad.brand':'🐾 パフィーブラスト', 'ad.sub':'応援ありがとう！おかげでゲームは無料です', 'ad.end':'広告終了まで {n} 秒',
+  'ad.tag':'広告', 'ad.brand':'🐾 ビビッドブラスト', 'ad.sub':'応援ありがとう！おかげでゲームは無料です', 'ad.end':'広告終了まで {n} 秒',
 },
 };
 
@@ -1493,7 +1535,11 @@ let dragState = null;
 /* ===== 模式系統狀態 ===== */
 let currentMode = null;    // 'endless' | 'gem'（'rescue' 留給 v7）
 let score = 0;             // 本局分數（無盡模式核心）
-let bestScore = 0;         // 歷史最佳（記憶體保存，之後可接存檔）
+/* ★ v64 D2 歷史最佳分「分家」：三模式各記各的帳。
+   舊制單一 bestScore 會被 gem 跨關累積分打到幾千分，endless 的 BEST 直接被污染。 */
+let bestScores = { gem:0, endless:0, balloon:0 };
+function getBest(){ return (currentMode && bestScores[currentMode]) || 0; }
+function bumpBest(){ if(currentMode && score > (bestScores[currentMode]||0)) bestScores[currentMode] = score; }
 let movesLeft = 0;         // 剩餘步數（寶石模式核心壓力源）
 
 /* ===== 模式設定表（萬能關卡：換模式 = 換這張表，核心不動） =====
@@ -1517,7 +1563,7 @@ const MODES = {
   },
   // ───────── 胖嘟嘟收集：餵飽動物過關，盤面塞死才失敗（不限步數，公平） ─────────
   gem: {
-    name:'胖嘟嘟收集', useGoals:true, useMoves:false, useScore:true,
+    name:'繽紛收集', useGoals:true, useMoves:false, useScore:true,
     setup(lv){
       // ★ v26：角色池擴為 7 種後，目標種類數改「隨關卡漸進」而非固定值。
       //        設計考量（留存）：新手若第一關就同時追 5 種，認知負擔過重、傷 honeymoon。
@@ -1662,6 +1708,20 @@ function difficultyOf(lv){
 /* 本關的難度設定檔（startLevel 時抽一次，整關沿用） */
 let curDiff = { tier:'normal', label:'', trapCap:1, rareBoost:1, goalMul:1, moveMul:1.1 };
 
+/* ★ v64 A2 對局世代旗標：startLevel / goHome 各 +1。
+   所有「幾百毫秒後才落地」的計時器發射前記下世代，到點發現世代變了就自我作廢——
+   從此不會有玩家回到選單後，過期的過關視窗還魂蓋在選單上。 */
+let gameEpoch = 0;
+
+/* ★ v64 D1 重試沿用旗標：retry 同一關必須沿用同一份 curDiff。
+   否則 showLose 已把 winStreak 歸零，重擲 difficultyOf() 魔王牆瞬間變紙糊，
+   玩家會發現「卡關就自殺重開」的捷徑，難度曲線形同虛設。 */
+let retrySameDiff = false;
+
+/* ★ v64 D4 本關起始分快照：gem 模式分數跨關累積，retry 只回滾「這一關失敗的嘗試」，
+   不再沒收前面關卡辛苦攢的總分。 */
+let levelStartScore = 0;
+
 
 /* ===== 收集物定義（模組化：換膚只要換這組） =====
    每種收集物綁定一隻動物 + 一種達標叫聲。gemShape 決定盤面寶石外觀，animal 決定任務欄圖與達標音效。 */
@@ -1690,6 +1750,12 @@ function shadeColor(hex, percent){
   const R = f>>16, G = (f>>8)&0xff, B = f&0xff;
   const r = Math.round((t-R)*p)+R, g = Math.round((t-G)*p)+G, b = Math.round((t-B)*p)+B;
   return '#'+(0x1000000+r*0x10000+g*0x100+b).toString(16).slice(1);
+}
+/* ★ v67 落點影子調色：把方塊本色轉半透明 rgba —— 拖曳時落點格直接染上「這塊方塊自己的影子」，
+   取代通用藍。影子全程貼著格線走＝方塊的同層分身；放手時影子原地實心化，零位移、零時間差。 */
+function ghostTint(hex){
+  const f = parseInt(hex.slice(1),16);
+  return `rgba(${f>>16},${(f>>8)&0xff},${f&0xff},.45)`;
 }
 function gemMaterial(color, materialId){
   const hi = shadeColor(color, 0.78);   // 高光核心：接近白
@@ -1842,6 +1908,26 @@ function adest(ctx){
   _adest = { ctx, node: input };
   return input;
 }
+/* ★ v68 ⑤ 噪音冰箱：舊版 playClick／playCrack／playBoom 每叫一次就現場
+   new AudioBuffer + JS 迴圈灌幾千~幾萬顆隨機樣本 —— 偏偏都發生在 pointerup／消行
+   這兩個最忙的瞬間。改成「同配方只煮一次、之後從冰箱拿」：AudioBuffer 可被多個
+   BufferSource 重複播放，這是 Web Audio 官方保證的用法。
+   隨機感不減：各呼叫端用 playbackRate 微抖動＋濾波頻率隨機（原本就有），
+   耳朵聽到的每一下仍然不重複。 */
+let _noiseBufs = null;
+function noiseBuf(ctx, key, dur, pow){
+  if(!_noiseBufs || _noiseBufs.ctx !== ctx) _noiseBufs = { ctx, map:{} };
+  let b = _noiseBufs.map[key];
+  if(!b){
+    const sr = ctx.sampleRate, len = Math.max(1, Math.floor(sr*dur));
+    b = ctx.createBuffer(1, len, sr);
+    const d = b.getChannelData(0);
+    for(let i=0;i<len;i++){ d[i] = (Math.random()*2-1) * Math.pow(1 - i/len, pow); }
+    _noiseBufs.map[key] = b;
+  }
+  return b;
+}
+
 /* ★ v21 觸覺回饋設定（全參數化，可分別開關；iOS 幾乎封鎖 vibrate → 自動偵測降級）
    注意：H5 的 navigator.vibrate 在 iOS Safari 幾乎無效，且僅在使用者觸控互動中較穩定。
    之後包成原生 App（Capacitor 等）可把 haptic() 內部換成原生 Haptics API，iOS 即可補回。 */
@@ -1874,11 +1960,9 @@ function totalLinesHaptic(n){ return n<=1 ? 18 : Math.min(18+(n-1)*22, 70); }
 function playClick(){
   if(!soundOn){ return; } const ctx=actx(); if(!ctx) return;
   const t = ctx.currentTime, out = adest(ctx);
-  // ① 木質敲擊 transient
-  const dur=0.045, sr=ctx.sampleRate;
-  const buf=ctx.createBuffer(1, Math.floor(sr*dur), sr), d=buf.getChannelData(0);
-  for(let i=0;i<d.length;i++){ d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length, 2.2); }
-  const src=ctx.createBufferSource(); src.buffer=buf;
+  // ① 木質敲擊 transient（★ v68 ⑤ 噪音從冰箱拿；播放速率微抖 → 每下木紋仍不同）
+  const src=ctx.createBufferSource(); src.buffer=noiseBuf(ctx,'click',0.045,2.2);
+  src.playbackRate.value = 0.92 + Math.random()*0.16;
   const bp=ctx.createBiquadFilter(); bp.type='bandpass';
   bp.frequency.value = 1400 + Math.random()*500; bp.Q.value = 1.3;
   const ng=ctx.createGain(); ng.gain.value = 0.5;
@@ -1908,10 +1992,9 @@ function playClearSparkle(lines){
 // ★ v24 碎裂聲：白噪音 burst（更寬頻、更脆）+ 隨機玻璃碎片高頻殘響，堆疊出「碎開」的顆粒感
 function playCrack(){
   if(!soundOn) return; const ctx=actx(); if(!ctx) return;
-  const dur=0.18, sr=ctx.sampleRate;
-  const buf=ctx.createBuffer(1, sr*dur, sr), d=buf.getChannelData(0);
-  for(let i=0;i<d.length;i++){ d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,1.7); }
-  const src=ctx.createBufferSource(); src.buffer=buf;
+  const dur=0.18;
+  const src=ctx.createBufferSource(); src.buffer=noiseBuf(ctx,'crack',dur,1.7);   // ★ v68 ⑤ 冰箱取用
+  src.playbackRate.value = 0.92 + Math.random()*0.16;                              //   速率抖動＝每次碎法不同
   const hp=ctx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=900;
   const bp=ctx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=3200; bp.Q.value=0.7;
   const g=ctx.createGain(); g.gain.value=0.4;
@@ -1945,9 +2028,8 @@ function playBoom(){
   const t = ctx.currentTime, out = adest(ctx);
   // ★ v51 ⓪ 0ms 尖銳「爆點」transient：極短寬頻噪音爆發 ——
   //   真實爆炸的第一毫秒是「啪」不是「轟」，缺這一下就像悶在棉被裡。
-  const csr=ctx.sampleRate, cbuf=ctx.createBuffer(1, Math.floor(csr*0.03), csr), cd=cbuf.getChannelData(0);
-  for(let i=0;i<cd.length;i++){ cd[i]=(Math.random()*2-1)*Math.pow(1-i/cd.length, 0.7); }
-  const csrc=ctx.createBufferSource(); csrc.buffer=cbuf;
+  const csrc=ctx.createBufferSource(); csrc.buffer=noiseBuf(ctx,'boomcrack',0.03,0.7);   // ★ v68 ⑤
+  csrc.playbackRate.value = 0.9 + Math.random()*0.2;
   const chp=ctx.createBiquadFilter(); chp.type='highpass'; chp.frequency.value=1200;
   const cg=ctx.createGain(); cg.gain.value=0.85;
   csrc.connect(chp).connect(cg).connect(out); csrc.start(t);
@@ -1974,10 +2056,9 @@ function playBoom(){
   bg.gain.exponentialRampToValueAtTime(0.0001, t+0.35);
   b.connect(bg).connect(out); b.start(t); b.stop(t+0.4);
   // ③ 悶雷餘震 rumble
-  const dur=0.85, sr=ctx.sampleRate;
-  const buf=ctx.createBuffer(1, sr*dur, sr), d=buf.getChannelData(0);
-  for(let i=0;i<d.length;i++){ d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,1.35); }
-  const src=ctx.createBufferSource(); src.buffer=buf;
+  const dur=0.85;
+  const src=ctx.createBufferSource(); src.buffer=noiseBuf(ctx,'rumble',dur,1.35);   // ★ v68 ⑤ 冰箱取用
+  src.playbackRate.value = 0.94 + Math.random()*0.12;
   const lp=ctx.createBiquadFilter(); lp.type='lowpass'; lp.Q.value=0.6;
   lp.frequency.setValueAtTime(900, t);
   lp.frequency.exponentialRampToValueAtTime(120, t+dur);
@@ -1990,11 +2071,21 @@ function playBoom(){
 }
 
 // ★ v24 碎片視覺：從清除格的螢幕座標噴出小方塊碎屑，落點隨機、旋轉飛散，強化破碎感
-function spawnShards(cellEl, color){
-  if(!cellEl) return;
-  const rect = cellEl.getBoundingClientRect();
+/* ★ v66 ② 全部粒子函式追加兩個選填參數（rect, frag）：
+   rect＝呼叫端預先算好的螢幕座標（省掉函式內的 getBoundingClientRect 強制重排）；
+   frag＝DocumentFragment，粒子先集合到暫存袋、呼叫端一次倒進 body（幾百次 appendChild → 1 次）。
+   不帶參數時行為與舊版完全相同 —— 炸彈 explodeAt 等既有呼叫點零改動照跑。 */
+/* ★ v68 ① count 選填參數＝「總量預算制」的入口：呼叫端可指定每格碎片數。
+   消行時全域碎片預算固定（見 clearLines），消越多格、每格分到越少 ——
+   總量恆定不再爆量。舊病灶：消 2 行×每格 8~11 顆 ≈ 一幀誕生 170+ 顆碎片
+   （每顆還掛 will-change 各開一張合成圖層）＝手機 GPU 當場噎住。
+   不帶 count 時維持舊行為（炸彈 explodeAt 等呼叫點零改動）。 */
+function spawnShards(cellEl, color, rect, frag, count){
+  if(!cellEl && !rect) return;
+  rect = rect || cellEl.getBoundingClientRect();
+  const host = frag || document.body;
   const cx = rect.left + rect.width/2, cy = rect.top + rect.height/2;
-  const n = 8 + Math.floor(Math.random()*4);   // ★ v38 碎片量加大，破碎感更飽滿有份量
+  const n = count || (8 + Math.floor(Math.random()*4));   // ★ v38 碎片量加大，破碎感更飽滿有份量
   for(let i=0;i<n;i++){
     const s = document.createElement('div');
     s.className = 'shard';
@@ -2010,22 +2101,9 @@ function spawnShards(cellEl, color){
     const ex = Math.cos(angle)*dist, ey = Math.sin(angle)*dist - 10; // 略往上噴，再靠重力視覺感落下
     const rot = (Math.random()*720-360).toFixed(0);
     s.style.setProperty('--sfx-end', `translate(${ex.toFixed(0)}px, ${ey.toFixed(0)}px) rotate(${rot}deg) scale(.3)`);
-    document.body.appendChild(s);
+    host.appendChild(s);
     setTimeout(()=> s.remove(), 520);
   }
-}
-
-// ★ v38 泡泡糖光環：消除瞬間在格子中心炸出一圈柔光，跟碎片搭配強化「戳破」的療癒回饋
-function spawnPopRing(cellEl, color){
-  if(!cellEl) return;
-  const rect = cellEl.getBoundingClientRect();
-  const ring = document.createElement('div');
-  ring.className = 'pop-ring';
-  ring.style.left = (rect.left + rect.width/2) + 'px';
-  ring.style.top  = (rect.top  + rect.height/2) + 'px';
-  ring.style.setProperty('--ring-color', color || '#fff');
-  document.body.appendChild(ring);
-  setTimeout(()=> ring.remove(), 480);
 }
 
 // ★ v48 ②「垮掉掉落」：把被消掉的方塊 cloneNode 成獨立浮層（掛 body、position:fixed），
@@ -2033,10 +2111,10 @@ function spawnPopRing(cellEl, color){
 //    用「複製 DOM 節點」而非重畫背景 —— 皮膚材質、食物圖示、發光狀態原封不動跟著掉，
 //    現有與未來所有皮膚全部自動生效，零額外維護成本。
 //    純視覺浮層：消行判定、renderBoard、計分一行未動，與核心引擎完全解耦。
-function spawnFallBlock(cellHost, delayMs){
+function spawnFallBlock(cellHost, delayMs, rect, frag){
   const filled = cellHost && cellHost.querySelector('.filled');
   if(!filled) return;
-  const rect = cellHost.getBoundingClientRect();
+  rect = rect || cellHost.getBoundingClientRect();
   const wrap = document.createElement('div');
   wrap.className = 'fall-block';
   wrap.style.left = rect.left+'px';  wrap.style.top = rect.top+'px';
@@ -2051,7 +2129,7 @@ function spawnFallBlock(cellHost, delayMs){
   wrap.style.setProperty('--fb-dur', dur);
   wrap.style.setProperty('--fb-delay', (delayMs/1000).toFixed(2)+'s');
   wrap.appendChild(filled.cloneNode(true));   // 材質/食物/發光整包帶走
-  document.body.appendChild(wrap);
+  (frag || document.body).appendChild(wrap);
   filled.style.visibility = 'hidden';         // 原格立即隱形，視覺交棒給掉落分身，不會出現雙胞胎
   setTimeout(()=> wrap.remove(), delayMs + 1100);
 }
@@ -2109,11 +2187,11 @@ function showStreakPop(n){
 }
 
 /* ── ✦ 星芒粒子：place=放置微碎光（小而淡）、clear=消行星芒（大而亮，疊在彩色碎片上） ── */
-function spawnTwinkle(hostEl, kind){
-  if(!hostEl) return;
-  const rect = hostEl.getBoundingClientRect();
+function spawnTwinkle(hostEl, kind, rect, frag, count){   // ★ v68 ① count 選填：同碎片預算制
+  if(!hostEl && !rect) return;
+  rect = rect || hostEl.getBoundingClientRect();
   const big = (kind === 'clear');
-  const n = big ? 2 : 1 + Math.floor(Math.random()*2);
+  const n = count || (big ? 2 : 1 + Math.floor(Math.random()*2));
   for(let i=0;i<n;i++){
     const t = document.createElement('div');
     t.className = 'twinkle';
@@ -2125,7 +2203,7 @@ function spawnTwinkle(hostEl, kind){
     t.style.setProperty('--tw-dur', (big ? .5 : .38) + 's');
     t.style.setProperty('--tw-delay', (Math.random()*0.12).toFixed(2) + 's');
     if(!big){ t.style.opacity = '0'; t.style.textShadow = '0 0 5px #fff'; }
-    document.body.appendChild(t);
+    (frag || document.body).appendChild(t);
     setTimeout(()=> t.remove(), 750);
   }
 }
@@ -2266,7 +2344,7 @@ function showSmartPraise(cx, cy){
   spawnConfettiBurst(cx, cy, 12);
   playSmartDing();
   haptic([15,40,15]);
-  if(MODE().useScore){ score += 5; if(score>bestScore) bestScore=score; updateStatus(); }
+  if(MODE().useScore){ score += 5; bumpBest(); updateStatus(); }   // ★ v64 D2 分模式記帳
 }
 
 /* 放下但沒消行 → 判定這一手聰不聰明（冷卻 6 秒防氾濫） */
@@ -2338,6 +2416,9 @@ function playPraise(tier){
    ③ 低通濾波器修圓稜角＋衰減尾巴拉長 0.18s 交給殘響 —— 餘韻是質感的一半。
    函式簽名一字未動，13 個呼叫點零修改、全部自動質變。 */
 function tone(freq, t0, dur, type='sine', vol=0.25, bendTo=null){
+  /* ★ v67 靜音總鐵閘門：tone() 是全場 13+ 個旋律呼叫點的共用引擎，守衛裝在引擎上，
+     任何現在或未來的呼叫點忘了自查 soundOn，也一個音都漏不出去（v66 里程碑漏音實錘）。 */
+  if(!soundOn) return;
   const ctx=actx(); if(!ctx) return;
   const t = ctx.currentTime + t0, out = adest(ctx);
   // 濾波＋包絡共用鏈：body(混音) → lowpass(修圓) → g(音量包絡) → 總線
@@ -2394,15 +2475,20 @@ function playWin(){   // 過關小旋律
 const SHAPE_LIB = [
   // ============ 常態牌（日常主力） ============
   // 3x3 大塊頭（養輕敵王牌，常出）
-  { tier:'common', weight:7, cells:[[0,0],[0,1],[0,2],[1,0],[1,1],[1,2],[2,0],[2,1],[2,2]] },
-  // 2x2 正方形
-  { tier:'common', weight:8, cells:[[0,0],[0,1],[1,0],[1,1]] },
+  // ★ v57 sweet 標籤：甜蜜連發節奏系統的牌池分組（A=大塊爽消 / B=方磚短條 / C=長條）。
+  //    連發時只從同池抽牌，玩家進入「隨手放都對」的自動駕駛節奏——Block Blast 精髓。
+  { tier:'common', weight:7, sweet:'A', cells:[[0,0],[0,1],[0,2],[1,0],[1,1],[1,2],[2,0],[2,1],[2,2]] },
+  // 2x2 正方形（v57 加權 8→9：最百搭的爽牌）
+  { tier:'common', weight:9, sweet:'B', cells:[[0,0],[0,1],[1,0],[1,1]] },
   // 三格長條（橫 / 直）
-  { tier:'common', weight:7, cells:[[0,0],[0,1],[0,2]] },
-  { tier:'common', weight:7, cells:[[0,0],[1,0],[2,0]] },
+  // ★ v58 sweet2 雙池標籤：三格長條同時屬於 B 池（方磚短條）與 C 池（長條）。
+  //    C 池原本只有 2 個成員（4 格橫/直），連發 3 抽極易全同——「三根一樣的長條」
+  //    看起來像 bug。擴充到 4 個成員後，同池連發仍有節奏感，但不再複製貼上。
+  { tier:'common', weight:7, sweet:'B', sweet2:'C', cells:[[0,0],[0,1],[0,2]] },
+  { tier:'common', weight:7, sweet:'B', sweet2:'C', cells:[[0,0],[1,0],[2,0]] },
   // 四格長條（橫 / 直）
-  { tier:'common', weight:5, cells:[[0,0],[0,1],[0,2],[0,3]] },
-  { tier:'common', weight:5, cells:[[0,0],[1,0],[2,0],[3,0]] },
+  { tier:'common', weight:5, sweet:'C', cells:[[0,0],[0,1],[0,2],[0,3]] },
+  { tier:'common', weight:5, sweet:'C', cells:[[0,0],[1,0],[2,0],[3,0]] },
   // L 型四格（4 個旋轉方向）
   { tier:'common', weight:4, cells:[[0,0],[1,0],[2,0],[2,1]] },   // L
   { tier:'common', weight:4, cells:[[0,0],[0,1],[0,2],[1,0]] },   // L 轉90
@@ -2414,14 +2500,16 @@ const SHAPE_LIB = [
   { tier:'common', weight:4, cells:[[0,0],[0,1],[1,0],[2,0]] },   // J 轉180
   { tier:'common', weight:4, cells:[[0,0],[0,1],[0,2],[1,2]] },   // J 轉270
   // Z 型（2 個方向）
-  { tier:'common', weight:4, cells:[[0,1],[0,2],[1,0],[1,1]] },   // Z 橫
-  { tier:'common', weight:4, cells:[[0,0],[1,0],[1,1],[2,1]] },   // Z 直
+  // ★ v57 Z/S 大降權 4→1.5：真機實測回報「出現率高到像被系統刁難」。
+  //    Z/S 是唯一「放下去必留缺口」的常態牌，密度一高挫折感暴衝。保留少量維持變化即可。
+  { tier:'common', weight:1.5, cells:[[0,1],[0,2],[1,0],[1,1]] },   // Z 橫
+  { tier:'common', weight:1.5, cells:[[0,0],[1,0],[1,1],[2,1]] },   // Z 直
   // S 型（Z 的鏡像，2 個方向）
-  { tier:'common', weight:4, cells:[[0,0],[0,1],[1,1],[1,2]] },   // S 橫
-  { tier:'common', weight:4, cells:[[0,1],[1,0],[1,1],[2,0]] },   // S 直
-  // 3x2 / 2x3 矩形（橫 / 豎）
-  { tier:'common', weight:4, cells:[[0,0],[0,1],[0,2],[1,0],[1,1],[1,2]] }, // 2x3 橫
-  { tier:'common', weight:4, cells:[[0,0],[0,1],[1,0],[1,1],[2,0],[2,1]] }, // 3x2 豎
+  { tier:'common', weight:1.5, cells:[[0,0],[0,1],[1,1],[1,2]] },   // S 橫
+  { tier:'common', weight:1.5, cells:[[0,1],[1,0],[1,1],[2,0]] },   // S 直
+  // 3x2 / 2x3 矩形（橫 / 豎）（v57 加權 4→6：與 3x3 同屬「看起來很簡單」的安心牌）
+  { tier:'common', weight:6, sweet:'A', cells:[[0,0],[0,1],[0,2],[1,0],[1,1],[1,2]] }, // 2x3 橫
+  { tier:'common', weight:6, sweet:'A', cells:[[0,0],[0,1],[1,0],[1,1],[2,0],[2,1]] }, // 3x2 豎
 
   // ============ 中等牌（空間殺手 / 需要思考） ============
   // T 型（4 個旋轉方向）
@@ -2430,10 +2518,11 @@ const SHAPE_LIB = [
   { tier:'trap', weight:3, cells:[[0,1],[1,0],[1,1],[1,2]] },     // T 轉180
   { tier:'trap', weight:3, cells:[[0,0],[1,0],[1,1],[2,0]] },     // T 轉270
   // 三格等邊小 L（4 個旋轉方向）
-  { tier:'trap', weight:3, cells:[[0,0],[0,1],[1,0]] },           // 小L
-  { tier:'trap', weight:3, cells:[[0,0],[0,1],[1,1]] },           // 小L 轉90
-  { tier:'trap', weight:3, cells:[[0,1],[1,0],[1,1]] },           // 小L 轉180
-  { tier:'trap', weight:3, cells:[[0,0],[1,0],[1,1]] },           // 小L 轉270
+  // ★ v57 小L 降權 3→1.5：與 Z/S 同案處理——四個方向累積出現率過高，體感被夾擊。
+  { tier:'trap', weight:1.5, cells:[[0,0],[0,1],[1,0]] },           // 小L
+  { tier:'trap', weight:1.5, cells:[[0,0],[0,1],[1,1]] },           // 小L 轉90
+  { tier:'trap', weight:1.5, cells:[[0,1],[1,0],[1,1]] },           // 小L 轉180
+  { tier:'trap', weight:1.5, cells:[[0,0],[1,0],[1,1]] },           // 小L 轉270
   // 五格長條（橫 / 直）
   { tier:'trap', weight:3, cells:[[0,0],[0,1],[0,2],[0,3],[0,4]] },
   { tier:'trap', weight:3, cells:[[0,0],[1,0],[2,0],[3,0],[4,0]] },
@@ -2443,12 +2532,16 @@ const SHAPE_LIB = [
   { tier:'trap', weight:2, cells:[[0,0],[1,0],[2,0],[2,1],[2,2]] },
 
   // ============ 稀有救命牌（極稀有，玩家要珍惜） ============
-  { tier:'rare', weight:1.2, cells:[[0,0]] },                     // 單格（最強救命牌）
-  { tier:'rare', weight:1.0, cells:[[0,0],[0,1]] },               // 橫2
-  { tier:'rare', weight:1.0, cells:[[0,0],[1,0]] },               // 直2
-  { tier:'rare', weight:0.8, cells:[[0,0],[1,1]] },               // 斜2
-  { tier:'rare', weight:0.5, cells:[[0,0],[1,1],[2,2]] },         // 斜3
-  { tier:'rare', weight:0.5, cells:[[0,1],[1,0]] },               // 反斜2
+  // ★ v59 1顆／2顆牌大降權：改走「幸運稀有牌形」路線——不再是「常常來救你」的安全網，
+  //   而是「好幾關才幸運遇到一次，運氣不好幾十關都碰不到」的稀有邂逅。
+  //   註：防死局的保底（autoShuffleTray 的 makeSingleCellPiece()）走的是另一條直接指定的
+  //   路徑，完全不吃這裡的權重，所以降到這麼低也不影響「絕不會卡死」的數學保證。
+  { tier:'rare', weight:0.08, cells:[[0,0]] },                    // 單格（最強救命牌）
+  { tier:'rare', weight:0.06, cells:[[0,0],[0,1]] },              // 橫2
+  { tier:'rare', weight:0.06, cells:[[0,0],[1,0]] },              // 直2
+  { tier:'rare', weight:0.05, cells:[[0,0],[1,1]] },              // 斜2
+  { tier:'rare', weight:0.5,  cells:[[0,0],[1,1],[2,2]] },        // 斜3（3格，不在本次降權範圍內）
+  { tier:'rare', weight:0.03, cells:[[0,1],[1,0]] },              // 反斜2
 ];
 const PIECE_COLORS = ['#3d7fd6','#7a52c9','#3fa66a','#d98a2b','#d6524e','#2a9db2','#c9a028','#9a4bc4'];
 
@@ -2641,34 +2734,98 @@ function calcCellSize(){
   // ★ v55 機關關左側讓道：氣球跑道走 x≈32 的左側走廊，寬度計算先扣掉走廊保留區，
   //    棋盤右移縮一點點 → 玩家整局都看得到氣球（時間線）的完整軌跡，這是機關模式的生命線。
   const gutter = (typeof HZ !== 'undefined' && HZ.active) ? 44 : 0;
-  const avail = Math.min(wrap.clientWidth - gutter, wrap.clientHeight) - 16;
+  // ★ v58 垂直走廊扣高：機關關上下保留空間給氣球管線（見 #app.hz-on #boardWrap），
+  //    高度計算必須同步扣掉，否則矮螢幕上棋盤照樣吃滿、把跑道蓋回去。
+  // ★ v62 同步加大：上 38 + 下 62 = 100（下方走廊要塞管線＋整株仙人掌，38 不夠住）。
+  const vGut = (typeof HZ !== 'undefined' && HZ.active) ? 100 : 0;
+  const avail = Math.min(wrap.clientWidth - gutter, wrap.clientHeight - vGut) - 16;
   // gap 已歸零、#board padding 改 6px（左右各 6 = 12）→ 縫隙不再占空間，格子可放大一點
   CELL = Math.floor((avail - 12) / SIZE);
   CELL = Math.max(30, Math.min(CELL, 48));
 }
 
+/* ★ v66 ① 棋盤增量渲染引擎 —— 「消除卡頓」的第一根病根：
+   舊 renderBoard 每次呼叫都 innerHTML='' 把 64 格「全拆全蓋」（每格還帶多層漸層材質），
+   放牌那一格畫面要同步吞下：全盤重建 + 樣式重算 + 重排 + 重繪。
+   新引擎：骨架（64 個 .cell）只蓋一次並快取節點；之後每次 renderBoard 只 diff
+   「這格的資料指紋變了沒」，沒變就跳過，變了才換那一格的 .filled。
+   放一張 3 格的牌 = 只動 3 格；消兩行 = 只動 16 格。格子上的 hint / bomb-preview
+   類別掛在 .cell 本體、不會被 diff 動到 —— 玩家拖曳中重繪也不再打斷預覽。 */
+let _cellEls = null;     // 2D 快取：_cellEls[r][c] = .cell 節點（同時終結全場 querySelector 掃描）
+let _cellKeys = null;    // 2D 指紋：上次渲染的資料簽名，diff 用
+let _boardGeom = { cell:0, size:0 };
+
+function boardCellEl(r,c){
+  return (_cellEls && _cellEls[r]) ? _cellEls[r][c] : null;
+}
+/* 動畫層在 renderBoard 之外動過這格的 DOM（藏 .filled、摘寶石）時呼叫：
+   把指紋踩髒，強迫下次 diff 一定重建 —— 防「新牌顏色恰好跟舊指紋相同 → diff 跳過 →
+   留下一塊隱形方塊」的邊角穿幫。 */
+function markCellDirty(r,c){
+  if(_cellKeys && _cellKeys[r] !== undefined) _cellKeys[r][c] = '\u0000dirty';
+}
+function _cellKeyOf(data){
+  return data ? (data.color+'|'+(data.gem||'')+'|'+(data.glow?1:0)+'|'+activeSkinId()) : '';
+}
+function _makeFilled(data){
+  const f = document.createElement('div');
+  f.className = 'filled';
+  f.style.background = gemMaterial(data.color, activeSkinId());
+  if(data.gem){ f.innerHTML = gemSVG(data.gem); if(data.glow) f.classList.add('glow'); }
+  return f;
+}
+function _buildBoardDOM(el){
+  el.style.gridTemplateColumns = `repeat(${SIZE}, ${CELL}px)`;
+  el.style.gridTemplateRows = `repeat(${SIZE}, ${CELL}px)`;
+  el.innerHTML = '';
+  _cellEls = []; _cellKeys = [];
+  for(let r=0;r<SIZE;r++){
+    _cellEls[r] = []; _cellKeys[r] = [];
+    for(let c=0;c<SIZE;c++){
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.style.width = cell.style.height = CELL+'px';
+      cell.dataset.r = r; cell.dataset.c = c;
+      const data = board[r][c];
+      if(data) cell.appendChild(_makeFilled(data));
+      el.appendChild(cell);
+      _cellEls[r][c] = cell;
+      _cellKeys[r][c] = _cellKeyOf(data);
+    }
+  }
+  _boardGeom = { cell: CELL, size: SIZE };
+}
 function renderBoard(){
   // ★ v18 安全門：棋盤資料未備妥時（例：開場選單階段觸發 resize）直接跳過，杜絕 board[r][c] 讀 undefined 崩潰
   if(!board || board.length === 0 || !board[0]) return;
   const el = document.getElementById('board');
-  el.style.gridTemplateColumns = `repeat(${SIZE}, ${CELL}px)`;
-  el.style.gridTemplateRows = `repeat(${SIZE}, ${CELL}px)`;
-  el.innerHTML = '';
-  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
-    const cell = document.createElement('div');
-    cell.className = 'cell';
-    cell.style.width = cell.style.height = CELL+'px';
-    cell.dataset.r = r; cell.dataset.c = c;
-    const data = board[r][c];
-    if(data){
-      const f = document.createElement('div');
-      f.className = 'filled';
-      f.style.background = gemMaterial(data.color, activeSkinId());
-      if(data.gem){ f.innerHTML = gemSVG(data.gem); if(data.glow) f.classList.add('glow'); }
-      cell.appendChild(f);
-    }
-    el.appendChild(cell);
+  // 骨架不存在 / 尺寸變了（resize、換模式）→ 全量重蓋一次
+  if(!_cellEls || _boardGeom.cell !== CELL || _boardGeom.size !== SIZE ||
+     el.childElementCount !== SIZE*SIZE){
+    _buildBoardDOM(el);
+    return;
   }
+  // 增量 diff：指紋沒變的格子一根手指都不碰
+  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
+    const data = board[r][c];
+    const key = _cellKeyOf(data);
+    if(key === _cellKeys[r][c]) continue;
+    const cell = _cellEls[r][c];
+    const old = cell.querySelector('.filled');
+    if(old) old.remove();
+    if(data) cell.appendChild(_makeFilled(data));
+    _cellKeys[r][c] = key;
+  }
+}
+/* 消行特效需要每個格子的螢幕座標。舊寫法：每格 getBoundingClientRect() —— 而且
+   讀寫交錯（量一格→插粒子→再量下一格），每次讀都逼瀏覽器重排整頁（layout thrash）。
+   新寫法：整個棋盤只量「一次」，其餘格子用純數學推（格距恆等於 CELL、padding 6px，
+   與 boardCellAt 的公式同源）—— 消 16 格從 60+ 次強制重排降到 1 次。 */
+function boardCellRect(boardRect, r, c){
+  const pad = 6;   // 對齊 #board padding（與 boardCellAt 一致）
+  return { left: boardRect.left + pad + c*CELL,
+           top:  boardRect.top  + pad + r*CELL,
+           width: CELL, height: CELL };
 }
 
 /* ============================================================
@@ -2684,14 +2841,16 @@ function generateGoals(){
    ③ 弧線後段 380ms：從頂點落向動物，命中瞬間卡片彈跳＋數字跳動
    總長 ~880ms，多顆連發間隔也拉到 95ms（見呼叫端），數得出「一顆、一顆、一顆」。
    純視覺、不影響計分邏輯（got 已在 clearLines 先加好）。 */
-function flyGemToGoal(gemKey, fromEl, delay){
-  if(!fromEl) return;
+function flyGemToGoal(gemKey, fromEl, delay, fromRect, toRect){
+  // ★ v66 ② fromRect/toRect 選填：呼叫端已「先讀」打包座標時直接用，
+  //   免掉本函式內的 getBoundingClientRect（多顆連發時每次都會逼一次整頁重排）。
+  if(!fromEl && !fromRect) return;
   const goalEls = document.querySelectorAll('#goals .goal');
   const gi = goals.findIndex(g=>g.gem===gemKey);
   if(gi<0 || !goalEls[gi]) return;
   const targetIcon = goalEls[gi].querySelector('.gicon');
-  const from = fromEl.getBoundingClientRect();
-  const to   = targetIcon.getBoundingClientRect();
+  const from = fromRect || fromEl.getBoundingClientRect();
+  const to   = toRect   || targetIcon.getBoundingClientRect();
   const startX = from.left + from.width/2 - 17;
   const startY = from.top  + from.height/2 - 17;
   const endX   = to.left + to.width/2 - 17;
@@ -2888,8 +3047,47 @@ HZ.layout = function(){
     const appRect = app.getBoundingClientRect();
     const bTop = boardEl.getBoundingClientRect().top - appRect.top;
     if(bTop - (goalsH + bigH) > 30) yTop = Math.round((goalsH + bigH + bTop) / 2);
+    // ★ v58 鐵則夾限：不管上面怎麼算，管線中心至少離棋盤頂緣 20px
+    //    （管線 22px 寬 → 半寬 11px，留 20px 保證整條可見不被蓋）。
+    //    這是舊版的隱形漏洞：縫隙 ≤30px 時走「固定 +22」路徑，可能直接落在棋盤裡。
+    yTop = Math.min(yTop, Math.round(bTop - 20));
   }
-  const yBot = Math.round(H - trayH - 26);
+  let yBot = Math.round(H - trayH - 26);
+  // ★ v61 底部走廊鐵則：v58 只夾了頂部（管線離棋盤頂緣 ≥20px），底部卻仍盲算
+  //    「托盤上方固定 26px」、完全沒量棋盤底緣在哪 —— 高瘦螢幕上棋盤底緣吃進走廊，
+  //    仙人掌（34px 高、z 層在棋盤之下）半截身體躲進棋盤後面，真機實錘「仙人掌被擋住」。
+  //    修正（照抄 v58 頂部的成功處方）：
+  //    (a) 量得到棋盤底緣且縫隙夠寬 → 走廊鎖在「棋盤下緣 ～ 托盤上緣」正中間；
+  //    (b) 鐵則夾限 yBot ≥ 棋盤底緣 + 38px（仙人掌全高 34 + 4px 呼吸空間），
+  //        保證仙人掌整株站在棋盤外，一根刺都不被蓋。
+  // ★ v62 托盤天花板：v61 鐵則只顧仙人掌、沒顧托盤 —— 擠壓環境（瀏覽器工具列吃高度）
+  //    下管線被推到托盤方塊頭上（真機實錘）。補上另一頭的鐵則：管線下緣（半寬 11px）
+  //    離托盤頂至少 2px → yBot ≤ 托盤頂 - 13。天花板最後套用：兩頭衝突的極端矮螢幕，
+  //    優先保住「管線不踩托盤」（v62 已加大保留區，實務上兩頭都顧得到）。
+  if(boardEl){
+    const bBot = boardEl.getBoundingClientRect().bottom - app.getBoundingClientRect().top;
+    const trayTop = H - trayH;
+    // ★ v63 根治「兩鐵則打架」：v61 保仙人掌、v62 保托盤，但擠壓螢幕（LINE/FB 內建
+    //    瀏覽器工具列吃高度）上縫隙 < 51px 時兩者必衝突，天花板最後套用 = 仙人掌再度
+    //    被棋盤蓋住（真機三度實錘）。走廊需要的空間是物理事實，唯一有彈性的是格子
+    //    尺寸 —— 縫不夠就當場把 CELL 縮小到走廊塞得下為止，重排棋盤後再量一次。
+    //    _reflow 旗標保證整個回饋迴圈最多走一輪，杜絕無限循環。
+    const NEED = 51;                             // 38（仙人掌+呼吸）+ 13（托盤安全距）
+    if(trayTop - bBot < NEED && !HZ._reflow && typeof CELL === 'number'){
+      const overflow = Math.ceil(NEED - (trayTop - bBot));
+      const newCell = Math.floor((CELL * SIZE - overflow) / SIZE);
+      if(newCell >= 22 && newCell < CELL){
+        HZ._reflow = true;
+        CELL = newCell;
+        renderBoard(); renderTray();
+        requestAnimationFrame(()=>{ HZ.layout(); HZ._reflow = false; });
+        return;                                  // 本輪座標作廢，等重排後的第二輪
+      }
+    }
+    if(trayTop - bBot > 30) yBot = Math.round((bBot + trayTop) / 2);
+    yBot = Math.max(yBot, Math.round(bBot + 38));
+    yBot = Math.min(yBot, Math.round(trayTop - 13));
+  }
   if(yBot - yTop < 80) return;                 // 版面太矮，放棄重繪（避免路徑自交）
   const xR = W - 34, xEnd = W - 46;
 
@@ -2907,6 +3105,34 @@ HZ.layout = function(){
   HZ.$('hzNozzle').style.top  = (yTop - 15) + 'px';
   HZ.$('hzCactus').style.left = (xEnd - 15) + 'px';
   HZ.$('hzCactus').style.top  = (yBot - 34) + 'px';
+
+  /* ★ v68 ④ 一次付清的「每幀常駐稅」：
+     (a) 元素參照快取 —— 舊版 HZ.render 每一幀 getElementById 十來次；
+     (b) 路徑取樣表 —— getPointAtLength 是 SVG 幾何運算裡出了名的貴，
+         舊版每幀現算一次。改成 layout 時沿路徑等距取 256 個樣本點存表，
+         render 幀查表＋線性內插，成本從幾何運算降到兩次陣列讀取。
+     版面重算（resize／轉屏）會重跑 layout → 快取與取樣表自動跟著換新。 */
+  HZ.el = {
+    tube:HZ.$('hzTube'), infl:HZ.$('hzInfl'), shine:HZ.$('hzShine'),
+    warn:HZ.$('hzWarn'), warnHead:HZ.$('hzWarnHead'),
+    head:HZ.$('hzHead'), headShine:HZ.$('hzHeadShine'),
+    danger:HZ.$('hzDanger'), em:HZ.$('hzCactus').querySelector('.em')
+  };
+  { const tubeEl = HZ.el.tube, N = 256;
+    HZ._pts = new Float32Array((N+1)*2); HZ._ptsN = N;
+    for(let i=0;i<=N;i++){
+      const pt = tubeEl.getPointAtLength(nt * i / N);
+      HZ._pts[i*2] = pt.x; HZ._pts[i*2+1] = pt.y;
+    }
+  }
+  HZ._lv = null;   // 上一幀寫入值的備忘錄清空 → 下一幀強制全量重繪一次
+};
+
+/* ★ v68 ④ 查表內插取代 getPointAtLength */
+HZ.pointAt = function(len){
+  const N = HZ._ptsN, t = Math.max(0, Math.min(1, HZ.total > 0 ? len/HZ.total : 0)) * N;
+  const i = Math.min(N-1, Math.floor(t)), f = t - i, P = HZ._pts;
+  return { x: P[i*2] + (P[i*2+2]-P[i*2])*f, y: P[i*2+1] + (P[i*2+3]-P[i*2+1])*f };
 };
 
 /* ── 生命週期 ── */
@@ -3014,24 +3240,34 @@ HZ.tick = function(dt){
   if(HZ.inflated >= HZ.total - 0.5) HZ.boom();
 };
 
+/* ★ v68 ④ HZ.render 減稅版：元素快取（layout 時抓好）＋查表內插（取代每幀
+   getPointAtLength）＋「備忘錄跳寫」—— 每筆 DOM 寫入前先比對上一幀寫過的值，
+   一樣就直接跳過。安全區（danger=0，佔一關 75% 時間）膨脹又慢，多數幀
+   一筆 DOM 都不必寫；危險區呼吸閃爍本來就該每幀動，照常全速演。
+   視覺輸出與舊版逐像素等價，只是不再重複寫一樣的值。 */
 HZ.render = function(){
   if(!HZ.active || HZ.total <= 0) return;
-  const tube=HZ.$('hzTube'), infl=HZ.$('hzInfl'), shine=HZ.$('hzShine'),
-        warn=HZ.$('hzWarn'), warnHead=HZ.$('hzWarnHead'),
-        head=HZ.$('hzHead'), headShine=HZ.$('hzHeadShine');
+  const E = HZ.el;
+  if(!E || !HZ._pts) return;   // layout 尚未跑完（首幀競速）→ 等下一幀
+  if(!HZ._lv) HZ._lv = { infl:-1, shine:-1, show:-1, cur:'', halo:-1, wh:-1, danger:-1, em:'' };
+  const L = HZ._lv;
   const prog = HZ.inflated / HZ.total;
 
   if(HZ.over !== 'boom'){
-    infl.style.strokeDasharray  = `${HZ.inflated} ${HZ.total}`;
-    warn.style.strokeDasharray  = `${HZ.inflated} ${HZ.total}`;
-    shine.style.strokeDasharray = `${Math.max(0,HZ.inflated-14)} ${HZ.total}`;
-    shine.setAttribute('transform','translate(0,-5)');
-    const pt = tube.getPointAtLength(HZ.inflated);
-    head.setAttribute('cx',pt.x); head.setAttribute('cy',pt.y);
-    warnHead.setAttribute('cx',pt.x); warnHead.setAttribute('cy',pt.y);
-    headShine.setAttribute('cx',pt.x-3); headShine.setAttribute('cy',pt.y-4);
+    const inflQ = Math.round(HZ.inflated*4)/4;   // 量化到 0.25px：肉眼無感、跳寫有感
+    if(inflQ !== L.infl){
+      L.infl = inflQ;
+      E.infl.style.strokeDasharray = `${HZ.inflated} ${HZ.total}`;
+      E.warn.style.strokeDasharray = `${HZ.inflated} ${HZ.total}`;
+      E.shine.style.strokeDasharray = `${Math.max(0,HZ.inflated-14)} ${HZ.total}`;
+      if(L.shine !== 1){ L.shine = 1; E.shine.setAttribute('transform','translate(0,-5)'); }
+      const pt = HZ.pointAt(HZ.inflated);
+      E.head.setAttribute('cx',pt.x); E.head.setAttribute('cy',pt.y);
+      E.warnHead.setAttribute('cx',pt.x); E.warnHead.setAttribute('cy',pt.y);
+      E.headShine.setAttribute('cx',pt.x-3); E.headShine.setAttribute('cy',pt.y-4);
+    }
     const show = HZ.inflated > 4 ? 1 : 0;
-    head.style.opacity = show; headShine.style.opacity = show;
+    if(show !== L.show){ L.show = show; E.head.style.opacity = show; E.headShine.style.opacity = show; }
   }
 
   /* 警戒閃爍：danger 綁「剩餘距離」而非時間 —— 越慢越紅，因果清清楚楚。
@@ -3042,20 +3278,23 @@ HZ.render = function(){
                 ? danger * (HZ.SKIN.floor + (1-HZ.SKIN.floor)*breathe) : 0;
 
   HZ.cur = HZ.rampAt(pulse * HZ.SKIN.bodyMax);
-  if(HZ.over !== 'boom'){
-    infl.setAttribute('stroke', HZ.cur);
-    head.setAttribute('fill',   HZ.cur);
+  if(HZ.over !== 'boom' && HZ.cur !== L.cur){
+    L.cur = HZ.cur;
+    E.infl.setAttribute('stroke', HZ.cur);
+    E.head.setAttribute('fill',   HZ.cur);
   }
-  const halo = pulse * HZ.SKIN.warnMax;
-  warn.style.opacity     = HZ.over ? 0 : halo;
-  warnHead.style.opacity = (HZ.over || HZ.inflated <= 4) ? 0 : halo;
-  HZ.$('hzDanger').style.opacity = HZ.over ? 0 : danger;
+  const halo = Math.round((pulse * HZ.SKIN.warnMax)*1000)/1000;
+  if(halo !== L.halo){ L.halo = halo; E.warn.style.opacity = HZ.over ? 0 : halo; }
+  const wh = (HZ.over || HZ.inflated <= 4) ? 0 : halo;
+  if(wh !== L.wh){ L.wh = wh; E.warnHead.style.opacity = wh; }
+  const dQ = Math.round((HZ.over ? 0 : danger)*1000)/1000;
+  if(dQ !== L.danger){ L.danger = dQ; E.danger.style.opacity = dQ; }
 
-  const em = HZ.$('hzCactus').querySelector('.em');
   if(!HZ.over){
-    em.style.transform = danger > 0
+    const emT = danger > 0
       ? `translateX(${Math.sin(performance.now()/60)*danger*3}px) scale(${1+danger*0.12})`
       : 'none';
+    if(emT !== L.em){ L.em = emT; E.em.style.transform = emT; }
   }
 };
 
@@ -3185,8 +3424,9 @@ addEventListener('resize', ()=>{ clearTimeout(_hzRz); _hzRz = setTimeout(()=>{ i
 /* ============================================================
    方塊生成（含隨機鑽石鑲嵌）
    ============================================================ */
-function makePiece(){
-  const shapeDef = pickWeightedShape();
+function makePiece(forceDef){
+  // ★ v57：可傳入指定形狀（甜蜜連發從同池抽牌用）；不傳則照常權重隨機
+  const shapeDef = forceDef || pickWeightedShape();
   const shape = shapeDef.cells;
   const color = pick(PIECE_COLORS);
   // 對角線斜牌最難對齊 → 多鑲鑽石作「高風險高回報」補償
@@ -3196,17 +3436,21 @@ function makePiece(){
   //        鑲嵌率必須夠高，玩家才收得到目標、不再受「鑽石長哪」的運氣懲罰。
   // ★ v9：基礎率 0.75 → 0.62。前一版給太滿，鑽石一放就收完、失去「追逐感」。
   //        降到 0.62 讓玩家要多消幾行才收得完，收集才有節奏。
-  let gemRate = 0.62;
-  if(isDiagonal(shape)) gemRate = 0.8;
-  else if(shape.length >= 6) gemRate = 0.45;
+  // ★ v63：0.62 → 0.40（斜牌 0.8 → 0.58、大牌 0.45 → 0.30）。真機實測 0.62 一放牌
+  //        就進帳三四顆、6 顆目標兩三下收完，「追逐感」蕩然無存。降四成後每關約要
+  //        多消五成的行數才收得齊 —— 收集重新變成目標，而不是順路撿的。
+  let gemRate = 0.40;
+  if(isDiagonal(shape)) gemRate = 0.58;
+  else if(shape.length >= 6) gemRate = 0.30;
   // 無盡模式：純刷分，不鑲鑽石（畫面乾淨、回歸 Block Blast 本格）
   if(!MODE().useGoals) gemRate = 0;
   // 隨機在部分格子鑲鑽石（偏向關卡需要的種類，幫助玩家達標）
   const cells = shape.map(([r,c])=>{
     let gem = null;
     if(Math.random() < gemRate){
-      // 60% 機率出本關目標鑽石，40% 隨機
-      if(Math.random()<0.6 && goals.length){
+      // ★ v63：目標偏向 60% → 50%。配合鑲嵌率調降，非目標寶石占比提高，
+      //        玩家得辨認「哪行有我要的」再下手，收集才有選擇的樂趣。
+      if(Math.random()<0.5 && goals.length){
         gem = pick(goals).gem;
       } else {
         gem = pick(GEM_KEYS);
@@ -3218,7 +3462,9 @@ function makePiece(){
   });
   const maxR = Math.max(...shape.map(s=>s[0]));
   const maxC = Math.max(...shape.map(s=>s[1]));
-  return { cells, color, rows:maxR+1, cols:maxC+1, used:false, tier:shapeDef.tier };
+  // ★ v58 sig：形狀身分證（直接引用 SHAPE_LIB 的定義物件）。
+  //    發牌驗收用它比對「三張是否完全相同」——同形狀連抽 3 次看起來像 bug，要擋。
+  return { cells, color, rows:maxR+1, cols:maxC+1, used:false, tier:shapeDef.tier, sig:shapeDef };
 }
 
 /* 判斷是否為對角線形狀（每格與下一格都是斜向相鄰，且無正交相鄰） */
@@ -3243,29 +3489,158 @@ function refillTray(){
 
 /* 平衡出牌：一組三張裡的「空間殺手(trap)」數量上限，由本關難度 trapCap 決定。
    放水關 cap=0（完全不夾擊）、日常 cap=1、小考 cap=2、魔王 cap=3（火力全開）。
-   稀有救命小牌不受限制 —— 它們是來解圍的，多給一點玩家更舒服。 */
+   稀有救命小牌不受限制 —— 它們是來解圍的，多給一點玩家更舒服。
+
+   ★ v57 兩大升級：
+   ① 公平發牌鐵律：三張牌「每一張」都必須在發牌當下的盤面放得下才准成組。
+      舊規則只保證「至少一張放得下」，會出現「發牌瞬間就註定死」的系統陰人局
+      （真機實測：盤面剩 36 格空位但 3x3 無處可放＋剩餘兩張無法消任何行列）。
+      新規則消滅發牌死刑；玩家中途放牌互相卡死仍會輸——那是策略責任，輸得心服口服。
+      公平是「順序陷阱」設計能成立的地基：玩家100%信任牌有解，才會怪自己不怪系統。
+   ② 甜蜜連發節奏：盤面夠空時有機率進入 2~3 手「同池爽牌連發」（3x3/矩形/方磚/長條），
+      玩家進入自動駕駛的爽快節奏；連發結束悄悄切回混合牌——節奏催眠，Block Blast 精髓。 */
+
+/* ★ v61 長條判定：單行或單列、長度 ≥3 的一字牌（3/4/5 格長條都算）。
+   makeBalancedTrio 用它執行「一手最多 2 根長條」鐵律。 */
+function isBarPiece(p){
+  return (p.rows === 1 && p.cols >= 3) || (p.cols === 1 && p.rows >= 3);
+}
+
+/* 單張牌在「當下盤面」是否存在至少一個合法落點 */
+function pieceFitsSomewhere(p){
+  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
+    if(canPlace(p, r, c)) return true;
+  }
+  return false;
+}
+
+/* 盤面佔用比例（決定要不要開甜蜜連發：太擠時大牌塞不進，連發只會空轉） */
+function boardFillRatio(){
+  let f=0;
+  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++) if(board[r][c]) f++;
+  return f/(SIZE*SIZE);
+}
+
+/* 甜蜜連發狀態機：streak = 剩餘連發手數；pool = 本輪連發使用的同型牌池
+   ★ v59 新增 lastTag：記住上一輪用的池子，下一輪連發無條件排除它——
+   連續兩輪不得同池，根除「長條海」連續出現好幾組、像被系統刁難的觀感。 */
+const RHYTHM = { streak:0, pool:null, lastTag:null };
+
 function makeBalancedTrio(){
   const cap = (curDiff.trapCap ?? 1);
-  let trio, trapCount, tries=0;
-  do{
-    trio = [makePiece(), makePiece(), makePiece()];
-    trapCount = trio.filter(p=>p.tier==='trap').length;
+
+  // ── 節奏決策：不在連發中 → 擲骰子決定要不要開一輪甜蜜連發 ──
+  if(RHYTHM.streak <= 0 && boardFillRatio() < 0.5){
+    const chance = (curDiff.tier==='boss') ? 0.10 : 0.28;   // 魔王關少放糖
+    if(Math.random() < chance){
+      RHYTHM.streak = 2 + rand(2);                          // 連發 2~3 手
+      // ★ v59 鐵則：下一輪連發永遠不能跟上一輪同池。
+      //   （原設計曾用倒數計數的冷卻，但失敗的擲骰會把冷卻悄悄耗光、實測擋不住；
+      //    改成無條件排除上一輪的池子。）
+      // ★ v61 C 池（純長條池）從連發名單除名：即使 v59 保證三根形狀互不相同，
+      //   「一手三根全是長條」的觀感依然像被系統刁難（真機回報實錘）。
+      //   連發只保留 A（大塊爽消）與 B（方磚短條）；長條回歸常規隨機發牌，
+      //   並由下方新增的「一手最多 2 根長條」鐵律兜底。
+      let tagPool = ['A','B'];
+      if(RHYTHM.lastTag) tagPool = tagPool.filter(t=> t !== RHYTHM.lastTag);
+      const tag = pick(tagPool);
+      RHYTHM.pool = SHAPE_LIB.filter(s=> s.sweet === tag || s.sweet2 === tag);   // ★ v58 支援雙池標籤
+      RHYTHM.lastTag = tag;
+    }
+  }
+  const sweetPool = (RHYTHM.streak > 0 && RHYTHM.pool && RHYTHM.pool.length) ? RHYTHM.pool : null;
+
+  // ── 主生成迴圈：trap 上限 + 三張皆有解，兩關全過才放行 ──
+  let trio = null, tries = 0;
+  while(tries < 40){
+    // 甜牌池試 15 次還過不了公平鐵律 → 盤面容不下爽牌，放棄本輪連發回歸常規
+    const useSweet = sweetPool && tries < 15;
+    // ★ v59 同池「不放回抽樣」：池子成員數 ≥3 時直接洗牌取前三個，一手三張形狀保證互不相同，
+    //    從結構上根除「長條看起來三個都一樣」的觀感，比事後比對 sig 更徹底。
+    let t;
+    if(useSweet && sweetPool.length >= 3){
+      const shuffled = [...sweetPool].sort(()=> Math.random()-0.5);
+      t = shuffled.slice(0,3).map(def=> makePiece(def));
+    } else {
+      t = [0,1,2].map(()=> useSweet ? makePiece(pick(sweetPool)) : makePiece());
+    }
+    const trapCount = t.filter(p=>p.tier==='trap').length;
+    // ★ v58 防複製貼上：三張形狀完全相同 → 打回重抽（v59 不放回抽樣後這裡多半用不到，留著當保險）。
+    //    兩張相同是節奏（玩家能接受），三張全同看起來像發牌機壞掉。
+    const allSame = t[0].sig && t[0].sig === t[1].sig && t[1].sig === t[2].sig;
+    // ★ v61 長條鐵律：一手最多 2 根長條（3/4/5 格一字牌）。
+    //    連發除名 C 池後，純隨機仍有 ~4% 機率湊出三根長條 —— 這裡直接打回重抽，
+    //    「三根長條同時出現」從結構上絕跡；兩根是正常節奏，保留。
+    const barCount = t.filter(isBarPiece).length;
+    if(!allSame && barCount <= 2 && trapCount <= cap && t.every(pieceFitsSomewhere)){
+      trio = t;
+      if(useSweet) RHYTHM.streak--;   // 甜蜜連發成功發出一手
+      else         RHYTHM.streak = 0; // 用常規牌完成 → 中止連發（悄悄換牌的時刻）
+      break;
+    }
     tries++;
-  } while(trapCount>cap && tries<25);
+  }
+
+  // ── 保底修復：40 次都湊不齊「三張皆有解」（盤面極刁）→ 逐張換成放得下的牌 ──
+  if(!trio){
+    RHYTHM.streak = 0;
+    trio = [];
+    for(let i=0;i<3;i++){
+      let p = null;
+      for(let k=0;k<12;k++){
+        const cand = makePiece();
+        if(pieceFitsSomewhere(cand)){ p = cand; break; }
+      }
+      if(!p){
+        // 降級階梯：橫2 → 單格（消行機制保證盤面永遠至少一格空，單格牌必定放得下）
+        const duo = { cells:[{r:0,c:0,gem:null,glow:false},{r:0,c:1,gem:null,glow:false}],
+                      color:pick(PIECE_COLORS), rows:1, cols:2, used:false, tier:'rare' };
+        p = pieceFitsSomewhere(duo) ? duo : makeSingleCellPiece();
+      }
+      trio.push(p);
+    }
+  }
   return trio;
 }
 
+/* ★ v68 ③ 托盤增量渲染：棋盤 v66 就學會的指紋 diff，托盤終於跟上。
+   舊版每次放牌 innerHTML='' 三張全拆重蓋 —— 重新解析漸層材質、重新光柵化
+   SVG 圖示＋drop-shadow，全砸在 pointerup 那一幀（放下卡頓的主嫌之一）。
+   新版：三個槽位常駐，各記一枚指紋（牌型＋皮膚＋槽位尺寸），指紋沒變的槽
+   一根手指都不碰 —— 普通放牌只清「用掉的那一槽」，另外兩張牌的 DOM、事件
+   監聽、dragState.el 參照全部原封不動。三張補牌／換膚／resize 時指紋全變，
+   自動退回全量重建，行為與舊版一致。 */
+let _traySlots = null;                 // 3 個常駐槽位 DOM
+let _trayKeys  = ['\u0000','\u0000','\u0000'];
+function _trayPieceKey(p, sw, sh){
+  if(p.used) return 'U';
+  return p.color + '|' + p.rows + 'x' + p.cols + '|' +
+    p.cells.map(c=> c.r+','+c.c+','+(c.gem||'')+(c.glow?'!':'')).join(';') +
+    '|' + activeSkinId() + '|' + Math.round(sw) + 'x' + Math.round(sh);
+}
 function renderTray(){
   const tray = document.getElementById('tray');
-  tray.innerHTML = '';
   // 槽內可用空間（扣一點內距，牌不貼邊）
   const SLOT_W = tray.clientWidth/3 - 16;
   const SLOT_H = tray.clientHeight - 16;
   const PS = 26;   // 預覽用固定小格；真正大小由 scale 決定 → 大小牌視覺趨於一致
+  // 骨架不存在／被外力清空 → 重建三個常駐槽位
+  if(!_traySlots || tray.childElementCount !== 3 || tray.firstElementChild !== _traySlots[0]){
+    tray.innerHTML = '';
+    _traySlots = []; _trayKeys = ['\u0000','\u0000','\u0000'];
+    for(let i=0;i<3;i++){
+      const slot = document.createElement('div');
+      slot.className = 'piece-slot';
+      tray.appendChild(slot); _traySlots.push(slot);
+    }
+  }
   trayPieces.forEach((p, idx)=>{
-    const slot = document.createElement('div');
-    slot.className = 'piece-slot';
-    if(p.used){ tray.appendChild(slot); return; }  // 空槽佔位，位置不跳
+    const key = _trayPieceKey(p, SLOT_W, SLOT_H);
+    if(key === _trayKeys[idx]) return;   // 指紋沒變 → 整槽跳過（增量核心）
+    _trayKeys[idx] = key;
+    const slot = _traySlots[idx];
+    slot.innerHTML = '';
+    if(p.used){ return; }  // 空槽佔位，位置不跳
     const pe = document.createElement('div');
     pe.className = 'piece';
     pe.style.gridTemplateColumns = `repeat(${p.cols}, ${PS}px)`;
@@ -3287,9 +3662,16 @@ function renderTray(){
     const scale = Math.min(SLOT_W/rawW, SLOT_H/rawH, 1);
     pe.style.transform = `scale(${scale})`;
     pe.dataset.scale = scale;
+    // ★ v61：v57「壓暗提示」已退役（黑磚觀感嚇玩家），牌一律原色顯示。
     attachDrag(pe, idx);
-    slot.appendChild(pe);
-    tray.appendChild(slot);
+    // ★ v64 A5 消行收尾的 renderTray() 若撞上「玩家已抓起下一張牌」：
+    //   新 DOM 補上 .dragging 壓暗（不出現托盤+手上的視覺分身），
+    //   並把 dragState.el 換成新元素 → 放開時脫掉樣式的是活的 DOM，不是被丟棄的舊參照。
+    if(dragState && dragState.idx === idx){
+      pe.classList.add('dragging');
+      dragState.el = pe;
+    }
+    slot.appendChild(pe);   // ★ v68 ③ 槽位常駐，只掛新牌、不再重掛槽位
   });
 }
 
@@ -3298,6 +3680,7 @@ function renderTray(){
    ============================================================ */
 function attachDrag(el, idx){
   el.addEventListener('pointerdown', e=>{
+    if(dragState) return;   // ★ v64 A4 一次只認一根手指：第二指碰其他牌不准覆寫 dragState，第一指的拖曳不再懸空報廢
     e.preventDefault();
     const p = trayPieces[idx];
     if(p.used) return;
@@ -3327,7 +3710,8 @@ function attachDrag(el, idx){
       ? Math.round(CELL * 1.5)   // ★ v29 觸控：0.7→1.5 格，視覺較舒服；不影響敏銳度（僅視覺偏移）
       : 14;        // 滑鼠：游標細，稍微偏移即可
     dragState = { idx, p, pw:p.cols*CELL, ph:p.rows*CELL, lastR:null, lastC:null,
-      baseOffset, liftOffset:baseOffset, startY:e.clientY, pid:e.pointerId, el, fp }; // ★ v21 lastR/C
+      baseOffset, liftOffset:baseOffset, startY:e.clientY, pid:e.pointerId, el, fp,
+      ghostBg: ghostTint(p.color) };   // ★ v21 lastR/C；★ v67 影子本色（拿起時算一次，逐幀零成本）
     el.classList.add('dragging');
     fp.classList.add('lifted'); // ★ v22 拿起瞬間放大＋陰影，營造「拎起來」的手感
     // ★ v31 真兇：托盤牌 el 用 transform:scale(...) 塞進槽，且左右兩塊縮放比例各不同，
@@ -3384,8 +3768,12 @@ function canPlace(p, baseR, baseC){
   return true;
 }
 
+/* ★ v66 ④ 提示格「記帳式清除」：舊版每個拖曳幀 querySelectorAll 掃全盤 64 格逐一脫類，
+   新版只記「這幀真的點亮了誰」，下幀只脫那幾格 —— 拖曳運算量再砍一刀，跟手更黏。 */
+let _hintedEls = [];
 function clearHints(){
-  document.querySelectorAll('.cell').forEach(c=>c.classList.remove('hint-ok','hint-bad'));
+  _hintedEls.forEach(c=>{ c.classList.remove('hint-ok','hint-bad'); c.style.background=''; });  // ★ v67 影子(inline 本色)一併回收
+  _hintedEls = [];
 }
 
 // ★ v25 修正「快速拖曳時方塊卡住、要來回拖幾次才動」的問題：
@@ -3420,8 +3808,14 @@ function processDragFrame(){
   }
   const ok=canPlace(dragState.p, r, c);
   dragState.p.cells.forEach(cell=>{
-    const cls = document.querySelector(`.cell[data-r="${r+cell.r}"][data-c="${c+cell.c}"]`);
-    if(cls) cls.classList.add(ok?'hint-ok':'hint-bad');
+    const rr=r+cell.r, cc=c+cell.c;
+    const cls = (rr>=0 && rr<SIZE && cc>=0 && cc<SIZE) ? boardCellEl(rr,cc) : null;   // ★ v66 ① 快取直取
+    if(cls){
+      cls.classList.add(ok?'hint-ok':'hint-bad'); _hintedEls.push(cls);               // ★ v66 ④ 記帳
+      // ★ v67 同層影子：合法落點染「方塊本色」半透明（inline 蓋過通用藍）＝方塊在棋盤上的分身；
+      //   非法落點維持紅色警示（不上 inline，讓 .hint-bad 紅色照常顯示）。
+      if(ok){ cls.style.background = dragState.ghostBg; }
+    }
   });
   dragState.dropR=r; dragState.dropC=c; dragState.dropOk=ok;
 }
@@ -3446,11 +3840,10 @@ function onCancel(e){
   const st = dragState;
   st.el.classList.remove('dragging');
   dragState=null;
-  if(st.dropOk && st.dropR!==undefined){
-    playClick();
-    if(hapticConfig.onDrop){ haptic(hapticConfig.dropMs); }
-    placePiece(st.p, st.idx, st.dropR, st.dropC);
-  }
+  // ★ v65 ⑤ 取消一律退牌：舊版為吸收 iOS 假性 pointercancel，會在中斷瞬間自動把牌
+  //   放在最後一個合法落點——等於系統替玩家做決定，放牌數與玩家記憶對不上
+  //   （「幽靈補牌」疑案的最後嫌犯）。裁決定案：玩家常常手滑很正常，中斷一律退回
+  //   預備區，寧可偶爾重拖一次，也不代放。牌未標記 used，脫掉 dragging 即原地復原。
 }
 
 function onUp(e){
@@ -3459,18 +3852,33 @@ function onUp(e){
   if(dragRAF){ cancelAnimationFrame(dragRAF); dragRAF=null; }
   latestMoveEvent = null;
   const fp=document.getElementById('floatPiece');
-  fp.innerHTML=''; fp.classList.remove('lifted'); // ★ v22 重置拿起狀態
+  // ★ v69 手術②：時序改革（業界驗證的「先蓋新、後拆舊」）。
+  //   舊 v68 在這裡「無條件」先 fp.innerHTML=''，等於放手那一幀先把浮空方塊殺掉，
+  //   棋盤方塊卻要等 placePiece→renderBoard 才補上 —— 中間露出一幀空窗，就是「轉換卡頓」。
+  //   新解：合法放置時「不」在此清浮空層，改到 placePiece 後、用 rAF 卡在下一次 paint 之前拆除
+  //   （animation frame 跑在 style/layout/paint 之前，玩家眼睛永遠捕捉不到拆除瞬間）。
+  //   只在「退牌（不放）」時才維持立即清空 —— 那條路本來就沒有棋盤方塊接手，不存在空窗問題。
   clearHints();
   document.querySelectorAll('.piece').forEach(p=>p.classList.remove('dragging'));
-  if(!dragState){ return; }
+  if(!dragState){ fp.innerHTML=''; fp.classList.remove('lifted'); return; }
   const {p, idx, dropR, dropC, dropOk}=dragState;
+  // ★ v65 ④ 交接順序矯正：先登記「手已放空」（dragState=null），再執行放置。
+  //   舊順序在 placePiece → refillTray → renderTray 一路殺到底時，dragState 仍握著舊牌，
+  //   A5 分身機制誤把「剛補進來的新牌」當成手上牌的分身壓暗（真機實錘：凸字形放下後，
+  //   新來的正方形頂著舊殘影登場）。手先放空，A5 就永遠不會認錯人。
+  dragState=null;
   if(dropOk && dropR!==undefined){
     // ★ v21 放下回饋：喀嚓聲 + 落定震動（在消行判定之前，讓「落定」與「消除」層次分明）
     playClick();
     if(hapticConfig.onDrop){ haptic(hapticConfig.dropMs); }
-    placePiece(p, idx, dropR, dropC);
+    placePiece(p, idx, dropR, dropC);   // 先讓棋盤方塊就位（renderBoard 在此同步完成）
+    // ★ v69 手術②接棒：棋盤已補上實心方塊，這一幀畫面「浮空層＋棋盤層」同格重疊（一模一樣）。
+    //   把浮空層拆除排進 rAF —— 下次 paint 前執行，玩家只會看到「棋盤方塊一直都在」，零空窗。
+    requestAnimationFrame(()=>{ fp.innerHTML=''; fp.classList.remove('lifted'); });
+  } else {
+    // 不合法：退牌，浮空層立即清空（無棋盤方塊接手，直接收掉）
+    fp.innerHTML=''; fp.classList.remove('lifted');
   }
-  dragState=null;
 }
 
 /* ============================================================
@@ -3493,7 +3901,7 @@ function placePiece(p, idx, baseR, baseC){
   //    消行的大分＋連消倍率照舊，仍是分數的主菜；這裡是穩定的小費。
   if(MODE().useScore){
     score += p.cells.length;
-    if(score > bestScore) bestScore = score;
+    bumpBest();   // ★ v64 D2 分模式記帳
     updateStatus();
   }
 
@@ -3507,10 +3915,20 @@ function placePiece(p, idx, baseR, baseC){
   };
 
   // v8：寶石模式不再消耗步數（已改為盤面塞死才失敗）
-  renderBoard();
-  renderTray();
+  renderBoard();   // 棋盤增量：放下的方塊「這一幀」就要出現在盤上，不能等
 
-
+  // ★ v68 ⑥ 放下幀瘦身：托盤重建延到下一幀（16ms，人眼無感）。
+  //   pointerup 幀從此只做「資料更新＋棋盤增量＋喀噠聲」—— 輕裝上陣。
+  //   世代保險（gameEpoch）：玩家在這 16ms 內回選單/換關 → 過期回呼直接作廢。
+  // ★ v72 移除「放置微碎光」(spawnTwinkle 'place')：連續快速放置時，750ms 存活的星芒會
+  //   逐格疊加殘留，肉眼／錄影看起來像每顆方塊中間卡了一顆泡泡，不乾淨。
+  //   放置回饋改由既有的喀噠聲＋震動獨力撐住，兩者本來就逐格瞬時觸發，不會殘留視覺。
+  { const ep = gameEpoch;
+    requestAnimationFrame(()=>{
+      if(ep !== gameEpoch) return;
+      renderTray();   // ★ v68 ③ 增量版：普通放牌只清用掉的那一槽，近乎零成本
+    });
+  }
 
   clearLines();
 }
@@ -3531,8 +3949,8 @@ function clearLines(){
   // ★ v49 連消 +1：放下即消，不間斷就一路疊
   clearStreak++;
   lastPlacement = null;      // 這一手已用消行慶祝，聰明讚不重複跳
-  updateStreakBadge(true);
-  showStreakPop(clearStreak);   // ★ v50 ① 中央大字 ×N（×2 起跳，越連越大越燙）
+  // ★ v68 ⑥ 徽章＋中央大字（各含一次「強制重排」重啟動畫的招式）挪到下方視覺幀一起演，
+  //   pointerup 幀不再被這些小重排零星扎針。
 
   // 收集鑽石 + 標記消除格
   const toClear = new Set();
@@ -3540,12 +3958,25 @@ function clearLines(){
   fullCols.forEach(c=>{ for(let r=0;r<SIZE;r++) toClear.add(r+'_'+c); });
 
   let collected=0;
-  let fallIdx=0;         // ★ v48 崩塌波計數器：每格掉落延遲遞增，形成波浪式崩落
   const justDone = [];   // 這一次「剛好收齊達標」的動物 → 只有這些才叫
-  const flyList = [];    // ★ v21 待飛的食物：{gem, cellEl} → 稍後拋向任務欄
+  const flyList = [];    // ★ v21 待飛的食物：{gem, cellEl, rect} → 稍後拋向任務欄
+  const cellFx  = [];    // ★ v68 ⑥ 每格特效素材先入袋：{data, cellHost, rect}，下一幀才開演
+  // ★ v66 ② 棋盤座標只量 1 次、其餘用數學推（v68 沿用）。
+  // ★ v68 ⑥「資料同步、視覺下一幀」：這個迴圈從此只做資料 ——
+  //   盤面清空、收集記帳、機關洩氣（v64 S1 防白嫖鎖原封不動，資料仍在 pointerup 當下清完）。
+  //   摘寶石、崩塌分身、碎片、光環、星芒等幾百筆 DOM 誕生全數延到下一個 rAF，
+  //   pointerup 幀的 style/paint 帳單瞬間歸零。16ms 的延遲人眼無感，
+  //   但「放下→消除」的那一幀從此不再噎住。
+  const boardEl0 = document.getElementById('board');
+  const boardRect0 = boardEl0 ? boardEl0.getBoundingClientRect() : null;
   toClear.forEach(key=>{
     const [r,c]=key.split('_').map(Number);
     const data=board[r][c];
+    board[r][c] = null;   // ★ v64 S1 資料當場清空（動畫層演的是屍體）：
+                          //   堵死 360ms 空窗內再放一張牌 → 重掃發現「該列還滿」→ 同列重複收集/計分/洩氣的白嫖漏洞
+    markCellDirty(r,c);   // ★ v66 ① 動畫層即將徒手改這格 DOM（藏方塊、摘寶石）→ 踩髒指紋，強迫下次 diff 重建
+    const cellHost = boardCellEl(r,c);   // ★ v66 ① 快取直取，終結逐格 querySelector 掃描
+    const rect = boardRect0 ? boardCellRect(boardRect0, r, c) : null;
     if(data && data.gem){
       const goal=goals.find(g=>g.gem===data.gem);
       if(goal){
@@ -3555,101 +3986,127 @@ function clearLines(){
           justDone.push(GEMS[goal.gem].animal);
         }
       }
-      // ★ v21 記下飛行起點（抓「消除格」的實際螢幕位置，趁 DOM 還在）
-      const srcEl=document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
-      flyList.push({ gem:data.gem, el:srcEl });
+      // ★ v21 記下飛行起點（座標已用數學推好，連 DOM 都不必再摸）
+      flyList.push({ gem:data.gem, el:cellHost, rect });
       collected++;
       HZ.onFood(!!data.glow);   // ★ v32 機關引擎唯一入口（非機關關時內部直接 return）
     }
-    const cellHost=document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
-    const cellEl=cellHost ? cellHost.querySelector('.filled') : null;
-    if(cellEl){
-      // ★ v53「摘寶石」：寶石已經記進 flyList、準備飛向動物 →
-      //    原地的方塊必須立刻變回「空殼」，否則墜落分身（cloneNode）會把寶石一起複製走，
-      //    玩家會同時看到「寶石飛去任務欄」+「寶石還躺在墜落的方塊上」，穿幫。
-      //    只摘圖示、不動材質背景 —— 崩塌的還是那塊糖果，只是裡面的寶藏已經被收走了。
-      const gemIcon = cellEl.querySelector('.gem-svg');
-      if(gemIcon) gemIcon.remove();
-      // ★ v48 ②「垮掉掉落」取代原本的縮小爆開（pop）：
-      //    方塊複製成浮層翻滾墜落，每格延遲遞增 16ms → 形成由左而右的「崩塌波」
-      //    （炸彈 explodeAt 維持原 pop 爆開 —— 爆炸該炸飛、消行該崩塌，各有各的物理語言）
-      spawnFallBlock(cellHost, Math.min(fallIdx*16, 240)); fallIdx++;
-      // ★ v24 每個清除格噴出碎片，顏色取自方塊本身，強化「破碎」視覺
-      const clearColor = data ? data.color : getComputedStyle(cellEl).backgroundColor;
-      spawnShards(cellEl, clearColor);
-      spawnPopRing(cellEl, clearColor);   // ★ v38 泡泡糖光環，強化療癒的「戳破感」
-      spawnTwinkle(cellEl, 'clear');      // ★ v49 白色星芒閃光：碎片是「重」、星芒是「亮」，一暗一亮打擊感更立體
-    }
+    cellFx.push({ data, cellHost, rect });
   });
 
   // ── 底層音效（每次消排都有）：碎裂聲 + 特殊收集音 + 輕震，當節奏骨架 ──
+  //    聲音留在 pointerup 當下（聽覺回饋零延遲；v68 ⑤ 噪音已預煮，這裡近乎零成本）
   playCrack();
   playClearSparkle(fullRows.length+fullCols.length);   // ★ v21 消除特殊音（疊在碎裂聲上；v49 起音高隨連消爬升）
   haptic(streakClearHaptic(fullRows.length+fullCols.length));  // ★ v49 震動階梯：連越多脈衝越密
-
-  // ── ★ v49 連消慶祝階梯：一層包一層，越連越豪華；斷連自動全部收回 ──
-  if(clearStreak >= 3){
-    const boardEl = document.getElementById('board');
-    const br = boardEl ? boardEl.getBoundingClientRect() : null;
-    if(br) spawnConfettiBurst(br.left + br.width/2, br.top + br.height*0.35, 8 + Math.min(clearStreak,6)*3);
-  }
-  if(clearStreak >= 4){
-    const boardEl = document.getElementById('board');
-    if(boardEl){ boardEl.classList.remove('streak-glow'); void boardEl.offsetWidth; boardEl.classList.add('streak-glow'); }
-  }
-  if(clearStreak >= 5){ setTimeout(spawnCheerAnimal, 200); }
-  if(clearStreak >= 6){ spawnBigConfetti(); }
-  // ★ v24 消行時盤面輕微震動，強化打擊感（多行消除更有感）
-  { const boardEl=document.getElementById('board') || document.querySelector('.board');
-    if(boardEl){ boardEl.classList.remove('board-shake'); void boardEl.offsetWidth; boardEl.classList.add('board-shake'); } }
   // ── 表層音效（稀有）：某動物剛好收齊 → 叫一聲；多隻同時達標依序叫 ──
   justDone.forEach((animal,i)=> setTimeout(()=>playAnimal(animal), 180 + i*420));
 
-  // ★ v48 ① 讚美字分級（取代舊的 showCombo COMBO 小字）：
-  //    2 行以上跳大字；3 行以上加碼「這次吃到最多食物的動物」跳出來道謝，高光時刻情緒拉滿
-  const totalLines=fullRows.length+fullCols.length;
-  if(totalLines>=2){
-    let topAnimal = null;
-    if(flyList.length){
-      const cnt = {};
-      flyList.forEach(f=>{ cnt[f.gem]=(cnt[f.gem]||0)+1; });
-      const topGem = Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0];
-      topAnimal = GEMS[topGem].animal;
-    }
-    showPraise(totalLines, topAnimal);
-  }
-
   // ===== 計分：單行 10 分，一次多行有倍率加成（鼓勵憋大招）=====
   // ★ v49 再乘連消倍率（上限 ×5）：保持連消 = 分數翻倍，一眼看懂
+  const totalLines=fullRows.length+fullCols.length;
   if(MODE().useScore){
     const streakMul = Math.min(Math.max(clearStreak,1), 5);
     const gained = totalLines * 10 * totalLines * streakMul;  // 例：連3消1行 = 10×3 = 30
     score += gained;
-    if(score > bestScore) bestScore = score;
+    bumpBest();   // ★ v64 D2 分模式記帳
     updateStatus();
   }
 
-  // ★ v21 寶石飛向目標：每顆錯開飛入，命中時才跳數字（renderGoals 由 flyGemToGoal 觸發）
-  // ★ v53 間隔 70→95ms：搭配新的三拍子飛行時序，多顆連發時數得出「一顆、一顆、一顆」
-  if(flyList.length){
-    flyList.forEach((f,i)=> flyGemToGoal(f.gem, f.el, Math.min(i*95, 700)));
-  } else {
-    renderGoals();  // 沒有可收集食物（理論上少見）→ 保底更新
-  }
+  const _clearEpoch = gameEpoch;   // ★ v64 A2 記下發射當下的世代（視覺幀與 360ms 收尾共用）
 
+  // ══ ★ v68 ⑥ 視覺幀：全部慶典下一個 rAF 一次開演 ══
+  requestAnimationFrame(()=>{
+    if(_clearEpoch !== gameEpoch) return;   // 玩家已回選單/換關 → 煙火作廢
+    // ★ v68 ① 粒子總量預算制：碎片全域預算 64 顆、星芒 32 顆，除以消除格數分配。
+    //   消 1 行＝每格 8 顆碎片（跟舊版一樣澎湃）；消 3 行＝每格 2~3 顆（總量恆定不爆量）。
+    //   崩塌分身是主角、一格一個照舊 —— 省的是配角，主戲一秒都不剪。
+    const cellCount = cellFx.length || 1;
+    const shardsPer  = Math.max(2, Math.min(10, Math.round(64/cellCount)));
+    const twinklePer = cellCount > 12 ? 1 : 2;
+    let fallIdx=0;         // ★ v48 崩塌波計數器：每格掉落延遲遞增，形成波浪式崩落
+    const fxFrag = document.createDocumentFragment();   // ★ v66 ② 粒子一袋上車
+    cellFx.forEach(({data, cellHost, rect})=>{
+      const cellEl = cellHost ? cellHost.querySelector('.filled') : null;
+      if(!cellEl) return;   // 極端時序下方塊已被增量渲染收走 → 優雅跳過
+      // ★ v53「摘寶石」：寶石已經記進 flyList、準備飛向動物 →
+      //    原地的方塊必須立刻變回「空殼」，否則墜落分身（cloneNode）會把寶石一起複製走。
+      const gemIcon = cellEl.querySelector('.gem-svg');
+      if(gemIcon) gemIcon.remove();
+      // ★ v48 ②「垮掉掉落」：方塊複製成浮層翻滾墜落，每格延遲遞增 → 崩塌波
+      // ★ v70 卡頓修：波差 16→9ms、上限 240→135ms，崩塌起訖更緊湊，接下一張牌更快
+      spawnFallBlock(cellHost, Math.min(fallIdx*9, 135), rect, fxFrag); fallIdx++;
+      const clearColor = data ? data.color : '#fff';
+      spawnShards(cellEl, clearColor, rect, fxFrag, shardsPer);
+      // ★ v71 移除泡泡：泡泡糖光環（spawnPopRing）全面拿掉，消除只留碎片＋垮掉掉落，乾淨俐落。
+      spawnTwinkle(cellEl, 'clear', rect, fxFrag, twinklePer);
+    });
+    document.body.appendChild(fxFrag);
+
+    // ── ★ v49 連消慶祝階梯（含徽章＋中央大字，v68 ⑥ 自 pointerup 幀移駕至此）──
+    updateStreakBadge(true);
+    showStreakPop(clearStreak);   // ★ v50 ① 中央大字 ×N（×2 起跳，越連越大越燙）
+    if(clearStreak >= 3 && boardRect0){
+      spawnConfettiBurst(boardRect0.left + boardRect0.width/2, boardRect0.top + boardRect0.height*0.35, 8 + Math.min(clearStreak,6)*3);
+    }
+    if(clearStreak >= 4 && boardEl0){
+      boardEl0.classList.remove('streak-glow'); void boardEl0.offsetWidth; boardEl0.classList.add('streak-glow');
+    }
+    if(clearStreak >= 5){ setTimeout(()=>{ if(_clearEpoch===gameEpoch) spawnCheerAnimal(); }, 200); }
+    if(clearStreak >= 6){ spawnBigConfetti(); }
+    // ★ v24 消行時盤面輕微震動，強化打擊感（多行消除更有感）
+    if(boardEl0){ boardEl0.classList.remove('board-shake'); void boardEl0.offsetWidth; boardEl0.classList.add('board-shake'); }
+
+    // ★ v48 ① 讚美字分級：2 行以上跳大字；3 行以上加碼「吃最多的動物」道謝
+    if(totalLines>=2){
+      let topAnimal = null;
+      if(flyList.length){
+        const cnt = {};
+        flyList.forEach(f=>{ cnt[f.gem]=(cnt[f.gem]||0)+1; });
+        const topGem = Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0];
+        topAnimal = GEMS[topGem].animal;
+      }
+      showPraise(totalLines, topAnimal);
+    }
+
+    // ★ v21 寶石飛向目標：每顆錯開飛入，命中時才跳數字（renderGoals 由 flyGemToGoal 觸發）
+    // ★ v66 ② 終點每種動物只量一次；★ v68 ⑥ 量測本來就該在視覺幀做，正好各歸其位
+    if(flyList.length){
+      const goalRects = {};
+      const goalEls = document.querySelectorAll('#goals .goal');
+      flyList.forEach(f=>{
+        if(goalRects[f.gem] !== undefined) return;
+        const gi = goals.findIndex(g=>g.gem===f.gem);
+        const icon = (gi>=0 && goalEls[gi]) ? goalEls[gi].querySelector('.gicon') : null;
+        goalRects[f.gem] = icon ? icon.getBoundingClientRect() : null;
+      });
+      flyList.forEach((f,i)=> flyGemToGoal(f.gem, f.el, Math.min(i*95, 700), f.rect, goalRects[f.gem]));
+    } else {
+      renderGoals();  // 沒有可收集食物（理論上少見）→ 保底更新
+    }
+  });
   setTimeout(()=>{
-    toClear.forEach(key=>{ const [r,c]=key.split('_').map(Number); board[r][c]=null; });
+    if(_clearEpoch !== gameEpoch) return;   // ★ v64 A2 玩家已回選單/換關 → 過期計時器直接作廢，不再蓋視窗
+    // ★ v64 S1 盤面資料已在消行判定當下清空（見上方），這裡只負責視覺收尾
+    // ★ v66 ①③ renderBoard 已是增量版：這裡只會摘掉被消格的空殼，成本近乎零。
+    //   舊版此處還有一次全量 renderTray() —— 那是 v59 為「壓暗提示」留的補算，
+    //   但 v61 壓暗已退役、托盤外觀不再依賴盤面，這次重建是純浪費，
+    //   而且正好砸在玩家「已抓起下一張牌」的瞬間（v64 A5 就是在救這個場）。
+    //   直接拆除：托盤資料沒變就不重畫，連消節奏中再也沒有第二下卡頓。
     renderBoard();
     afterMove();
-  }, 360);
+  }, 180);   // ★ v70 卡頓修：收尾 360→180ms。盤面資料早已在放下當下清空，
+             //   這裡只是「補空格、讓下一張牌能爽快接上」的視覺收尾 —— 提前一倍，
+             //   「放下→崩落中間乾等」的頓感消失。崩落分身仍活 1.1s，飄落畫面不受影響。
 }
 
 function afterMove(){
-  if(checkWin()){ setTimeout(showWin, 300); return; }
+  // ★ v64 A2 這兩顆延遲計時器同樣掛世代保險：回選單後絕不還魂
+  if(checkWin()){ const ep=gameEpoch; setTimeout(()=>{ if(ep===gameEpoch) showWin(); }, 300); return; }
   // 三塊都用完 → 補新的一組
   if(trayPieces.every(p=>p.used)){ refillTray(); }
   // 失敗判定：剩餘方塊都放不下（盤面塞死）—— 公平、靠實力，不靠步數運氣
-  else if(!anyPlaceable()){ setTimeout(showLose, 300); }
+  else if(!anyPlaceable()){ const ep=gameEpoch; setTimeout(()=>{ if(ep===gameEpoch) showLose(); }, 300); }
 }
 
 /* ============================================================
@@ -3744,14 +4201,23 @@ function checkScoreMilestone(){
 }
 function fireScoreMilestone(){
   const num = document.getElementById('bigScoreVal');
-  if(num){ num.classList.remove('milestone'); void num.offsetWidth; num.classList.add('milestone'); }
+  if(num){
+    num.classList.remove('milestone'); void num.offsetWidth; num.classList.add('milestone');
+    // ★ v58 修正殘留 bug：class 加了永遠沒拿掉 → 動畫跑完後分數一直卡在
+    //    「透明文字」狀態，被底層黑影染成髒古銅色（真機截圖實錘）。
+    //    動畫 0.8s，0.9s 後摘掉 class，分數回到乾淨的實色金黃。
+    clearTimeout(fireScoreMilestone._t);
+    fireScoreMilestone._t = setTimeout(()=>{ num.classList.remove('milestone'); }, 900);
+  }
   const { word, sub } = milestoneWord(score);
   const el = document.getElementById('scoreMile');
   if(el){
     el.innerHTML = '<div class="sm-word">'+word+'</div><div class="sm-sub">'+sub+'</div>';
     el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
   }
-  try{ tone(880, 0, .12, 'triangle', .18); tone(1320, .06, .16, 'sine', .16); }catch(_){}   // 輕巧上揚的慶祝音
+  // ★ v67 補上靜音守衛：此處先前裸呼叫 tone()、繞過喇叭開關 —— 正是「靜音仍漏音」的兇手。
+  //   （tone() 本體已裝總閘門，這行是自我註記的雙保險。）
+  if(soundOn){ try{ tone(880, 0, .12, 'triangle', .18); tone(1320, .06, .16, 'sine', .16); }catch(_){} }   // 輕巧上揚的慶祝音
 }
 
 /* 更新頂部狀態膠囊（分數 / 最佳 / 步數）+ near-miss 警示 */
@@ -3760,7 +4226,7 @@ function updateStatus(){
   document.getElementById('scoreCap').classList.toggle('hidden', !m.useScore);
   document.getElementById('bestCap').classList.toggle('hidden', !m.useScore);
   document.getElementById('scoreVal').textContent = score;
-  document.getElementById('bestVal').textContent = bestScore;
+  document.getElementById('bestVal').textContent = getBest();   // ★ v64 D2 只秀「本模式」的最佳分
   // ★ v54 頂部大分數同步 + 加分小跳動
   const big = document.getElementById('bigScore');
   const bigNum = document.getElementById('bigScoreVal');
@@ -3776,11 +4242,12 @@ function updateStatus(){
 }
 
 function showWin(){
+  if(!currentMode) return;   // ★ v64 A2 雙保險：已回選單就絕不彈過關視窗（任何漏網計時器到此為止）
   const m = MODE();
   // ★ v32：機關關過關 → 仙人掌鬆一口氣，並凍結氣球（停在當下高度，當作勳章）
   if(HZ.active){ HZ.relief(); if(HZ.raf){ cancelAnimationFrame(HZ.raf); HZ.raf = 0; } }
   playWin();
-  if(m.useScore && score>bestScore) bestScore=score;
+  if(m.useScore) bumpBest();   // ★ v64 D2 分模式記帳
   if(currentMode==='gem'){
     // ★ v6：過關就累積連勝。連勝越長，下一輪丟魔王關的機率越高(成就感的引信)
     //       但剛打完魔王關就把連勝歸零，給玩家一段喘息的順風期
@@ -3834,6 +4301,13 @@ function resolveSkinEncounterOnWin(){
     box.querySelector('.stp-title').textContent = T(result.currency==='gold' ? 'frag.dupGold' : 'frag.dupDm', {v:result.value});
   } else if(result.kind==='complete'){
     box.querySelector('.stp-title').textContent = T('frag.complete', {n:T(s.name)});
+    // ★ v64 D5 集滿的獎勵時刻交回玩家手上：想換就按，不想換就留著現在這身
+    if(currentSkin !== s.id){
+      const b = document.createElement('button');
+      b.className='shop-buy gold'; b.textContent = T('frag.equipNow');
+      b.onclick = ()=>{ equipSkin(s.id); document.getElementById('skinTrialPromo').style.display='none'; };
+      buyRow.appendChild(b);
+    }
   } else {
     box.querySelector('.stp-title').textContent = T('frag.gain', {c:result.cur, t:result.need});
     // 還沒集滿：順勢提供「直接買斷」加速選項（買斷價沿用 SKIN_MATERIALS，比碎片划算，見商店定價哲學）
@@ -3852,13 +4326,14 @@ function resolveSkinEncounterOnWin(){
   }
 }
 function showLose(){
+  if(!currentMode) return;   // ★ v64 A2 雙保險：已回選單就絕不彈失敗視窗（含氣球 boomTimer 900ms 路徑）
   const m = MODE();
   // ★ v6：卡關失敗 → 連勝歸零，重新進入「放水→爬升」的舒服節奏
   winStreak = 0;
   document.getElementById('loseTitle').textContent = T(m.loseTitle);   // ★ v36 經 T() 查表
   // 無盡模式失敗順手秀出本局成績
   let txt = T(m.loseText);
-  if(currentMode==='endless'){ txt = T('lose.score', {s:score, b:bestScore, nr:(score>=bestScore&&score>0)?T('lose.newRecord'):''}); }
+  if(currentMode==='endless'){ const _b=getBest(); txt = T('lose.score', {s:score, b:_b, nr:(score>=_b&&score>0)?T('lose.newRecord'):''}); }   // ★ v64 D2
   // ★ v32：機關關「氣球爆炸」有自己的敘事（盤面塞死則沿用原文案）
   if(HZ.loseNow){
     document.getElementById('loseTitle').textContent = T('lose.boomTitle');
@@ -3912,8 +4387,8 @@ function doHint(){
 function highlightHint(p,r,c){
   clearHints();
   p.cells.forEach(cell=>{
-    const cls=document.querySelector(`.cell[data-r="${r+cell.r}"][data-c="${c+cell.c}"]`);
-    if(cls) cls.classList.add('hint-ok');
+    const cls=boardCellEl(r+cell.r, c+cell.c);   // ★ v66 ① 快取直取
+    if(cls){ cls.classList.add('hint-ok'); _hintedEls.push(cls); }   // ★ v66 ④ 記帳，clearHints 才收得回來
   });
   showCombo(T('combo.hint'));
   setTimeout(clearHints, 1800);
@@ -4028,10 +4503,11 @@ function grantSkinFragment(id){
   const need = FRAGMENT_REQUIRED[s.tier] || 10;
   const cur = (skinFragments[id]||0) + 1;
   if(cur >= need){
-    // 集滿 → 自動兌換整套皮膚並裝備，碎片歸零（不留餘量，乾淨俐落）
+    // 集滿 → 自動兌換整套皮膚，碎片歸零（不留餘量，乾淨俐落）
+    // ★ v64 D5 不再靜默換裝：玩家穿著麻花辮、隨手集滿羅紋就被偷換衣服＝先斬後奏。
+    //   改由過關視窗的「立刻換上」按鈕讓玩家自己決定（見 resolveSkinEncounterOnWin）。
     delete skinFragments[id];
     ownedSkins.push(id);
-    currentSkin = id;
     if(!seenSkins[id]) seenSkins[id] = level;
     refreshEconomyUI(); saveGame();
     return { kind:'complete', skin:s };
@@ -4571,6 +5047,7 @@ function buyBombPack(idx, currency){
 
 /* 買提示：金幣／鑽石雙軌，買完立即出提示（不用再看廣告） */
 function buyHint(currency){
+  if(!currentMode){ showCombo(T('combo.hintMenu')); return; }   // ★ v64 A3 選單狀態不受理：錢不扣、話講清楚，400 金幣不再蒸發
   if(currency === 'gold'){
     if(goldCoin < ECON.hint.gold){ showCombo(T('combo.goldShort')); return; }
     goldCoin -= ECON.hint.gold;
@@ -4657,12 +5134,14 @@ function explodeAt(r0, c0){
       flyList.push({ gem:data.gem, el:srcEl });
       HZ.onFood(!!data.glow);   // ★ 與消行同一入口：機關關炸食物照樣洩氣
     }
-    const el = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"] .filled`);
+    markCellDirty(r,c);   // ★ v66 ① 爆炸動畫要徒手改這格 DOM → 踩髒指紋，360ms 後的增量 renderBoard 必定重建
+    const host = boardCellEl(r,c);
+    const el = host ? host.querySelector('.filled') : null;
     if(el){
       // ★ v53 同消行手術：寶石已收進 flyList，爆開動畫前先摘掉圖示，只留空殼方塊被炸飛
       const gemIcon = el.querySelector('.gem-svg');
       if(gemIcon) gemIcon.remove();
-      el.classList.add('clearing'); spawnShards(el, data.color); spawnPopRing(el, data.color);
+      el.classList.add('clearing'); spawnShards(el, data.color);
     }
   }
   // ★ v50 ③ 爆炸回饋全面升級：付費道具必須「感覺值錢」，威力要壓過連消 ——
@@ -4830,7 +5309,7 @@ let maxBalloonLevel = 1;   // ★ v33 氣球模式歷史最高關（獨立計算
 function saveGame(){
   try{
     const data = {
-      bestScore, maxLevelReached, maxBalloonLevel, isPremium,
+      bestScores, maxLevelReached, maxBalloonLevel, isPremium,   // ★ v64 D2 三本帳簿一起落地
       ownedSkins, currentSkin, seenSkins, skinFragments, soundOn,
       rotateMode,                            // ★ v46 皮膚輪播模式偏好
       hapticEnabled: hapticConfig.enabled,
@@ -4848,7 +5327,10 @@ function loadGame(){
     const raw = localStorage.getItem(SAVE_KEY);
     if(!raw) return;
     const d = JSON.parse(raw);
-    if(typeof d.bestScore==='number')       bestScore = d.bestScore;
+    // ★ v64 D2 新版三本帳簿；舊存檔的單一 bestScore 已被 gem 累積分污染，遷移時同時抄進 gem 與 endless（寧多勿刪，不吃掉玩家紀錄）
+    if(d.bestScores && typeof d.bestScores==='object'){
+      ['gem','endless','balloon'].forEach(k=>{ if(typeof d.bestScores[k]==='number') bestScores[k]=Math.max(0,d.bestScores[k]); });
+    } else if(typeof d.bestScore==='number'){ bestScores.gem = d.bestScore; bestScores.endless = d.bestScore; }
     if(typeof d.maxLevelReached==='number') maxLevelReached = Math.max(1, d.maxLevelReached);
     if(typeof d.maxBalloonLevel==='number') maxBalloonLevel = Math.max(1, d.maxBalloonLevel);
     if(typeof d.isPremium==='boolean')      isPremium = d.isPremium;
@@ -4897,7 +5379,9 @@ let _lastAdLevel = 0;      // 上一支強制廣告時的關卡數
    只在 gem 模式、過關進下一關的過場呼叫。 */
 function shouldShowInterstitial(){
   if(isPremium) return false;                       // 付費去廣告
-  if(currentMode==='endless') return false;         // 無盡模式沒有「過關」這個中性過場，不插
+  if(currentMode!=='gem') return false;             // ★ v64 C1 黑名單改白名單：只有 gem 模式的中性過場能插。
+                                                    //   氣球是全遊戲最緊張的模式，過關喘口氣被塞 5 秒廣告 = 體驗謀殺；
+                                                    //   endless 沒有過場、選單(null)更不用說——一行擋光所有漏網模式。
   if(level <= adConfig.gracePeriodLevels) return false;         // 新手保護期
   if(level - _lastAdLevel < adConfig.minLevelInterval) return false; // 關數閘門
   if(Date.now() - _lastAdTime < adConfig.minCooldownSec*1000) return false; // 時間閘門
@@ -4944,10 +5428,14 @@ function proceedToNextLevel(){
    關卡 / 模式流程
    ============================================================ */
 function startLevel(){
+  gameEpoch++;              // ★ v64 A2 開新關 = 新世代，舊計時器全數作廢
+  levelStartScore = score;  // ★ v64 D4 記下進關時的累積分（retry 回滾用）
   // ★ v6：開關卡時先抽出本關「難度性格」，整關沿用（gem 模式才有層次，其它維持平穩）
+  // ★ v64 D1：重試同一關沿用同一份 curDiff——輸了，牆還在。魔王關不再是紙糊的。
   curDiff = (currentMode==='gem')
-    ? difficultyOf(level)
+    ? ((retrySameDiff && curDiff) ? curDiff : difficultyOf(level))
     : { tier:'normal', label:'', trapCap:1, rareBoost:1, goalMul:1, moveMul:1 };
+  retrySameDiff = false;
 
   adRevivesUsed = 0;        // ★ v36 免費救援每關重置（上限 ECON.adReviveCap 次）
   clearStreak = 0;          // ★ v49 連消每關重新起算
@@ -4985,7 +5473,8 @@ function startLevel(){
 /* 從選單進入某模式 */
 function enterMode(mode){
   currentMode = mode;
-  level = 1;
+  // ★ v64 D3 gem 模式從歷史最高關續玩（maxLevelReached 早有存檔，只差這一行）；其餘模式照舊從 1 開始
+  level = (mode==='gem' && maxLevelReached > 1) ? maxLevelReached : 1;
   score = 0;
   winStreak = 0;            // ★ v6：新一局從蜜月期重新開始
   document.getElementById('menu').classList.add('hidden');
@@ -4995,6 +5484,8 @@ function enterMode(mode){
 
 /* 回主選單 */
 function goHome(){
+  gameEpoch++;                   // ★ v64 A2 回選單 = 世代翻頁，所有在飛的過關/失敗計時器落地即作廢
+  currentMode = null;            // ★ v64 A2 回選單後系統不再誤以為「還在對局中」（商店買提示等誤觸的總根源）
   HZ.stop();                     // ★ v33 收掉機關圖層 + 停 rAF，否則氣球在選單背後繼續膨脹
   refreshMenuBadges();           // 剛打完的最高關，回選單就要看得到
   document.getElementById('winOverlay').classList.remove('show');
@@ -5006,9 +5497,16 @@ function goHome(){
 /* 選單徽章：氣球模式的歷史最高關。破紀錄的數字擺在按鈕上，比任何文案都會叫人再按一次。 */
 function refreshMenuBadges(){
   const b = document.getElementById('balloonBest');
-  if(!b) return;
-  if(maxBalloonLevel > 1){ b.textContent = T('menu.best', {n:maxBalloonLevel}); b.style.display = ''; }
-  else                   { b.style.display = 'none'; }
+  if(b){
+    if(maxBalloonLevel > 1){ b.textContent = T('menu.best', {n:maxBalloonLevel}); b.style.display = ''; }
+    else                   { b.style.display = 'none'; }
+  }
+  // ★ v64 D3 gem 模式續玩徽章：磨到第 25 關的玩家明天回來就從第 25 關繼續——留存的命根子
+  const g = document.getElementById('gemBest');
+  if(g){
+    if(maxLevelReached > 1){ g.textContent = T('menu.resume', {n:maxLevelReached}); g.style.display = ''; }
+    else                   { g.style.display = 'none'; }
+  }
 }
 
 /* ===== 選單按鈕 ===== */
@@ -5022,7 +5520,11 @@ document.querySelectorAll('.mode-card').forEach(card=>{
 
 /* ===== 過關 / 失敗 / 導覽 按鈕 ===== */
 document.getElementById('nextBtn').onclick = ()=>{ proceedToNextLevel(); };  // ★ v20：下一關過場，自動判斷是否插強制廣告
-document.getElementById('retryBtn').onclick = ()=>{ score=0; startLevel(); }; // 重新開始本局
+document.getElementById('retryBtn').onclick = ()=>{
+  score = levelStartScore;   // ★ v64 D4 只回滾「這一關失敗的嘗試」，前面關卡攢的總分不沒收（無盡模式起始分本來就是 0，行為不變）
+  retrySameDiff = true;      // ★ v64 D1 重試沿用同一份 curDiff——魔王牆輸了還在，「自殺重開」捷徑正式封路
+  startLevel();
+}; // 重新開始本關
 document.getElementById('winHomeBtn').onclick = goHome;
 document.getElementById('loseHomeBtn').onclick = goHome;
 document.getElementById('homeBtn').onclick = ()=>{ closeGear(); goHome(); };
@@ -5265,12 +5767,18 @@ function slamBombGhost(r, c, done){
   setTimeout(()=>{ hideBombGhost(); done(); }, 150);
 }
 
+let _bombBusy = false;   // ★ v64 A1 引爆忙碌鎖：150ms 砸落動畫期間，第二次引爆一律拒收
 function _bombDetonate(r, c){
-  bombCount--;                       // 先扣帳（防 150ms 動畫期間的重複觸發）
+  if(_bombBusy || bombCount <= 0) return;   // ★ v64 A1 沒貨或動畫進行中 → 直接擋。付費道具帳目絕不能出現負數
+  _bombBusy = true;
+  bombAim = false;                   // ★ v64 A1 扣帳當下就關瞄準：棋盤 pointerup 路徑立刻失效，連點無效
+  clearBombPreview();
+  bombCount--;                       // 先扣帳
   saveGame(); refreshEconomyUI();
   slamBombGhost(r, c, ()=>{          // ★ v51 ② 砸落 → 爆炸，因果連貫
     cancelBombAim();
     explodeAt(r, c);
+    _bombBusy = false;               // ★ v64 A1 爆炸落地才解鎖，下一顆炸彈照常受理
   });
 }
 
@@ -5352,8 +5860,29 @@ window.addEventListener('resize', ()=>{
   calcCellSize(); renderBoard(); renderTray();
 });
 
+/* ★ v63 內建瀏覽器補刀：iOS 的 LINE/FB 內嵌 WebView 收合工具列時「常常不發 window
+   resize 事件」（Safari 本尊會發，內嵌的不一定）—— 這就是 v62 明明留了 62px 保留區、
+   真機卻照樣擠壓的幕後真兇之一：開場量的是工具列展開前的高度，之後高度變了沒人通知。
+   visualViewport 是專門回報「實際可視區」變化的 API，聽它就抓得到。300ms 去彈跳
+   （工具列動畫期間會連發），重排完整套：格子 → 棋盤 → 托盤 → 氣球走廊。 */
+if(window.visualViewport){
+  let _vvRz;
+  window.visualViewport.addEventListener('resize', ()=>{
+    clearTimeout(_vvRz);
+    _vvRz = setTimeout(()=>{
+      if(!currentMode) return;
+      calcCellSize(); renderBoard(); renderTray();
+      if(HZ.active) HZ.layout();
+    }, 300);
+  });
+}
+
 /* ★ v21 啟動：先讀存檔，再把 UI 狀態（音效鈕）同步成存檔值 */
-const isFirstLaunch = (localStorage.getItem(SAVE_KEY) === null);   // ★ v37 讀檔前先記錄，loadGame 不會動到這個判斷
+let isFirstLaunch = false;   // ★ v37 讀檔前先記錄，loadGame 不會動到這個判斷
+try{ isFirstLaunch = (localStorage.getItem(SAVE_KEY) === null); }
+catch(e){ /* ★ v64 S2 封鎖 storage 的環境（內嵌 WebView/極端隱私設定）此行會丟 SecurityError，
+             不包 try/catch 會讓後面整段開機腳本（歡迎視窗/暱稱/UI 同步）全滅。
+             讀不到就當老玩家處理：不跳歡迎視窗（反正名字也存不下來），遊戲照常能玩。 */ }
 loadGame();
 (function syncSavedUI(){
   const sb = document.getElementById('soundBtn');
