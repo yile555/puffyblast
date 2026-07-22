@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v79</title>
-<meta property="og:title" content="繽紛樂 v79">
+<title>繽紛樂 v82</title>
+<meta property="og:title" content="繽紛樂 v82">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://yile555.github.io/puffyblast/">
@@ -955,7 +955,7 @@
     </span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v79・繽紛樂・動物抱寶石</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v82・繽紛樂・動物抱寶石</div>
 </div>
 
 <div id="app">
@@ -1335,7 +1335,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'放方塊・消整排・餵飽小動物',
-  'menu.footer':'v79・繽紛樂・動物抱寶石',
+  'menu.footer':'v82・繽紛樂・動物抱寶石',
   'menu.best':'最高 {n} 關',
   'menu.resume':'▶ 續玩 第 {n} 關',
   'mode.endless.name':'無盡模式', 'mode.endless.desc':'沒有終點，放到沒空間為止。挑戰你的最高分。',
@@ -1789,6 +1789,59 @@ function shadeColor(hex, percent){
   const R = f>>16, G = (f>>8)&0xff, B = f&0xff;
   const r = Math.round((t-R)*p)+R, g = Math.round((t-G)*p)+G, b = Math.round((t-B)*p)+B;
   return '#'+(0x1000000+r*0x10000+g*0x100+b).toString(16).slice(1);
+}
+/* ============================================================
+   ★ v81 gemVivid —— 寶石專用 HSL 調色（取代 shadeColor 在寶石渲染中的角色）
+   ------------------------------------------------------------
+   為什麼要新工具？shadeColor 只會「摻白」或「摻黑」，這兩件事對寶石都是災難：
+     ・摻白  → v80 的粉嫩化（顏色被洗掉飽和度，變卡通糖果色）
+     ・摻黑  → 顏色變「濁」、變髒（灰成分增加）
+   總監的要求是「飽滿」而不是「暗」，這在色彩學上是兩件事：
+     ・變暗   = 往黑靠，明度降 → 濁
+     ・飽滿   = 往純色靠，抽掉灰成分 → 濃烈純淨，明度不一定降
+   所以改用 HSL：飽和度 S 獨立拉高、明度 L 獨立微調，兩軸互不干擾。
+     sMul  飽和度倍率（>1 更純、更濃）
+     lAdd  明度加減（絕對值，+ 亮 / - 深；請小幅使用，大幅會濁）
+   ★ 方塊材質那邊繼續用 shadeColor，不受影響。 */
+function _hex2rgb(hex){ const f=parseInt(hex.slice(1),16); return [f>>16,(f>>8)&0xff,f&0xff]; }
+function _rgb2hex(r,g,b){
+  const cl=v=>Math.max(0,Math.min(255,Math.round(v)));
+  return '#'+(0x1000000+cl(r)*0x10000+cl(g)*0x100+cl(b)).toString(16).slice(1);
+}
+function _rgb2hsl(r,g,b){
+  r/=255; g/=255; b/=255;
+  const mx=Math.max(r,g,b), mn=Math.min(r,g,b), l=(mx+mn)/2;
+  let h=0, s=0;
+  if(mx!==mn){
+    const d=mx-mn;
+    s = l>0.5 ? d/(2-mx-mn) : d/(mx+mn);
+    if(mx===r)      h=((g-b)/d+(g<b?6:0));
+    else if(mx===g) h=((b-r)/d+2);
+    else            h=((r-g)/d+4);
+    h/=6;
+  }
+  return [h,s,l];
+}
+function _hsl2rgb(h,s,l){
+  if(s===0){ const v=l*255; return [v,v,v]; }
+  const hue=(p,q,t)=>{
+    if(t<0)t+=1; if(t>1)t-=1;
+    if(t<1/6) return p+(q-p)*6*t;
+    if(t<1/2) return q;
+    if(t<2/3) return p+(q-p)*(2/3-t)*6;
+    return p;
+  };
+  const q = l<0.5 ? l*(1+s) : l+s-l*s;
+  const p = 2*l-q;
+  return [hue(p,q,h+1/3)*255, hue(p,q,h)*255, hue(p,q,h-1/3)*255];
+}
+function gemVivid(hex, sMul, lAdd){
+  const [r,g,b]=_hex2rgb(hex);
+  let [h,s,l]=_rgb2hsl(r,g,b);
+  s = Math.max(0, Math.min(1, s*(sMul===undefined?1:sMul)));
+  l = Math.max(0, Math.min(1, l+(lAdd||0)));
+  const [R,G,B]=_hsl2rgb(h,s,l);
+  return _rgb2hex(R,G,B);
 }
 /* ★ v67 落點影子調色：把方塊本色轉半透明 rgba —— 拖曳時落點格直接染上「這塊方塊自己的影子」，
    取代通用藍。影子全程貼著格線走＝方塊的同層分身；放手時影子原地實心化，零位移、零時間差。 */
@@ -2860,104 +2913,188 @@ function _gemFacetedWithTable(outlineD, hi, hi2, dk, dk2, edgeColor){
   inner += `<use href="#${pid}" xlink:href="#${pid}" fill="none" stroke="${edgeColor}" stroke-width="1.2" opacity=".5"/>`;
   return inner;
 }
-function _gemFlatFaceted(outlineD, c){
-  /* ★ v79 打光重寫：真實 3D 法線 + Lambert 漫反射
-     ------------------------------------------------------------
-     v75 的問題：八片冠部切面有算光，但中央桌面被寫死 shadeColor(c,0.42)，
-     完全沒參與光照計算 → 桌面永遠是全顆最亮，像自己會發光的貼紙，
-     光線方向感被抹平（玩家回報：「正面太亮、不自然」）。
-     v79 改法：把每一面都當成真實 3D 平面，各自有法線向量，
-     統一用 Lambert 漫反射 N·L 算亮度：
-       ・冠部切面 = 從水平面向外傾斜 34°（真實明亮式切工的冠角）
-       ・中央桌面 = 法線朝正上方（水平面）
-     光源固定右斜上：方位角 -45°、仰角 45°。
-     結果：右上切面最亮（法線最貼近光向），桌面因為只斜接 45° 的光，
-     亮度落在中間偏暗 → 光終於有方向感，寶石才立體。 */
-  const n=8, cx=50, cy=50, R=95;
-  const CROWN_TILT = 34 * Math.PI/180;      // 冠部切面傾角
-  const LIGHT_AZ   = -45 * Math.PI/180;     // 光源方位（右上）
-  const LIGHT_EL   =  45 * Math.PI/180;     // 光源仰角
-  // 光向量（由表面指向光源）
-  const L = [Math.cos(LIGHT_EL)*Math.cos(LIGHT_AZ),
-             Math.cos(LIGHT_EL)*Math.sin(LIGHT_AZ),
-             Math.sin(LIGHT_EL)];
-  const lambert = nv => Math.max(0, nv[0]*L[0] + nv[1]*L[1] + nv[2]*L[2]);
-
-  // 先算出所有面的 N·L，才能把亮度正規化到好看的明暗區間
-  const raw = [];
+/* ============================================================
+   ★ v81 幾何工具：從輪廓頂點推導切面（取代「一律八等分」的硬套邏輯）
+   ------------------------------------------------------------
+   v79/v80 的病根：不管什麼形狀，都均分 45° 切成八片扇形。
+   六芒星的尖與凹、水滴的頂與底、心形的雙峰 —— 全被同一套假設輾過去，
+   切面走向跟輪廓幾何完全脫節，所以「受光面看起來像不同時空貼上來的」。
+   v81 改法：切面由輪廓自己的頂點長出來，每片的兩端就是相鄰兩個頂點，
+   法線方向由它自己的幾何決定。一套程式碼、七顆各算各的 —— 真正的一招抵百。
+   ============================================================ */
+function _gemFacetsFromVertices(verts, cx, cy){
+  /* 每兩個相鄰頂點 + 中心 = 一片三角切面。
+     法線推導：以該片「中心→外緣中點」的方向為水平分量（決定它朝哪邊傾），
+     搭配冠部傾角決定垂直分量 —— 這就是這片切面在 3D 空間的真實朝向。 */
+  const out=[], n=verts.length;
   for(let i=0;i<n;i++){
-    const az = ((360/n)*i - 90) * Math.PI/180;
-    raw.push(lambert([Math.sin(CROWN_TILT)*Math.cos(az),
-                      Math.sin(CROWN_TILT)*Math.sin(az),
-                      Math.cos(CROWN_TILT)]));
+    const a=verts[i], b=verts[(i+1)%n];
+    const mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
+    let dx=mx-cx, dy=my-cy;
+    const len=Math.hypot(dx,dy)||1;
+    dx/=len; dy/=len;
+    out.push({ a, b, mx, my, dx, dy, r:len });
   }
-  const tableRaw = lambert([0,0,1]);        // 桌面法線朝正上
-  const lo = Math.min(tableRaw, ...raw), hi = Math.max(tableRaw, ...raw);
-  const SH_LO = -0.38, SH_HI = 0.14;        // 明暗輸出區間（沿用 v75 的視覺手感）
-  const toShade = v => SH_LO + (v-lo)/((hi-lo)||1) * (SH_HI-SH_LO);
+  return out;
+}
+/* 貝茲/弧線輪廓（心形、水滴）取樣成頂點：用瀏覽器無關的粗略採樣，
+   讓這兩顆也能走「頂點推導」同一條路徑，不必寫特例。 */
+function _gemSampleOutline(kind){
+  const pts=[];
+  if(kind==='ruby'){
+    /* 心形：雙峰 + 尖底。頂點沿輪廓分佈，兩個峰各給較密的取樣，
+       底部尖端單獨成點 —— 這樣「雙峰各自受光、尖底最暗」才會成立。 */
+    /* ★ 切面數刻意收斂：v81 初版取樣 14 點 → 小格子上細碎如碎玻璃、顏色糊成一片。
+       改成 10 點，保留「雙峰 + 尖底」的識別特徵，切面夠大才撐得起高光。 */
+    const seq=[[50,32],[36,24],[23,34],[24,50],[36,67],[50,78],
+               [64,67],[76,50],[77,34],[64,24]];
+    seq.forEach(p=>pts.push({x:p[0],y:p[1]}));
+  }else if(kind==='sapphire'){
+    /* 水滴：尖頂 + 圓底。上半用少量點保留尖銳感，下半沿圓弧均勻取樣。 */
+    /* ★ 同上收斂：14 → 10 點。尖頂保留單點（水滴的識別關鍵），圓底 5 等分。 */
+    pts.push({x:50,y:18});
+    [[36,42],[27,58]].forEach(p=>pts.push({x:p[0],y:p[1]}));
+    for(let i=1;i<=5;i++){
+      const rad=(Math.PI)+(Math.PI/6)*i;
+      pts.push({x:50+26*Math.cos(rad), y:65+26*Math.sin(rad)});
+    }
+    [[73,58],[64,42]].forEach(p=>pts.push({x:p[0],y:p[1]}));
+  }
+  return pts;
+}
+
+function _gemFlatFaceted(outlineD, c, verts){
+  /* ★ v82 光照簡化重寫：整顆「左上→右下」對角漸層，取代 v81 的逐切面運算
+     ============================================================
+     v81 的兩個病灶，這一版一起根治：
+
+     【病灶一：破洞】v81 讓每片切面「用頂點連直線」自己填色，
+     但紅寶石(貝茲心形)、藍寶石(圓弧水滴)、鑽石(Q 圓角菱形) 的輪廓是曲線，
+     直線切面填不滿彎曲處 → 縫隙露出底下的白紙襯底，
+     看起來像「只有一片受光」的白色破塊。那不是光，是洞。
+     ★ v82 解法：漸層直接鋪滿「輪廓路徑本身」。路徑長什麼樣就填什麼樣，
+     貝茲/圓弧/圓角一律完美貼合，破洞從幾何上不可能發生。
+
+     【病灶二：過度運算】v81 為每片切面算 Blinn-Phong、法線、半角向量……
+     但總監一句話點破：光就是從左上打下來，越往右下越深，
+     一道漸層就講完了，不需要在那邊大量運算。
+     ★ v82 解法：一道 45° 線性漸層（左上→右下）罩滿全顆：
+        左上端 = 收斂高光（近白，只佔一小塊）
+        中段   = 飽滿主色（gemVivid 拉高飽和度，C 方向）
+        右下端 = 深色收邊
+     七顆共用同一個光源方向，絕對不會有哪顆的光跑到別的方向去。
+
+     ★ 保留 v80 的原則：透光是「算出來的實色」，全程無 opacity<1。
+     ★ 保留 v81 的原則：飽滿用 HSL 拉飽和度，不摻白(粉嫩)也不摻黑(濁)。
+     ★ verts 仍傳入，只用來畫切面稜線（維持切工感），不再各自填色。 */
+  const cx=50, cy=50;
+
+  /* ---- C 方向配色：飽滿濃烈，亮度只集中在左上一小塊 ---- */
+  const HILITE = gemVivid(c, 1.15, 0.30);   // 左上高光（收斂：只在端點附近）
+  const LIGHT  = gemVivid(c, 1.40, 0.10);   // 受光過渡
+  const BODY   = gemVivid(c, 1.55, -0.02);  // 主色：飽和拉滿、明度中性 → 濃而不濁
+  const SHADE  = gemVivid(c, 1.45, -0.14);  // 背光側
+  const DEEP   = gemVivid(c, 1.35, -0.24);  // 右下收邊
+  const EDGE   = gemVivid(c, 1.30, -0.30);  // 外框描邊
 
   const id=_gemCidSeq++;
-  const pid='fp'+id, clip='fc'+id;
+  const pid='fp'+id, clip='fc'+id, gid='gg'+id, tid='gt'+id;
+
   let defs='<path id="'+pid+'" d="'+outlineD+'"/>';
   defs+='<clipPath id="'+clip+'"><use href="#'+pid+'" xlink:href="#'+pid+'"/></clipPath>';
-  const facets=[];
-  for(let i=0;i<n;i++){
-    const a0=(360/n)*i-90-(360/n)/2, a1=(360/n)*(i+1)-90-(360/n)/2;
-    const p0=_gemPolar(cx,cy,R,a0), p1=_gemPolar(cx,cy,R,a1);
-    facets.push({d:'M'+cx+' '+cy+' L'+p0.x.toFixed(1)+' '+p0.y.toFixed(1)+' L'+p1.x.toFixed(1)+' '+p1.y.toFixed(1)+' Z',
-                 fill:shadeColor(c, toShade(raw[i]))});
-  }
+
+  /* 主漸層：45° 對角（左上 → 右下）。
+     stop 分佈刻意「前段窄、中段寬」＝ 高光收斂在左上一小塊，
+     大部分面積留給飽滿主色，這才是總監要的「濃色為主、亮點點綴」。 */
+  defs+='<linearGradient id="'+gid+'" gradientUnits="userSpaceOnUse" x1="18" y1="18" x2="82" y2="82">'
+      + '<stop offset="0%"   stop-color="'+HILITE+'"/>'
+      + '<stop offset="14%"  stop-color="'+LIGHT +'"/>'
+      + '<stop offset="42%"  stop-color="'+BODY  +'"/>'
+      + '<stop offset="74%"  stop-color="'+SHADE +'"/>'
+      + '<stop offset="100%" stop-color="'+DEEP  +'"/>'
+      + '</linearGradient>';
+
+  /* 桌面(石心)：同方向但整體再亮一階，讓中心有「看進石頭裡」的通透感 */
+  defs+='<linearGradient id="'+tid+'" gradientUnits="userSpaceOnUse" x1="30" y1="30" x2="72" y2="72">'
+      + '<stop offset="0%"   stop-color="'+gemVivid(c,1.10,0.34)+'"/>'
+      + '<stop offset="46%"  stop-color="'+gemVivid(c,1.45,0.06)+'"/>'
+      + '<stop offset="100%" stop-color="'+gemVivid(c,1.50,-0.08)+'"/>'
+      + '</linearGradient>';
+
   let o='<defs>'+defs+'</defs>';
   o+='<g clip-path="url(#'+clip+')">';
-  facets.forEach(f=>{o+='<path d="'+f.d+'" fill="'+f.fill+'"/>';});
-  // 切面稜線：讓每塊平面邊界清楚
-  for(let i=0;i<n;i++){const a=(360/n)*i-90-(360/n)/2;const p=_gemPolar(cx,cy,R,a);
-    o+='<line x1="'+cx+'" y1="'+cy+'" x2="'+p.x.toFixed(1)+'" y2="'+p.y.toFixed(1)+'" stroke="'+shadeColor(c,-0.34)+'" stroke-width="0.7" opacity="0.45"/>';}
-  // 中央桌面：法線朝上，亮度由同一套 Lambert 決定（不再寫死）
-  o+='<use href="#'+pid+'" xlink:href="#'+pid+'" transform="translate(50 50) scale(.62) translate(-50 -50)" fill="'+shadeColor(c, toShade(tableRaw))+'"/>';
-  o+='<use href="#'+pid+'" xlink:href="#'+pid+'" transform="translate(50 50) scale(.62) translate(-50 -50)" fill="none" stroke="'+shadeColor(c,-0.30)+'" stroke-width="0.8" opacity="0.5"/>';
-  // 右上主反光(呼應光向)
-  o+='<path d="M0,-5 L1.4,-1.4 L5,0 L1.4,1.4 L0,5 L-1.4,1.4 L-5,0 L-1.4,-1.4 Z" transform="translate(63,30) scale(1.1)" fill="#fff" opacity="0.85"/>';
+  /* ★ v80 保留：白紙襯底 —— 擋掉方塊色/棋盤色/動物身體。
+     v82 的漸層已鋪滿整條路徑，白紙純粹是抗鋸齒邊緣的防呆保險。 */
+  o+='<use href="#'+pid+'" xlink:href="#'+pid+'" fill="#ffffff"/>';
+  /* ★ 主體：一道漸層鋪滿輪廓本身 —— 曲線形狀不再有破洞 */
+  o+='<use href="#'+pid+'" xlink:href="#'+pid+'" fill="url(#'+gid+')"/>';
+
+  /* 切面稜線：只畫線、不填色。維持「這是一顆有切工的寶石」的識別，
+     但不會再因為直線切面填不滿曲線而露出破洞。 */
+  if(verts && verts.length){
+    const line = gemVivid(c, 1.40, -0.20);
+    for(let i=0;i<verts.length;i++){
+      const v=verts[i];
+      o+='<line x1="'+cx+'" y1="'+cy+'" x2="'+v.x.toFixed(1)+'" y2="'+v.y.toFixed(1)+
+         '" stroke="'+line+'" stroke-width="0.5"/>';
+    }
+  }
+
+  /* 中央桌面：縮小的同形輪廓，自帶亮一階的同方向漸層 */
+  o+='<use href="#'+pid+'" xlink:href="#'+pid+'" transform="translate(50 50) scale(.58) translate(-50 -50)" fill="url(#'+tid+')"/>';
+  o+='<use href="#'+pid+'" xlink:href="#'+pid+'" transform="translate(50 50) scale(.58) translate(-50 -50)" fill="none" stroke="'+gemVivid(c,1.35,-0.18)+'" stroke-width="0.6"/>';
+
   o+=_gemTwinkleDots();
   o+='</g>';
-  o+='<use href="#'+pid+'" xlink:href="#'+pid+'" fill="none" stroke="'+shadeColor(c,-0.40)+'" stroke-width="1.2" opacity="0.55"/>';
+  /* 外框收邊 */
+  o+='<use href="#'+pid+'" xlink:href="#'+pid+'" fill="none" stroke="'+EDGE+'" stroke-width="1.1"/>';
   return o;
 }
 function gemShapeSVG(gemKey){
   const g = GEMS[gemKey];
   if(!g) return '';
   const c = g.gemColor || g.color;   // ★ v78 優先用 gemColor（高飽和寶石色），無則回退 color（淡方塊色）
-  const hi  = shadeColor(c, 0.22);
-  const hi2 = shadeColor(c, 0.08);
-  const dk  = shadeColor(c, -0.14);
-  const dk2 = shadeColor(c, -0.24);
-  const edge = shadeColor(c, -0.40);
-  let outlineD='';
+  /* ★ v81：除了輪廓路徑，還要交出「這個形狀的頂點」給打光引擎。
+     切面由頂點長出來，每顆各算各的受光 —— 不再一套邏輯硬套七種形狀。 */
+  let outlineD='', verts=null;
   switch(g.gemShape){
     case 'diamond': // 鑽石：圓角菱形
       outlineD = `M 50 20 Q 60 20 64 28 L 78 46 Q 82 50 78 54 L 64 72 Q 60 80 50 80 Q 40 80 36 72 L 22 54 Q 18 50 22 46 L 36 28 Q 40 20 50 20 Z`;
+      verts = [[50,20],[64,28],[78,46],[78,54],[64,72],[50,80],[36,72],[22,54],[22,46],[36,28]].map(p=>({x:p[0],y:p[1]}));
       break;
     case 'ruby': // 紅寶石：心形＋橢圓底（拿掉銳角尖點）
       outlineD = `M50 78 C 20 62,15 36,30 25 C 42 17,50 26,50 33 C 50 26,58 17,70 25 C 85 36,80 62,50 78 Z`;
+      verts = _gemSampleOutline('ruby');
       break;
     case 'sapphire': // 藍寶石：水滴形，頂部圓潤
       outlineD = `M50 18 C 36 38,24 54,24 65 A26 26 0 0 0 76 65 C76 54,64 38,50 18 Z`;
+      verts = _gemSampleOutline('sapphire');
       break;
     case 'emerald': // 祖母綠：標準八角（切角方形）— v75 改用圓角多邊形產生器，切線連續不折角
-      outlineD = _gemRoundedPolygonPath([[35,16],[65,16],[84,35],[84,65],[65,84],[35,84],[16,65],[16,35]].map(p=>({x:p[0],y:p[1]})), 5);
+      verts = [[35,16],[65,16],[84,35],[84,65],[65,84],[35,84],[16,65],[16,35]].map(p=>({x:p[0],y:p[1]}));
+      outlineD = _gemRoundedPolygonPath(verts, 5);
       break;
     case 'amethyst': // 紫水晶：直立六邊形 — v75 改用圓角多邊形產生器，切線連續不折角
-      outlineD = _gemRoundedPolygonPath([[50,13],[78,32],[78,68],[50,87],[22,68],[22,32]].map(p=>({x:p[0],y:p[1]})), 7);
+      verts = [[50,13],[78,32],[78,68],[50,87],[22,68],[22,32]].map(p=>({x:p[0],y:p[1]}));
+      outlineD = _gemRoundedPolygonPath(verts, 7);
       break;
-    case 'rose': // 粉晶：圓形切割（12邊形逼近圓，業界標準圓鑽切割，不再是不合邏輯的三角形）
-      outlineD = _gemRoundedPolygonPath(_gemCirclePolygon(50,50,36,12), 6);
+    case 'rose': // 粉晶：圓形切割（12邊形逼近圓，業界標準圓鑽切割）
+      verts = _gemCirclePolygon(50,50,36,12);
+      outlineD = _gemRoundedPolygonPath(verts, 6);
       break;
     case 'citrine': // 黃水晶：六芒星（短腳可愛版，跟鑽石菱形拉開辨識度）
-      default:
+      default: {
       outlineD = _gemStarPath(50,50,33,19,6,3);
-      break;
+      const sv=[];
+      for(let i=0;i<12;i++){
+        const r = i%2===0 ? 33 : 19;
+        const a = (360/12)*i - 90;
+        sv.push(_gemPolar(50,50,r,a));
+      }
+      verts = sv;
+      break; }
   }
-  const gem = _gemFlatFaceted(outlineD, c);
+  const gem = _gemFlatFaceted(outlineD, c, verts);
   /* ★ v76 寶石治本放大：不加縮放群組、不動裁切遮罩，改用 viewBox「鏡頭拉近」。
      原本寶石形狀只佔畫布 ~60%（例：鑽石 y20~80、水滴 y18~78），四周留白太多，
      在手機小格子上被邊框一咬就變成「浮在中央的一小顆」，視覺吃力。
