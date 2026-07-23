@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<title>繽紛樂・30款人設皮膚 體驗版</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{
+  background:var(--bg,#2b3a67);
+  font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;
+  color:#fff;touch-action:none;display:flex;justify-content:center;
+  transition:background .35s ease;
+}
+#app{width:100%;max-width:440px;height:100%;max-height:900px;display:flex;flex-direction:column;
+  position:relative;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);}
+
+/* ── 頂列 ── */
+.top{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 4px;}
+.score{font-size:30px;font-weight:800;color:var(--accent,#f6c95c);text-shadow:0 2px 0 rgba(0,0,0,.3);
+  transition:color .35s ease;}
+.score small{display:block;font-size:10px;color:rgba(255,255,255,.5);letter-spacing:2px;font-weight:600;}
+.top-btns{display:flex;gap:8px;}
+.ibtn{width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.13);border:none;
+  color:#fff;font-size:17px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.ibtn:active{transform:scale(.92);}
+
+/* ── 皮膚切換列 ── */
+.skinbar{display:flex;align-items:center;gap:8px;padding:4px 14px 8px;}
+.skinbar .nav{width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.13);
+  border:none;color:#fff;font-size:16px;cursor:pointer;flex-shrink:0;}
+.skinbar .nav:active{transform:scale(.9);}
+.skininfo{flex:1;text-align:center;min-width:0;}
+.skininfo .idx{font-size:10px;color:rgba(255,255,255,.45);letter-spacing:1.5px;}
+.skininfo .nm{font-size:15px;font-weight:700;letter-spacing:1px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.skininfo .nm.unnamed{color:rgba(255,255,255,.4);font-weight:500;font-style:italic;}
+.skininfo .tags{font-size:9.5px;color:rgba(255,255,255,.5);letter-spacing:1px;margin-top:1px;}
+
+/* ── 棋盤 ── */
+.boardwrap{flex:1;display:flex;align-items:center;justify-content:center;padding:0 14px;min-height:0;}
+#board{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;padding:5px;border-radius:12px;
+  background:var(--board-bg,#1e2a4f);width:100%;aspect-ratio:1;
+  box-shadow:inset 0 2px 10px rgba(0,0,0,.4);transition:background .35s ease;}
+.cell{border-radius:14%;background:var(--cell,#283766);position:relative;
+  transition:background .35s ease;}
+.cell.filled{border-style:solid;border-width:3px;}
+.cell.hint{background:rgba(255,255,255,.22);}
+.cell.clearing{animation:pop .28s ease forwards;}
+@keyframes pop{0%{transform:scale(1);}45%{transform:scale(1.18);filter:brightness(1.5);}100%{transform:scale(0);opacity:0;}}
+
+/* ── 手牌 ── */
+.tray{display:flex;justify-content:space-around;align-items:center;height:96px;padding:0 12px;flex-shrink:0;}
+.piece{display:grid;gap:2px;cursor:grab;touch-action:none;transition:transform .18s ease,opacity .18s;}
+.piece.used{opacity:.18;pointer-events:none;transform:scale(.7);}
+.piece.dragging{opacity:.35;}
+.pcell{border-radius:14%;border-style:solid;border-width:2.5px;}
+
+/* 拖曳幽靈 */
+#ghost{position:fixed;pointer-events:none;z-index:999;display:none;opacity:.9;
+  filter:drop-shadow(0 6px 12px rgba(0,0,0,.5));}
+#ghost .pcell{border-width:3px;}
+
+/* ── 命名面板 ── */
+.sheet{position:absolute;inset:0;background:rgba(10,14,30,.9);backdrop-filter:blur(6px);
+  z-index:200;display:none;flex-direction:column;padding:16px 14px;overflow-y:auto;}
+.sheet.open{display:flex;}
+.sheet h2{font-size:17px;font-weight:800;letter-spacing:2px;margin-bottom:3px;color:#f6c95c;}
+.sheet .sub{font-size:11.5px;color:#9fb0d8;line-height:1.7;margin-bottom:14px;}
+.card{background:rgba(255,255,255,.07);border-radius:14px;padding:13px;margin-bottom:11px;
+  border:1px solid rgba(255,255,255,.08);}
+.card h3{font-size:12px;color:#f6c95c;letter-spacing:1.5px;margin-bottom:8px;font-weight:700;}
+.swatch{display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap;}
+.swatch i{width:30px;height:30px;border-radius:14%;border-style:solid;border-width:2.5px;display:block;}
+.meta{font-size:11px;color:#b8c4e0;line-height:1.75;margin-bottom:5px;}
+.meta b{color:#8fb8e8;font-weight:600;}
+.meta.copic{font-size:10px;color:#7f8bb0;letter-spacing:.3px;}
+label.fl{display:block;font-size:11px;color:#9fb0d8;margin:11px 0 5px;letter-spacing:1px;}
+input.tin,textarea.tin{width:100%;background:rgba(0,0,0,.32);border:1px solid rgba(255,255,255,.16);
+  border-radius:10px;padding:10px 11px;color:#fff;font-size:14px;font-family:inherit;outline:none;}
+input.tin:focus,textarea.tin:focus{border-color:#f6c95c;}
+textarea.tin{resize:vertical;min-height:66px;font-size:13px;line-height:1.6;}
+.hintbox{font-size:10.5px;color:#7f8bb0;margin-top:5px;line-height:1.6;}
+.hintbox em{color:#9fb0d8;font-style:normal;}
+.rate{display:flex;gap:6px;margin-top:7px;}
+.rate button{flex:1;padding:9px 0;border-radius:10px;border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.05);color:#c8d2ea;font-size:12px;font-family:inherit;cursor:pointer;}
+.rate button.on{background:#f6c95c;color:#2b3a67;border-color:#f6c95c;font-weight:700;}
+.btnrow{display:flex;gap:9px;margin-top:6px;}
+.btnrow button{flex:1;padding:13px 0;border-radius:12px;border:none;font-size:14px;
+  font-family:inherit;font-weight:700;cursor:pointer;letter-spacing:1px;}
+.bprim{background:#f6c95c;color:#2b3a67;}
+.bsec{background:rgba(255,255,255,.13);color:#fff;}
+
+/* ── 皮膚總覽 ── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:9px;}
+.gitem{background:rgba(255,255,255,.06);border-radius:11px;padding:8px;cursor:pointer;
+  border:2px solid transparent;}
+.gitem.cur{border-color:#f6c95c;}
+.gitem .gs{display:flex;gap:2px;margin-bottom:6px;}
+.gitem .gs i{flex:1;height:17px;border-radius:3px;display:block;}
+.gitem .gn{font-size:10px;line-height:1.35;color:#dbe3f6;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;}
+.gitem .gn.un{color:rgba(255,255,255,.35);font-style:italic;}
+.gitem .gt{font-size:8.5px;color:#7f8bb0;margin-top:1px;}
+.dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:#7fd6a0;margin-left:3px;}
+
+/* ── 色塊替換器 ── */
+.swatch.editable i{cursor:pointer;position:relative;transition:transform .12s;}
+.swatch.editable i:active{transform:scale(.86);}
+.swatch.editable i.sel{outline:2.5px solid #f6c95c;outline-offset:2px;}
+.slotrow{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:4px;}
+.slotname{font-size:8.5px;color:#7f8bb0;text-align:center;width:30px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.picker{margin-top:11px;border-top:1px solid rgba(255,255,255,.1);padding-top:11px;display:none;}
+.picker.open{display:block;}
+.picker .ptitle{font-size:11px;color:#f6c95c;margin-bottom:8px;letter-spacing:1px;}
+.fam{margin-bottom:9px;}
+.fam .fn{font-size:9.5px;color:#7f8bb0;margin-bottom:3px;letter-spacing:.5px;}
+.fam .fr{display:flex;gap:3px;}
+.fam .fr i{flex:1;height:24px;border-radius:5px;cursor:pointer;display:block;
+  border:1.5px solid rgba(0,0,0,.25);}
+.fam .fr i:active{transform:scale(.88);}
+.altbtn{width:100%;padding:11px 0;border-radius:11px;border:1px dashed rgba(246,201,92,.5);
+  background:rgba(246,201,92,.08);color:#f6c95c;font-size:12.5px;font-family:inherit;
+  cursor:pointer;margin-top:9px;letter-spacing:.5px;}
+.altbtn.on{background:#f6c95c;color:#2b3a67;border-style:solid;font-weight:700;}
+.resetbtn{width:100%;padding:9px 0;border-radius:10px;border:1px solid rgba(255,255,255,.16);
+  background:transparent;color:#9fb0d8;font-size:11.5px;font-family:inherit;cursor:pointer;margin-top:7px;}
+
+.toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%);background:rgba(0,0,0,.85);
+  color:#fff;padding:9px 18px;border-radius:99px;font-size:12.5px;z-index:900;
+  opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;}
+.over{position:absolute;inset:0;background:rgba(10,14,30,.88);z-index:150;display:none;
+  flex-direction:column;align-items:center;justify-content:center;gap:14px;}
+.over.open{display:flex;}
+.over h2{font-size:24px;font-weight:800;color:#f6c95c;letter-spacing:2px;}
+.over p{font-size:14px;color:#c8d2ea;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top">
+    <div class="score"><small>SCORE</small><span id="sc">0</span></div>
+    <div class="top-btns">
+      <button class="ibtn" id="bGrid" title="皮膚總覽">▦</button>
+      <button class="ibtn" id="bName" title="命名與回饋">✎</button>
+      <button class="ibtn" id="bNew" title="重新開始">↻</button>
+    </div>
+  </div>
+
+  <div class="skinbar">
+    <button class="nav" id="bPrev">‹</button>
+    <div class="skininfo">
+      <div class="idx" id="sIdx">1 / 30</div>
+      <div class="nm" id="sNm">未命名</div>
+      <div class="tags" id="sTag"></div>
+    </div>
+    <button class="nav" id="bNext">›</button>
+  </div>
+
+  <div class="boardwrap"><div id="board"></div></div>
+  <div class="tray" id="tray"></div>
+
+  <div class="over" id="over">
+    <h2>沒有位置了</h2>
+    <p id="ovsc">得分 0</p>
+    <div class="btnrow" style="width:200px"><button class="bprim" id="bAgain">再玩一局</button></div>
+  </div>
+
+  <div class="sheet" id="sheet"></div>
+</div>
+<div id="ghost"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══ 皮膚資料（30 款）═══ */
+const SKINS=[{"id":"p01","axis":"工業","temp":"cold","dark":true,"mix":false,"suggest":"鋼鐵工匠","story":"油汙、扳手、車床的鏽味。整盤沉在灰階裡，只有兩格鏽橘是爐火。","psych":"灰色＝世故與力量；單一暖色破口製造焦點，這是工業設計的經典手法。","copic":"C9→C1 灰階 ×6 ＋ YR68・E15 鏽色 ×2","colors":["#5e666e","#727a83","#8a929b","#a2aab2","#bcc3ca","#9c9187","#c07443","#a8734e"],"names":["鑄鐵","鋼板","水泥","鋁材","霧面","機油灰","鏽橘","銅管"]},{"id":"p02","axis":"工業","temp":"cold","dark":true,"mix":false,"suggest":"深夜製圖師","story":"藍圖攤在桌上，檯燈是唯一光源。冷靜、精確、還沒下班。","psych":"藍色主導傳達專業與可信；暗金作為輔色，暗示長時間的專注與價值。","copic":"B45→B60 藍圖階 ＋ Y26・E33 燈光暖色","colors":["#4a6a94","#5c7ca6","#6f8fb6","#8aa5c6","#a6bcd6","#7c8fa8","#c9a15c","#a88a5e"],"names":["深藍圖","製圖藍","描線","格線","蔗紙","石墨","檯燈","木尺"]},{"id":"p03","axis":"工業","temp":"cold","dark":false,"mix":false,"suggest":"齒輪學徒","story":"還沒被油汙染黑的那個階段。工業風的淺色版，乾淨但仍有機械感。","psych":"降低明度對比＝降低壓迫感；保留冷灰骨架但整體提亮，適合長時間遊玩。","copic":"C5→C00 淺灰階 ＋ BG09・YR15 點綴","colors":["#98a0a8","#aeb6bd","#c4cad0","#d8dde1","#e6eaed","#a5b8bc","#e0a878","#b9a894"],"names":["鋁灰","霧鋼","白鐵","鍍鋅","工程紙","冷卻水","黃銅","棉紗手套"]},{"id":"p04","axis":"冷豔","temp":"cold","dark":false,"mix":false,"suggest":"叫我冷冰冰","story":"不是高冷，是懶得理你。名字自己嗆聲，色盤卻美得讓人閉嘴。","psych":"高明度低飽和的藍紫階＝距離感；近白收尾製造「碰不得」的潔淨感。","copic":"BV08→BV0000 藍紫全譜 ＋ C1 銀灰","colors":["#8c9bcf","#9dabd8","#aebae0","#c0c9e8","#d2d9f0","#e4e8f6","#b8c4cc","#9fb4c8"],"names":["霜藍紫","冰晶","薄霜","霧凇","初雪","極光白","銀灰","冰湖"]},{"id":"p05","axis":"冷豔","temp":"cold","dark":true,"mix":false,"suggest":"玻璃刀鋒","story":"看起來透明無害，割手的時候才知道厲害。冰藍全譜，最後一格是深淵。","psych":"高明度跨度＝銳利感；單格深色作為「刃口」，視覺上製造切割的張力。","copic":"B02→B0000 冰藍全譜 ＋ B29 刃口","colors":["#7ec4e4","#93cfe9","#a8daee","#bde4f3","#d2eef8","#a3c8d8","#8fb0c4","#3d6a9e"],"names":["冰藍","薄冰","霜面","雪光","透明","冷霧","鈍面","刃口"]},{"id":"p06","axis":"冷豔","temp":"cold","dark":false,"mix":false,"suggest":"月光舞伶","story":"冷豔的柔軟面。銀藍與淡紫在月下旋轉，冷但不拒人。","psych":"冷色系加入紫調＝優雅而非嚴厲；柔化冷豔的攻擊性，擴大受眾。","copic":"BV13→V0000 銀紫階 ＋ B00 月光","colors":["#a8a8d4","#b6b6dc","#c4c2e4","#d2cfec","#e0dcf4","#eeeaf9","#bdd6e8","#cdd8e0"],"names":["銀紫","月華","薄紗","舞裙","月暈","星塵","月光","大理石"]},{"id":"p07","axis":"職男","temp":"cold","dark":true,"mix":false,"suggest":"職場戰士","story":"海軍藍西裝、炭灰襯衫，還有一格酒紅領帶——那是他唯一的叛逆。","psych":"藍＋灰＝專業可信的職場標準配；單格酒紅是「英雄原型」的意志表態。","copic":"B29→B32 海軍藍 ＋ C7 炭灰 ＋ R59 領帶","colors":["#3f6494","#4f7099","#628aae","#7ba0c0","#95b6d0","#6e767e","#8e969e","#9c4f56"],"names":["海軍藍","正裝藍","襯衫藍","淺條紋","領口白","炭灰","西裝布","酒紅領帶"]},{"id":"p08","axis":"職男","temp":"cold","dark":true,"mix":false,"suggest":"深藍紳士","story":"不用領帶說話。整套深藍全譜，配一格米白袖口——細節裡見教養。","psych":"單一色相全明度階＝內斂的自信；不靠對比色搶眼，靠層次深度取勝。","copic":"B39→B0000 深藍全譜 ＋ E0000 袖口","colors":["#3a5c8c","#4a6d9c","#5d80ac","#7295bc","#8aaacb","#a4c1da","#c0d6e8","#e8e0d4"],"names":["午夜藍","紳士藍","正裝","日光藍","淺藍","襯衫","袖口白","米白"]},{"id":"p09","axis":"職男","temp":"cold","dark":false,"mix":false,"suggest":"週五休閒日","story":"領帶解開的那一刻。職場藍降飽和、加點暖，鬆下來但沒垮。","psych":"降低飽和＋加入中性暖色＝鬆弛感；保留藍色骨架維持專業印象。","copic":"B34→B0000 淡藍 ＋ W3・E31 休閒暖灰","colors":["#7c9cbe","#8fadca","#a4bfd6","#b9d0e2","#cfe0ee","#b0a89e","#c8bfb2","#d9cec0"],"names":["洗舊藍","丹寧","淺牛仔","棉衫","水洗","卡其","麻料","休閒褲"]},{"id":"p10","axis":"神秘","temp":"cold","dark":true,"mix":false,"suggest":"午夜偵探","story":"祖母綠檯燈、深青雨衣、炭灰的城市。線索都在陰影裡。","psych":"祖母綠＋深青＋炭灰是專業配色書公認的「隱密與誘惑」配方。","copic":"G28→BG93 綠青階 ＋ C7 炭灰 ＋ Y26 燈光","colors":["#3f7a63","#4f8a72","#5f9a84","#5a8a8e","#7aa0a4","#6e767e","#8a9298","#c9a15c"],"names":["祖母綠","雨衣綠","街燈綠","深青","霧青","炭灰","石板","檯燈黃"]},{"id":"p11","axis":"神秘","temp":"cold","dark":true,"mix":false,"suggest":"星象術士","story":"靛藍的夜空、暗紫的星圖，還有一格金——那是他讀到的答案。","psych":"深紫＝神秘與神祕學的傳統聯想；金色點綴提供「揭示」的敘事重量。","copic":"BV17→V04 靛紫階 ＋ B39 夜空 ＋ Y26 星光","colors":["#4c5a96","#5d6ba4","#6f7cb2","#7d6fa8","#8f82b6","#3a5c8c","#a89bc8","#c9a15c"],"names":["靛藍","星圖","夜幕","暗紫","紫氣","深空","星雲","星光金"]},{"id":"p12","axis":"神秘","temp":"cold","dark":true,"mix":false,"suggest":"黑色獵人","story":"全身黑，只有瞳孔泛著幽紫。他不追獵物，他等獵物自己走進來。","psych":"黑色＝力量、世故與未知；單一幽紫微光避免全黑造成的壓迫與沉悶。","copic":"C9→C1 全灰階 ＋ V09・BV17 幽光","colors":["#4e565e","#5f676f","#727a82","#868e96","#9aa2aa","#b0b8c0","#7d6fa8","#5d6ba4"],"names":["曜石","暗影","鐵灰","石板","霧灰","冷光","幽紫","瞳光"]},{"id":"p13","axis":"神秘","temp":"cold","dark":false,"mix":false,"suggest":"霧中旅人","story":"神秘的淺色版。看得見輪廓，看不清臉。整盤霧氣，溫和的謎。","psych":"低飽和高明度＝曖昧感；不靠暗色營造神秘，靠「不確定的邊界」。","copic":"BG93→BG0000 霧青階 ＋ C1・V000 微光","colors":["#9ab4b0","#a8c0bc","#b6ccc8","#c4d8d4","#d2e4e0","#c0c8cc","#d6d2e4","#c8d4dc"],"names":["霧青","晨霧","水氣","薄霧","露白","灰霧","紫霧","遠山"]},{"id":"p14","axis":"夢幻（冷）","temp":"cold","dark":false,"mix":true,"suggest":"極光旅人","story":"綠→青→藍→紫，冷色家族手牽手繞了半圈色相環，最後收在冰白。","psych":"鄰近色相連續漸變＝視覺流動感；全程無互補色對撞，長時間觀看不疲勞。","copic":"G12→BV31 冷側漸層 ＋ C00 冰白","colors":["#8fd6b5","#7fcdc4","#7cc3d8","#8ec0e2","#9fb0e0","#b0a4dc","#c8b8e8","#dfeef2"],"names":["極光綠","冰湖","冰川青","極夜藍","霜藍","極光紫","紫曦","冰白"]},{"id":"p15","axis":"冷豔","temp":"cold","dark":false,"mix":false,"suggest":"孔雀礁湖","story":"孔雀開屏那一瞬間的藍綠。精品感拉滿，跟深藍棋盤是天生一對。","psych":"藍綠色系＝高級與信賴的交界；明度階完整，辨識度靠層次而非撞色。","copic":"BG09→BG0000 孔雀全譜 ＋ BG05 偏藍","colors":["#4fa89a","#63b8ab","#77c4b8","#83c9d6","#96d4c9","#aae0d6","#c2ece4","#dcf4ee"],"names":["孔雀","翠湖","礁湖","淺海","翡翠霧","薄荷","泡沫","晨露"]},{"id":"p16","axis":"可愛","temp":"warm","dark":false,"mix":false,"suggest":"蜜柑妹妹","story":"剝開的蜜柑、沾到手指的果汁香。從焦糖橘一路甜到鮮奶油。","psych":"橘色＝親和與活力，是最沒有攻擊性的暖色；完整明度階拉開辨識度。","copic":"YR09→YR0000 蜜柑全譜 ＋ R21 蜜桃","colors":["#d9793c","#e88f52","#f2a468","#f6b982","#e8a88a","#facd9e","#fadfbc","#fdeedb"],"names":["焦糖","蜜柑","果肉","杏桃","蜜桃","奶茶","香草","鮮奶油"]},{"id":"p17","axis":"可愛","temp":"warm","dark":false,"mix":true,"suggest":"棉花糖精靈","story":"粉的、黃的、薄荷的，全都軟綿綿。踩下去會陷進去的那種顏色。","psych":"高明度低飽和多色相＝童趣與無害；小丑原型的溫和版，不刺眼。","copic":"RV11・Y11・BG11 三色淺階混搭","colors":["#f8c6d8","#fadbe6","#f8e9a8","#fbf2c8","#b8e4d8","#d2eee6","#d8cdea","#c8dcf0"],"names":["草莓棉花","蜜桃絨","檸檬糖","奶油雲","薄荷絮","薄荷霧","紫棉糖","天空糖"]},{"id":"p18","axis":"可愛","temp":"warm","dark":false,"mix":false,"suggest":"桃子莓莓","story":"甜的、酸的、還有一點壞。莓紅到奶油白，中間藏著蜜桃的橘。","psych":"粉紅＝友善與樂觀；加入橘調避免過度甜膩，讓可愛帶一點個性。","copic":"RV17→RV0000 莓果全譜 ＋ R21 蜜桃","colors":["#d9739e","#e386ad","#eb9dbc","#f0a894","#f2b5cc","#f6c6d8","#fad8e4","#fdeef2"],"names":["莓紅","桃莓","草莓奶","蜜桃","花瓣","棉花糖","雪紡","鮮奶"]},{"id":"p19","axis":"夢幻","temp":"warm","dark":false,"mix":false,"suggest":"薰衣草夢遊者","story":"走在紫色花田裡，分不清是醒著還是睡著。淡紫全譜，收在月光。","psych":"淡紫＝春天與浪漫的傳統聯想；高明度收尾製造「不真實」的夢感。","copic":"V09→V0000 薰衣草全譜 ＋ BV11 鳶尾","colors":["#9784c9","#a794d3","#b5a5dc","#9fa4d8","#c4b6e4","#d1c6ec","#dfd6f2","#ece6f8"],"names":["葡萄","紫羅蘭","薰衣草","鳶尾","紫丁香","霧紫","晨霧","月光"]},{"id":"p20","axis":"夢幻","temp":"warm","dark":false,"mix":true,"suggest":"雲端糖果匠","story":"在雲上開糖果店。七個色相各取一格淺階，是最不會出錯的萬用盤。","psych":"色相間隔均勻＋明度統一＝視覺平衡；辨識度最高的多色混搭結構。","copic":"七大色相淺階均勻取樣 ＋ E31 奶茶","colors":["#f6b982","#f0da96","#aade9e","#8bcfc4","#9cc8ea","#b5a5dc","#eb9dbc","#dcbfa0"],"names":["橘糖","檸檬","開心果","薄荷","蘇打","芋頭","草莓","奶茶"]},{"id":"p21","axis":"夢幻","temp":"warm","dark":false,"mix":false,"suggest":"泡泡浴女孩","story":"滿浴缸的泡泡，光線透過來都變成彩虹色。慵懶、放鬆、不想起來。","psych":"極高明度＋極低飽和＝鬆弛與安全感；最適合睡前遊玩的護眼配置。","copic":"全色相 000 級極淺階取樣","colors":["#fae0e6","#fdf0d8","#e0f2e4","#d8f0f0","#dceaf8","#e8e2f6","#f6e8dc","#f0f2f4"],"names":["泡泡粉","燈光黃","薄荷泡","水霧","水藍","紫泡","奶泡","瓷白"]},{"id":"p22","axis":"熱情","temp":"warm","dark":true,"mix":false,"suggest":"烈焰舞者","story":"紅、橘、金在身上燒。停不下來的那種人，看一眼就被點著。","psych":"暖色系提高生理喚起度；紅＋金是英雄原型的經典高能配色。","copic":"R37→YR15 火焰階 ＋ Y26 金焰","colors":["#d15a4e","#dd6f52","#e8845a","#f09a62","#f6b078","#d99a4c","#e8b862","#f8d2a0"],"names":["烈焰紅","火舌","橘焰","餘燼","火光","金焰","火星","煙"]},{"id":"p23","axis":"熱情","temp":"warm","dark":false,"mix":true,"suggest":"夏日浪人","story":"珊瑚礁、日落、一格海。衝浪板下的那種熱——曬過的，不燙人。","psych":"暖色主導＋單格冷色＝視覺呼吸點；避免全暖盤造成的燥熱感。","copic":"R35→YR21 珊瑚日落 ＋ BG13 海","colors":["#e88a7c","#f09e88","#f4a870","#f8bc86","#fac89c","#f6dcb4","#8bcfc4","#b6e4da"],"names":["珊瑚","蝦粉","日落","沙金","沙灘","日光","海","浪花"]},{"id":"p24","axis":"熱情","temp":"warm","dark":false,"mix":true,"suggest":"仲夏果汁吧","story":"芒果、百香果、西瓜、萊姆全丟進果汁機。高飽和但不螢光，純粹的爽。","psych":"高飽和多色相＝小丑原型的電流感；控制在非螢光區間避免視覺疲勞。","copic":"Y08・YR16・R22・G09 高飽和取樣","colors":["#f5c93e","#f2a848","#ee7c68","#e88ab0","#8ec96a","#5ec4b0","#6fb8e0","#b89ad8"],"names":["芒果","百香果","西瓜","火龍果","萊姆","薄荷葉","汽水","葡萄"]},{"id":"p25","axis":"魅惑","temp":"warm","dark":true,"mix":false,"suggest":"紅酒詩人","story":"酒紅、靛藍、暗金。他不多話，杯子空了會再幫你倒。","psych":"酒紅帶暖、靛藍給深度、暗金添神秘與優雅——配色書的莫測經典配方。","copic":"R59→R35 酒紅階 ＋ BV17 靛藍 ＋ Y26 暗金","colors":["#9c4f56","#ac5f63","#bc7070","#cc8580","#4c5a96","#6f7cb2","#c9a15c","#dcb87e"],"names":["酒窖","醒酒","酒紅","杯緣","靛藍","夜色","暗金","燭光"]},{"id":"p26","axis":"魅惑","temp":"warm","dark":true,"mix":false,"suggest":"天鵝絨情人","story":"深紫的絨布、玫瑰金的扣環。摸起來很軟，但那是陷阱。","psych":"紫色加深＝從浪漫轉向感官；玫瑰金提供奢華的觸感聯想。","copic":"V99→V05 深紫階 ＋ RV17 玫瑰 ＋ E15 金","colors":["#6e5a8e","#7d6899","#8d78a6","#9d88b4","#b09ac4","#c07a9a","#d19bab","#c49a72"],"names":["深絨","天鵝絨","絨面","紫緞","絲光","玫瑰","玫瑰金","銅扣"]},{"id":"p27","axis":"魅惑","temp":"warm","dark":false,"mix":false,"suggest":"香水後調","story":"魅惑的淺色版。前調散了之後留在皮膚上的那層——若有似無最要命。","psych":"低飽和暖粉紫＝含蓄的性感；不靠暗色而靠「殘留感」營造餘韻。","copic":"RV34→RV0000 粉紫階 ＋ E31 肌膚","colors":["#c898c0","#d0a6c8","#d8b4d0","#e0c2d6","#e8d0e0","#f0deea","#dcc4b0","#eadcd0"],"names":["麝香紫","後調","餘香","絲絨粉","薄紗","殘留","肌膚","裸色"]},{"id":"p28","axis":"瀟灑","temp":"warm","dark":true,"mix":false,"suggest":"焦糖威士忌","story":"冰球在杯裡轉一圈。不費力的那種帥，木頭味的。","psych":"棕色＝踏實與粗獷；木質全譜傳達「時間感」，成熟而不張揚。","copic":"E29→E0000 木質全譜 ＋ Y26 琥珀","colors":["#9c6b48","#ac7c58","#bc8d68","#caa082","#d8b498","#e4c8b0","#c9a15c","#f2e4d4"],"names":["橡木桶","焦糖","威士忌","琥珀木","冰球","酒香","琥珀","杯緣光"]},{"id":"p29","axis":"瀟灑","temp":"warm","dark":false,"mix":true,"suggest":"沙漠遊俠","story":"沙色、鏽紅、一格土綠的仙人掌。公路電影的那種孤獨，但很酷。","psych":"大地色系＝穩定與自由的雙重聯想；低飽和避免燥感，適合長時間停留。","copic":"E31→E0000 沙階 ＋ R59 鏽紅 ＋ YG91 土綠","colors":["#c9a882","#d6b894","#e2c8a8","#eed8bc","#b06a54","#c48068","#a8ac82","#f0e4d2"],"names":["沙丘","細沙","日照沙","風化","鏽紅","岩壁","仙人掌","天光"]},{"id":"p30","axis":"瀟灑","temp":"warm","dark":true,"mix":true,"suggest":"爵士夜行者","story":"深藍的夜、暖棕的薩克斯風、銅金的燈。即興，但每個音都在點上。","psych":"冷暖對比＋金屬色＝即興與精緻並存；跨溫度混搭製造敘事張力。","copic":"B39 夜藍 ＋ E27 暖棕 ＋ Y26 銅金","colors":["#4a648e","#5c7aa0","#7590b0","#a07658","#b4886a","#c89c7e","#c9a15c","#dcbc86"],"names":["夜藍","煙霧藍","舞台光","薩克斯","木地板","琴身","銅金","聚光燈"]}];
+const SWATCH_LIB={"灰階 C":["#4e565e","#5f676f","#727a82","#868e96","#9aa2aa","#adb5bd","#c0c7ce","#d2d8dd","#e6eaed","#f0f2f4"],"暖灰 W":["#5c564e","#6e675e","#807870","#928a82","#a49c94","#b6ada4","#c8bfb6","#d9d1c8","#e8e2da","#f2eee8"],"藍 B":["#2f5a8e","#3d6a9e","#4a7aae","#5d8ab8","#7099c4","#85aad0","#9cbcdc","#b4cde6","#cddef0","#e3eef8"],"藍紫 BV":["#4c5a96","#5d6ba4","#6f7cb2","#8090c0","#94a2ce","#a8b4da","#bcc6e4","#ced6ee","#e0e5f6","#eff2fa"],"紫 V":["#6e5a8e","#7d6899","#8d78a6","#9d88b4","#ae9ac2","#bfacd0","#d0bede","#dfd2ea","#ece4f4","#f6f1fa"],"紫紅 RV":["#c0507e","#cc6590","#d97aa0","#e38fae","#eaa4bf","#f0b8cf","#f5ccdf","#f9deeb","#fceef4","#fef6f9"],"紅 R":["#b04a52","#bc5a5e","#c86c6c","#d47f7c","#de938c","#e8a89e","#f0bcb2","#f6d0c8","#fae2dc","#fdf1ee"],"橘紅 YR":["#c96a34","#d9793c","#e88f52","#f2a468","#f6b982","#facd9e","#fadfbc","#fce8d2","#fdf2e4","#fefaf4"],"黃 Y":["#d9a83c","#e5b84e","#edc766","#f2d582","#f6e09e","#f9e8b8","#fbf0cf","#fcf5e0","#fdfaee","#fefcf7"],"黃綠 YG":["#8a9c4a","#98aa5c","#a6b870","#b4c586","#c2d29c","#d0deb4","#dee8ca","#eaf1de","#f3f7ec","#fafcf6"],"綠 G":["#3f7a63","#4f8a72","#5f9a84","#72aa96","#86baa8","#9ccaba","#b4dacc","#cbe8de","#e0f2ec","#f1f9f6"],"藍綠 BG":["#3f9a8e","#4fa89a","#63b8ab","#77c4b8","#8bd0c6","#a0dcd4","#b8e6e0","#cdf0ea","#e0f6f2","#f2fbfa"],"棕 E":["#8a5c3e","#9c6b48","#ac7c58","#bc8d68","#caa082","#d8b498","#e4c8b0","#eed9c8","#f5e8dc","#faf3ec"]};const PURE_ALT={"鋼鐵工匠":{"label":"純鋼鐵版（去除鏽橘與銅管）","swap":{"5":["#8a929b","C5","冷灰"],"6":["#b0b8c0","C3","拋光"],"7":["#c8ced4","C2","鍍面"]}},"深夜製圖師":{"label":"純藍圖版（去除檯燈暖色）","swap":{"6":["#93aecc","B32","描圖紙"],"7":["#b0c6dc","B14","藍白"]}},"齒輪學徒":{"label":"純鋁灰版（去除黃銅）","swap":{"6":["#b8c2c8","C2","霧鋁"],"7":["#cdd4d9","C1","亮鋁"]}},"職場戰士":{"label":"純海軍藍版（去除酒紅領帶）","swap":{"7":["#aac4da","B12","領帶藍"]}},"午夜偵探":{"label":"純綠青版（去除檯燈黃）","swap":{"7":["#96b4b0","BG72","霧燈"]}},"星象術士":{"label":"純靛紫版（去除星光金）","swap":{"7":["#bcb0d8","V01","星塵紫"]}},"烈焰舞者":{"label":"純火焰版（金焰改橘階）","swap":{"5":["#f2a468","YR16","焰心"],"6":["#f8c08a","YR21","火尾"]}},"紅酒詩人":{"label":"純酒紅版（去除靛藍）","swap":{"4":["#8e4650","R59","深窖"],"5":["#d69a94","R32","酒暈"]}},"天鵝絨情人":{"label":"純紫絨版（去除銅扣）","swap":{"7":["#c4b0d4","V04","絨光"]}},"爵士夜行者":{"label":"純暖銅版（去除夜藍）","swap":{"0":["#8a6448","E29","低音"],"1":["#9c7658","E27","中音"],"2":["#ae8868","E25","高音"]}},"深藍紳士":{"label":"全藍版（米白改淺藍）","swap":{"7":["#d8e6f2","B000","襯衫白"]}},"夏日浪人":{"label":"純暖沙版（去除海藍）","swap":{"6":["#f0d0a8","YR31","沙丘"],"7":["#f8e4c8","Y21","曬白"]}},"沙漠遊俠":{"label":"純沙岩版（去除仙人掌綠）","swap":{"6":["#d2b096","E13","岩粉"]}},"霧中旅人":{"label":"純霧青版（去除紫霧）","swap":{"6":["#cadcd8","BG10","薄霧"]}},"玻璃刀鋒":{"label":"純冰藍版（去除深刃口）","swap":{"7":["#8ab8d0","B12","鈍刃"]}},"叫我冷冰冰":{"label":"純藍紫版（銀灰改藍紫）","swap":{"6":["#c6cee8","BV01","冷銀"],"7":["#b4c0e0","BV02","霜面"]}}};
+
+/* ═══ 狀態 ═══ */
+const SIZE=8;
+let grid=[], score=0, hand=[], cur=0;
+let store={};   /* { skinId:{name,rate,note,cols,alt} } */
+
+try{ store=JSON.parse(localStorage.getItem('vb_persona_fb')||'{}'); }catch(e){ store={}; }
+function save(){ try{ localStorage.setItem('vb_persona_fb',JSON.stringify(store)); }catch(e){} }
+
+/* ── 取得皮膚「當前生效」的 8 色（含玩家改色）── */
+function colsOf(i){
+  const s=SKINS[i], f=store[s.id];
+  if(f&&f.cols&&f.cols.length===8) return f.cols;
+  return s.colors;
+}
+function namesOf(i){
+  const s=SKINS[i], f=store[s.id];
+  if(f&&f.colNames&&f.colNames.length===8) return f.colNames;
+  return s.names;
+}
+function isEdited(i){
+  const f=store[SKINS[i].id];
+  return !!(f&&f.cols);
+}
+
+/* ═══ 色彩工具 ═══ */
+function shade(hex,amt){
+  const n=parseInt(hex.slice(1),16);
+  const f=v=>Math.max(0,Math.min(255,v+amt));
+  return '#'+((f((n>>16)&255)<<16)|(f((n>>8)&255)<<8)|f(n&255)).toString(16).padStart(6,'0');
+}
+function paint(el,hex){
+  el.style.background=hex;
+  el.style.borderColor=shade(hex,34)+' '+shade(hex,-42)+' '+shade(hex,-42)+' '+shade(hex,34);
+}
+function skin(){ return SKINS[cur]; }
+function nameOf(i){ const s=store[SKINS[i].id]; return (s&&s.name&&s.name.trim())?s.name.trim():''; }
+
+/* 依皮膚冷暖／深淺，自動調整舞台色調 */
+function applyTheme(){
+  const s=skin();
+  const dark=s.dark;
+  const warm=s.temp==='warm';
+  const bg   = dark ? (warm?'#2a1f2e':'#1c2440') : (warm?'#33294a':'#2b3a67');
+  const board= dark ? (warm?'#1e1620':'#141b33') : (warm?'#241d38':'#1e2a4f');
+  const cell = dark ? (warm?'#2a2030':'#1e2740') : (warm?'#31284a':'#283766');
+  document.body.style.setProperty('--bg',bg);
+  document.body.style.setProperty('--board-bg',board);
+  document.body.style.setProperty('--cell',cell);
+  document.body.style.setProperty('--accent',colsOf(cur)[6]);
+  const nm=nameOf(cur);
+  const el=document.getElementById('sNm');
+  el.textContent = nm || '未命名（點 ✎ 命名）';
+  el.className = 'nm'+(nm?'':' unnamed');
+  document.getElementById('sIdx').textContent=(cur+1)+' / '+SKINS.length;
+  document.getElementById('sTag').textContent=
+    s.axis+'　'+(s.temp==='warm'?'暖色':'冷色')+(s.dark?'　深色':'')+(s.mix?'　混搭':'');
+}
+
+/* ═══ 方塊形狀 ═══ */
+const SHAPES=[
+  [[1]],[[1,1]],[[1],[1]],[[1,1,1]],[[1],[1],[1]],
+  [[1,1],[1,1]],[[1,1,1,1]],[[1],[1],[1],[1]],
+  [[1,0],[1,0],[1,1]],[[0,1],[0,1],[1,1]],[[1,1],[0,1],[0,1]],[[1,1],[1,0],[1,0]],
+  [[1,1,1],[0,1,0]],[[0,1,0],[1,1,1]],[[1,0],[1,1],[1,0]],[[0,1],[1,1],[0,1]],
+  [[1,1,0],[0,1,1]],[[0,1,1],[1,1,0]],[[1,1,1],[1,0,0]],[[1,1,1],[0,0,1]],
+  [[1,1,1],[1,1,1],[1,1,1]],[[1,1],[1,0]],[[1,1],[0,1]],[[1,0],[1,1]],[[0,1],[1,1]],
+];
+const RARE=[0,1,2,21,22,23,24];  /* 小方塊＝稀有救命牌 */
+
+function newShape(){
+  const r=Math.random();
+  let idx;
+  if(r<0.12) idx=RARE[Math.floor(Math.random()*RARE.length)];
+  else idx=Math.floor(Math.random()*SHAPES.length);
+  const sh=SHAPES[idx];
+  const cols=colsOf(cur);
+  return { sh, color:cols[Math.floor(Math.random()*cols.length)], used:false };
+}
+
+/* ═══ 棋盤 ═══ */
+function initGrid(){ grid=Array.from({length:SIZE},()=>Array(SIZE).fill(null)); }
+
+function canPlace(sh,r,c){
+  for(let y=0;y<sh.length;y++)for(let x=0;x<sh[y].length;x++){
+    if(!sh[y][x])continue;
+    const rr=r+y, cc=c+x;
+    if(rr<0||rr>=SIZE||cc<0||cc>=SIZE||grid[rr][cc])return false;
+  }
+  return true;
+}
+function anySpot(sh){
+  for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++) if(canPlace(sh,r,c))return true;
+  return false;
+}
+function place(p,r,c){
+  p.sh.forEach((row,y)=>row.forEach((v,x)=>{ if(v) grid[r+y][c+x]=p.color; }));
+}
+
+function clearLines(){
+  const rows=[],cols=[];
+  for(let r=0;r<SIZE;r++) if(grid[r].every(v=>v)) rows.push(r);
+  for(let c=0;c<SIZE;c++) if(grid.every(row=>row[c])) cols.push(c);
+  if(!rows.length&&!cols.length) return 0;
+  const cells=new Set();
+  rows.forEach(r=>{for(let c=0;c<SIZE;c++)cells.add(r+','+c);});
+  cols.forEach(c=>{for(let r=0;r<SIZE;r++)cells.add(r+','+c);});
+  cells.forEach(k=>{
+    const [r,c]=k.split(',').map(Number);
+    const el=document.querySelector('[data-rc="'+r+'-'+c+'"]');
+    if(el) el.classList.add('clearing');
+  });
+  setTimeout(()=>{
+    cells.forEach(k=>{const[r,c]=k.split(',').map(Number);grid[r][c]=null;});
+    drawBoard();
+  },280);
+  return rows.length+cols.length;
+}
+
+function drawBoard(){
+  const b=document.getElementById('board');
+  b.innerHTML='';
+  for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){
+    const d=document.createElement('div');
+    d.className='cell';
+    d.dataset.rc=r+'-'+c;
+    if(grid[r][c]){ d.classList.add('filled'); paint(d,grid[r][c]); }
+    b.appendChild(d);
+  }
+}
+
+/* ═══ 手牌 ═══ */
+function deal(){
+  hand=[];
+  /* 公平性保證：至少一張有合法落點 */
+  let guard=0;
+  do{
+    hand=[newShape(),newShape(),newShape()];
+    guard++;
+  }while(!hand.some(p=>anySpot(p.sh)) && guard<40);
+  drawTray();
+}
+
+function drawTray(){
+  const t=document.getElementById('tray');
+  t.innerHTML='';
+  hand.forEach((p,i)=>{
+    const d=document.createElement('div');
+    d.className='piece'+(p.used?' used':'');
+    d.dataset.i=i;
+    const cols=p.sh[0].length;
+    d.style.gridTemplateColumns='repeat('+cols+',18px)';
+    p.sh.forEach(row=>row.forEach(v=>{
+      const c=document.createElement('div');
+      if(v){ c.className='pcell'; c.style.height='18px'; paint(c,p.color); }
+      else { c.style.height='18px'; }
+      d.appendChild(c);
+    }));
+    t.appendChild(d);
+  });
+}
+
+/* ═══ 拖放 ═══ */
+let drag=null;
+const ghost=document.getElementById('ghost');
+
+function startDrag(e,i){
+  if(hand[i].used) return;
+  const p=hand[i];
+  drag={i,p,ox:0,oy:0};
+  ghost.innerHTML='';
+  ghost.style.display='grid';
+  ghost.style.gap='2px';
+  const cw=cellW();
+  ghost.style.gridTemplateColumns='repeat('+p.sh[0].length+','+cw+'px)';
+  p.sh.forEach(row=>row.forEach(v=>{
+    const c=document.createElement('div');
+    c.style.height=cw+'px';
+    if(v){ c.className='pcell'; paint(c,p.color); }
+    ghost.appendChild(c);
+  }));
+  document.querySelectorAll('.piece')[i].classList.add('dragging');
+  moveDrag(e);
+}
+function cellW(){
+  const b=document.getElementById('board');
+  return (b.clientWidth-10-14)/8;
+}
+function pt(e){
+  const t=e.touches?e.touches[0]:e;
+  return {x:t.clientX,y:t.clientY};
+}
+function moveDrag(e){
+  if(!drag)return;
+  const {x,y}=pt(e);
+  const w=ghost.offsetWidth,h=ghost.offsetHeight;
+  ghost.style.left=(x-w/2)+'px';
+  ghost.style.top=(y-h-26)+'px';
+  hint(x,y-h/2-26);
+}
+function targetRC(x,y){
+  const b=document.getElementById('board');
+  const rect=b.getBoundingClientRect();
+  const cw=(rect.width-10)/8;
+  const c=Math.round((x-rect.left-5-cw/2)/cw);
+  const r=Math.round((y-rect.top-5-cw/2)/cw);
+  return {r,c};
+}
+function hint(x,y){
+  document.querySelectorAll('.cell.hint').forEach(e=>e.classList.remove('hint'));
+  if(!drag)return;
+  const {r,c}=targetRC(x,y+ghost.offsetHeight/2);
+  if(!canPlace(drag.p.sh,r,c))return;
+  drag.p.sh.forEach((row,dy)=>row.forEach((v,dx)=>{
+    if(!v)return;
+    const el=document.querySelector('[data-rc="'+(r+dy)+'-'+(c+dx)+'"]');
+    if(el)el.classList.add('hint');
+  }));
+}
+function endDrag(e){
+  if(!drag)return;
+  const t=e.changedTouches?e.changedTouches[0]:e;
+  const {r,c}=targetRC(t.clientX,t.clientY-26);
+  document.querySelectorAll('.cell.hint').forEach(el=>el.classList.remove('hint'));
+  document.querySelectorAll('.piece').forEach(el=>el.classList.remove('dragging'));
+  ghost.style.display='none';
+  if(canPlace(drag.p.sh,r,c)){
+    place(drag.p,r,c);
+    let n=0; drag.p.sh.forEach(row=>row.forEach(v=>{if(v)n++;}));
+    score+=n;
+    drag.p.used=true;
+    drawBoard();
+    const lines=clearLines();
+    if(lines){ score+=lines*10*lines; toast(lines>1?'連消 ×'+lines+'！':'消除！'); }
+    document.getElementById('sc').textContent=score;
+    drawTray();
+    if(hand.every(p=>p.used)) setTimeout(deal,320);
+    else setTimeout(checkDead,340);
+  }
+  drag=null;
+}
+function checkDead(){
+  const alive=hand.filter(p=>!p.used);
+  if(!alive.length)return;
+  if(alive.some(p=>anySpot(p.sh)))return;
+  /* 防死局：自動重洗 */
+  toast('無處可放 → 自動重洗牌');
+  setTimeout(()=>{ deal(); if(!hand.some(p=>anySpot(p.sh))) gameOver(); },600);
+}
+function gameOver(){
+  document.getElementById('ovsc').textContent='得分 '+score;
+  document.getElementById('over').classList.add('open');
+}
+
+document.getElementById('tray').addEventListener('touchstart',e=>{
+  const p=e.target.closest('.piece'); if(!p)return;
+  e.preventDefault(); startDrag(e,+p.dataset.i);
+},{passive:false});
+document.getElementById('tray').addEventListener('mousedown',e=>{
+  const p=e.target.closest('.piece'); if(!p)return;
+  e.preventDefault(); startDrag(e,+p.dataset.i);
+});
+window.addEventListener('touchmove',e=>{if(drag){e.preventDefault();moveDrag(e);}},{passive:false});
+window.addEventListener('mousemove',moveDrag);
+window.addEventListener('touchend',endDrag);
+window.addEventListener('mouseup',endDrag);
+
+/* ═══ 提示訊息 ═══ */
+let tt=null;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(tt); tt=setTimeout(()=>el.classList.remove('show'),1500);
+}
+
+/* ═══ 命名與回饋面板 ═══ */
+function openSheet(){
+  const s=skin();
+  const fb=store[s.id]||{};
+  const sh=document.getElementById('sheet');
+  sh.innerHTML=`
+    <h2>命名與回饋</h2>
+    <div class="sub">第 ${cur+1} 款 ／ 共 30 款　—　玩過之後，把感受寫下來</div>
+
+    <div class="card">
+      <h3>這款的配色　<span style="color:#7f8bb0;font-weight:400">點色塊即可換色</span></h3>
+      <div class="slotrow" id="slotnames"></div>
+      <div class="swatch editable" id="sw"></div>
+      <div class="picker" id="picker"></div>
+      <div id="altwrap"></div>
+      <button class="resetbtn" id="bReset">還原成原始配色</button>
+      <div class="meta" style="margin-top:10px"><b>氣質</b>${s.axis}　${s.temp==='warm'?'暖色系':'冷色系'}${s.dark?'　深色':''}${s.mix?'　混搭':''}</div>
+      <div class="meta"><b>配色依據</b>${s.psych}</div>
+      <div class="meta copic">${s.copic}</div>
+    </div>
+
+    <div class="card">
+      <h3>命名填空</h3>
+      <label class="fl">你想叫它什麼？</label>
+      <input class="tin" id="inName" placeholder="在這裡填入名稱" value="${(fb.name||'').replace(/"/g,'&quot;')}">
+      <div class="hintbox">
+        配色建議名：<em>${s.suggest}</em><br>
+        設計時的想像：<em>${s.story}</em><br>
+        ── 覺得不對味就直接蓋掉，你的感受才算數。
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>玩起來的感覺</h3>
+      <div class="rate" id="rate">
+        <button data-v="1">刺眼</button>
+        <button data-v="2">普通</button>
+        <button data-v="3">舒服</button>
+        <button data-v="4">很愛</button>
+      </div>
+      <label class="fl">回饋（分不分得開？久玩累不累？氣質對不對？）</label>
+      <textarea class="tin" id="inNote" placeholder="例：淺色那三格太接近，玩久了會分不出來">${(fb.note||'').replace(/</g,'&lt;')}</textarea>
+    </div>
+
+    <div class="btnrow">
+      <button class="bsec" id="bClose">關閉</button>
+      <button class="bprim" id="bSave">儲存</button>
+    </div>
+    <div class="btnrow" style="margin-top:9px">
+      <button class="bsec" id="bExport">匯出全部回饋</button>
+    </div>
+  `;
+  /* ── 色塊替換器 ── */
+  let selSlot=-1;
+  function drawSwatch(){
+    const sw=document.getElementById('sw');
+    const sn=document.getElementById('slotnames');
+    const cols=colsOf(cur), nms=namesOf(cur);
+    sw.innerHTML=''; sn.innerHTML='';
+    cols.forEach((h,i)=>{
+      const e=document.createElement('i');
+      paint(e,h); e.dataset.i=i;
+      if(i===selSlot) e.classList.add('sel');
+      e.onclick=()=>{ selSlot=(selSlot===i?-1:i); drawSwatch(); drawPicker(); };
+      sw.appendChild(e);
+      const lb=document.createElement('div');
+      lb.className='slotname'; lb.textContent=nms[i]||'';
+      sn.appendChild(lb);
+    });
+  }
+  function drawPicker(){
+    const pk=document.getElementById('picker');
+    if(selSlot<0){ pk.classList.remove('open'); pk.innerHTML=''; return; }
+    const nms=namesOf(cur);
+    pk.innerHTML='<div class="ptitle">替換第 '+(selSlot+1)+' 格（目前：'+(nms[selSlot]||'')+'）</div>';
+    Object.keys(SWATCH_LIB).forEach(fam=>{
+      const box=document.createElement('div');
+      box.className='fam';
+      box.innerHTML='<div class="fn">'+fam+'</div>';
+      const fr=document.createElement('div');
+      fr.className='fr';
+      SWATCH_LIB[fam].forEach(h=>{
+        const e=document.createElement('i');
+        e.style.background=h; e.title=h;
+        e.onclick=()=>{
+          const cols=colsOf(cur).slice(), nm=namesOf(cur).slice();
+          cols[selSlot]=h; nm[selSlot]=fam.split(' ')[0];
+          const f=store[skin().id]||{};
+          f.cols=cols; f.colNames=nm; f.alt=false;
+          store[skin().id]=f; save();
+          reskin(); applyTheme(); drawSwatch(); drawAlt();
+          toast('已換色');
+        };
+        fr.appendChild(e);
+      });
+      box.appendChild(fr);
+      pk.appendChild(box);
+    });
+    pk.classList.add('open');
+  }
+  /* 純色系一鍵切換（僅有候補的款才顯示） */
+  function drawAlt(){
+    const wrap=document.getElementById('altwrap');
+    const alt=PURE_ALT[s.suggest];
+    if(!alt){ wrap.innerHTML=''; return; }
+    const f=store[s.id]||{};
+    wrap.innerHTML='<button class="altbtn'+(f.alt?' on':'')+'" id="bAlt">'+
+      (f.alt?'✓ 已套用：':'試試 ')+alt.label+'</button>';
+    document.getElementById('bAlt').onclick=()=>{
+      const cur_f=store[s.id]||{};
+      if(cur_f.alt){
+        delete cur_f.cols; delete cur_f.colNames; cur_f.alt=false;
+      }else{
+        const cols=s.colors.slice(), nm=s.names.slice();
+        Object.keys(alt.swap).forEach(k=>{
+          const [hex,,cn]=alt.swap[k];
+          cols[+k]=hex; nm[+k]=cn;
+        });
+        cur_f.cols=cols; cur_f.colNames=nm; cur_f.alt=true;
+      }
+      store[s.id]=cur_f; save();
+      reskin(); applyTheme(); drawSwatch(); drawAlt(); drawPicker();
+      toast(cur_f.alt?'已套用純色系版':'已還原');
+    };
+  }
+  drawSwatch(); drawAlt();
+  document.getElementById('bReset').onclick=()=>{
+    const f=store[s.id]||{};
+    delete f.cols; delete f.colNames; f.alt=false;
+    store[s.id]=f; save();
+    selSlot=-1; reskin(); applyTheme(); drawSwatch(); drawAlt(); drawPicker();
+    toast('已還原原始配色');
+  };
+
+  const rate=document.getElementById('rate');
+  if(fb.rate) rate.querySelector('[data-v="'+fb.rate+'"]').classList.add('on');
+  rate.onclick=e=>{
+    const b=e.target.closest('button'); if(!b)return;
+    rate.querySelectorAll('button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+  };
+  document.getElementById('bClose').onclick=()=>sh.classList.remove('open');
+  document.getElementById('bSave').onclick=()=>{
+    const on=rate.querySelector('.on');
+    const f=store[s.id]||{};        /* 保留 cols / colNames / alt，不被覆蓋 */
+    f.name=document.getElementById('inName').value;
+    f.note=document.getElementById('inNote').value;
+    f.rate=on?+on.dataset.v:0;
+    store[s.id]=f;
+    save(); applyTheme(); sh.classList.remove('open'); toast('已儲存');
+  };
+  document.getElementById('bExport').onclick=exportAll;
+  sh.classList.add('open');
+}
+
+function exportAll(){
+  let out='繽紛樂・30款人設皮膚 ── 測試回饋\\n';
+  out+='匯出時間：'+new Date().toLocaleString('zh-TW')+'\\n';
+  out+='═══════════════════════════════════\\n\\n';
+  const R={1:'刺眼',2:'普通',3:'舒服',4:'很愛'};
+  let done=0;
+  SKINS.forEach((s,i)=>{
+    const f=store[s.id];
+    if(!f||(!f.name&&!f.note&&!f.rate&&!f.cols))return;
+    done++;
+    out+='【'+(i+1)+'】建議名：'+s.suggest+'　('+s.axis+')\\n';
+    if(f.name) out+='　命名：'+f.name+'\\n';
+    if(f.rate) out+='　評價：'+R[f.rate]+'\\n';
+    if(f.note) out+='　回饋：'+f.note+'\\n';
+    out+='　色票：'+colsOf(i).join(' ')+'\\n';
+    if(isEdited(i)) out+='　★ 已改色（原始：'+s.colors.join(' ')+'）\\n';
+    out+='\\n';
+  });
+  out+='───────────────────────────────────\\n';
+  out+='已填寫 '+done+' / 30 款\\n';
+  const sh=document.getElementById('sheet');
+  sh.innerHTML='<h2>匯出結果</h2><div class="sub">全選複製，貼給總工程師即可</div>'+
+    '<textarea class="tin" style="min-height:60vh;font-size:11.5px" readonly>'+
+    out.replace(/</g,'&lt;')+'</textarea>'+
+    '<div class="btnrow"><button class="bsec" id="bBack">返回</button>'+
+    '<button class="bprim" id="bCopy">複製</button></div>';
+  document.getElementById('bBack').onclick=openSheet;
+  document.getElementById('bCopy').onclick=()=>{
+    const ta=sh.querySelector('textarea');
+    ta.select(); ta.setSelectionRange(0,999999);
+    try{ document.execCommand('copy'); toast('已複製'); }catch(e){ toast('請手動全選複製'); }
+  };
+}
+
+/* ═══ 皮膚總覽 ═══ */
+function openGrid(){
+  const sh=document.getElementById('sheet');
+  let done=0;
+  SKINS.forEach(s=>{ const f=store[s.id]; if(f&&(f.name||f.note||f.rate||f.cols))done++; });
+  sh.innerHTML='<h2>30 款人設總覽</h2>'+
+    '<div class="sub">點選任一款立即套用　—　已回饋 '+done+' / 30</div><div class="grid" id="gd"></div>'+
+    '<div class="btnrow" style="margin-top:12px"><button class="bsec" id="bClose2">關閉</button></div>';
+  const gd=document.getElementById('gd');
+  SKINS.forEach((s,i)=>{
+    const d=document.createElement('div');
+    d.className='gitem'+(i===cur?' cur':'');
+    const nm=nameOf(i);
+    const f=store[s.id];
+    const has=f&&(f.name||f.note||f.rate||f.cols);
+    d.innerHTML='<div class="gs"></div>'+
+      '<div class="gn'+(nm?'':' un')+'">'+(nm||'未命名')+(has?'<span class="dot"></span>':'')+'</div>'+
+      '<div class="gt">'+(i+1)+'　'+s.axis+'</div>';
+    const gs=d.querySelector('.gs');
+    colsOf(i).forEach(h=>{ const e=document.createElement('i'); e.style.background=h; gs.appendChild(e); });
+    d.onclick=()=>{ cur=i; applyTheme(); reskin(); sh.classList.remove('open'); toast('已套用'); };
+    gd.appendChild(d);
+  });
+  document.getElementById('bClose2').onclick=()=>sh.classList.remove('open');
+  sh.classList.add('open');
+}
+
+/* 換皮膚：棋盤上既有方塊也一起換色（同索引對應） */
+function reskin(){
+  const cols=colsOf(cur);
+  const old=prevCols||cols;
+  for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){
+    if(!grid[r][c])continue;
+    const idx=old.indexOf(grid[r][c]);
+    grid[r][c]=cols[idx>=0?idx:Math.floor(Math.random()*8)];
+  }
+  hand.forEach(p=>{
+    const idx=old.indexOf(p.color);
+    p.color=cols[idx>=0?idx:Math.floor(Math.random()*8)];
+  });
+  prevCols=cols.slice();
+  drawBoard(); drawTray();
+}
+let prevCols=null;
+
+/* ═══ 事件 ═══ */
+document.getElementById('bPrev').onclick=()=>{ cur=(cur-1+SKINS.length)%SKINS.length; applyTheme(); reskin(); };
+document.getElementById('bNext').onclick=()=>{ cur=(cur+1)%SKINS.length; applyTheme(); reskin(); };
+document.getElementById('bName').onclick=openSheet;
+document.getElementById('bGrid').onclick=openGrid;
+document.getElementById('bNew').onclick=()=>reset();
+document.getElementById('bAgain').onclick=()=>{ document.getElementById('over').classList.remove('open'); reset(); };
+
+function reset(){
+  score=0; document.getElementById('sc').textContent='0';
+  initGrid(); drawBoard(); deal();
+  document.getElementById('over').classList.remove('open');
+}
+
+/* ═══ 測試掛鉤（供 headless smoke test 使用，不影響遊玩）═══ */
+window.__t={
+  get SKINS(){return SKINS;}, get grid(){return grid;}, set grid(v){grid=v;},
+  get hand(){return hand;}, get cur(){return cur;}, set cur(v){cur=v;},
+  get SWATCH_LIB(){return SWATCH_LIB;}, get PURE_ALT(){return PURE_ALT;},
+  get store(){return store;},
+  initGrid, deal, anySpot, canPlace, clearLines, applyTheme, openSheet, openGrid, place,
+  colsOf, isEdited
+};
+
+/* ═══ 啟動 ═══ */
+prevCols=colsOf(cur).slice();
+applyTheme();
+initGrid();
+drawBoard();
+deal();
+window.addEventListener('resize',()=>{drawBoard();drawTray();});
+</script>
+</body>
+</html>
