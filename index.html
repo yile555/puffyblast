@@ -90,6 +90,21 @@
   }
   #gearBackdrop { position:fixed; inset:0; z-index:55; display:none; }
   #gearBackdrop.show { display:block; }
+  /* ★ v85 防作弊暫停幕：對局中開齒輪 → 整片棋盤/手牌糊掉＋壓暗，
+     玩家不能開著設定選單免費暫停、慢慢盤算走法。
+     z-index 55 蓋住遊戲層，但低於 .gear-wrap 的 60 → 齒輪選單本體浮在幕上維持清晰可點。
+     選單頁開齒輪不加這個 class（沒對局就沒作弊問題），見 openGear()。 */
+  #gearBackdrop.privacy { background:rgba(10,14,30,.55);
+    backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); }
+  /* 舊瀏覽器不支援毛玻璃 → 退而求其次直接蓋近乎不透明的深幕，寧可醜也不能漏題 */
+  @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) {
+    #gearBackdrop.privacy { background:rgba(10,14,30,.96); }
+  }
+  #pauseVeilMsg { display:none; }
+  #gearBackdrop.privacy #pauseVeilMsg { display:flex; position:absolute; inset:0;
+    align-items:center; justify-content:center; gap:8px; pointer-events:none;
+    color:#fff; font-size:22px; font-weight:800; letter-spacing:2px;
+    text-shadow:0 2px 12px rgba(0,0,0,.6); }
 
   /* ★ v14 任務欄：動物放大置中（頂部留白給浮動齒輪讓位） */
   /* ★ v34 任務欄自適應（3 / 4 / 5 隻）
@@ -1030,8 +1045,8 @@
   <div id="tray"></div>
 </div>
 
-<!-- 齒輪選單的透明遮罩：點外面收起來 -->
-<div id="gearBackdrop"></div>
+<!-- 齒輪選單的透明遮罩：點外面收起來。★ v85 對局中會加 .privacy 變防作弊毛玻璃 -->
+<div id="gearBackdrop"><div id="pauseVeilMsg">⏸️ <span data-i18n="gear.paused">遊戲暫停中</span></div></div>
 
 <div id="floatPiece"></div>
 <div id="combo"></div>
@@ -1342,6 +1357,7 @@ const I18N = {
   'mode.gem.name':'繽紛收集', 'mode.gem.desc':'餵飽三隻小動物就過關，盤面塞滿才結束，一關接一關往下闖。',
   'mode.balloon.name':'氣球大逃亡', 'mode.balloon.desc':'氣球一路膨脹爬向仙人掌，靠消行洩氣把它拉回來。關關加速，撐得越久越險。',
   'gear.sound':'音效', 'gear.haptic':'震動', 'gear.shop':'商店', 'gear.skin':'換膚', 'gear.tester':'測試員模式', 'gear.home':'主選單',
+  'gear.paused':'遊戲暫停中',   // ★ v85 防作弊暫停幕文字
   'side.level':'關卡', 'side.score':'分數', 'side.best':'最佳', 'side.hint':'提示', 'side.bomb':'炸彈', 'side.dm':'💎 鑽石', 'side.gold':'🪙 金幣',
   'gear.profile':'帳號',
   'welcome.title':'歡迎來到繽紛樂！', 'welcome.sub':'先幫自己取個名字，將來全球排行榜會用到喔',
@@ -1416,6 +1432,7 @@ const I18N = {
   'mode.gem.name':'Critter Collect', 'mode.gem.desc':'Feed the critters to clear each level. You only lose when the board jams. Level after level!',
   'mode.balloon.name':'Balloon Escape', 'mode.balloon.desc':'The balloon keeps inflating toward the cactus — clear lines to deflate it. Faster every level!',
   'gear.sound':'Sound', 'gear.haptic':'Vibration', 'gear.shop':'Shop', 'gear.skin':'Themes', 'gear.tester':'Tester Mode', 'gear.home':'Main Menu',
+  'gear.paused':'Game Paused',   // ★ v85
   'side.level':'LEVEL', 'side.score':'SCORE', 'side.best':'BEST', 'side.hint':'Hint', 'side.bomb':'Bomb', 'side.dm':'💎 Gems', 'side.gold':'🪙 Gold',
   'gear.profile':'Account',
   'welcome.title':'Welcome to Vivid Blast!', 'welcome.sub':'Pick a nickname first — you\'ll need it for the global leaderboard',
@@ -1490,6 +1507,7 @@ const I18N = {
   'mode.gem.name':'もぐもぐコレクト', 'mode.gem.desc':'どうぶつたちを満腹にすればクリア。盤面が詰まるまで終わらない。どんどん先へ！',
   'mode.balloon.name':'バルーン大脱走', 'mode.balloon.desc':'風船はサボテンめがけて膨らみ続ける。ライン消しで空気を抜こう。レベルが進むほど加速！',
   'gear.sound':'サウンド', 'gear.haptic':'バイブ', 'gear.shop':'ショップ', 'gear.skin':'きせかえ', 'gear.tester':'テスターモード', 'gear.home':'メニュー',
+  'gear.paused':'一時停止中',   // ★ v85
   'side.level':'レベル', 'side.score':'スコア', 'side.best':'ベスト', 'side.hint':'ヒント', 'side.bomb':'ボム', 'side.dm':'💎 ジェム', 'side.gold':'🪙 ゴールド',
   'gear.profile':'アカウント',
   'welcome.title':'ビビッドブラストへようこそ！', 'welcome.sub':'まずニックネームを決めよう。世界ランキングで使うよ',
@@ -5995,7 +6013,11 @@ document.getElementById('hintBtn').onclick = ()=>{ closeGear(); watchAdForHint()
 function openGear(){
   // ★ v45 只有已經進對局（currentMode 有值、HZ 引擎才存在）才需要暫停氣球；
   //   選單頁按齒輪時 currentMode 是 null，直接跳過，避免對還沒建立的 HZ 動手。
-  if(currentMode) HZ.paused = true;    // ★ v35 開設定選單 = 暫停氣球（玩家調音效不該被扣血）
+  if(currentMode){
+    HZ.paused = true;    // ★ v35 開設定選單 = 暫停氣球（玩家調音效不該被扣血）
+    // ★ v85 對局中同步落下防作弊毛玻璃：暫停可以，邊暫停邊盤算走法不行
+    document.getElementById('gearBackdrop').classList.add('privacy');
+  }
   document.getElementById('gearMenu').classList.add('show');
   document.getElementById('gearBackdrop').classList.add('show');
 }
@@ -6004,6 +6026,7 @@ function closeGear(){
   if(currentMode && !document.getElementById('loseOverlay').classList.contains('show')) HZ.paused = false;
   document.getElementById('gearMenu').classList.remove('show');
   document.getElementById('gearBackdrop').classList.remove('show');
+  document.getElementById('gearBackdrop').classList.remove('privacy');   // ★ v85 收幕，不留殘影
 }
 document.getElementById('gearBtn').onclick = (e)=>{
   e.stopPropagation();
@@ -6433,6 +6456,35 @@ function doRename(currency){
 }
 document.getElementById('renameBtnGold').onclick = ()=> doRename('gold');
 document.getElementById('renameBtnDm').onclick   = ()=> doRename('dm');
+
+/* ============================================================
+   ★ v85 螢幕保持喚醒（Screen Wake Lock）
+   ─────────────────────────────────────────────
+   痛點：玩家盯著盤面思考超過系統的螢幕逾時秒數（很多手機預設 30 秒），
+   螢幕就自動暗掉——系統不知道「看」也是在玩。這跟省電模式無關，
+   是我們從沒跟系統申請「別關燈」。
+   做法：瀏覽器原生 Wake Lock API（iOS 16.4+ Safari / Android Chrome 皆支援）。
+   規則：
+   • 切到背景時系統會自動釋放鎖 → 監聽 visibilitychange，切回前景就重新申請。
+   • 低電量/省電模式下系統可能拒絕申請 → 尊重系統決定，靜默略過不擾民。
+   • 部分瀏覽器要求使用者互動後申請才穩定 → 第一次觸控時補申請一次。
+   • 舊瀏覽器沒這個 API → 整段自動跳過，零副作用。
+   • 未來 Capacitor 上架時，此段可換成原生 keepScreenOn，跟 haptic() 同批處理。
+   ============================================================ */
+let _wakeLock = null;
+async function acquireWakeLock(){
+  if(!('wakeLock' in navigator)) return;              // 舊瀏覽器：沒有就算了
+  if(document.visibilityState !== 'visible') return;  // 背景分頁申請必被拒，省一次
+  try{
+    _wakeLock = await navigator.wakeLock.request('screen');
+    _wakeLock.addEventListener('release', ()=>{ _wakeLock = null; });
+  }catch(e){ /* 省電模式等情況會被系統拒絕，靜默略過 */ }
+}
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState === 'visible') acquireWakeLock();   // 回前景重新上鎖
+});
+window.addEventListener('pointerdown', function _wakeOnce(){ acquireWakeLock(); }, { once:true });
+acquireWakeLock();
 
 /* 啟動：停在選單，等玩家選模式 */
 /* （不自動開局，讓玩家先選模式）*/
