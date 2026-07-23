@@ -344,6 +344,7 @@ function drawTray(){
 /* ═══ 拖放 ═══ */
 let drag=null;
 const ghost=document.getElementById('ghost');
+const LIFT=26; /* 幽靈方塊懸浮在手指上方的距離（視覺與判定共用，確保所見即所得） */
 
 function startDrag(e,i){
   if(hand[i].used) return;
@@ -376,21 +377,28 @@ function moveDrag(e){
   const {x,y}=pt(e);
   const w=ghost.offsetWidth,h=ghost.offsetHeight;
   ghost.style.left=(x-w/2)+'px';
-  ghost.style.top=(y-h-26)+'px';
-  hint(x,y-h/2-26);
+  ghost.style.top=(y-h-LIFT)+'px';
+  hint(x,y);
 }
 function targetRC(x,y){
+  /* 所見即所得：判定點＝幽靈方塊「左上角第一格的中心」，
+     與 moveDrag 的幽靈定位公式（置中對齊、上浮 LIFT）保持完全一致。 */
   const b=document.getElementById('board');
   const rect=b.getBoundingClientRect();
-  const cw=(rect.width-10)/8;
-  const c=Math.round((x-rect.left-5-cw/2)/cw);
-  const r=Math.round((y-rect.top-5-cw/2)/cw);
+  const inner=rect.width-10;          /* 扣掉左右 padding 5px */
+  const pitch=(inner+2)/8;            /* 格距＝格寬＋2px gap（8 格含 7 個 gap） */
+  const cw=pitch-2;                   /* 單格實際寬度 */
+  const w=ghost.offsetWidth,h=ghost.offsetHeight;
+  const gx=(x-w/2)+cw/2;              /* 幽靈左上格中心 X */
+  const gy=(y-h-LIFT)+cw/2;           /* 幽靈左上格中心 Y */
+  const c=Math.round((gx-rect.left-5-cw/2)/pitch);
+  const r=Math.round((gy-rect.top-5-cw/2)/pitch);
   return {r,c};
 }
 function hint(x,y){
   document.querySelectorAll('.cell.hint').forEach(e=>e.classList.remove('hint'));
   if(!drag)return;
-  const {r,c}=targetRC(x,y+ghost.offsetHeight/2);
+  const {r,c}=targetRC(x,y);
   if(!canPlace(drag.p.sh,r,c))return;
   drag.p.sh.forEach((row,dy)=>row.forEach((v,dx)=>{
     if(!v)return;
@@ -401,7 +409,7 @@ function hint(x,y){
 function endDrag(e){
   if(!drag)return;
   const t=e.changedTouches?e.changedTouches[0]:e;
-  const {r,c}=targetRC(t.clientX,t.clientY-26);
+  const {r,c}=targetRC(t.clientX,t.clientY); /* 判定必須在隱藏幽靈前完成 */
   document.querySelectorAll('.cell.hint').forEach(el=>el.classList.remove('hint'));
   document.querySelectorAll('.piece').forEach(el=>el.classList.remove('dragging'));
   ghost.style.display='none';
