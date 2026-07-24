@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v87</title>
-<meta property="og:title" content="繽紛樂 v87">
+<title>繽紛樂 v88</title>
+<meta property="og:title" content="繽紛樂 v88">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://yile555.github.io/puffyblast/">
@@ -207,7 +207,13 @@
   .sprout-svg { width:100%; height:100%; display:block; overflow:visible;
     filter:drop-shadow(0 2px 3px rgba(0,0,0,.35)); }
   /* 動畫只作用在植株，花盆永遠靜止 —— 花從盆裡長出來，盆子不跟著彈。
-     transform-box:fill-box 讓原點自動落在「植株自己的莖底」，換素材不會跑掉。 */
+     ★ v88 兩層分工（改動理由詳見 sproutSVG 內註解）：
+       .sp-fit   定位層：只帶 SVG 屬性 transform（translate+scale），
+                 必須維持 transform-box:view-box（SVG 預設），絕不可套 fill-box，
+                 否則那組座標會被換算基準，植株直接飛出畫面。
+       .sp-plant 動畫層：不帶任何 SVG transform，只吃 CSS 動畫；
+                 fill-box 在這層才安全，原點 50% 100% ＝ 植株自己的莖底。 */
+  .sprout-svg .sp-fit { transform-box:view-box; }
   .sprout-svg .sp-plant { transform-box:fill-box; transform-origin:50% 100%; }
   /* 苗→苞：短促的「冒出來」，不搶戲 */
   @keyframes sproutGrow {
@@ -1004,7 +1010,7 @@
     </span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v87・繽紛樂・動物抱寶石</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v88・繽紛樂・動物抱寶石</div>
 </div>
 
 <div id="app">
@@ -1384,7 +1390,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'放方塊・消整排・餵飽小動物',
-  'menu.footer':'v87・繽紛樂・動物抱寶石',
+  'menu.footer':'v88・繽紛樂・動物抱寶石',
   'menu.best':'最高 {n} 關',
   'menu.resume':'▶ 續玩 第 {n} 關',
   'mode.endless.name':'無盡模式', 'mode.endless.desc':'沒有終點，放到沒空間為止。挑戰你的最高分。',
@@ -1459,7 +1465,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Drop blocks, clear lines, feed the critters!',
-  'menu.footer':'v87 · Vivid Blast · Gems in Arms',
+  'menu.footer':'v88 · Vivid Blast · Gems in Arms',
   'menu.best':'Best: Lv {n}',
   'menu.resume':'▶ Resume Lv {n}',
   'mode.endless.name':'Endless', 'mode.endless.desc':'No finish line — play until the board fills up. Chase your high score.',
@@ -1534,7 +1540,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを置いて、ライン消して、もぐもぐタイム！',
-  'menu.footer':'v87・ビビッドブラスト・シームレス設置',
+  'menu.footer':'v88・ビビッドブラスト・シームレス設置',
   'menu.best':'ベスト：レベル {n}',
   'menu.resume':'▶ レベル {n} から再開',
   'mode.endless.name':'エンドレス', 'mode.endless.desc':'終わりなき挑戦。盤面が埋まるまでハイスコアを狙おう。',
@@ -2828,6 +2834,13 @@ const _SP_L0 = 57;                      // 主色統一明度
 const _SP_ANCHOR = { bud:[275,62,57], bloom:[286,33,47] };   // 各階段主色 H,S,L
 const _SP_CENTER = '#FADA37';           // 原花心黃
 const _SP_CENTER_ALT = '#6B4212';       // 撞色時改用的深棕
+/* ★ v88 單色明度覆寫 —— 只針對 bone（鑽石）。
+   為什麼要開這個後門？_SP_L0 是「統一明度」，實作上是固定 lAdd = _SP_L0 - aL，
+   對深色寶石（fish L=33、seed L=37）是提亮，合理；但 bone 的 gemColor 本身 L=64，
+   是七色裡最淺的，統一到 57 反而把它「壓暗 7 度」，鑽石花因此顯悶。
+   這裡讓 bone 走自己的目標明度 66，其餘六色一律走 _SP_L0 原路，不受影響。
+   加色系時若又出現高明度寶石（L>60），照樣在這張表補一筆，不要動 _SP_L0。 */
+const _SP_L0_BY_GEM = { bone:66 };
 
 function _spHex2Hsl(hex){
   const r=parseInt(hex.slice(1,3),16)/255, g=parseInt(hex.slice(3,5),16)/255, b=parseInt(hex.slice(5,7),16)/255;
@@ -2867,7 +2880,10 @@ function sproutSVG(gemKey, stage){
   let inner = A.inner;
   const an = _SP_ANCHOR[stage];
   if(an){
-    const [aH,aS,aL] = an, sMul = tS/aS, lAdd = _SP_L0 - aL, map = {};
+    /* lAdd 的基準明度改成可單色覆寫：查得到就用該色專屬值，查不到一律回到 _SP_L0。
+       ?? 而非 ||，避免未來有人填 0 被當成 falsy 吃掉。 */
+    const L0 = _SP_L0_BY_GEM[gemKey] ?? _SP_L0;
+    const [aH,aS,aL] = an, sMul = tS/aS, lAdd = L0 - aL, map = {};
     inner = inner.replace(/#[0-9a-fA-F]{6}/g, hex=>{
       const h6 = hex.toUpperCase();
       if(map[h6]) return map[h6];
@@ -2883,13 +2899,22 @@ function sproutSVG(gemKey, stage){
   }
   const b = SPROUT_BB[stage], h = SPROUT_H[stage];
   const sc = h / (b[3] - b[2]), cx = (b[0] + b[1]) / 2;
-  /* 分成兩層：.sp-plant 會被生長/綻放動畫縮放，.sp-pot 永遠靜止 ——
-     花從盆裡長出來，盆子不跟著彈，這樣才像真的在生長。
-     動畫原點用 transform-box:fill-box + 50% 100%，等同「植株自己的莖底」，
-     不必寫死座標，換素材也不會跑掉。 */
+  /* ★ v88 修正「植株飛出畫面」：拆成 .sp-fit（定位）與 .sp-plant（動畫）兩層。
+     ------------------------------------------------------------
+     v87 的寫法把 SVG 的 transform="translate() scale()" 和 CSS 的
+     transform-box:fill-box 掛在同一個 <g> 上。fill-box 會把 transform 的
+     參考座標系換成該元素自身的 bbox，於是那組原本以 userSpace 為基準算好的
+     translate/scale 被套在完全不同的基準上 —— 植株就被放大並甩到畫面外。
+     （盆子是靜態座標所以留在原位，這正是「只剩空盆」的成因；消除時
+       CSS animation 短暫覆蓋掉屬性 transform，植株才會「閃現一下又不見」。）
+     解法：外層 .sp-fit 只負責定位縮放，不吃任何 CSS transform；
+           內層 .sp-plant 只承受動畫，fill-box 可以安全地只作用在它身上。
+     兩者職責分離後，換素材時外層自動重算，內層動畫原點 50% 100%
+     （＝植株自己的莖底）依然成立，不必寫死座標。 */
   const out = '<svg class="sprout-svg" viewBox="0 0 100 134" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'
-    + '<g class="sp-plant" transform="translate(' + (50 - cx*sc).toFixed(2) + ' '
-    + (SPROUT_SOIL - b[3]*sc).toFixed(2) + ') scale(' + sc.toFixed(5) + ')">' + inner + '</g>'
+    + '<g class="sp-fit" transform="translate(' + (50 - cx*sc).toFixed(2) + ' '
+    + (SPROUT_SOIL - b[3]*sc).toFixed(2) + ') scale(' + sc.toFixed(5) + ')">'
+    + '<g class="sp-plant">' + inner + '</g></g>'
     + '<g class="sp-pot">' + SPROUT_POT + '</g></svg>';
   _spCache[key] = out;
   return out;
