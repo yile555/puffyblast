@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v92</title>
-<meta property="og:title" content="繽紛樂 v92">
+<title>繽紛樂 v93</title>
+<meta property="og:title" content="繽紛樂 v93">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://yile555.github.io/puffyblast/">
@@ -1034,7 +1034,7 @@
     </span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v92・繽紛樂・全免費換膚</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v93・繽紛樂・情緒價值</div>
 </div>
 
 <div id="app">
@@ -1418,7 +1418,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'放方塊・消整排・餵飽小動物',
-  'menu.footer':'v92・繽紛樂・全免費換膚',
+  'menu.footer':'v93・繽紛樂・情緒價值',
   'menu.best':'最高 {n} 關',
   'menu.resume':'▶ 續玩 第 {n} 關',
   'mode.endless.name':'無盡模式', 'mode.endless.desc':'沒有終點，放到沒空間為止。挑戰你的最高分。',
@@ -1490,7 +1490,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Drop blocks, clear lines, feed the critters!',
-  'menu.footer':'v92 · Vivid Blast · Free Skins',
+  'menu.footer':'v93 · Vivid Blast · Juice',
   'menu.best':'Best: Lv {n}',
   'menu.resume':'▶ Resume Lv {n}',
   'mode.endless.name':'Endless', 'mode.endless.desc':'No finish line — play until the board fills up. Chase your high score.',
@@ -1562,7 +1562,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを置いて、ライン消して、もぐもぐタイム！',
-  'menu.footer':'v92・ビビッドブラスト・きせかえ無料',
+  'menu.footer':'v93・ビビッドブラスト・演出強化',
   'menu.best':'ベスト：レベル {n}',
   'menu.resume':'▶ レベル {n} から再開',
   'mode.endless.name':'エンドレス', 'mode.endless.desc':'終わりなき挑戦。盤面が埋まるまでハイスコアを狙おう。',
@@ -2293,6 +2293,46 @@ function spawnFallBlock(cellHost, delayMs, rect, frag){
    ・常態回饋要輕（放置微碎光）、稀有回饋才重（連消階梯、聰明讚），
      讚美一旦氾濫就不值錢 —— 與 v26 統一達標音同一套稀缺性哲學。
    ============================================================ */
+/* ============================================================
+   ★ v93 分數體系重構 —— 情緒價值優先
+   ------------------------------------------------------------
+   【病根】舊制消 1 行 = 10 分，一關下來幾百分，數字太小、爬升太慢，
+   玩家感受不到「我很強」。參考同類遊戲一關破萬分不是通膨，而是把
+   「大消除」與「小消除」的落差用數字說出來 —— 分數本身要會說故事。
+
+   【新結構，四個給分點】
+     ① 放置：每格 +2（基本工資，每一手都在跳）
+     ② 好位置獎金：這一手創造出「下一手就能消行」的機會 → +25
+        （沿用既有的 anySetupExists 聰明判斷引擎，只讚美真功勞）
+     ③ 消行：基礎 100/行 × 行數平方獎金 × 連消倍率
+        行數平方是關鍵：消 1 行 100 分，消 4 行不是 400 而是 1600，
+        「一次清乾淨」的爽感被數字放大到玩家一眼看得出來。
+     ④ 花開：每朵花 +500（任務達成的儀式感，最大單筆）
+
+   【連消倍率】第 2 次起跳（沿用「第一次正常、第二次才特殊」的既有原則）
+     ×1 → ×1.5 → ×2 → ×2.5 → ×3 → ×4（上限）
+
+   【量級驗算】一關約 40 手、消 25 行、開 3~5 朵花：
+     放置 40×4格×2 ≈ 320｜好位置 8×25 = 200
+     消行 25 行分批消，含平方與連消 ≈ 8000~12000｜花開 4×500 = 2000
+     合計約 10500~14500 → 一關破萬，達標。
+   ============================================================ */
+const SCORE_RULE = {
+  perCell:      2,     // ① 放置每格
+  setupBonus:   25,    // ② 創造消行機會
+  lineBase:     100,   // ③ 消行基礎分（每行）
+  bloomBonus:   500,   // ④ 每朵花綻放
+  streakMul:  [1, 1, 1.5, 2, 2.5, 3, 4],   // 連消倍率查表（索引=clearStreak，超出取最後一個）
+};
+function streakMultiplier(n){
+  const t = SCORE_RULE.streakMul;
+  return t[Math.min(Math.max(n, 0), t.length - 1)];
+}
+/* 消行得分：行數平方是「大消除」爽感的來源，不是線性加總 */
+function lineClearScore(totalLines, streak){
+  return Math.round(SCORE_RULE.lineBase * totalLines * totalLines * streakMultiplier(streak));
+}
+
 let clearStreak = 0;            // 目前連消數（放下即消 +1；放下沒消 → 歸零）
 let lastSmartPraiseAt = 0;      // 聰明讚冷卻計時（防氾濫）
 let lastPlacement = null;       // 剛放下那一手的情報：{cells, contacts, filledContacts, size, perimeter, couldSetupBefore}
@@ -2434,6 +2474,115 @@ function streakClearHaptic(lines){
 }
 
 /* ── 聰明讚「叮↑」兩音：短促上揚，跟消行音／達標音都不撞聲線 ── */
+/* ============================================================
+   ★ v93 情緒價值音效組（得分啾啾／連消播報／花開慶祝）
+   ------------------------------------------------------------
+   全部 Web Audio 即時合成，走既有的壓縮器＋殘響總線（adest），
+   零外部檔案，維持單檔架構。
+
+   【人聲預留槽】總監將自行錄製英文播報詞。錄好之後：
+     ① 轉成 MP3／M4A，64–96kbps 單聲道（每句約 5–12KB）
+     ② 轉 base64，貼進下方 VOICE 表對應的 key
+     ③ 完成 —— 播報引擎會自動偵測到素材存在並改播人聲，
+        邏輯一行都不用改，合成音自動退為 fallback。
+   ============================================================ */
+const VOICE = {
+  /* key: 觸發情境　value: 'data:audio/mpeg;base64,...'（空字串＝尚未錄製，走合成音） */
+  good:      '',   // 消 2 行
+  great:     '',   // 消 3 行
+  excellent: '',   // 消 4 行以上
+  combo:     '',   // 連消 3 次
+  amazing:   '',   // 連消 5 次以上
+  bloom:     '',   // 花朵綻放
+};
+const _voiceCache = {};
+/* 播人聲；素材不存在回傳 false，讓呼叫端決定要不要退回合成音 */
+function playVoice(key){
+  if(!soundOn) return false;
+  const src = VOICE[key];
+  if(!src) return false;
+  try{
+    if(!_voiceCache[key]){ _voiceCache[key] = new Audio(src); }
+    const a = _voiceCache[key];
+    a.currentTime = 0;
+    a.volume = 0.85;
+    a.play().catch(()=>{});   // 行動裝置未解鎖音訊時靜默失敗，不吵使用者
+    return true;
+  }catch(e){ return false; }
+}
+
+/* ── 得分啾啾聲：短促上行的小音粒，數字爬升的聽覺對應物 ──
+   step 越大音越高，連續呼叫時自動疊成「啾啾啾」的爬升感。 */
+function playScoreTick(step){
+  if(!soundOn) return; if(!actx()) return;
+  const base = 1046.5;                       // C6，明亮但不刺耳
+  const f = base * Math.pow(2, Math.min(step, 12) / 12);   // 每 step 升半音
+  tone(f, 0, 0.055, 'triangle', 0.13);
+}
+/* ── 消行的一整串啾啾：行數越多、連消越高，音粒越多、爬得越高 ──
+   這是「分數往上爬」那段聲音的主體。 */
+function playScoreRun(totalLines, streak){
+  if(!soundOn) return; if(!actx()) return;
+  const notes = Math.min(3 + totalLines * 2 + Math.max(streak - 1, 0), 12);
+  const gap = 0.045;
+  for(let i = 0; i < notes; i++){
+    const f = 784 * Math.pow(2, i / 12);     // 從 G5 起半音階往上跑
+    tone(f, i * gap, 0.05, 'triangle', 0.11);
+  }
+  // 收尾一顆亮音，給「這串跑完了」的句點
+  tone(784 * Math.pow(2, notes / 12), notes * gap + 0.02, 0.16, 'sine', 0.15);
+}
+
+/* ── 花開慶祝號角：大三和弦琶音 ＋ 高八度收尾，本關最盛大的一聲 ──
+   花色（gemColor 對應的寶石）決定調性起點，七種花各有各的和弦色彩。 */
+const _BLOOM_ROOT = { bone:523.3, fish:587.3, leafwrap:659.3, banana:698.5, seed:784.0, carrot:880.0, cookie:987.8 };
+function playBloomFanfare(gemKey){
+  if(!soundOn) return; if(!actx()) return;
+  const root = _BLOOM_ROOT[gemKey] || 523.3;
+  // 大三和弦琶音（root → 大三度 → 完全五度 → 八度）
+  [0, 4, 7, 12].forEach((semi, i)=>{
+    tone(root * Math.pow(2, semi/12), i * 0.075, 0.42, 'triangle', 0.19);
+  });
+  // 疊一層柔和的墊音撐住尾韻，讓殘響有東西可以拉長
+  tone(root/2, 0.02, 0.85, 'sine', 0.12);
+  // 高八度亮片收尾
+  tone(root * 2, 0.34, 0.5, 'sine', 0.16);
+  tone(root * 3, 0.40, 0.38, 'sine', 0.10);
+}
+
+/* ── 激勵播報：優先播人聲，沒素材則播「合成播報動機」──
+   合成版不是講話，而是一段有辨識度的短動機（像遊戲節目的提示音），
+   讓玩家在人聲備妥前就已經建立「這聲＝我做得好」的條件反射。 */
+function _playFanfareMotif(semitones, vol){
+  semitones.forEach((semi, i)=>{
+    tone(659.3 * Math.pow(2, semi/12), i * 0.07, 0.3, 'triangle', vol);
+  });
+}
+function announceCombo(totalLines, streak){
+  if(!soundOn) return;
+  // 門檻：連消優先於行數（連消是更難的成就）
+  let key = null;
+  if(streak >= 5)        key = 'amazing';
+  else if(streak >= 3)   key = 'combo';
+  else if(totalLines >= 4) key = 'excellent';
+  else if(totalLines === 3) key = 'great';
+  else if(totalLines === 2) key = 'good';
+  if(!key) return;                       // 消 1 行不播報，避免疲勞
+  if(playVoice(key)) return;             // 有人聲素材就用人聲
+  const MOTIF = {                        // 沒素材 → 合成動機，越厲害的成就旋律越高越長
+    good:      [0, 4],
+    great:     [0, 4, 7],
+    excellent: [0, 4, 7, 12],
+    combo:     [7, 12, 16],
+    amazing:   [0, 7, 12, 16, 19],
+  };
+  _playFanfareMotif(MOTIF[key], key==='amazing' ? 0.2 : 0.16);
+}
+function announceBloom(){
+  if(!soundOn) return;
+  playVoice('bloom');   // 沒素材就安靜 —— 號角本身已經夠盛大，不需要合成動機疊上去
+}
+
 function playSmartDing(){
   if(!soundOn) return; if(!actx()) return;
   tone(880, 0,    0.09, 'triangle', 0.16);
@@ -2495,7 +2644,8 @@ function showSmartPraise(cx, cy){
   spawnConfettiBurst(cx, cy, 12);
   playSmartDing();
   haptic([15,40,15]);
-  if(MODE().useScore){ score += 5; bumpBest(); updateStatus(); }   // ★ v64 D2 分模式記帳
+  // ★ v93 好位置獎金：這一手創造出下一手能消行的機會 —— 只讚美真功勞
+  if(MODE().useScore){ score += SCORE_RULE.setupBonus; bumpBest(); updateStatus(); playScoreTick(2); }
 }
 
 /* 放下但沒消行 → 判定這一手聰不聰明（冷卻 6 秒防氾濫） */
@@ -3582,6 +3732,13 @@ function renderGoals(){
     const st = sproutStage(g.got, g.need);
     const grew = (g._st && g._st !== st);
     g._st = st;
+    /* ★ v93 花朵綻放 = 本關最大單筆獎勵 ＋ 專屬慶祝音。
+       只在「這次剛長成」的瞬間觸發一次，重繪不會重複計分（靠 grew 旗標）。 */
+    if(grew && st === 'bloom'){
+      if(MODE().useScore){ score += SCORE_RULE.bloomBonus; bumpBest(); updateStatus(); }
+      playBloomFanfare(g.gem);
+      announceBloom();
+    }
     const anim = grew ? (st==='bloom' ? ' bloom-in' : ' grow') : '';
     div.innerHTML = `<span class="gicon${anim}" style="--gc:${GEMS[g.gem].gemColor}">${sproutSVG(g.gem, st)}${done?'<span class="goal-check">✓</span>':''}</span>
       ${done?'':`<span class="gtext" style="color:${GEMS[g.gem].gemColor}">${Math.max(g.need-g.got,0)}</span>`}`;
@@ -4580,7 +4737,7 @@ function placePiece(p, idx, baseR, baseC){
   //    無盡模式的分數從此「每一手都在跳」——成就感不再乾等消行，
   //    消行的大分＋連消倍率照舊，仍是分數的主菜；這裡是穩定的小費。
   if(MODE().useScore){
-    score += p.cells.length;
+    score += p.cells.length * SCORE_RULE.perCell;   // ★ v93 每格 2 分
     bumpBest();   // ★ v64 D2 分模式記帳
     updateStatus();
   }
@@ -4686,11 +4843,14 @@ function clearLines(){
   // ★ v49 再乘連消倍率（上限 ×5）：保持連消 = 分數翻倍，一眼看懂
   const totalLines=fullRows.length+fullCols.length;
   if(MODE().useScore){
-    const streakMul = Math.min(Math.max(clearStreak,1), 5);
-    const gained = totalLines * 10 * totalLines * streakMul;  // 例：連3消1行 = 10×3 = 30
+    /* ★ v93 消行得分：基礎 100/行 × 行數平方 × 連消倍率。
+       行數平方讓「一次清乾淨」的爽感被數字放大：1行=100、2行=400、4行=1600。 */
+    const gained = lineClearScore(totalLines, clearStreak);
     score += gained;
     bumpBest();   // ★ v64 D2 分模式記帳
     updateStatus();
+    playScoreRun(totalLines, clearStreak);   // ★ v93 啾啾啾爬升音（行數越多、連消越高越華麗）
+    announceCombo(totalLines, clearStreak);  // ★ v93 激勵播報（合成音為主，人聲素材備妥即自動切換）
     checkMoodTriggerScore();   // ★ v92 無盡模式：分數每跨過門檻整數倍安排一次換裝驚喜
   }
 
