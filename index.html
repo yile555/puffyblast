@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v93</title>
-<meta property="og:title" content="繽紛樂 v93">
+<title>繽紛樂 v94</title>
+<meta property="og:title" content="繽紛樂 v94">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://yile555.github.io/puffyblast/">
@@ -623,6 +623,24 @@
   .modal .text-link { display:block; width:100%; margin-top:14px; padding:6px; background:none; border:none;
     color:rgba(255,255,255,.55); font-size:14px; cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
   .modal .text-link:active { color:rgba(255,255,255,.85); }
+
+  /* ★ v94 排行榜（L1 本機個人榜 + L2 系統玩家幽靈榜） */
+  #leaderboardOverlay { z-index:1001; }
+  #leaderboardOverlay .modal { max-width:380px; text-align:left; }
+  #leaderboardOverlay h2 { text-align:center; margin-bottom:14px; }
+  .lb-tabs { display:flex; gap:6px; margin-bottom:14px; }
+  .lb-tab { flex:1; padding:9px 4px; border:none; border-radius:12px; background:rgba(255,255,255,.10);
+    color:#fff; opacity:.6; font-size:14px; font-weight:700; cursor:pointer; }
+  .lb-tab.active { opacity:1; background:linear-gradient(135deg,#4fc3f7,#2196f3); }
+  .lb-combo { text-align:center; font-size:13px; opacity:.75; margin-bottom:10px; }
+  .lb-list { max-height:44vh; overflow-y:auto; display:flex; flex-direction:column; gap:6px; margin-bottom:6px; }
+  .lb-row { display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:12px; background:rgba(255,255,255,.06); font-size:14px; }
+  .lb-row.you { background:rgba(255,215,64,.18); border:1px solid rgba(255,215,64,.55); }
+  .lb-row.ghost { opacity:.72; }
+  .lb-rank { width:28px; font-weight:800; opacity:.8; }
+  .lb-name { flex:1; }
+  .lb-score { font-weight:800; font-variant-numeric:tabular-nums; }
+  .lb-empty { text-align:center; opacity:.6; padding:20px 0; font-size:14px; }
   /* ★ v20 強制過場廣告黑幕 */
   .ad-veil { position:fixed; inset:0; background:#000; z-index:1200; display:flex; flex-direction:column;
     align-items:center; justify-content:center; gap:22px; opacity:0; pointer-events:none; transition:opacity .25s; }
@@ -1034,7 +1052,7 @@
     </span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v93・繽紛樂・情緒價值</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v94・繽紛樂・排行榜</div>
 </div>
 
 <div id="app">
@@ -1064,6 +1082,7 @@
       <button class="gm-item" id="hapticBtn"><span class="gm-ic">📳</span><span data-i18n="gear.haptic">震動</span></button>
       <button class="gm-item" id="shopBtn"><span class="gm-ic">🛍️</span><span><span data-i18n="gear.shop">商店</span><span class="noti-dot" id="shopItemDot" style="position:static;display:inline-block;margin-left:6px;vertical-align:2px;"></span></span></button>
       <button class="gm-item" id="skinBtn"><span class="gm-ic">🎨</span><span data-i18n="gear.skin">換膚</span></button>
+      <button class="gm-item" id="leaderboardBtn"><span class="gm-ic">🏆</span><span data-i18n="gear.leaderboard">排行榜</span></button>
       <button class="gm-item" id="langBtn"><span class="gm-ic">🌐</span><span id="langName">繁體中文</span></button>
       <button class="gm-item" id="profileBtn"><span class="gm-ic">👤</span><span data-i18n="gear.profile">帳號</span></button>
       <!-- ★ v45 測試員模式：開發者與私人測試員專用入口，一鍵解鎖全部皮膚＋福利總覽 -->
@@ -1141,7 +1160,23 @@
     <!-- ★ v20 死局按鈕層級：救援(主) → 重新開始(次) → 回主選單(弱化文字連結) -->
     <button class="big-btn ad" id="reviveBtn">📺 看廣告救援（換新方塊）</button>
     <button class="big-btn" id="retryBtn" style="background:rgba(255,255,255,.18);margin-top:10px;" data-i18n="lose.retry">重新開始</button>
+    <button class="text-link" id="loseLbBtn" data-i18n="lose.leaderboard">🏆 看排行榜</button>
     <button class="text-link" id="loseHomeBtn" data-i18n="lose.home">回主選單</button>
+  </div>
+</div>
+
+<!-- ★ v94 排行榜（L1 本機個人榜 + L2 系統玩家幽靈榜）：三模式分頁，系統玩家分數標記清楚，避免玩家誤會是真人 -->
+<div class="overlay" id="leaderboardOverlay">
+  <div class="modal">
+    <h2 data-i18n="lb.title">🏆 排行榜</h2>
+    <div class="lb-tabs">
+      <button class="lb-tab" data-mode="balloon" data-i18n="mode.balloon.name">氣球大逃亡</button>
+      <button class="lb-tab" data-mode="endless" data-i18n="mode.endless.name">無盡模式</button>
+      <button class="lb-tab" data-mode="gem" data-i18n="mode.gem.name">繽紛收集</button>
+    </div>
+    <div class="lb-combo" id="lbCombo"></div>
+    <div class="lb-list" id="lbList"></div>
+    <button class="big-btn" id="lbCloseBtn" data-i18n="lb.close">關閉</button>
   </div>
 </div>
 
@@ -1418,13 +1453,16 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'放方塊・消整排・餵飽小動物',
-  'menu.footer':'v93・繽紛樂・情緒價值',
+  'menu.footer':'v94・繽紛樂・排行榜',
   'menu.best':'最高 {n} 關',
   'menu.resume':'▶ 續玩 第 {n} 關',
   'mode.endless.name':'無盡模式', 'mode.endless.desc':'沒有終點，放到沒空間為止。挑戰你的最高分。',
   'mode.gem.name':'繽紛收集', 'mode.gem.desc':'餵飽三隻小動物就過關，盤面塞滿才結束，一關接一關往下闖。',
   'mode.balloon.name':'氣球大逃亡', 'mode.balloon.desc':'氣球一路膨脹爬向仙人掌，靠消行洩氣把它拉回來。關關加速，撐得越久越險。',
-  'gear.sound':'音效', 'gear.haptic':'震動', 'gear.shop':'商店', 'gear.skin':'換膚', 'gear.tester':'測試員模式', 'gear.home':'主選單',
+  'gear.sound':'音效', 'gear.haptic':'震動', 'gear.shop':'商店', 'gear.skin':'換膚', 'gear.leaderboard':'排行榜', 'gear.tester':'測試員模式', 'gear.home':'主選單',
+  'lb.title':'🏆 排行榜', 'lb.close':'關閉', 'lb.empty':'還沒有紀錄，快去玩一局吧！',
+  'lb.you':'你', 'lb.maxCombo':'本模式最高連消 ×{n}',
+  'lb.ghost1':'系統玩家・新手', 'lb.ghost2':'系統玩家・穩健', 'lb.ghost3':'系統玩家・高手', 'lb.ghost4':'系統玩家・大魔王',
   'gear.paused':'遊戲暫停中',   // ★ v87 防作弊暫停幕文字
   'side.level':'關卡', 'side.score':'分數', 'side.best':'最佳', 'side.hint':'提示', 'side.bomb':'炸彈', 'side.dm':'💎 鑽石', 'side.gold':'🪙 金幣',
   'gear.profile':'帳號',
@@ -1445,7 +1483,7 @@ const I18N = {
   'lose.text.gem':'盤面塞滿放不下了！看廣告換一批方塊續命，或重新挑戰本關。',
   'lose.score':'本局得分 {s}　最佳 {b}。{nr}', 'lose.newRecord':'刷新紀錄！',
   'lose.boomTitle':'💥 氣球爆了！', 'lose.boomText':'仙人掌把氣球戳破了⋯⋯看廣告讓氣球洩掉一半，原地再拼一次！',
-  'lose.retry':'重新開始', 'lose.home':'回主選單',
+  'lose.retry':'重新開始', 'lose.home':'回主選單', 'lose.leaderboard':'🏆 看排行榜',
   'revive.ad.balloon':'📺 看廣告救援（氣球洩氣一半）', 'revive.ad.board':'📺 看廣告救援（清出空間換新方塊）',
   'revive.free':'本關免費救援還剩 {n} 次',
   'revive.bomb':'💣 用炸彈救援（擁有 {n} 顆）', 'revive.bombHint':'免費救援用完了，炸彈直接續命、免看廣告',
@@ -1490,13 +1528,16 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Drop blocks, clear lines, feed the critters!',
-  'menu.footer':'v93 · Vivid Blast · Juice',
+  'menu.footer':'v94 · Vivid Blast · Leaderboard',
   'menu.best':'Best: Lv {n}',
   'menu.resume':'▶ Resume Lv {n}',
   'mode.endless.name':'Endless', 'mode.endless.desc':'No finish line — play until the board fills up. Chase your high score.',
   'mode.gem.name':'Critter Collect', 'mode.gem.desc':'Feed the critters to clear each level. You only lose when the board jams. Level after level!',
   'mode.balloon.name':'Balloon Escape', 'mode.balloon.desc':'The balloon keeps inflating toward the cactus — clear lines to deflate it. Faster every level!',
-  'gear.sound':'Sound', 'gear.haptic':'Vibration', 'gear.shop':'Shop', 'gear.skin':'Themes', 'gear.tester':'Tester Mode', 'gear.home':'Main Menu',
+  'gear.sound':'Sound', 'gear.haptic':'Vibration', 'gear.shop':'Shop', 'gear.skin':'Themes', 'gear.leaderboard':'Leaderboard', 'gear.tester':'Tester Mode', 'gear.home':'Main Menu',
+  'lb.title':'🏆 Leaderboard', 'lb.close':'Close', 'lb.empty':'No records yet — play a round!',
+  'lb.you':'You', 'lb.maxCombo':'Best combo this mode: ×{n}',
+  'lb.ghost1':'System Player・Rookie', 'lb.ghost2':'System Player・Steady', 'lb.ghost3':'System Player・Ace', 'lb.ghost4':'System Player・Boss',
   'gear.paused':'Game Paused',   // ★ v87
   'side.level':'LEVEL', 'side.score':'SCORE', 'side.best':'BEST', 'side.hint':'Hint', 'side.bomb':'Bomb', 'side.dm':'💎 Gems', 'side.gold':'🪙 Gold',
   'gear.profile':'Account',
@@ -1517,7 +1558,7 @@ const I18N = {
   'lose.text.gem':'The board jammed up! Watch an ad for fresh blocks, or retry this level.',
   'lose.score':'Score {s}　Best {b}. {nr}', 'lose.newRecord':'New record!',
   'lose.boomTitle':'💥 Balloon Popped!', 'lose.boomText':'The cactus popped the balloon... Watch an ad to deflate it halfway and keep going!',
-  'lose.retry':'Restart', 'lose.home':'Main Menu',
+  'lose.retry':'Restart', 'lose.home':'Main Menu', 'lose.leaderboard':'🏆 Leaderboard',
   'revive.ad.balloon':'📺 Watch Ad to Rescue (deflate 50%)', 'revive.ad.board':'📺 Watch Ad to Rescue (clear space)',
   'revive.free':'{n} free rescue(s) left this level',
   'revive.bomb':'💣 Bomb Rescue (you have {n})', 'revive.bombHint':'Free rescues used up — a bomb revives you instantly, no ad',
@@ -1562,13 +1603,16 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを置いて、ライン消して、もぐもぐタイム！',
-  'menu.footer':'v93・ビビッドブラスト・演出強化',
+  'menu.footer':'v94・ビビッドブラスト・ランキング',
   'menu.best':'ベスト：レベル {n}',
   'menu.resume':'▶ レベル {n} から再開',
   'mode.endless.name':'エンドレス', 'mode.endless.desc':'終わりなき挑戦。盤面が埋まるまでハイスコアを狙おう。',
   'mode.gem.name':'もぐもぐコレクト', 'mode.gem.desc':'どうぶつたちを満腹にすればクリア。盤面が詰まるまで終わらない。どんどん先へ！',
   'mode.balloon.name':'バルーン大脱走', 'mode.balloon.desc':'風船はサボテンめがけて膨らみ続ける。ライン消しで空気を抜こう。レベルが進むほど加速！',
-  'gear.sound':'サウンド', 'gear.haptic':'バイブ', 'gear.shop':'ショップ', 'gear.skin':'きせかえ', 'gear.tester':'テスターモード', 'gear.home':'メニュー',
+  'gear.sound':'サウンド', 'gear.haptic':'バイブ', 'gear.shop':'ショップ', 'gear.skin':'きせかえ', 'gear.leaderboard':'ランキング', 'gear.tester':'テスターモード', 'gear.home':'メニュー',
+  'lb.title':'🏆 ランキング', 'lb.close':'閉じる', 'lb.empty':'まだ記録がありません。プレイしてみよう！',
+  'lb.you':'あなた', 'lb.maxCombo':'このモードの最高コンボ ×{n}',
+  'lb.ghost1':'システムプレイヤー・初心者', 'lb.ghost2':'システムプレイヤー・安定', 'lb.ghost3':'システムプレイヤー・上級', 'lb.ghost4':'システムプレイヤー・ボス',
   'gear.paused':'一時停止中',   // ★ v87
   'side.level':'レベル', 'side.score':'スコア', 'side.best':'ベスト', 'side.hint':'ヒント', 'side.bomb':'ボム', 'side.dm':'💎 ジェム', 'side.gold':'🪙 ゴールド',
   'gear.profile':'アカウント',
@@ -1589,7 +1633,7 @@ const I18N = {
   'lose.text.gem':'盤面が詰まった！広告を見て新しいブロックで続けるか、このレベルに再挑戦しよう。',
   'lose.score':'スコア {s}　ベスト {b}。{nr}', 'lose.newRecord':'新記録！',
   'lose.boomTitle':'💥 風船が割れた！', 'lose.boomText':'サボテンに刺さっちゃった…広告を見れば空気が半分抜けて、その場で再開できる！',
-  'lose.retry':'リトライ', 'lose.home':'メニューへ',
+  'lose.retry':'リトライ', 'lose.home':'メニューへ', 'lose.leaderboard':'🏆 ランキング',
   'revive.ad.balloon':'📺 広告を見て復活（空気を半分抜く）', 'revive.ad.board':'📺 広告を見て復活（スペース確保）',
   'revive.free':'このレベルの無料復活：残り {n} 回',
   'revive.bomb':'💣 ボムで復活（所持 {n} 個）', 'revive.bombHint':'無料復活は使い切り。ボムなら広告なしで即復活！',
@@ -1656,6 +1700,67 @@ let score = 0;             // 本局分數（無盡模式核心）
 let bestScores = { gem:0, endless:0, balloon:0 };
 function getBest(){ return (currentMode && bestScores[currentMode]) || 0; }
 function bumpBest(){ if(currentMode && score > (bestScores[currentMode]||0)) bestScores[currentMode] = score; }
+
+/* ============================================================
+   ★ v94 排行榜（L1 本機個人歷史前10 + L2 系統玩家幽靈榜）
+   ─────────────────────────────────────────────
+   與 bestScores 分開存在：bestScores 是「對局中即時最佳分」，
+   lbData 只在一局真正結束（showLose）時寫入一筆「本局最終成績」，
+   兩者資料源不同，互不干擾，不動 bumpBest/getBest 既有邏輯。
+   結構刻意留白，未來要加欄位（如日期、消行數）直接加 key 即可，
+   不用改資料格式或搬遷舊存檔。
+   ============================================================ */
+let lbData = {
+  gem:     { top10: [], maxCombo: 0 },
+  endless: { top10: [], maxCombo: 0 },
+  balloon: { top10: [], maxCombo: 0 },
+};
+let runMaxCombo = 0;   // 本局目前為止的最高連消（session 變數，enterMode 時歸零）
+
+/* 系統玩家幽靈榜——純手動基準線（旋鈕，待實機測試後調整），只在畫面顯示用，不落地存檔 */
+const GHOST_SCORES = {
+  endless: [4000, 9000, 16000, 26000],
+  gem:     [3000, 7000, 13000, 22000],
+  balloon: [2500, 6000, 11000, 18000],
+};
+const GHOST_KEYS = ['lb.ghost1','lb.ghost2','lb.ghost3','lb.ghost4'];
+
+/* 一局結束時寫入排行榜（只在有分數的模式呼叫，見 showLose） */
+function recordRunResult(mode, finalScore){
+  if(!mode || !lbData[mode] || finalScore <= 0) return;
+  const d = lbData[mode];
+  d.top10.push({ score: finalScore, combo: runMaxCombo });
+  d.top10.sort((a,b)=> b.score - a.score);
+  d.top10 = d.top10.slice(0, 10);
+  if(runMaxCombo > d.maxCombo) d.maxCombo = runMaxCombo;
+}
+
+let lbCurrentMode = 'endless';
+function renderLeaderboard(mode){
+  lbCurrentMode = mode;
+  const d = lbData[mode] || { top10:[], maxCombo:0 };
+  const ghosts = (GHOST_SCORES[mode]||[]).map((s,i)=>({ score:s, ghost:true, nameKey:GHOST_KEYS[i] }));
+  const real   = d.top10.map(e=>({ score:e.score, ghost:false }));
+  const merged = real.concat(ghosts).sort((a,b)=> b.score - a.score).slice(0,10);
+  const listEl = document.getElementById('lbList');
+  if(merged.length===0){
+    listEl.innerHTML = `<div class="lb-empty">${T('lb.empty')}</div>`;
+  } else {
+    listEl.innerHTML = merged.map((e,i)=>{
+      const name = e.ghost ? T(e.nameKey) : T('lb.you');
+      return `<div class="lb-row ${e.ghost?'ghost':'you'}"><span class="lb-rank">#${i+1}</span><span class="lb-name">${name}</span><span class="lb-score">${e.score}</span></div>`;
+    }).join('');
+  }
+  document.getElementById('lbCombo').textContent = T('lb.maxCombo', { n:d.maxCombo });
+  document.querySelectorAll('.lb-tab').forEach(b=> b.classList.toggle('active', b.dataset.mode===mode));
+}
+function openLeaderboard(mode){
+  renderLeaderboard(mode || currentMode || 'endless');
+  document.getElementById('leaderboardOverlay').classList.add('show');
+}
+function closeLeaderboard(){
+  document.getElementById('leaderboardOverlay').classList.remove('show');
+}
 let movesLeft = 0;         // 剩餘步數（寶石模式核心壓力源）
 
 /* ===== 模式設定表（萬能關卡：換模式 = 換這張表，核心不動） =====
@@ -4785,6 +4890,7 @@ function clearLines(){
 
   // ★ v49 連消 +1：放下即消，不間斷就一路疊
   clearStreak++;
+  if(clearStreak > runMaxCombo) runMaxCombo = clearStreak;   // ★ v94 排行榜：追蹤本局最高連消
   lastPlacement = null;      // 這一手已用消行慶祝，聰明讚不重複跳
   // ★ v68 ⑥ 徽章＋中央大字（各含一次「強制重排」重啟動畫的招式）挪到下方視覺幀一起演，
   //   pointerup 幀不再被這些小重排零星扎針。
@@ -5128,6 +5234,7 @@ function showLose(){
     txt = T('lose.boomText');
   }
   document.getElementById('loseText').textContent = txt;
+  if(m.useScore) recordRunResult(currentMode, score);   // ★ v94 本局結束才算一筆排行榜紀錄
   HZ.paused = true;   // ★ v35 凍結氣球。否則「盤面塞死」視窗開著時氣球仍在膨脹：
                       //   玩家讀文案的每一秒都在扣血，甚至會在視窗背後撞上仙人掌，
                       //   讓 HZ.boom 二次呼叫 showLose、把「清出空間」救援覆寫成「洩氣一半」→ 救完盤面還是死的
@@ -6054,6 +6161,7 @@ function saveGame(){
   try{
     const data = {
       bestScores, maxLevelReached, maxBalloonLevel, isPremium,   // ★ v64 D2 三本帳簿一起落地
+      lbData, lbMigratedV94: true,   // ★ v94 排行榜歷史前10 + 最高連消；migrate flag 防止每次載入重複清空舊分數
       currentSkin, soundOn,
       moodMode, moodCustomOrder, moodCursor, moodLevelCounter,   // ★ v92 心情轉換系統偏好與進度
       clashHueOverride,                      // ★ v92 玩家自訂的色相覆寫
@@ -6072,10 +6180,22 @@ function loadGame(){
     const raw = localStorage.getItem(SAVE_KEY);
     if(!raw) return;
     const d = JSON.parse(raw);
-    // ★ v64 D2 新版三本帳簿；舊存檔的單一 bestScore 已被 gem 累積分污染，遷移時同時抄進 gem 與 endless（寧多勿刪，不吃掉玩家紀錄）
-    if(d.bestScores && typeof d.bestScores==='object'){
+    // ★ v94 排行榜上線＝分數量級重定案，總監確認「清空重來」：沒有 lbMigratedV94 標記的舊存檔，
+    //   bestScores 一次性歸零（不影響皮膚/貨幣/進度等其他帳本），之後存檔會帶上標記，只清這一次。
+    if(!d.lbMigratedV94){
+      bestScores = { gem:0, endless:0, balloon:0 };
+    } else if(d.bestScores && typeof d.bestScores==='object'){
+      // ★ v64 D2 新版三本帳簿；舊存檔的單一 bestScore 已被 gem 累積分污染，遷移時同時抄進 gem 與 endless（寧多勿刪，不吃掉玩家紀錄）
       ['gem','endless','balloon'].forEach(k=>{ if(typeof d.bestScores[k]==='number') bestScores[k]=Math.max(0,d.bestScores[k]); });
     } else if(typeof d.bestScore==='number'){ bestScores.gem = d.bestScore; bestScores.endless = d.bestScore; }
+    if(d.lbData && typeof d.lbData==='object'){
+      ['gem','endless','balloon'].forEach(k=>{
+        if(d.lbData[k] && Array.isArray(d.lbData[k].top10)){
+          lbData[k].top10 = d.lbData[k].top10.filter(e=>e && typeof e.score==='number').slice(0,10);
+          lbData[k].maxCombo = typeof d.lbData[k].maxCombo==='number' ? d.lbData[k].maxCombo : 0;
+        }
+      });
+    }
     if(typeof d.maxLevelReached==='number') maxLevelReached = Math.max(1, d.maxLevelReached);
     if(typeof d.maxBalloonLevel==='number') maxBalloonLevel = Math.max(1, d.maxBalloonLevel);
     if(typeof d.isPremium==='boolean')      isPremium = d.isPremium;
@@ -6231,6 +6351,7 @@ function enterMode(mode){
   level = (mode==='gem' && maxLevelReached > 1) ? maxLevelReached : 1;
   score = 0;
   winStreak = 0;            // ★ v6：新一局從蜜月期重新開始
+  runMaxCombo = 0;          // ★ v94 排行榜：本局最高連消歸零
   document.getElementById('menu').classList.add('hidden');
   const aw = document.getElementById('actionWrap'); if(aw) aw.classList.remove('hidden');  // ★ v54 進對局才顯示左上操作鈕
   startLevel();
@@ -6282,6 +6403,14 @@ document.getElementById('retryBtn').onclick = ()=>{
 document.getElementById('winHomeBtn').onclick = goHome;
 document.getElementById('loseHomeBtn').onclick = goHome;
 document.getElementById('homeBtn').onclick = ()=>{ closeGear(); goHome(); };
+
+/* ★ v94 排行榜入口：齒輪選單（主選單/對局中共用）＋ 失敗結算畫面 */
+document.getElementById('leaderboardBtn').onclick = ()=>{ closeGear(); openLeaderboard(currentMode || 'endless'); };
+document.getElementById('loseLbBtn').onclick = ()=> openLeaderboard(currentMode || 'endless');
+document.getElementById('lbCloseBtn').onclick = closeLeaderboard;
+document.querySelectorAll('.lb-tab').forEach(btn=>{
+  btn.onclick = ()=> renderLeaderboard(btn.dataset.mode);
+});
 
 /* ★ v36 救援三路分流：免費廣告（每關 2 次）→ 炸彈道具 → 商店漏斗 */
 document.getElementById('reviveBtn').onclick = ()=>{
