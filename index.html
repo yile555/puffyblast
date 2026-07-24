@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v88</title>
-<meta property="og:title" content="繽紛樂 v88">
+<title>繽紛樂 v92</title>
+<meta property="og:title" content="繽紛樂 v92">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://yile555.github.io/puffyblast/">
@@ -23,30 +23,12 @@
   }
   /* ===== 商業接口：換膚主題（只需替換這組 CSS 變數即可換整套美術風格） ===== */
   .theme-default {
-    --bg:#2b3a67; --board-bg:#1e2a4f; --cell:#283766; --cell-line:#34457a;
+    /* ★ v90 挖深修正：舊值 --cell(#283766,L28%) 竟比 --board-bg(#1e2a4f,L21%) 還亮，
+       等於「凹坑底部比坑壁亮」，立體感被自己抵銷，這正是棋盤與桌面糊成一片的元凶。
+       新值把三層明度階梯拉開並歸位：桌面 29% > 棋盤 20% > 空格 13%，空格最暗。 */
+    --bg:#2b3a67; --board-bg:#1d2749; --cell:#141c38; --cell-line:#2e3c6f;
     --panel:#243059; --accent:#4fc3f7; --text:#ffffff;
   }
-  /* ★ v73.3 情蒐後整套推翻重來 —— 研究一票 Wood Block Puzzle 類遊戲後發現：
-     它們的方塊頂面幾乎是「純色平塗」，質感全靠「銳利斜切邊框的明暗反差」撐出來，
-     幾乎不疊木紋紋理（規律重複的紋理正是「一眼看出是程式做的」病根，肉眼對
-     「完美規律」極度敏感）。這次反向操作：紋理減到近乎沒有，靠色塊＋銳角斜切＋
-     深色空格反差做出立體感 —— 這才是這整個遊戲類型的共同語言。
-     ★ v73.4：斜切幾何（圓角／邊框粗細／明暗反差）已升級為全域預設（見下方
-     .filled 等 base 規則），這裡不再需要重複覆寫；wood 只保留「真正專屬」的
-     色彩 token——舞台色調、深色空格反差。斜切色沿用全域的白/黑自我調色，
-     比固定暖棕色更正確：淺木塊要淺化、深木塊要深化，不是全部套同一層咖啡色。 */
-  body[data-skin="wood"] {
-    --bg:#2a1810; --board-bg:#1f130c; --cell:#241609; --cell-line:#1a0f07;
-    --panel:#3f2818; --accent:#c98a3c; --text:#f4e4d0;
-  }
-  /* 棋盤底：素色深咖啡，不疊紋理 —— 讓空格夠暗、填滿的木色方塊夠跳，
-     這正是參考圖「方塊像巧克力鑲在深色盒子裡」反差感的來源。 */
-  body[data-skin="wood"] #board {
-    background: linear-gradient(165deg, #2c1c11 0%, #201207 55%, #180d05 100%);
-  }
-  /* 空格加深、加大反差：填滿方塊要能一眼從深色空格跳出來。 */
-  body[data-skin="wood"] .cell { box-shadow:inset 0 0 0 1px rgba(0,0,0,.35); }
-
 
   #app { width:100%; max-width:440px; height:100%; max-height:880px; display:flex; flex-direction:column; position:relative;
     background:var(--bg,#2b3a67);   /* ★ v54 補背景打底：整個遊戲區從上到下都是沉穩深色，上半部不再露白 */
@@ -178,12 +160,12 @@
   #goals[data-n="4"] { gap:4px; padding:13px 62px 9px 62px; }
   #goals[data-n="4"] .goal  { max-width:76px; padding:6px 6px 5px; }
   #goals[data-n="4"] .gicon { max-width:62px; border-radius:14px; }
-  #goals[data-n="4"] .gtext { font-size:13.5px; padding:2px 7px; }
+  #goals[data-n="4"] .gtext { font-size:18px; padding:2px 7px; }
 
   #goals[data-n="5"] { gap:1px; padding:12px 64px 8px 64px; }   /* ★ v65 ① 左側讓開按鈕柱；★ v79 再收緊給寶石外溢留空間 */
   #goals[data-n="5"] .goal  { max-width:66px; padding:4px; border-radius:16px; }
   #goals[data-n="5"] .gicon { max-width:58px; border-radius:13px; }
-  #goals[data-n="5"] .gtext { font-size:12.5px; padding:2px 5px; border-radius:9px; }
+  #goals[data-n="5"] .gtext { font-size:16px; padding:2px 5px; border-radius:9px; }
   #goals[data-n="5"] .goal-check { right:-2px; bottom:-1px; font-size:14px; }
 
   .goal { background:transparent; border-radius:20px; padding:8px 14px 6px; display:flex;
@@ -196,11 +178,19 @@
   .goal .gicon { position:relative; width:64px; height:auto; aspect-ratio:100/134; display:flex; align-items:center; justify-content:center;
     background:transparent;
     border-radius:16px; overflow:visible; }
-  /* ★ v54 目標數字：去背景膠囊，改黃色數字＋深色描邊，任何背景下都清楚又不笨重 */
-  .goal .gtext { font-size:16px; font-weight:900; color:#ffd54f;
+  /* ★ v89 目標數字：三件事一起換掉（v54 的統一金黃色就此退役）
+     ① 倒數制 —— 只剩一個數字（還欠幾顆），不是 3/18。字少 → 字級可以放大加粗。
+     ② 顏色 = 該寶石的 gemColor「原值直取」，零調色、不走色。哪個盆對應哪色，
+        數字自己講清楚，不必再靠心算或記憶。
+     ③ 描邊沿用 v88 原本的黑色 text-shadow，一個數值都不動。
+        黑邊往下沉、不外亮，v88 的黃色數字就是靠它在深藍底上乾淨清楚——
+        現成有效的做法不需要重新發明。（曾試過白描邊，實機一看整排數字外圍
+        泛白、像貼紙，與盤面格格不入，已否決；此處留下記錄避免重蹈。）
+     ④ 達標時整個 .gtext 不渲染（見 renderGoals）：計量器數到 0 就功成身退，
+        完成的訊息交給綻放的花朵，不留一個多餘的「0」跟花搶話。 */
+  .goal .gtext { font-size:20px; font-weight:900;
     background:transparent; padding:2px 6px;
     text-shadow:0 1px 2px rgba(0,0,0,.85), 0 0 3px rgba(0,0,0,.6); }
-  .goal.done .gtext { background:transparent; color:#a5f0a0; opacity:.95; }
   /* ★ v87 花苗：取代 v79 .animal-svg。viewBox 100×134（直立），
      上緣與畫面邊距維持原樣，多出來的花盆從下緣長出去 —— #goals 與 #bigScore
      是普通流的兄弟節點，任務欄長高後分數會自動順著下移，不必動分數定位。 */
@@ -262,13 +252,32 @@
 
   /* 棋盤 */
   #boardWrap { flex:1; display:flex; align-items:center; justify-content:center; padding:0 12px 0 6px; position:relative; }
+  /* ★ v90 棋盤「挖深」：舊版只有一圈外投影（0 8px 24px），視覺上是一塊板「浮在」桌面上。
+     真正的凹坑要靠 inset：上緣內側壓一道暗影（光從上方來，坑口上緣最暗），
+     下緣內側補一道極淡亮邊（坑底反光），外圈再留一道細亮線當坑口倒角。
+     三者合力，棋盤才會像從桌面「挖」下去的，而不是「疊」上去的。 */
   #board { background:var(--board-bg); border-radius:18px; padding:6px;
-    display:grid; gap:0; box-shadow:0 8px 24px rgba(0,0,0,.35); position:relative; overflow:hidden; }
+    display:grid; gap:0; position:relative; overflow:hidden;
+    box-shadow:
+      inset 0 6px 14px rgba(0,0,0,.55),
+      inset 0 -2px 6px rgba(255,255,255,.05),
+      inset 0 0 0 1px rgba(0,0,0,.35),
+      0 1px 0 rgba(255,255,255,.07),
+      0 8px 24px rgba(0,0,0,.35); }
   /* 空格：極淡格線用「內描邊」畫，不占空間 → 方塊之間零縫隙 */
   /* ★ v67 拆除 background .12s 過渡：落點影子必須「跟手零延遲、放手零殘影」——
      淡入淡出的 120ms 就是舊版「放手後好像還拖了一下」的時間差來源。 */
+  /* ★ v90 空格凹坑：每一格自己也是一個小坑 —— 上緣暗、下緣微亮，
+     與棋盤大坑同一個光源方向，層層向下挖。 */
   .cell { background:var(--cell); position:relative;
-    box-shadow:inset 0 0 0 1px rgba(0,0,0,.16); }
+    box-shadow:inset 0 2px 3px rgba(0,0,0,.38),
+               inset 0 -1px 0 rgba(255,255,255,.05),
+               inset 0 0 0 1px rgba(0,0,0,.22); }
+  /* ★ v89 撞色皮膚：格線改用演算法導出的同色相 --cell-line，凹坑邊界更清楚 */
+  body[data-clash-applied]:not([data-clash-applied=""]) .cell {
+    box-shadow:inset 0 2px 3px rgba(0,0,0,.38),
+               inset 0 -1px 0 rgba(255,255,255,.06),
+               inset 0 0 0 1px var(--cell-line); }
   .cell.hint-ok { background:rgba(79,195,247,.45); }
   .cell.hint-bad { background:rgba(229,75,74,.4); }
   /* ★ v73.4 使用者驗收 v73.3 木質風的斜切幾何後，指示「把這個現代感用在所有
@@ -876,6 +885,21 @@
     box-shadow:0 4px 12px rgba(33,150,243,.4); }
   .rotate-mode-btn:active { transform:scale(.95); }
   .rotate-hint { font-size:11.5px; opacity:.55; text-align:center; margin:-4px 0 12px; line-height:1.5; }
+
+  /* ★ v92 換膚廣告閘彈窗 */
+  .mag-modal { text-align:center; max-width:300px; }
+  .mag-swatch { width:72px; height:72px; border-radius:20%; margin:4px auto 12px; box-shadow:0 6px 16px rgba(0,0,0,.35); }
+  .mag-name { font-size:17px; font-weight:800; margin-bottom:4px; }
+  .mag-hint { font-size:12.5px; opacity:.6; margin-bottom:16px; }
+
+  /* ★ v92 色相列點選：撞色皮膚卡片內的橫向色塊列，點一下整組（8色+背景四色）重算 */
+  .hue-picker { display:flex; gap:5px; flex-wrap:wrap; margin:6px 0 2px; justify-content:center; }
+  .hue-swatch { width:20px; height:20px; border-radius:50%; cursor:pointer; border:2px solid transparent;
+    transition:.12s; flex-shrink:0; }
+  .hue-swatch:active { transform:scale(.85); }
+  .hue-swatch.active { border-color:#fff; box-shadow:0 0 0 2px rgba(255,255,255,.3); }
+  .custom-check { display:flex; align-items:center; justify-content:center; gap:4px; font-size:10.5px;
+    opacity:.75; margin-top:4px; }
   .skin-card.in-rotation { outline:2px solid #66bb6a; }
   .sc-rotate-tag { position:absolute; top:6px; left:6px; font-size:9px; font-weight:800;
     background:rgba(102,187,106,.85); padding:2px 6px; border-radius:7px; }
@@ -1010,7 +1034,7 @@
     </span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v88・繽紛樂・動物抱寶石</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v92・繽紛樂・全免費換膚</div>
 </div>
 
 <div id="app">
@@ -1103,15 +1127,6 @@
   <div class="modal">
     <h2 id="winTitle">🎉 過關！</h2>
     <p id="winText" data-i18n="win.textDefault">小動物都吃飽囉！</p>
-    <!-- ★ v39 皮膚試吃購買卡：只在本關剛好試玩過材質時出現，JS 動態填內容/顯隱 -->
-    <div class="skin-trial-promo" id="skinTrialPromo" style="display:none">
-      <div class="stp-swatch"></div>
-      <div class="stp-info">
-        <div class="stp-title"></div>
-        <div class="stp-name"></div>
-      </div>
-      <div class="stp-buy"></div>
-    </div>
     <button class="big-btn" id="nextBtn" data-i18n="win.next">下一關 →</button>
     <button class="big-btn" id="winHomeBtn" style="background:rgba(255,255,255,.18);margin-top:10px;" data-i18n="win.home">回主選單</button>
   </div>
@@ -1121,8 +1136,6 @@
   <div class="modal">
     <h2 id="loseTitle">😿 沒空間了</h2>
     <p id="loseText">方塊放不下了！看個廣告繼續挑戰，或重新開始。</p>
-    <!-- ★ v40 皮膚邂逅錯過提示：只在本關剛好有邂逅進行中才出現 -->
-    <p class="lose-skin-miss" id="loseSkinMiss" style="display:none"></p>
     <!-- ★ v36 免費救援配額（每關 2 次；用完切換炸彈救援 → 商店漏斗） -->
     <p class="revive-quota" id="reviveQuota"></p>
     <!-- ★ v20 死局按鈕層級：救援(主) → 重新開始(次) → 回主選單(弱化文字連結) -->
@@ -1280,27 +1293,42 @@
 </div>
 
 <!-- ============================================================
-     ★ v39 皮膚圖鑑：所有材質皮膚的收藏總覽
-     三種狀態：已擁有(可裝備) / 試玩過但沒買(可購買) / 從沒遇過(剪影鎖住)
+     ★ v92 皮膚圖鑑：全部免費，不再有「未解鎖剪影」狀態
+     心情轉換系統仿播放器三種模式：隨機／固定／自訂（不選則系統預設走 auto，
+     行為同隨機，但語意是「系統幫你安排驚喜」，見 checkMoodTrigger 註解）
      ============================================================ -->
 <div class="overlay shop-z" id="skinGalleryOverlay">
   <div class="modal shop-modal">
     <div class="shop-head">
-      <h2 data-i18n="gallery.title">🎨 皮膚圖鑑</h2>
+      <h2 data-i18n="gallery.title">🎨 換膚</h2>
       <div class="dm-pill">🪙 <span id="gallGold">0</span>　💎 <span id="gallDm">0</span></div>
     </div>
-    <p class="gallery-sub" data-i18n="gallery.sub">每 4 關會偷偷讓你試玩一款材質，喜歡的話就把它留下來吧</p>
+    <p class="gallery-sub" data-i18n="gallery.sub">所有造型都免費，看廣告即可立即換上</p>
 
-    <!-- ★ v46 皮膚輪播：仿音樂播放器三種模式，只在擁有 2 款以上皮膚時才有意義顯示 -->
+    <!-- ★ v92 心情轉換三模式 -->
     <div class="rotate-modes" id="rotateModes">
+      <button class="rotate-mode-btn" data-rmode="random"><span class="rm-ic">🔀</span><span>隨機</span></button>
       <button class="rotate-mode-btn" data-rmode="fixed"><span class="rm-ic">📌</span><span>固定</span></button>
-      <button class="rotate-mode-btn" data-rmode="cycle"><span class="rm-ic">🔁</span><span>輪播</span></button>
-      <button class="rotate-mode-btn" data-rmode="shuffle"><span class="rm-ic">🔀</span><span>隨機</span></button>
+      <button class="rotate-mode-btn" data-rmode="custom"><span class="rm-ic">🎛️</span><span>自訂</span></button>
     </div>
-    <p class="rotate-hint" id="rotateHint">輪播／隨機模式下，每過一關就自動換上你擁有的下一款皮膚；當這關剛好邂逅到新款材質時，邂逅款優先蓋過輪播設定。</p>
+    <p class="rotate-hint" id="rotateHint">闖關每 4 關／無盡模式每滿 400 分，系統會安排一次換裝驚喜——隨機模式全池亂抽；固定模式完全不自動換；自訂模式照你在下面勾選的清單輪流播放。</p>
 
     <div class="skin-grid" id="skinGrid"></div>
     <button class="text-link" id="skinGalleryCloseBtn" data-i18n="gallery.close">關閉</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     ★ v92 換膚廣告閘：所有「切換到目前沒在用的皮膚」都經過這裡，
+     不管是系統心情轉換自動觸發，還是玩家在圖鑑手動點裝備。
+     ============================================================ -->
+<div class="overlay shop-z" id="moodAdGate">
+  <div class="modal shop-modal mag-modal">
+    <div class="mag-swatch"></div>
+    <div class="mag-name"></div>
+    <p class="mag-hint" data-i18n="mood.hint">造型免費，看個廣告立即換上</p>
+    <button class="big-btn ad" id="magWatchBtn" data-i18n="mood.watch">📺 看廣告免費換上</button>
+    <button class="text-link" id="magSkipBtn" data-i18n="mood.skip">先不要</button>
   </div>
 </div>
 
@@ -1390,7 +1418,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'放方塊・消整排・餵飽小動物',
-  'menu.footer':'v88・繽紛樂・動物抱寶石',
+  'menu.footer':'v92・繽紛樂・全免費換膚',
   'menu.best':'最高 {n} 關',
   'menu.resume':'▶ 續玩 第 {n} 關',
   'mode.endless.name':'無盡模式', 'mode.endless.desc':'沒有終點，放到沒空間為止。挑戰你的最高分。',
@@ -1444,19 +1472,16 @@ const I18N = {
   'combo.warnGem':'🎈 機關關！別讓氣球碰到仙人掌', 'combo.warn':'🎈 別讓氣球碰到仙人掌！',
   'combo.noAds':'🚫 已永久去廣告！', 'combo.dm':'💎 +{n}！', 'combo.daily':'🎁 每日禮物 +{n}💎',
   'combo.dmShort':'💎 鑽石不足', 'combo.goldShort':'🪙 金幣不足', 'combo.hintMenu':'💡 進入關卡後才能使用提示', 'combo.bomb':'💣 +{n}！', 'combo.aim':'💣 按住棋盤拖曳瞄準，放開引爆 3×3', 'combo.bombRevive':'💣 炸彈救援！',
-  'skin.default':'原色果凍', 'skin.brick':'工業風(磁磚)', 'skin.wood':'原木紋理', 'skin.marble':'大理石紋', 'skin.steel':'鋼板螺絲',
-  'skin.rib':'毛線風(羅紋針)', 'skin.moss':'毛線風(桂花針)', 'skin.honeycomb':'毛線風(蜂巢編)', 'skin.shell':'毛線風(貝殼編)', 'skin.cable':'毛線風(麻花辮)',
+  'skin.clashBluePink':'電光藍撞桃紅', 'skin.clashGreenCoral':'森林綠撞珊瑚橘', 'skin.clashVioletLime':'紫羅蘭撞檸檬黃', 'skin.clashRedTeal':'火焰紅撞松石綠', 'skin.clashAmberIndigo':'焦糖橘撞靛藍',
+  'skin.default':'原色果凍', 'skin.marble':'大理石紋', 'skin.rib':'毛線風(羅紋針)',
+
   'trial.title':'🎁 剛剛試玩的皮膚，喜歡嗎？',
-  'combo.skinBought':'🎉 已擁有「{n}」！', 'combo.skinEquipped':'🎨 已裝備「{n}」',
-  'gallery.title':'🎨 皮膚圖鑑', 'gallery.sub':'關卡中偶爾會隨機邂逅材質，贏下那一關才能拿到碎片，集滿即可兌換',
+  'combo.skinEquipped':'🎨 已換上「{n}」',
+
+  'gallery.title':'🎨 換膚', 'gallery.sub':'所有造型都免費，看廣告即可立即換上',
   'gallery.close':'關閉', 'gallery.equip':'使用', 'gallery.equipped':'使用中 ✓',
-  'gallery.seenAt':'第 {lv} 關嚐過', 'gallery.unknown':'？？？', 'gallery.locked':'尚未邂逅',
-  'frag.title':'🧩 皮膚碎片', 'frag.progress':'碎片 {c}／{t}',
-  'frag.gain':'🧩 碎片 +1（{c}／{t}）', 'frag.complete':'🎉 碎片集滿！已擁有「{n}」', 'frag.equipNow':'✨ 立刻換上！',
-  'frag.dupGold':'🧩 碎片已擁有，重複碎片自動兌換 🪙+{v}', 'frag.dupDm':'🧩 碎片已擁有，重複碎片自動兌換 💎+{v}',
-  'frag.rescueMiss':'（這關用了救援才過關，皮膚邂逅這次不算數）',
-  'lose.skinMiss':'💔 差一點就能把「{n}」帶回家了，下次再遇到別手軟！',
-  'frag.buyBtn':'買碎片', 'frag.buyOutBtn':'直接買斷',
+
+  'mood.hint':'造型免費，看個廣告立即換上', 'mood.watch':'📺 看廣告免費換上', 'mood.skip':'先不要',
   'combo.adGold':'🪙 +{n}！', 'combo.exchange':'🔁 兌換成功 +{n}🪙', 'combo.firstBonus':'🎉 首購加碼！鑽石 +{n}',
   'combo.nameBad':'暱稱需 2~12 個字', 'combo.nameSaved':'✅ 暱稱已儲存',
   'diff.boss':'⚠ 魔王關', 'diff.spike':'🔥 挑戰關',
@@ -1465,7 +1490,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Drop blocks, clear lines, feed the critters!',
-  'menu.footer':'v88 · Vivid Blast · Gems in Arms',
+  'menu.footer':'v92 · Vivid Blast · Free Skins',
   'menu.best':'Best: Lv {n}',
   'menu.resume':'▶ Resume Lv {n}',
   'mode.endless.name':'Endless', 'mode.endless.desc':'No finish line — play until the board fills up. Chase your high score.',
@@ -1519,19 +1544,16 @@ const I18N = {
   'combo.warnGem':'🎈 Hazard level! Keep the balloon off the cactus', 'combo.warn':'🎈 Keep the balloon off the cactus!',
   'combo.noAds':'🚫 Ads removed forever!', 'combo.dm':'💎 +{n}!', 'combo.daily':'🎁 Daily gift +{n}💎',
   'combo.dmShort':'💎 Not enough gems', 'combo.goldShort':'🪙 Not enough gold', 'combo.hintMenu':'💡 Hints only work during a level', 'combo.bomb':'💣 +{n}!', 'combo.aim':'💣 Hold & drag to aim — release to blast 3×3', 'combo.bombRevive':'💣 Bomb rescue!',
-  'skin.default':'Classic Jelly', 'skin.brick':'Industrial Tile', 'skin.wood':'Wood Grain', 'skin.marble':'Marble', 'skin.steel':'Riveted Steel',
-  'skin.rib':'Rib Knit', 'skin.moss':'Moss Stitch', 'skin.honeycomb':'Honeycomb Knit', 'skin.shell':'Shell Stitch', 'skin.cable':'Cable Knit',
+  'skin.clashBluePink':'Electric Blue x Pink', 'skin.clashGreenCoral':'Forest x Coral', 'skin.clashVioletLime':'Violet x Lime', 'skin.clashRedTeal':'Flame x Teal', 'skin.clashAmberIndigo':'Amber x Indigo',
+  'skin.default':'Classic Jelly', 'skin.marble':'Marble', 'skin.rib':'Rib Knit',
+
   'trial.title':'🎁 Liked the skin you just tried?',
-  'combo.skinBought':'🎉 Unlocked "{n}"!', 'combo.skinEquipped':'🎨 Equipped "{n}"',
-  'gallery.title':'🎨 Skin Gallery', 'gallery.sub':'Random skin encounters appear in levels — win that level to earn a fragment, collect enough to unlock',
+  'combo.skinEquipped':'🎨 Equipped "{n}"',
+
+  'gallery.title':'🎨 Skins', 'gallery.sub':'All skins are free — just watch a short ad to equip',
   'gallery.close':'Close', 'gallery.equip':'Equip', 'gallery.equipped':'Equipped ✓',
-  'gallery.seenAt':'Tried at Lv {lv}', 'gallery.unknown':'???', 'gallery.locked':'Not encountered yet',
-  'frag.title':'🧩 Skin Fragments', 'frag.progress':'Fragments {c}/{t}',
-  'frag.gain':'🧩 Fragment +1 ({c}/{t})', 'frag.complete':'🎉 Fragments complete! Unlocked "{n}"', 'frag.equipNow':'✨ Wear it now!',
-  'frag.dupGold':'🧩 Already owned — duplicate converted to 🪙+{v}', 'frag.dupDm':'🧩 Already owned — duplicate converted to 💎+{v}',
-  'frag.rescueMiss':'(You used a rescue to clear this level, so the skin encounter did not count)',
-  'lose.skinMiss':'💔 So close to bringing "{n}" home — do not miss it next time!',
-  'frag.buyBtn':'Buy Fragment', 'frag.buyOutBtn':'Buy Outright',
+
+  'mood.hint':'Free skins — watch a short ad to equip', 'mood.watch':'📺 Watch ad to equip', 'mood.skip':'Not now',
   'combo.adGold':'🪙 +{n}!', 'combo.exchange':'🔁 Exchanged +{n}🪙', 'combo.firstBonus':'🎉 First-purchase bonus! +{n} gems',
   'combo.nameBad':'Nickname must be 2-12 characters', 'combo.nameSaved':'✅ Nickname saved',
   'diff.boss':'⚠ BOSS LEVEL', 'diff.spike':'🔥 CHALLENGE',
@@ -1540,7 +1562,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを置いて、ライン消して、もぐもぐタイム！',
-  'menu.footer':'v88・ビビッドブラスト・シームレス設置',
+  'menu.footer':'v92・ビビッドブラスト・きせかえ無料',
   'menu.best':'ベスト：レベル {n}',
   'menu.resume':'▶ レベル {n} から再開',
   'mode.endless.name':'エンドレス', 'mode.endless.desc':'終わりなき挑戦。盤面が埋まるまでハイスコアを狙おう。',
@@ -1594,19 +1616,16 @@ const I18N = {
   'combo.warnGem':'🎈 ギミックレベル！風船をサボテンに当てないで', 'combo.warn':'🎈 風船をサボテンに当てないで！',
   'combo.noAds':'🚫 広告を永久削除しました！', 'combo.dm':'💎 +{n}！', 'combo.daily':'🎁 デイリーギフト +{n}💎',
   'combo.dmShort':'💎 ジェムが足りません', 'combo.goldShort':'🪙 ゴールドが足りません', 'combo.hintMenu':'💡 ヒントはレベル中のみ使えます', 'combo.bomb':'💣 +{n}！', 'combo.aim':'💣 ドラッグで狙って、離すと 3×3 爆破', 'combo.bombRevive':'💣 ボムで復活！',
-  'skin.default':'クラシックゼリー', 'skin.brick':'インダストリアルタイル', 'skin.wood':'木目', 'skin.marble':'大理石', 'skin.steel':'リベット鋼板',
-  'skin.rib':'リブ編み', 'skin.moss':'ガーター編み', 'skin.honeycomb':'ハニカム編み', 'skin.shell':'シェル編み', 'skin.cable':'ケーブル編み',
+  'skin.clashBluePink':'エレクトリックブルー×ピンク', 'skin.clashGreenCoral':'フォレスト×コーラル', 'skin.clashVioletLime':'バイオレット×ライム', 'skin.clashRedTeal':'フレイム×ティール', 'skin.clashAmberIndigo':'アンバー×インディゴ',
+  'skin.default':'クラシックゼリー', 'skin.marble':'大理石', 'skin.rib':'リブ編み',
+
   'trial.title':'🎁 さっき試したきせかえ、気に入った？',
-  'combo.skinBought':'🎉「{n}」を手に入れた！', 'combo.skinEquipped':'🎨「{n}」に着せ替えた',
-  'gallery.title':'🎨 きせかえ図鑑', 'gallery.sub':'ステージ中にランダムで素材と遭遇。そのステージに勝てば欠片を獲得、集めれば手に入る',
+  'combo.skinEquipped':'🎨「{n}」に着せ替えた',
+
+  'gallery.title':'🎨 きせかえ', 'gallery.sub':'すべて無料。広告を見ればすぐ着替えられます',
   'gallery.close':'閉じる', 'gallery.equip':'使用する', 'gallery.equipped':'使用中 ✓',
-  'gallery.seenAt':'レベル {lv} で体験済み', 'gallery.unknown':'？？？', 'gallery.locked':'未発見',
-  'frag.title':'🧩 きせかえの欠片', 'frag.progress':'欠片 {c}／{t}',
-  'frag.gain':'🧩 欠片 +1（{c}／{t}）', 'frag.complete':'🎉 欠片が集まった！「{n}」を手に入れた！', 'frag.equipNow':'✨ 今すぐ着替える！',
-  'frag.dupGold':'🧩 すでに所持中。重複した欠片は 🪙+{v} に自動変換', 'frag.dupDm':'🧩 すでに所持中。重複した欠片は 💎+{v} に自動変換',
-  'frag.rescueMiss':'（このステージは救援でクリアしたため、きせかえの遭遇は今回カウントされません）',
-  'lose.skinMiss':'💔「{n}」まであと少しだった…次のチャンスは逃さないで！',
-  'frag.buyBtn':'欠片を買う', 'frag.buyOutBtn':'即買い',
+
+  'mood.hint':'全部無料。広告を見るとすぐ着替えられます', 'mood.watch':'📺 広告を見て着替える', 'mood.skip':'今はしない',
   'combo.adGold':'🪙 +{n}！', 'combo.exchange':'🔁 交換成功 +{n}🪙', 'combo.firstBonus':'🎉 初回購入ボーナス！ジェム +{n}',
   'combo.nameBad':'ニックネームは2〜12文字で入力してください', 'combo.nameSaved':'✅ ニックネームを保存しました',
   'diff.boss':'⚠ ボス面', 'diff.spike':'🔥 チャレンジ面',
@@ -1819,7 +1838,6 @@ let retrySameDiff = false;
    不再沒收前面關卡辛苦攢的總分。 */
 let levelStartScore = 0;
 
-
 /* ===== 收集物定義（模組化：換膚只要換這組） =====
    每種收集物綁定一隻動物 + 一種達標叫聲。gemShape 決定盤面寶石外觀，animal 決定任務欄圖與達標音效。 */
 /* ★ v53 盤面食物 → 寶石：一獸一形一色。
@@ -1907,64 +1925,12 @@ function ghostTint(hex){
   const f = parseInt(hex.slice(1),16);
   return `rgba(${f>>16},${(f>>8)&0xff},${f&0xff},.45)`;
 }
-/* ★ v73.1 調色盤覆寫接口 —— 皮膚不只能疊「紋理」，還能整組「換色」。
-   這是「溫潤木質風」的靈魂，也是未來色系皮膚（COPIC 色相環）的底層能力。
-   ★ v73.1 修正：v73 只用「死記硬背表」對照 7 個已知 gem 色，商店縮圖等呼叫端
-   用的是另一個寫死色（#7ba9e0），沒命中查表 → 原色漏網、木質風縮圖還是藍色。
-   這次改成「明暗值 → 木頭色階」的通用函式：不管丟進來什麼顏色都會被轉換，
-   零漏網。已知的 7 個 gem 色仍用精修過的手動對照（辨識度最佳化，優先套用），
-   任何其它顏色（商店縮圖、未來新增內容）一律走通用亮度轉換保底。 */
-function _luminance(hex){
-  const f = parseInt(hex.slice(1),16);
-  const r=f>>16, g=(f>>8)&0xff, b=f&0xff;
-  return (0.299*r + 0.587*g + 0.114*b) / 255;   // 0(暗) ~ 1(亮)
-}
-function _lerpColor(hexA, hexB, t){
-  const a = parseInt(hexA.slice(1),16), b = parseInt(hexB.slice(1),16);
-  const ar=a>>16,ag=(a>>8)&0xff,ab=a&0xff, br=b>>16,bg=(b>>8)&0xff,bb=b&0xff;
-  const r=Math.round(ar+(br-ar)*t), g=Math.round(ag+(bg-ag)*t), bl=Math.round(ab+(bb-ab)*t);
-  return '#'+(0x1000000+r*0x10000+g*0x100+bl).toString(16).slice(1);
-}
-/* 木頭色階：深胡桃(暗) → 淺楓木(亮)，任何顏色依自身明暗值落在這條天然木色帶上 */
-function _woodToneFallback(hex){
-  const lum = _luminance(hex);
-  return _lerpColor('#3d2313', '#d8b98a', Math.pow(lum, 0.85));
-}
-const SKIN_PALETTES = {
-  /* 溫潤木質風：七個「已知」gem 色手動精修（靠明暗＋冷暖拉開辨識度），
-     任何其它輸入色（商店縮圖等）走 _woodToneFallback 保底，兩者都保證輸出木頭色。 */
-  wood: {
-    '#f2b705':'#c98a3c', // 黃 → 柚木（暖金棕）
-    '#e23b52':'#a24b34', // 紅 → 櫻桃木（紅棕）
-    '#bfe6f2':'#d8b892', // 白/鑽 → 淺楓木（最亮）
-    '#3f7ad6':'#5c7a4f', // 藍 → 鼠尾草綠漆木（提高飽和度，讀作「刷漆木」而非灰濁棕）
-    '#2ea86a':'#7fa050', // 綠 → 橄欖漆木（同上，拉開跟藍的辨識度）
-    '#f58fb0':'#c98f7a', // 粉 → 淺胡桃（粉棕）
-    '#9b5de5':'#6b4a3a', // 紫 → 深胡桃木（最深）
-  },
-};
-function skinColor(color, skinId){
-  const pal = SKIN_PALETTES[skinId];
-  if(pal && pal[color]) return pal[color];         // 精修表優先命中
-  if(skinId === 'wood') return _woodToneFallback(color);  // ★ v73.1 保底：零漏網
-  return color;
-}
-/* ★ v73.1 木質皮膚專屬渲染 —— 徹底脫離「果凍糖果」公式（強白光斑＋高飽和漸層），
-   那套是塑膠/玻璃的視覺語言，木頭要的是霧面＋方向光＋纖維，兩者不能共用同一組數學。
-   ① 柔和斜角方向光（linear，不是聚光的 radial 白點）＝木頭在燈下的自然反光面
-   ② 本體只用「淺→深」兩階，不衝高光到接近白，霧面感的關鍵就是「反差別衝太高」
-   ③ 右下角落自然壓暗＝積木邊緣的物理陰影，不是裝飾 */
-/* ★ v73.3 情蒐結論：頂面幾乎純色平塗，立體感交給 CSS 邊框斜切（見上方
-   [data-skin="wood"] .filled 的 border-color 四色斜切），這裡只留極淡的
-   單層柔光呼吸感，不再疊漸層＋陰影＋紋理三層，避免又糊成一片「莫蘭迪灰」。 */
-function woodMaterial(color){
-  const base = `linear-gradient(150deg, rgba(255,248,232,.10) 0%, rgba(255,248,232,0) 45%, rgba(10,5,2,.08) 100%),`+
-               `${color}`;
-  return `${materialTexture('wood')},${base}`;
-}
+/* ★ v92 材質瘦身：SKIN_PALETTES（木頭專屬調色覆寫表）、_lerpColor／_woodToneFallback／
+   woodMaterial 已整包移至封存備份檔，主檔案不再攜帶。skinColor() 保留為透傳函式，
+   未來若封存材質要復活，加回這裡即可，呼叫端一行不用改。 */
+function skinColor(color, skinId){ return color; }
 function gemMaterial(color, materialId){
   color = skinColor(color, materialId);   // 先過調色盤覆寫（沒命中則原色直通）
-  if(materialId === 'wood') return woodMaterial(color);   // 走專屬霧面渲染
   /* ★ v73.4「把現代感用在所有遊戲模式裡」—— 拉平果凍公式：拔掉左上角那顆
      radial-gradient 強光斑（舊時代手遊的果凍殼語言），改成跟 woodMaterial()
      同一套「近乎純色平塗＋極淡方向光」配方。立體感統一交給全域斜切邊框
@@ -1976,7 +1942,6 @@ function gemMaterial(color, materialId){
   const tex = materialTexture(materialId);
   return tex ? `${tex},${base}` : base;
 }
-
 
 
 /* ============================================================
@@ -2000,75 +1965,43 @@ function gemMaterial(color, materialId){
    premium：honeycomb（蜂巢編）、shell（貝殼編）、cable（麻花辮，旗艦款）
             ——結構複雜、CSS 疊層費工難被抄，溫馨手作感最強
    ============================================================ */
+/* ★ v92 材質瘦身：brick／wood／moss／steel／honeycomb／shell／cable 七款紋理
+   已整包移至封存備份檔（繽紛樂_材質封存_v91備份.html），主檔案只留驗證過「堪用」
+   的 rib（羅紋）與 marble（大理石）。未來要復活哪一款，直接從備份檔複製整個
+   case 區塊貼回來即可，SKIN_MATERIALS 那邊也要記得補一行。 */
 function materialTexture(id){
   switch(id){
-    case 'brick':   // 工業風：磁磚，規則格狀縫線（水平+垂直等距，磁磚鑲嵌感；
-                     // 不叫「紅磚」是刻意的——磚會被玩家預期成紅色，跟七彩方塊衝突，
-                     // 磁磚本身色系自由，名字不會把路堵死）
-      return `repeating-linear-gradient(0deg, rgba(0,0,0,.24) 0 2px, rgba(0,0,0,0) 2px 16px),`+
-             `repeating-linear-gradient(90deg, rgba(0,0,0,.24) 0 2px, rgba(0,0,0,0) 2px 16px),`+
-             `radial-gradient(circle at 30% 26%, rgba(255,255,255,.16) 0%, rgba(255,255,255,0) 40%)`;
-    case 'wood':    // ★ v73.3 情蒐後推翻重來：規律重複的紋理（前兩版的直條紋）
-                     // 正是「一眼看出是程式做的」病根 —— 肉眼對「完美規律」極度敏感，
-                     // 而參考的 Wood Block Puzzle 類遊戲頂面幾乎是純色平塗，零紋理。
-                     // 這裡只留一顆偏心柔霧（非重複圖樣），給頂面一點點呼吸感，
-                     // 立體感的主力全部讓給邊框斜切（見 CSS [data-skin="wood"] .filled）。
-      return `radial-gradient(ellipse 55% 65% at 70% 28%,`+
-                `rgba(20,10,4,.10) 0%, rgba(20,10,4,0) 68%)`;
-    case 'marble':  // 工業風：大理石，斜向雲紋脈絡
+    case 'marble':  // 大理石，斜向雲紋脈絡
       return `repeating-linear-gradient(118deg, rgba(255,255,255,.32) 0 1px, rgba(255,255,255,0) 1px 9px, rgba(0,0,0,.10) 9px 10px, rgba(255,255,255,0) 10px 22px)`;
-    case 'steel':   // 工業風：鋼板，髮絲拉絲紋 + 四角螺絲孔
-      return `radial-gradient(circle at 14% 14%, rgba(0,0,0,.55) 0 2px, rgba(0,0,0,0) 2.6px),`+
-             `radial-gradient(circle at 86% 14%, rgba(0,0,0,.55) 0 2px, rgba(0,0,0,0) 2.6px),`+
-             `radial-gradient(circle at 14% 86%, rgba(0,0,0,.55) 0 2px, rgba(0,0,0,0) 2.6px),`+
-             `radial-gradient(circle at 86% 86%, rgba(0,0,0,.55) 0 2px, rgba(0,0,0,0) 2.6px),`+
-             `repeating-linear-gradient(0deg, rgba(255,255,255,.14) 0 1px, rgba(0,0,0,0) 1px 3px)`;
-
-    /* ── 毛線編織系列（basic）── */
-    case 'rib':     // 羅紋針：規則直向凸條，一眼可辨、CSS成本最低（入門款）
+    case 'rib':     // 羅紋針：規則直向凸條，一眼可辨
       return `repeating-linear-gradient(90deg, rgba(255,255,255,.24) 0 3px, rgba(0,0,0,.16) 3px 6px)`;
-    case 'moss':    // 桂花針：均勻滿版小顆粒，樸實家常感
-      return `radial-gradient(circle, rgba(0,0,0,.20) 0 1.4px, rgba(255,255,255,0) 1.4px 100%) 0 0/9px 9px,`+
-             `radial-gradient(circle, rgba(255,255,255,.18) 0 1.4px, rgba(255,255,255,0) 1.4px 100%) 4.5px 4.5px/9px 9px`;
-
-    /* ── 毛線編織系列（premium）── */
-    case 'honeycomb': // 蜂巢編：六角格排列，CSS需精算角度、溫暖手作感強
-      return `repeating-linear-gradient(60deg, rgba(0,0,0,.16) 0 1.6px, rgba(0,0,0,0) 1.6px 11px),`+
-             `repeating-linear-gradient(120deg, rgba(0,0,0,.16) 0 1.6px, rgba(0,0,0,0) 1.6px 11px),`+
-             `repeating-linear-gradient(0deg, rgba(255,255,255,.14) 0 1.6px, rgba(0,0,0,0) 1.6px 11px)`;
-    case 'shell':   // 貝殼編：弧形扇貝排列，曲線疊層純CSS最難還原、少女精緻感
-      return `radial-gradient(circle at 50% -30%, rgba(0,0,0,0) 0 56%, rgba(0,0,0,.32) 56% 62%, rgba(255,255,255,.22) 62% 66%, rgba(0,0,0,0) 66% 100%) 0 0/22px 16px,`+
-             `radial-gradient(circle at 50% -30%, rgba(0,0,0,0) 0 56%, rgba(0,0,0,.32) 56% 62%, rgba(255,255,255,.22) 62% 66%, rgba(0,0,0,0) 66% 100%) 11px 8px/22px 16px,`+
-             `radial-gradient(circle at 28% 20%, rgba(255,255,255,.20) 0%, rgba(255,255,255,0) 45%)`;
-    case 'cable':   // 麻花辮（Aran）：旗艦稀有款——立體交叉扭轉紋，多層疊加還原扭辮光影，
-                     // 三維評分（辨識度／CSS成本／情緒契合）皆最高分，編織圈公認經典招牌花樣
-      return `repeating-linear-gradient(55deg, rgba(0,0,0,.24) 0 2px, rgba(0,0,0,0) 2px 5px, rgba(255,255,255,.20) 5px 7px, rgba(0,0,0,0) 7px 12px) 0 0/16px 16px,`+
-             `repeating-linear-gradient(-55deg, rgba(0,0,0,.24) 0 2px, rgba(0,0,0,0) 2px 5px, rgba(255,255,255,.20) 5px 7px, rgba(0,0,0,0) 7px 12px) 8px 0/16px 16px,`+
-             `repeating-linear-gradient(90deg, rgba(0,0,0,.14) 0 1px, rgba(0,0,0,0) 1px 16px)`;
     default: return '';
   }
 }
 
-/* 材質皮膚資料表（商業接口：新增材質只要在這張表加一行 + materialTexture 加一個 case，
-   引擎、經濟、圖鑑、試玩流程全部自動生效，不用碰任何其它函式）。
-   basic 只用金幣買（免課金玩家的日常小確幸）；premium 只用鑽石買（課金玩家的稀有邂逅）。
-   ★ v44：brick 更名為「工業風(磁磚)」，紋理同步改為格狀磁磚縫（不再是磚牆錯縫），
-   名字與呈現一致；knit 拆分為五款真實編織針法（見上方 materialTexture 排序依據）。 */
+/* ============================================================
+   ★ v92 商業模式轉向：材質稀缺經濟 → 全免費、廣告支撐
+   ------------------------------------------------------------
+   總監定案：30 款材質裡實際只做出 9+1 款，扣掉毛線(rib)、大理石(marble)
+   堪用，其餘 7 款質感不過關 —— 與其墊背，不如砍掉重練。材質不再是「課金
+   稀缺物」，全部免費；商業模式收攏到買斷去廣告／看廣告換道具／賣炸彈
+   三條腿。撞色 5 款同理，拿掉 dev 標記正式納入「心情轉換系統」邂逅池。
+   所有皮膚 price 都改 0，只是註記用（UI 上已不顯示價格），實際「解鎖」
+   機制交給 MOOD.js 那一段的廣告閘（equipSkinViaAd）。
+   ============================================================ */
 const SKIN_MATERIALS = [
-  { id:'default',   tier:'basic',   price:{gold:0},    name:'skin.default',   icon:'🟢' },
-  { id:'brick',     tier:'basic',   price:{gold:300},  name:'skin.brick',     icon:'🀄' },
-  { id:'wood',      tier:'basic',   price:{gold:350},  name:'skin.wood',      icon:'🪵' },
-  { id:'rib',       tier:'basic',   price:{gold:320},  name:'skin.rib',       icon:'🧣' },
-  { id:'moss',      tier:'basic',   price:{gold:320},  name:'skin.moss',      icon:'🧵' },
-  { id:'marble',    tier:'premium', price:{dm:80},     name:'skin.marble',    icon:'⬜' },
-  { id:'steel',     tier:'premium', price:{dm:80},     name:'skin.steel',     icon:'⚙️' },
-  { id:'honeycomb', tier:'premium', price:{dm:80},     name:'skin.honeycomb', icon:'🐝' },
-  { id:'shell',     tier:'premium', price:{dm:90},     name:'skin.shell',     icon:'🐚' },
-  { id:'cable',     tier:'premium', price:{dm:100},    name:'skin.cable',     icon:'🧶' },
+  { id:'default',   name:'skin.default',   icon:'🟢' },
+  { id:'rib',       name:'skin.rib',       icon:'🧣' },
+  { id:'marble',    name:'skin.marble',    icon:'⬜' },
+  { id:'clashBluePink',    name:'skin.clashBluePink',    icon:'🔵' },
+  { id:'clashGreenCoral',  name:'skin.clashGreenCoral',  icon:'🟢' },
+  { id:'clashVioletLime',  name:'skin.clashVioletLime',  icon:'🟣' },
+  { id:'clashRedTeal',     name:'skin.clashRedTeal',     icon:'🔴' },
+  { id:'clashAmberIndigo', name:'skin.clashAmberIndigo', icon:'🟠' },
 ];
 function skinDef(id){ return SKIN_MATERIALS.find(s=>s.id===id); }
-/* 目前該用哪個材質渲染：邂逅試玩 > 輪播算出的皮膚 > 玩家手動裝備的固定皮膚 */
-function activeSkinId(){ return trialSkinId || rotationSkinId || currentSkin; }
+/* 目前該用哪個材質渲染：心情轉換系統選中的皮膚 > 玩家手動裝備的固定皮膚 */
+function activeSkinId(){ return moodSkinId || currentSkin; }
 
 /* ============================================================
    音效引擎（Web Audio 即時合成，零外部檔案、零延遲）
@@ -2770,6 +2703,184 @@ const SHAPE_LIB = [
    注意：方塊色來源是這張表，不是 GEMS.color（兩者本來就各自獨立）。 */
 const PIECE_COLORS = ['#a8c8ea','#c4aee0','#a4d4b8','#f0c894','#eeb0ac','#a2d0dc','#e8d49a','#cfb0e4'];
 
+/* ============================================================
+   ★ v89 撞色（Color-blocking）色系皮膚　＋　寶石防護罩
+   ------------------------------------------------------------
+   【定位】這是「方塊底色」這一條線的皮膚，與 GEMS.gemColor（寶石色）
+   完全獨立，一格都不碰。寶石色＝目標語意，動了就是偷改玩法。
+
+   【資料流】
+     PIECE_COLORS（原生 8 色，資料層永遠不變，存檔格式零影響）
+       └→ skinPieceColor() 在「渲染層」依索引映射到撞色 8 色
+            └→ 寶石防護罩：底色與寶石太接近時，改挑對比夠的那一格
+   資料層仍只存 PIECE_COLORS 裡的原生色值（★ v91 起改由 pickPieceColor() 決定
+   抽哪一格，但抽出來的仍是同一張表的原值）—— 公平發牌、防死鎖、存檔全部無感。
+
+   【防護罩觸發規則（總監定案 Q5=b）】
+     主判定：|底色明度 − 寶石明度| < 25 → 觸發
+     次判定：色相夾角 < 30°（同色相更易糊）→ 門檻拉高到 35
+     觸發後：從該皮膚 8 色中挑出「明度差達標」的候選，隨機取一格。
+     ★ 隨機必須是「決定性隨機」：用 (色索引+寶石鍵+皮膚) 當種子雜湊，
+       同一組合永遠得到同一格。否則增量 diff 每次重繪都會抽到不同底色，
+       畫面會閃爍 —— 這是 Math.random() 在渲染層的致命陷阱。
+   ============================================================ */
+const CLASH_SHIELD = { lumGap: 25, lumGapSameHue: 35, hueNear: 30 };
+
+/* 撞色 8 色生成器：主色相 5 格全跨度 ＋ 撞色相 3 格全跨度（夾角 120°–180°）
+   明度 28%→88%（下限 28 是實測值：更低會被自動導出的空格色吃掉） */
+function _clashRamp(hue, n, satBase){
+  const out = [];
+  for(let i=0;i<n;i++){
+    const t = n===1 ? 0.5 : i/(n-1);
+    const l = 28 + t*60;
+    const s = satBase * (1 - 0.35*Math.abs(t-0.5)*2 + 0.15);
+    out.push(_spHsl2Hex(hue, Math.max(20,Math.min(95,s)), l));
+  }
+  return out;
+}
+function _clashColors(hueA, hueB){
+  return [..._clashRamp(hueA,5,62), ..._clashRamp(hueB,3,70)];
+}
+
+/* 背景 4 色自動導出（沿用先前定案演算法，零人工介入）：
+   圓形平均色相 ＋ 明度中位數 → 桌面 62% / 棋盤 40% / 空格 30% 三層階梯 */
+function _circularMeanHue(hues){
+  let x=0,y=0;
+  hues.forEach(h=>{ const r=h*Math.PI/180; x+=Math.cos(r); y+=Math.sin(r); });
+  const a = Math.atan2(y,x)*180/Math.PI;
+  return a<0 ? a+360 : a;
+}
+function deriveBoardColors(colors){
+  const hsls = colors.map(_spHex2Hsl);
+  const avgH = _circularMeanHue(hsls.map(c=>c[0]));
+  const lums = hsls.map(c=>c[2]).sort((a,b)=>a-b);
+  const medL = lums[Math.floor(lums.length/2)];
+  const bgS = 28;
+  const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
+  const bgL    = clamp(medL*0.62, 16, 46);
+  const boardL = clamp(medL*0.40, 10, 32);
+  const cellL  = clamp(medL*0.30,  7, 24);
+  return {
+    bg:       _spHsl2Hex(avgH, bgS,   bgL),
+    boardBg:  _spHsl2Hex(avgH, bgS+4, boardL),
+    cell:     _spHsl2Hex(avgH, bgS+2, cellL),
+    cellLine: _spHsl2Hex(avgH, bgS+2, cellL+9),
+  };
+}
+
+/* 五款撞色皮膚（★ v92 起全部免費，正式納入心情轉換系統的隨機池） */
+const CLASH_SKINS = {
+  clashBluePink:   { hueA:210, hueB:75  },
+  clashGreenCoral: { hueA:150, hueB:9   },
+  clashVioletLime: { hueA:270, hueB:76  },
+  clashRedTeal:    { hueA:5,   hueB:191 },
+  clashAmberIndigo:{ hueA:35,  hueB:229 },
+};
+const _clashCache = {};
+function clashSkin(id){
+  const def = CLASH_SKINS[id];
+  if(!def) return null;
+  if(!_clashCache[id]){
+    // ★ v92 色相列點選：玩家調過的話用覆寫色相，撞色夾角仍沿用該款原本定案的角度
+    const override = (typeof clashHueOverride !== 'undefined') ? clashHueOverride[id] : undefined;
+    const hueA = (typeof override === 'number') ? override : def.hueA;
+    const hueB = hueA + (def.hueB - def.hueA);
+    const colors = _clashColors(hueA, hueB);
+    _clashCache[id] = { colors, bg: deriveBoardColors(colors) };
+  }
+  return _clashCache[id];
+}
+function isClashSkin(id){ return !!CLASH_SKINS[id]; }
+
+/* ── 決定性雜湊：同樣的輸入永遠得到同樣的數字（取代 Math.random，杜絕重繪閃爍） ── */
+function _clashHash(str){
+  let h = 2166136261;
+  for(let i=0;i<str.length;i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return (h >>> 0);
+}
+function _hueDist(a,b){ const d = Math.abs(a-b)%360; return d>180 ? 360-d : d; }
+
+/* ★ 渲染層唯一入口：把資料層的方塊色，換成「這款皮膚該用的色」＋防護罩修正。
+   gemKey 傳入才啟動防護罩；沒有寶石的空方塊只做單純色彩映射。 */
+function skinPieceColor(color, gemKey, skinId){
+  const id = skinId || activeSkinId();
+  const sk = clashSkin(id);
+  if(!sk) return color;                       // 非撞色皮膚 → 原樣放行，舊皮膚行為零改變
+  const idx = PIECE_COLORS.indexOf(color);
+  if(idx < 0) return color;                   // 不在色票內（特殊方塊）→ 不干預
+  let out = sk.colors[idx % sk.colors.length];
+  if(!gemKey || !GEMS[gemKey]) return out;
+
+  // ── 寶石防護罩 ──
+  const [gH,,gL] = _spHex2Hsl(GEMS[gemKey].gemColor);
+  const need = (hex)=>{
+    const [bH,,bL] = _spHex2Hsl(hex);
+    const gap = _hueDist(bH,gH) < CLASH_SHIELD.hueNear
+      ? CLASH_SHIELD.lumGapSameHue : CLASH_SHIELD.lumGap;
+    return Math.abs(bL-gL) >= gap;
+  };
+  if(need(out)) return out;                   // 對比本來就夠 → 防護罩不觸發
+
+  const cands = sk.colors.filter(need);
+  if(!cands.length){
+    // 極端情況（整套 8 色都糊）：退回明度差最大的那一格，保證不會比原本更糟
+    let best = out, bestGap = -1;
+    sk.colors.forEach(hex=>{
+      const g = Math.abs(_spHex2Hsl(hex)[2] - gL);
+      if(g > bestGap){ bestGap = g; best = hex; }
+    });
+    return best;
+  }
+  const pickIdx = _clashHash(id+'|'+idx+'|'+gemKey) % cands.length;
+  return cands[pickIdx];
+}
+
+/* ============================================================
+   ★ v91 棋盤配色收斂：常規 3 色 ＋ 稀有跳色 1 色
+   ------------------------------------------------------------
+   【為什麼要收斂】撞色（Color-blocking）的張力來自「稀有」。八色同時鋪滿
+   棋盤時，撞色相就從「意外」退化成「常態」，張力歸零，只剩雜亂。
+   把常規色壓到 3 色、跳色壓到約每 10 塊才出現一次，撞色相才回到主角位置。
+   同一個原則見於連消（第二次才觸發）：常態要輕，稀有才重。
+
+   【索引語意】PIECE_COLORS 與撞色皮膚的 8 色是「同索引對映」的：
+     索引 0–4 → 主色相 5 格（深→淺）    ← 常規池從這裡抽 3 格
+     索引 5–7 → 撞色相 3 格（深→淺）    ← 跳色從這裡抽 1 格
+   所以這裡選的是「索引」而非「顏色」，換皮膚時語意自動跟著走，
+   永遠是「主色相當常規、撞色相當跳色」，不必為每款皮膚各寫一份設定。
+
+   【每關重抽】每關開始時重抽一次組合（見 rollLevelPalette），
+   關與關之間有變化，但單一關卡內色數穩定 —— 新鮮感與秩序感兩者兼得。
+   ============================================================ */
+const PALETTE_RULE = {
+  baseCount:  3,      // 常規色數量（總監定案：最多三種）
+  accentRate: 0.10,   // 跳色出現率 ≈ 每 10 塊出現 1 塊
+  baseIdx:   [0,1,2,3,4],   // 主色相候選索引
+  accentIdx: [5,6,7],       // 撞色相候選索引
+};
+let levelPalette = null;    // { base:[idx…], accent:idx }（session-only，不進存檔）
+
+/* 每關開局重抽本關調色盤。刻意避開主色相最深的索引 0 與最淺的索引 4 同時入選，
+   確保三色之間明度拉得開 —— 三塊顏色若明度太接近，收斂反而變成「一片糊」。 */
+function rollLevelPalette(){
+  const pool = [...PALETTE_RULE.baseIdx].sort(()=>Math.random()-0.5);
+  const base = pool.slice(0, PALETTE_RULE.baseCount).sort((a,b)=>a-b);
+  const acc  = PALETTE_RULE.accentIdx[Math.floor(Math.random()*PALETTE_RULE.accentIdx.length)];
+  levelPalette = { base, accent: acc };
+}
+
+/* 方塊配色唯一入口。取代原本的 pick(PIECE_COLORS)：
+   每塊獨立擲骰 —— accentRate 命中就給跳色，否則從常規三色隨機。
+   「大概 10 個方塊出現 1 個」是機率意義上的，不做保底、不做固定週期：
+   真隨機才有「欸，來了」的意外感，排程過的稀有就不叫稀有。 */
+function pickPieceColor(){
+  if(!levelPalette) rollLevelPalette();
+  const idx = (Math.random() < PALETTE_RULE.accentRate)
+    ? levelPalette.accent
+    : levelPalette.base[Math.floor(Math.random()*levelPalette.base.length)];
+  return PIECE_COLORS[idx];
+}
+
 /* 依權重隨機抽一個形狀（權重越高越常出）
    ★ v6：依本關難度動態調整「救命小牌(rare)」的權重 ——
         放水關大量塞救命牌，魔王關幾乎抽不到，這是難度節奏的關鍵旋鈕。 */
@@ -2787,7 +2898,6 @@ function pickWeightedShape(){
 /* ===== 工具函式 ===== */
 const rand = n => Math.floor(Math.random()*n);
 const pick = arr => arr[rand(arr.length)];
-
 
 
 /* ============================================================
@@ -2925,7 +3035,6 @@ function sproutStage(got, need){
   if(need<=0 || got>=need) return 'bloom';
   return (got/need) >= (1/3) ? 'bud' : 'sprout';
 }
-
 
 /* ============================================================
    ★ v74 盤面寶石：仿真鑽石切割（table cut + 8道放射狀冠部切面）
@@ -3257,7 +3366,6 @@ function gemShapeSVG(gemKey){
      GEMS.food 欄位未動，資料結構相容；素材本身存於 v85 封存檔。 */
 function gemSVG(gemKey){ return gemShapeSVG(gemKey); }
 
-
 /* ============================================================
    初始化棋盤
    ============================================================ */
@@ -3307,7 +3415,7 @@ function _cellKeyOf(data){
 function _makeFilled(data){
   const f = document.createElement('div');
   f.className = 'filled';
-  f.style.background = gemMaterial(data.color, activeSkinId());
+  f.style.background = gemMaterial(skinPieceColor(data.color, data.gem), activeSkinId());
   if(data.gem){ f.innerHTML = gemSVG(data.gem); if(data.glow) f.classList.add('glow'); }
   return f;
 }
@@ -3342,6 +3450,23 @@ function applySkinTheme(){
   const id = activeSkinId();
   if(document.body.getAttribute('data-skin') !== id){
     document.body.setAttribute('data-skin', id);
+  }
+  /* ★ v89 撞色皮膚的背景四色是「由 8 色演算導出」的，寫不進靜態 CSS，
+     故改以 inline CSS 變數注入 body（優先權高於 .theme-default，且會往下繼承給
+     #board / .cell）。切回非撞色皮膚時把四個變數清掉，讓 CSS 原本的值回到台面。
+     只在值真的改變時才寫 DOM，維持 v73 「成本近零」的原則。 */
+  const want = isClashSkin(id) ? clashSkin(id).bg : null;
+  if(document.body.dataset.clashApplied !== (want ? id : '')){
+    const st = document.body.style;
+    if(want){
+      st.setProperty('--bg', want.bg);
+      st.setProperty('--board-bg', want.boardBg);
+      st.setProperty('--cell', want.cell);
+      st.setProperty('--cell-line', want.cellLine);
+    } else {
+      ['--bg','--board-bg','--cell','--cell-line'].forEach(v=>st.removeProperty(v));
+    }
+    document.body.dataset.clashApplied = want ? id : '';
   }
 }
 function renderBoard(){
@@ -3459,13 +3584,12 @@ function renderGoals(){
     g._st = st;
     const anim = grew ? (st==='bloom' ? ' bloom-in' : ' grow') : '';
     div.innerHTML = `<span class="gicon${anim}" style="--gc:${GEMS[g.gem].gemColor}">${sproutSVG(g.gem, st)}${done?'<span class="goal-check">✓</span>':''}</span>
-      <span class="gtext">${Math.min(g.got,g.need)}/${g.need}</span>`;
+      ${done?'':`<span class="gtext" style="color:${GEMS[g.gem].gemColor}">${Math.max(g.need-g.got,0)}</span>`}`;
     el.appendChild(div);
   });
 }
 
 function checkWin(){ return MODE().isWin(); }
-
 
 /* ============================================================
    ★ v32 機關引擎 HazardEngine — BALLOON_CACTUS
@@ -3984,7 +4108,7 @@ function makePiece(forceDef){
   // ★ v57：可傳入指定形狀（甜蜜連發從同池抽牌用）；不傳則照常權重隨機
   const shapeDef = forceDef || pickWeightedShape();
   const shape = shapeDef.cells;
-  const color = pick(PIECE_COLORS);
+  const color = pickPieceColor();
   // 對角線斜牌最難對齊 → 多鑲鑽石作「高風險高回報」補償
   // 大塊頭(6格以上) → 略降鑽石密度，避免一次灌太多
   // 小救命牌走標準率：它的價值在「能塞縫解套」，不靠鑽石綁定
@@ -4150,7 +4274,7 @@ function makeBalancedTrio(){
       if(!p){
         // 降級階梯：橫2 → 單格（消行機制保證盤面永遠至少一格空，單格牌必定放得下）
         const duo = { cells:[{r:0,c:0,gem:null,glow:false},{r:0,c:1,gem:null,glow:false}],
-                      color:pick(PIECE_COLORS), rows:1, cols:2, used:false, tier:'rare' };
+                      color:pickPieceColor(), rows:1, cols:2, used:false, tier:'rare' };
         p = pieceFitsSomewhere(duo) ? duo : makeSingleCellPiece();
       }
       trio.push(p);
@@ -4209,7 +4333,7 @@ function renderTray(){
       const cd = grid[r+'_'+c];
       pc.className = 'pcell'+(cd?'':' empty');
       pc.style.width = pc.style.height = PS+'px';
-      if(cd){ pc.style.background = gemMaterial(p.color, activeSkinId());
+      if(cd){ pc.style.background = gemMaterial(skinPieceColor(p.color, cd.gem), activeSkinId());
               if(cd.gem){ pc.innerHTML = gemSVG(cd.gem); if(cd.glow) pc.classList.add('glow'); } }
       pe.appendChild(pc);
     }
@@ -4251,7 +4375,7 @@ function attachDrag(el, idx){
       const cd=grid[r+'_'+c];
       pc.className='pcell'+(cd?'':' empty');
       pc.style.width=pc.style.height=CELL+'px';
-      if(cd){pc.style.background=gemMaterial(p.color, activeSkinId()); if(cd.gem) pc.innerHTML=gemSVG(cd.gem);}
+      if(cd){pc.style.background=gemMaterial(skinPieceColor(p.color, cd.gem), activeSkinId()); if(cd.gem) pc.innerHTML=gemSVG(cd.gem);}
       fp.appendChild(pc);
     }
     // ★ v27 手感修正：v25 把抬升量縮到約一格，導致高方塊幾乎貼著手指、被指頭壓住，
@@ -4567,6 +4691,7 @@ function clearLines(){
     score += gained;
     bumpBest();   // ★ v64 D2 分模式記帳
     updateStatus();
+    checkMoodTriggerScore();   // ★ v92 無盡模式：分數每跨過門檻整數倍安排一次換裝驚喜
   }
 
   const _clearEpoch = gameEpoch;   // ★ v64 A2 記下發射當下的世代（視覺幀與 360ms 收尾共用）
@@ -4684,7 +4809,7 @@ function anyPlaceable(){
 function makeSingleCellPiece(){
   return {
     cells: [{ r:0, c:0, gem:null, glow:false }],
-    color: pick(PIECE_COLORS),
+    color: pickPieceColor(),
     rows: 1, cols: 1, used: false, tier: 'rare'
   };
 }
@@ -4824,62 +4949,10 @@ function showWin(){
     document.getElementById('winText').textContent = T('win.balloonText', {lv:level, s:score, n:ECON.winReward});
     document.getElementById('nextBtn').style.display='';
   }
-  resolveSkinEncounterOnWin();   // ★ v40 這關若有邂逅中的皮膚，自然贏才結算碎片
   saveGame();   // ★ v21 過關即存檔（最佳分/最高關落地）
   document.getElementById('winOverlay').classList.add('show');
 }
 
-/* ★ v40 過關結算皮膚邂逅：救援過的關卡不算數；自然贏才發碎片，並依結果渲染卡片 */
-function resolveSkinEncounterOnWin(){
-  const box = document.getElementById('skinTrialPromo');
-  if(!box) return;
-  if(!trialSkinId){ box.style.display='none'; return; }
-  const s = skinDef(trialSkinId);
-  if(!s){ box.style.display='none'; return; }
-  if(rescueUsedThisLevel){
-    // 用過救援才贏 → 這次邂逅不算數，圖鑑仍記錄「曾邂逅」但沒有碎片，誠實但不给
-    box.style.display='';
-    box.querySelector('.stp-swatch').style.background = gemMaterial('#7ba9e0', s.id);
-    box.querySelector('.stp-name').textContent = T(s.name);
-    box.querySelector('.stp-title').textContent = T('frag.rescueMiss');
-    box.querySelector('.stp-buy').innerHTML = '';
-    return;
-  }
-  const result = grantSkinFragment(trialSkinId);
-  box.style.display='';
-  box.querySelector('.stp-swatch').style.background = gemMaterial('#7ba9e0', s.id);
-  box.querySelector('.stp-name').textContent = T(s.name);
-  const buyRow = box.querySelector('.stp-buy');
-  buyRow.innerHTML = '';
-  if(!result){ box.style.display='none'; return; }
-  if(result.kind==='dup'){
-    box.querySelector('.stp-title').textContent = T(result.currency==='gold' ? 'frag.dupGold' : 'frag.dupDm', {v:result.value});
-  } else if(result.kind==='complete'){
-    box.querySelector('.stp-title').textContent = T('frag.complete', {n:T(s.name)});
-    // ★ v64 D5 集滿的獎勵時刻交回玩家手上：想換就按，不想換就留著現在這身
-    if(currentSkin !== s.id){
-      const b = document.createElement('button');
-      b.className='shop-buy gold'; b.textContent = T('frag.equipNow');
-      b.onclick = ()=>{ equipSkin(s.id); document.getElementById('skinTrialPromo').style.display='none'; };
-      buyRow.appendChild(b);
-    }
-  } else {
-    box.querySelector('.stp-title').textContent = T('frag.gain', {c:result.cur, t:result.need});
-    // 還沒集滿：順勢提供「直接買斷」加速選項（買斷價沿用 SKIN_MATERIALS，比碎片划算，見商店定價哲學）
-    if(typeof s.price.gold==='number'){
-      const b = document.createElement('button');
-      b.className='shop-buy gold'; b.textContent = `${T('frag.buyOutBtn')} 🪙${s.price.gold}`;
-      b.onclick = ()=>{ buySkin(s.id,'gold'); document.getElementById('skinTrialPromo').style.display='none'; };
-      buyRow.appendChild(b);
-    }
-    if(typeof s.price.dm==='number'){
-      const b = document.createElement('button');
-      b.className='shop-buy dm'; b.textContent = `${T('frag.buyOutBtn')} 💎${s.price.dm}`;
-      b.onclick = ()=>{ buySkin(s.id,'dm'); document.getElementById('skinTrialPromo').style.display='none'; };
-      buyRow.appendChild(b);
-    }
-  }
-}
 function showLose(){
   if(!currentMode) return;   // ★ v64 A2 雙保險：已回選單就絕不彈失敗視窗（含氣球 boomTimer 900ms 路徑）
   const m = MODE();
@@ -4895,13 +4968,6 @@ function showLose(){
     txt = T('lose.boomText');
   }
   document.getElementById('loseText').textContent = txt;
-  // ★ v40 這關剛好有皮膚邂逅在進行中卻輸了 → FOMO 提示（碎片作廢，圖鑑仍記錄曾經邂逅）
-  const missBox = document.getElementById('loseSkinMiss');
-  if(missBox){
-    const s = trialSkinId ? skinDef(trialSkinId) : null;
-    if(s){ missBox.style.display=''; missBox.textContent = T('lose.skinMiss', {n:T(s.name)}); }
-    else { missBox.style.display='none'; }
-  }
   HZ.paused = true;   // ★ v35 凍結氣球。否則「盤面塞死」視窗開著時氣球仍在膨脹：
                       //   玩家讀文案的每一秒都在扣血，甚至會在視窗背後撞上仙人掌，
                       //   讓 HZ.boom 二次呼叫 showLose、把「清出空間」救援覆寫成「洩氣一半」→ 救完盤面還是死的
@@ -4950,191 +5016,159 @@ function highlightHint(p,r,c){
 }
 // ===== 商業接口：付費去廣告 / 換膚 解鎖（預留 flag） =====
 let isPremium = false;       // 之後接內購：true 後隱藏廣告
-let ownedSkins = ['default'];   // 玩家已擁有（買下）的材質皮膚
+/* ★ v92 全免費：不再有「已擁有／未擁有」的概念，ownedSkins 整個移除。
+   所有皮膚永遠可選，門檻只剩「這次換裝要不要看廣告」（見 adUnlockedThisSession）。 */
 let currentSkin = 'default';    // ★ v21 目前裝備的皮膚（平常關卡都用這個渲染）
 
 /* ============================================================
-   ★ v40 皮膚「邂逅」機制 —— 隨機事件 ＋ 碎片收集，不是試吃就送
-   ─────────────────────────────────────────────
-   設計核心（跟 v39 的關鍵差異）：
-     1. 觸發機率：每一關「獨立擲骰」（不設固定週期），basic／premium 分開骰、
-        彼此互斥、機率天差地遠 —— premium 刻意做到接近「天堂式」的稀有度，
-        沒有保底，玩家運氣不好可能幾百關都碰不到，這是真實隨機該有的殘酷感。
-     2. 邂逅到的關卡 = 限時挑戰：這關「自然贏」才拿到 1 個該皮膚碎片；
-        輸了 → 碎片作廢，材質立刻打回預設，圖鑑只留下「曾經邂逅過」的記錄（FOMO）。
-        用「炸彈／看廣告」救援續命拿到的勝利不算數 —— 救援是給正常關卡用的安全網，
-        不該讓稀缺玩法被資源繞過，見 rescueUsedThisLevel。
-     3. 碎片是資源，不是皮膚本身：集滿 FRAGMENT_REQUIRED 才自動兌換成整套皮膚。
-        重複碎片（已擁有的皮膚又邂逅到）不會浪費，自動兌換成金幣／鑽石。
-     4. 商店永遠保留「直接買斷」（沿用 SKIN_MATERIALS 定價表，見 buySkin）與
-        「花錢加速買碎片」兩條路，但買碎片單價刻意訂得比買斷貴，逼玩家要嘛
-        老實磨、要嘛乾脆買斷 —— 買碎片只是給「不想等又捨不得整套買斷」的人。
+   ★ v92 心情轉換系統（取代 v40 邂逅碎片經濟）
+   ------------------------------------------------------------
+   總監定案：所有皮膚免費。不再靠「稀缺＋碎片收藏」留人——這類益智
+   遊戲的玩家是急性子，收集不爽就刪遊戲。改用「像播放器一樣的心情
+   轉換」：固定／隨機／自訂 三種模式，玩家自己選；沒選過的話，系統
+   預設走 auto（行為＝隨機，但語意上是「系統幫你安排下一場驚喜」，
+   跟玩家主動點「隨機」的心情不同，故保留成獨立的第四種內部狀態）。
+
+   【觸發時機，見 checkMoodTrigger()】
+     闖關模式：每 LEVELS_PER_MOOD 關觸發一次
+     無盡模式：每跨過 SCORE_PER_MOOD 分的整數倍觸發一次
+
+   【廣告閘，見 equipSkinViaAd()】
+     所有「切換到一款目前沒在用的皮膚」的動作——無論是系統自動觸發、
+     還是玩家在圖鑑手動點裝備——一律先跳「看廣告免費換上」。
+     換膚是免費的，但玩家幾乎每次都會乖乖看廣告，這才是這次改版
+     真正的營收設計：用免費換膚的驚喜感，換玩家自願的廣告曝光。
+     例外：切回目前已裝備過、且「這個 session 已經看過廣告解鎖」的
+     皮膚（即 currentSkin 本身）不需要重複看廣告——重複索取廣告
+     只會讓玩家反感，不會增加營收，見 adUnlockedThisSession。
+     default（原色果凍）是零門檻基礎款，永遠免廣告即點即換。
+
+   【色相微調，見色相列點選 UI】
+     玩家在已裝備的撞色皮膚上微調色相，屬於「調整當下這套」而非
+     「切換到新的一套」，不重新觸發廣告閘——這是本次的假設判斷，
+     若總監覺得色相微調也該看廣告，改 tuneClashHue() 開頭那個 if
+     即可，不用重寫整套邏輯。
    ============================================================ */
-const ENCOUNTER_CHANCE = { basic: 0.15, premium: 0.012 };   // 每關獨立骰，basic 常見養黏著度／premium 極稀有
-const FRAGMENT_REQUIRED = { basic: 10, premium: 30 };       // 免費集滿碎片兌換整套皮膚所需數量
-const DUPLICATE_CONVERT = { basic: { gold: 30 }, premium: { dm: 8 } };   // 重複碎片自動兌換
-const FRAGMENT_PRICE   = { basic: { gold: 60 }, premium: { dm: 5 } };   // 商店「買碎片加速」單價（刻意比買斷貴）
-let trialSkinId = null;        // 本關邂逅中的皮膚 id（session-only，不存檔，過關/重來就結算掉）
-let rescueUsedThisLevel = false;  // 本關是否用過救援（廣告/炸彈續命）—— 用過就不算「自然贏」
-let seenSkins = {};            // 玩家邂逅過的皮膚紀錄 { id: level }，用於圖鑑「第 X 關嚐過」（存檔）
-let skinFragments = {};        // 玩家目前持有的碎片 { id: count }（存檔，集滿會被 grantSkinFragment 自動清空+兌換）
+const MOOD_RULE = { levelsPerMood: 4, scorePerMood: 400 };
+let moodMode = null;              // null(auto) | 'fixed' | 'random' | 'custom'（存檔）
+let moodCustomOrder = [];         // 自訂模式的播放清單（存檔，元素為 skin id）
+let moodCursor = 0;               // 自訂模式播放到第幾個（存檔）
+let moodSkinId = null;            // 心情轉換系統目前選中的皮膚（session-only，優先權最高，見 activeSkinId）
+let moodLastSkin = null;          // 上一次選中的皮膚，避免連續兩次同款（session-only）
+let moodLevelCounter = 0;         // 距離上次觸發過了幾關（存檔，跨關卡累加）
+let moodScoreBaseline = 0;        // 無盡模式上次觸發時的分數基準（session-only，開新局歸零）
+let pendingMoodSkin = null;       // 廣告閘彈窗當下待確認的皮膚 id（session-only）
+let adUnlockedThisSession = new Set([activeSkinIdSafe()]);  // 見下方安全存取
 
-/* ============================================================
-   ★ v46 皮膚輪播（仿音樂播放器：固定／輪播／隨機）
-   ─────────────────────────────────────────────
-   優先權設計（活用既有的 trialSkinId || currentSkin 架構，完全不衝突）：
-     trialSkinId（本關邂逅）→ 永遠最優先，邂逅是稀缺/驚喜體驗，不該被輪播蓋掉
-     rotationSkinId（本關輪播算出來的皮膚）→ 第二優先，只在沒邂逅時生效
-     currentSkin（玩家手動裝備）→ 沒開輪播（fixed）時的預設行為，完全維持原本邏輯
-   輪播只在「玩家擁有 ≥2 款皮膚」時才有意義；只有 1 款時自動視為 fixed，UI 也不必勉強顯示切換動畫。
-   ============================================================ */
-let rotateMode = 'fixed';      // 'fixed' | 'cycle' | 'shuffle'（存檔）
-let rotationSkinId = null;     // 本關輪播/隨機算出來的皮膚 id（session-only，不存檔，每關 startLevel() 時重算）
-let lastShuffleId = null;      // 隨機模式的「避免連續同款」記憶（session-only）
+function activeSkinIdSafe(){ try{ return currentSkin || 'default'; }catch(e){ return 'default'; } }
 
-/* 每關開始時推進輪播一步；沒開輪播或皮膚不足 2 款時直接跳過，rotationSkinId 維持 null */
-function advanceSkinRotation(){
-  rotationSkinId = null;
-  if(rotateMode === 'fixed') return;
-  if(ownedSkins.length < 2) return;      // 只有 1 款皮膚時輪播沒意義，安靜跳過
-  if(rotateMode === 'cycle'){
-    // 清單輪播：依 ownedSkins 陣列順序，找到目前 currentSkin 的下一個位置
-    const idx = ownedSkins.indexOf(currentSkin);
-    const nextIdx = (idx >= 0 ? idx + 1 : 0) % ownedSkins.length;
-    rotationSkinId = ownedSkins[nextIdx];
-    currentSkin = rotationSkinId;        // 同步 currentSkin，讓下次「回到固定模式」時停在最後播放的那款，符合直覺
-  } else if(rotateMode === 'shuffle'){
-    // 隨機播放：避免連續兩關抽到同一款（跟音樂 app 的洗牌邏輯一樣，體感比純隨機更好）
-    let pool = ownedSkins.filter(id => id !== lastShuffleId);
-    if(pool.length === 0) pool = ownedSkins;   // 保底：只有 1 款可選時就不避開了
-    rotationSkinId = pool[Math.floor(Math.random() * pool.length)];
-    lastShuffleId = rotationSkinId;
-    currentSkin = rotationSkinId;
-  }
-  saveGame();
+/* 從全部皮膚（扣掉目前已裝備那款）挑一個，避免連續兩次抽到同一款 */
+function pickRandomSkin(){
+  const pool = SKIN_MATERIALS.map(s=>s.id).filter(id => id !== currentSkin && id !== moodLastSkin);
+  const real = pool.length ? pool : SKIN_MATERIALS.map(s=>s.id).filter(id => id !== currentSkin);
+  if(!real.length) return currentSkin;
+  return real[Math.floor(Math.random()*real.length)];
+}
+/* 自訂模式：依玩家排好的清單順序輪流播放；清單是空的就退回隨機（保底，不讓功能卡死） */
+function pickCustomSkin(){
+  const list = moodCustomOrder.filter(id => SKIN_MATERIALS.some(s=>s.id===id));
+  if(!list.length) return pickRandomSkin();
+  moodCursor = (moodCursor + 1) % list.length;
+  return list[moodCursor];
+}
+function pickMoodSkin(){
+  if(moodMode === 'custom') return pickCustomSkin();
+  return pickRandomSkin();   // 'random' 與 auto(null) 目前共用同一套隨機邏輯（見上方大註解）
 }
 
-/* 每關獨立擲骰：premium 與 basic 分開判定、互斥（premium 優先判），完全不設保底 */
-function rollSkinEncounter(){
-  const premiumPool = SKIN_MATERIALS.filter(s=>s.tier==='premium');
-  const basicPool   = SKIN_MATERIALS.filter(s=>s.tier==='basic' && s.id!=='default');
-  if(premiumPool.length && Math.random() < ENCOUNTER_CHANCE.premium){
-    return premiumPool[Math.floor(Math.random()*premiumPool.length)];
-  }
-  if(basicPool.length && Math.random() < ENCOUNTER_CHANCE.basic){
-    return basicPool[Math.floor(Math.random()*basicPool.length)];
-  }
-  return null;
+/* 關卡/分數里程碑到了 → 決定要不要開啟「換裝驚喜」廣告閘。
+   fixed 模式下完全不觸發，玩家的裝備只由自己手動決定。 */
+function checkMoodTrigger(){
+  if(moodMode === 'fixed') return;
+  const picked = pickMoodSkin();
+  if(!picked || picked === currentSkin) return;
+  pendingMoodSkin = picked;
+  openMoodAdGate(picked);
+}
+/* 闖關模式：每關呼叫一次，累積到門檻才真的觸發 */
+function checkMoodTriggerLevel(){
+  if(currentMode !== 'gem') return;
+  moodLevelCounter++;
+  if(moodLevelCounter < MOOD_RULE.levelsPerMood) return;
+  moodLevelCounter = 0;
+  checkMoodTrigger();
+}
+/* 無盡模式：分數每跨過門檻整數倍呼叫一次（在加分處呼叫，見 addScore） */
+function checkMoodTriggerScore(){
+  if(currentMode !== 'endless') return;
+  if(score - moodScoreBaseline < MOOD_RULE.scorePerMood) return;
+  moodScoreBaseline = score;
+  checkMoodTrigger();
 }
 
-/* 關卡開始時擲骰是否觸發邂逅；同時重置本關的救援旗標，並推進皮膚輪播 */
-function checkSkinTrial(){
-  trialSkinId = null;
-  rescueUsedThisLevel = false;                   // ★ v40 新關卡重新計算，救援與否只看「這關」
-  advanceSkinRotation();                         // ★ v46 輪播/隨機先算好本關要穿哪款（邂逅命中的話下面會蓋掉它，正是設計要的優先權）
-  if(currentMode!=='gem') return;                // 目前只在闖關模式（gem）觸發
-  if(level<=1) return;
-  const picked = rollSkinEncounter();
-  if(!picked) return;
-  trialSkinId = picked.id;
-  if(!seenSkins[picked.id]) seenSkins[picked.id] = level;   // 第一次遇到才記錄關卡數
-  saveGame();
-}
-
-/* 給予 1 個碎片（邂逅自然贏 / 花錢買碎片 共用這支）。
-   回傳結果物件，UI 依 result.kind 決定要顯示「+1碎片」「集滿兌換」還是「重複兌換」。 */
-function grantSkinFragment(id){
+/* ── 廣告閘 UI：彈出「看廣告免費換上」小卡，同一支函式服務自動觸發與手動點裝備 ── */
+function openMoodAdGate(id){
   const s = skinDef(id);
-  if(!s) return null;
-  if(ownedSkins.includes(id)){
-    // 已經擁有整套皮膚 → 這次是重複碎片，自動兌換成貨幣，不浪費也不能囤積
-    const conv = DUPLICATE_CONVERT[s.tier] || {};
-    let result = { kind:'dup', skin:s };
-    if(typeof conv.gold==='number'){ goldCoin += conv.gold; result.value = conv.gold; result.currency='gold'; }
-    else if(typeof conv.dm==='number'){ diamonds += conv.dm; result.value = conv.dm; result.currency='dm'; }
-    refreshEconomyUI(); saveGame();
-    return result;
-  }
-  const need = FRAGMENT_REQUIRED[s.tier] || 10;
-  const cur = (skinFragments[id]||0) + 1;
-  if(cur >= need){
-    // 集滿 → 自動兌換整套皮膚，碎片歸零（不留餘量，乾淨俐落）
-    // ★ v64 D5 不再靜默換裝：玩家穿著麻花辮、隨手集滿羅紋就被偷換衣服＝先斬後奏。
-    //   改由過關視窗的「立刻換上」按鈕讓玩家自己決定（見 resolveSkinEncounterOnWin）。
-    delete skinFragments[id];
-    ownedSkins.push(id);
-    if(!seenSkins[id]) seenSkins[id] = level;
-    refreshEconomyUI(); saveGame();
-    return { kind:'complete', skin:s };
-  }
-  skinFragments[id] = cur;
-  saveGame();
-  return { kind:'progress', skin:s, cur, need };
+  if(!s) return;
+  pendingMoodSkin = id;
+  const box = document.getElementById('moodAdGate');
+  if(!box) return;   // jsdom smoke test 環境可能沒渲染到這塊 DOM，安全跳過
+  box.querySelector('.mag-swatch').style.background = gemMaterial('#7ba9e0', id);
+  box.querySelector('.mag-name').textContent = T(s.name);
+  box.classList.add('show');
 }
-
-/* 花錢買 1 個碎片加速進度（刻意比直接買斷貴，見 FRAGMENT_PRICE） */
-function buyFragmentPack(id, currency){
-  const s = skinDef(id);
-  if(!s || ownedSkins.includes(id)) return;
-  const price = FRAGMENT_PRICE[s.tier] || {};
-  if(currency==='gold'){
-    const cost = price.gold;
-    if(typeof cost!=='number') return;
-    if(goldCoin < cost){ showCombo(T('combo.goldShort')); return; }
-    goldCoin -= cost;
-  } else {
-    const cost = price.dm;
-    if(typeof cost!=='number') return;
-    if(diamonds < cost){ showCombo(T('combo.dmShort')); return; }
-    diamonds -= cost;
-  }
-  const need = FRAGMENT_REQUIRED[s.tier] || 10;
-  const cur = (skinFragments[id]||0) + 1;
-  if(cur >= need){
-    delete skinFragments[id];
-    ownedSkins.push(id);
-    currentSkin = id;
-    if(!seenSkins[id]) seenSkins[id] = level;
-    showCombo(T('frag.complete', {n:T(s.name)}));
-  } else {
-    skinFragments[id] = cur;
-    showCombo(T('frag.gain', {c:cur, t:need}));
-  }
-  refreshEconomyUI(); saveGame();
-  renderSkinGallery();
+function closeMoodAdGate(){
+  const box = document.getElementById('moodAdGate');
+  if(box) box.classList.remove('show');
+  pendingMoodSkin = null;
 }
-
-/* 購買皮膚（金幣或鑽石），成功後立即裝備並收進圖鑑 */
-function buySkin(id, currency){
-  const s = skinDef(id);
-  if(!s || ownedSkins.includes(id)) return;
-  if(currency==='gold'){
-    const cost = s.price.gold;
-    if(typeof cost!=='number') return;                      // 這款不開放金幣購買
-    if(goldCoin < cost){ showCombo(T('combo.goldShort')); return; }
-    goldCoin -= cost;
-  } else {
-    const cost = s.price.dm;
-    if(typeof cost!=='number') return;                      // 這款不開放鑽石購買
-    if(diamonds < cost){ showCombo(T('combo.dmShort')); return; }
-    diamonds -= cost;
-  }
-  ownedSkins.push(id);
-  currentSkin = id;                 // 買了就直接裝備，馬上感受到「這是我的了」
-  delete skinFragments[id];         // ★ v40 直接買斷跳過碎片進度，清掉殘留避免狀態混亂
-  if(!seenSkins[id]) seenSkins[id] = level;
-  showCombo(T('combo.skinBought', {n:T(s.name)}));
-  refreshEconomyUI();
-  saveGame();
+/* 玩家按下「看廣告換上」：TODO 接入真實激勵廣告 SDK，播放完成 callback 裡呼叫 applyMoodSkin()。
+   現在先模擬「看完廣告」直接套用，跟 watchAdForHint()／watchAdForGold() 同一套暫代模式。 */
+function watchAdForSkin(){
+  if(!pendingMoodSkin) return;
+  applyMoodSkin(pendingMoodSkin);
+  closeMoodAdGate();
 }
-
-/* 裝備已擁有的皮膚（圖鑑內點選「使用」） */
-function equipSkin(id){
-  if(!ownedSkins.includes(id)) return;
+function applyMoodSkin(id){
+  moodLastSkin = currentSkin;
   currentSkin = id;
+  moodSkinId = null;      // 已經寫進 currentSkin 了，activeSkinId() 直接讀 currentSkin 即可
+  adUnlockedThisSession.add(id);
   saveGame();
   renderBoard(); renderTray();
   showCombo(T('combo.skinEquipped', {n:T(skinDef(id).name)}));
+  renderSkinGallery();
+}
+
+/* 圖鑑手動點「裝備」：default 或本 session 已經看過廣告解鎖過的款式直接換，
+   其餘一律走廣告閘——這就是總監要的「都免費，但每次幾乎都會乖乖看廣告」。 */
+function equipSkin(id){
+  if(!skinDef(id)) return;
+  if(id === 'default' || adUnlockedThisSession.has(id)){
+    applyMoodSkin(id);
+    return;
+  }
+  openMoodAdGate(id);
+}
+
+/* ============================================================
+   ★ v92 色相列點選（見 UI：換膚頁「這款的配色」列）
+   ------------------------------------------------------------
+   只對撞色皮膚生效。玩家點色相列上的一格，該款皮膚的 8 色與背景四色
+   整組依新色相重算（沿用 v89 的 _clashColors／deriveBoardColors，
+   規則一個字沒動：主色相 5 格＋撞色相 3 格，夾角維持原款定案的角度）。
+   ============================================================ */
+const HUE_PICKS = [0,30,60,90,120,150,180,210,240,270,300,330];
+let clashHueOverride = {};   // { skinId: 玩家選的新主色相 }（存檔）
+function tuneClashHue(skinId, newHue){
+  const def = CLASH_SKINS[skinId];
+  if(!def) return;
+  const offset = def.hueB - def.hueA;   // 保留這款原本定案的撞色夾角，只平移主色相
+  clashHueOverride[skinId] = ((newHue%360)+360)%360;
+  delete _clashCache[skinId];           // 強制重算，見 clashSkin() 的覆寫讀取
+  saveGame();
+  if(currentSkin === skinId){ document.body.dataset.clashApplied=''; applySkinTheme(); renderBoard(); renderTray(); }
+  renderSkinGallery();
 }
 
 /* ============================================================
@@ -5291,95 +5325,92 @@ function closeSkinGallery(){
   if(currentMode && !document.getElementById('loseOverlay').classList.contains('show')
      && !document.getElementById('gearMenu').classList.contains('show')) HZ.paused = false;
 }
+/* ============================================================
+   ★ v92 換膚頁渲染：全部免費、無鎖頭剪影。
+   撞色皮膚額外帶一列「色相列點選」；自訂模式下每張卡多一個打勾方塊，
+   勾選狀態就是 moodCustomOrder 的內容（順序＝勾選順序，取消勾選就從
+   清單中移除，不影響裝備狀態本身）。
+   ============================================================ */
 function renderSkinGallery(){
   const gg = document.getElementById('gallGold'); if(gg) gg.textContent = goldCoin;
   const gd = document.getElementById('gallDm');   if(gd) gd.textContent = diamonds;
-  renderRotateModes();          // ★ v46 播放模式列（固定／輪播／隨機）
+  renderRotateModes();
   const grid = document.getElementById('skinGrid');
   if(!grid) return;
   grid.innerHTML = SKIN_MATERIALS.map(s=>{
-    const owned = ownedSkins.includes(s.id);
-    const seenAt = seenSkins[s.id];
     const equipped = currentSkin === s.id;
-    const inRotation = rotateMode !== 'fixed' && owned && rotationSkinId === s.id;   // ★ v46 本關輪播剛好選中這款
-    if(owned){
-      return `<div class="skin-card owned${equipped?' equipped':''}${inRotation?' in-rotation':''}">
-        ${inRotation?'<span class="sc-rotate-tag">🎵 輪播中</span>':''}
-        <div class="sc-swatch" style="background:${gemMaterial('#7ba9e0', s.id)}"></div>
-        <div class="sc-name">${T(s.name)}</div>
-        <button class="shop-buy${equipped?' owned-tag':''}" data-equip="${s.id}" ${equipped?'disabled':''}>${equipped?T('gallery.equipped'):T('gallery.equip')}</button>
-      </div>`;
-    }
-    if(seenAt){
-      const need = FRAGMENT_REQUIRED[s.tier] || 10;
-      const cur = skinFragments[s.id] || 0;
-      const priceLabel = typeof s.price.gold==='number' ? `🪙${s.price.gold}` : `💎${s.price.dm}`;
-      const curr = typeof s.price.gold==='number' ? 'gold' : 'dm';
-      const fragPrice = FRAGMENT_PRICE[s.tier] || {};
-      const fragLabel = typeof fragPrice.gold==='number' ? `🪙${fragPrice.gold}` : `💎${fragPrice.dm}`;
-      const fragCurr = typeof fragPrice.gold==='number' ? 'gold' : 'dm';
-      return `<div class="skin-card seen">
-        <div class="sc-swatch" style="background:${gemMaterial('#7ba9e0', s.id)}"></div>
-        <div class="sc-name">${T(s.name)}</div>
-        <div class="sc-seen">${T('gallery.seenAt', {lv:seenAt})}</div>
-        <div class="sc-seen">${T('frag.progress', {c:cur, t:need})}</div>
-        <div class="dual-buy">
-          <button class="shop-buy ${curr}" data-buy="${s.id}" data-curr="${curr}">${T('frag.buyOutBtn')} ${priceLabel}</button>
-          <button class="shop-buy ${fragCurr}" data-fragbuy="${s.id}" data-fragcurr="${fragCurr}">${T('frag.buyBtn')} ${fragLabel}</button>
-        </div>
-      </div>`;
-    }
-    return `<div class="skin-card locked">
-      <div class="sc-swatch sc-silhouette"></div>
-      <div class="sc-name">${T('gallery.unknown')}</div>
-      <div class="sc-seen">${T('gallery.locked')}</div>
+    const needsAd = s.id !== 'default' && !adUnlockedThisSession.has(s.id);
+    const inCustom = moodCustomOrder.includes(s.id);
+    const clash = isClashSkin(s.id);
+    const curHue = clash ? (typeof clashHueOverride[s.id]==='number' ? clashHueOverride[s.id] : CLASH_SKINS[s.id].hueA) : null;
+    const hueRow = clash ? `<div class="hue-picker" data-hue-for="${s.id}">${HUE_PICKS.map(h=>{
+        const active = Math.round(curHue)===h ? ' active' : '';
+        return `<span class="hue-swatch${active}" data-hue="${h}" data-skin="${s.id}" style="background:${_spHsl2Hex(h,65,55)}"></span>`;
+      }).join('')}</div>` : '';
+    const customRow = (moodMode==='custom') ? `<label class="custom-check">
+        <input type="checkbox" data-custom="${s.id}" ${inCustom?'checked':''}> 加入自訂清單
+      </label>` : '';
+    return `<div class="skin-card owned${equipped?' equipped':''}">
+      <div class="sc-swatch" style="background:${gemMaterial('#7ba9e0', s.id)}"></div>
+      <div class="sc-name">${T(s.name)}</div>
+      ${hueRow}
+      <button class="shop-buy${equipped?' owned-tag':''}" data-equip="${s.id}" ${equipped?'disabled':''}>${equipped?T('gallery.equipped'):(needsAd?'📺 '+T('gallery.equip'):T('gallery.equip'))}</button>
+      ${customRow}
     </div>`;
   }).join('');
   grid.querySelectorAll('[data-equip]').forEach(btn=>{
-    btn.onclick = ()=>{ equipSkin(btn.dataset.equip); renderSkinGallery(); };
+    btn.onclick = ()=> equipSkin(btn.dataset.equip);
   });
-  grid.querySelectorAll('[data-buy]').forEach(btn=>{
-    btn.onclick = ()=>{ buySkin(btn.dataset.buy, btn.dataset.curr); renderSkinGallery(); };
+  grid.querySelectorAll('.hue-swatch').forEach(sw=>{
+    sw.onclick = ()=> tuneClashHue(sw.dataset.skin, Number(sw.dataset.hue));
   });
-  grid.querySelectorAll('[data-fragbuy]').forEach(btn=>{
-    btn.onclick = ()=>{ buyFragmentPack(btn.dataset.fragbuy, btn.dataset.fragcurr); };
+  grid.querySelectorAll('[data-custom]').forEach(chk=>{
+    chk.onchange = ()=>{
+      const id = chk.dataset.custom;
+      if(chk.checked){ if(!moodCustomOrder.includes(id)) moodCustomOrder.push(id); }
+      else { moodCustomOrder = moodCustomOrder.filter(x=>x!==id); }
+      saveGame();
+    };
   });
 }
+/* 廣告閘按鈕綁定（頁面只有一份，開檔就綁一次即可） */
+const _magWatch = document.getElementById('magWatchBtn');
+const _magSkip  = document.getElementById('magSkipBtn');
+if(_magWatch) _magWatch.onclick = watchAdForSkin;
+if(_magSkip)  _magSkip.onclick  = closeMoodAdGate;
 
 /* ============================================================
-   ★ v46 皮膚輪播模式列（固定／輪播／隨機）
-   點下去立刻切換並存檔；輪播/隨機模式的效果要等「下一關」才會實際套用
-   （因為 rotationSkinId 是 startLevel()→checkSkinTrial() 時才重算的），
-   但玩家點下去要能馬上感受到「選到了」的回饋，所以按鈕狀態與提示文字即時反映。
+   ★ v92 心情轉換模式列（隨機／固定／自訂）
+   點下去立刻切換並存檔；下一次心情轉換觸發點（見 checkMoodTrigger）
+   才會套用新模式的選歌邏輯，但按鈕狀態與提示文字即時反映選取結果。
    ============================================================ */
 function renderRotateModes(){
   const box = document.getElementById('rotateModes');
   const hint = document.getElementById('rotateHint');
   if(!box) return;
+  const effective = moodMode || 'random';   // 未設定(auto) 在 UI 上視覺對齊「隨機」
   box.querySelectorAll('.rotate-mode-btn').forEach(btn=>{
-    btn.classList.toggle('active', btn.dataset.rmode === rotateMode);
+    btn.classList.toggle('active', btn.dataset.rmode === effective);
   });
   if(hint){
-    if(ownedSkins.length < 2){
-      hint.textContent = '再收集 1 款以上的皮膚，就能開啟輪播／隨機播放囉！';
-    } else if(rotateMode === 'fixed'){
-      hint.textContent = '目前固定使用你手動裝備的皮膚。切到輪播或隨機，每過一關就會自動換一款。';
-    } else if(rotateMode === 'cycle'){
-      hint.textContent = '輪播中：依收藏順序，每過一關自動換下一款。邂逅到新款材質時優先蓋過輪播。';
+    if(moodMode === 'fixed'){
+      hint.textContent = '固定模式：完全不自動換裝，你裝備的皮膚會一直用到你自己再換。';
+    } else if(moodMode === 'custom'){
+      hint.textContent = moodCustomOrder.length
+        ? `自訂播放清單（${moodCustomOrder.length} 款）：達到里程碑時依序輪流換上。`
+        : '自訂模式：先在下面勾選想放進清單的皮膚，清單是空的話會暫時退回隨機。';
     } else {
-      hint.textContent = '隨機播放中：每過一關隨機抽一款（不連續同款）。邂逅到新款材質時優先蓋過隨機結果。';
+      hint.textContent = '闖關每 4 關／無盡模式每滿 400 分，系統從全部造型裡隨機挑一款，看廣告即可免費換上。';
     }
   }
 }
 function setRotateMode(mode){
-  if(rotateMode === mode) return;
-  rotateMode = mode;
-  if(mode === 'fixed') rotationSkinId = null;   // 切回固定 → 立刻停用輪播覆蓋，改回 currentSkin
+  if(moodMode === mode) return;
+  moodMode = mode;
   saveGame();
   renderRotateModes();
   renderSkinGallery();
-  renderBoard(); renderTray();   // 若正在對局中，切模式要馬上反映在盤面上
-  showCombo(mode==='fixed' ? '📌 已切換為固定皮膚' : mode==='cycle' ? '🔁 已開啟輪播播放' : '🔀 已開啟隨機播放');
+  showCombo(mode==='fixed' ? '📌 已切換為固定造型' : mode==='custom' ? '🎛️ 已切換為自訂播放清單' : '🔀 已切換為隨機驚喜');
 }
 document.querySelectorAll('.rotate-mode-btn').forEach(btn=>{
   btn.onclick = ()=> setRotateMode(btn.dataset.rmode);
@@ -5388,7 +5419,7 @@ document.querySelectorAll('.rotate-mode-btn').forEach(btn=>{
 /* ============================================================
    ★ v45 測試員模式：開發者／私人測試員（老婆）專用面板
    ─────────────────────────────────────────────
-   跟正式商業機制完全共用底層資料（SKIN_MATERIALS / ownedSkins / ECON），
+   跟正式商業機制完全共用底層資料（SKIN_MATERIALS / adUnlockedThisSession / ECON），
    只是提供「繞過機率鎖、一鍵擁有」的捷徑按鈕，方便快速評分美術與手感，
    不新增任何獨立資料表，未來新皮膚只要進 SKIN_MATERIALS 就自動出現在這裡。
    ============================================================ */
@@ -5410,13 +5441,13 @@ function renderTesterPanel(){
   const list = document.getElementById('testerSkinList');
   if(list){
     list.innerHTML = SKIN_MATERIALS.map(s=>{
-      const owned = ownedSkins.includes(s.id);
-      const tierTag = s.tier==='premium' ? '💎 進階' : '🪙 基礎';
+      const equipped = currentSkin === s.id;
+      const adFree = (s.id==='default' || adUnlockedThisSession.has(s.id));
       return `<div class="shop-item">
         <span class="si-ic">${s.icon}</span>
         <div class="si-info">
-          <div class="si-name">${T(s.name)}${owned?'<span class="tester-check">✓ 已擁有</span>':''}</div>
-          <div class="si-desc">${tierTag}${s.id==='default'?'（預設，永久擁有）':''}</div>
+          <div class="si-name">${T(s.name)}${equipped?'<span class="tester-check">✓ 裝備中</span>':''}</div>
+          <div class="si-desc">${isClashSkin(s.id)?'撞色色系（可調色相）':'材質紋理'}${adFree?'・免廣告':'・需看廣告'}</div>
         </div>
       </div>`;
     }).join('');
@@ -5424,24 +5455,23 @@ function renderTesterPanel(){
 
   const unlockBtn = document.getElementById('testerUnlockSkinsBtn');
   if(unlockBtn){
-    const allOwned = SKIN_MATERIALS.every(s=>ownedSkins.includes(s.id));
-    unlockBtn.classList.toggle('done', allOwned);
-    unlockBtn.textContent = allOwned
-      ? '✓ 全部皮膚已擁有（可直接去換膚頁試用）'
-      : '🎨 一鍵解鎖全部皮膚（自己先擁有再評分）';
+    const allFree = SKIN_MATERIALS.every(s=>s.id==='default'||adUnlockedThisSession.has(s.id));
+    unlockBtn.classList.toggle('done', allFree);
+    unlockBtn.textContent = allFree
+      ? '✓ 本次已全部免廣告（可直接去換膚頁試用）'
+      : '🎨 一鍵跳過本次所有換膚廣告（測試用）';
   }
 }
-/* 一鍵讓開發者/測試員擁有全部皮膚：跳過邂逅機率與付費，直接塞進 ownedSkins。
-   不影響一般玩家的機率/定價邏輯 —— 純測試工具，只有這顆按鈕會呼叫它。 */
+/* ★ v92 測試捷徑：皮膚本身已全部免費，這顆按鈕改為「跳過廣告閘」，
+   讓開發者/測試員快速逐款切換評分，不用每次看模擬廣告。
+   不影響一般玩家流程 —— 只有這顆按鈕會寫 adUnlockedThisSession。 */
 function testerUnlockAllSkins(){
   let added = 0;
   SKIN_MATERIALS.forEach(s=>{
-    if(!ownedSkins.includes(s.id)){ ownedSkins.push(s.id); added++; }
-    delete skinFragments[s.id];              // 清掉殘留碎片進度，狀態保持乾淨
-    if(!seenSkins[s.id]) seenSkins[s.id] = level || 1;   // 圖鑑也順便標記「見過」，不留鎖頭問號
+    if(!adUnlockedThisSession.has(s.id)){ adUnlockedThisSession.add(s.id); added++; }
   });
-  saveGame(); refreshEconomyUI(); renderTesterPanel();
-  showCombo(added > 0 ? `🎉 已解鎖 ${added} 款新皮膚，全部到齊！` : '本來就全部擁有囉～');
+  saveGame(); refreshEconomyUI(); renderTesterPanel(); renderSkinGallery();
+  showCombo(added > 0 ? `🎉 已解除 ${added} 款造型的廣告閘，換膚頁直接點即可` : '本次已經全部免廣告囉～');
 }
 /* 補滿資源：純測試用，方便反覆試買、試邂逅、試炸彈救援，不用一直等或課金。
    不接 IAP、不動 firstPurchaseUsed 等正式商業旗標，避免污染上線後的真實數據。 */
@@ -5820,7 +5850,6 @@ function spawnBoomFX(r0, c0){
    ============================================================ */
 /* 純續命邏輯（廣告救援與炸彈救援共用同一段身體，只是門票不同） */
 function doRevive(){
-  rescueUsedThisLevel = true;   // ★ v40 這關用過救援了，之後就算贏，皮膚邂逅也不算數（見 resolveSkinEncounterOnWin）
   document.getElementById('loseOverlay').classList.remove('show');
   HZ.paused = false;   // 救援續戰 → 解凍
   // 氣球爆炸的救援是「洩氣一半」，盤面不動；與盤面塞死分流（沿用 v32 規則）
@@ -5865,8 +5894,9 @@ function saveGame(){
   try{
     const data = {
       bestScores, maxLevelReached, maxBalloonLevel, isPremium,   // ★ v64 D2 三本帳簿一起落地
-      ownedSkins, currentSkin, seenSkins, skinFragments, soundOn,
-      rotateMode,                            // ★ v46 皮膚輪播模式偏好
+      currentSkin, soundOn,
+      moodMode, moodCustomOrder, moodCursor, moodLevelCounter,   // ★ v92 心情轉換系統偏好與進度
+      clashHueOverride,                      // ★ v92 玩家自訂的色相覆寫
       hapticEnabled: hapticConfig.enabled,
       hapticOn,                              // ★ v41 玩家的震動開關偏好
       diamonds, bombCount, lastDailyClaim,   // ★ v36 經濟系統（買了東西重開失效 = 客訴，必存）
@@ -5889,11 +5919,19 @@ function loadGame(){
     if(typeof d.maxLevelReached==='number') maxLevelReached = Math.max(1, d.maxLevelReached);
     if(typeof d.maxBalloonLevel==='number') maxBalloonLevel = Math.max(1, d.maxBalloonLevel);
     if(typeof d.isPremium==='boolean')      isPremium = d.isPremium;
-    if(Array.isArray(d.ownedSkins))         ownedSkins = d.ownedSkins.length?d.ownedSkins:['default'];
-    if(typeof d.currentSkin==='string')     currentSkin = d.currentSkin;
-    if(d.seenSkins && typeof d.seenSkins==='object') seenSkins = d.seenSkins;         // ★ v39
-    if(d.skinFragments && typeof d.skinFragments==='object') skinFragments = d.skinFragments; // ★ v40
-    if(d.rotateMode==='fixed' || d.rotateMode==='cycle' || d.rotateMode==='shuffle') rotateMode = d.rotateMode;   // ★ v46
+    /* ★ v92 皮膚存檔換血：舊存檔的 ownedSkins/seenSkins/skinFragments/rotateMode
+       全部無視（碎片經濟已移除）。currentSkin 若指向已封存的材質（brick/wood…），
+       退回 default，避免載入後渲染出一款已經不存在的皮膚。 */
+    if(typeof d.currentSkin==='string' && SKIN_MATERIALS.some(x=>x.id===d.currentSkin)) currentSkin = d.currentSkin;
+    if(d.moodMode==='fixed'||d.moodMode==='random'||d.moodMode==='custom') moodMode = d.moodMode;
+    if(Array.isArray(d.moodCustomOrder))    moodCustomOrder = d.moodCustomOrder.filter(id=>SKIN_MATERIALS.some(x=>x.id===id));
+    if(typeof d.moodCursor==='number')      moodCursor = d.moodCursor;
+    if(typeof d.moodLevelCounter==='number')moodLevelCounter = d.moodLevelCounter;
+    if(d.clashHueOverride && typeof d.clashHueOverride==='object'){
+      clashHueOverride = d.clashHueOverride;
+      Object.keys(clashHueOverride).forEach(id=>{ delete _clashCache[id]; });   // 讓覆寫色相在載檔後立刻生效
+    }
+    adUnlockedThisSession = new Set([currentSkin]);   // 廣告閘每個 session 重新計算，不存檔
     if(typeof d.soundOn==='boolean')        soundOn = d.soundOn;
     if(typeof d.hapticEnabled==='boolean')  hapticConfig.enabled = d.hapticEnabled;
     if(typeof d.hapticOn==='boolean')       hapticOn = d.hapticOn;   // ★ v41
@@ -5984,6 +6022,7 @@ function proceedToNextLevel(){
    ============================================================ */
 function startLevel(){
   gameEpoch++;              // ★ v64 A2 開新關 = 新世代，舊計時器全數作廢
+  rollLevelPalette();       // ★ v91 每關重抽配色盤（常規 3 色＋稀有跳色 1 色）
   levelStartScore = score;  // ★ v64 D4 記下進關時的累積分（retry 回滾用）
   // ★ v6：開關卡時先抽出本關「難度性格」，整關沿用（gem 模式才有層次，其它維持平穩）
   // ★ v64 D1：重試同一關沿用同一份 curDiff——輸了，牆還在。魔王關不再是紙糊的。
@@ -5999,7 +6038,7 @@ function startLevel(){
   updateStreakBadge(false);
   cancelBombAim();          // ★ v36 換關收掉炸彈瞄準模式
   refreshEconomyUI();       // ★ v36 側欄鑽石/炸彈數即時同步
-  checkSkinTrial();         // ★ v39 里程碑檢查：這關要不要偷偷換材質試玩
+  checkMoodTriggerLevel();  // ★ v92 心情轉換里程碑：每 N 關安排一次換裝驚喜
 
   initBoard();
   generateGoals();          // 走當前模式的 setup()（會讀 curDiff）
