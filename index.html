@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v94</title>
-<meta property="og:title" content="繽紛樂 v94">
+<title>繽紛樂 v95</title>
+<meta property="og:title" content="繽紛樂 v95">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://yile555.github.io/puffyblast/">
@@ -641,6 +641,80 @@
   .lb-name { flex:1; }
   .lb-score { font-weight:800; font-variant-numeric:tabular-nums; }
   .lb-empty { text-align:center; opacity:.6; padding:20px 0; font-size:14px; }
+
+  /* ★ v95 極限 IQ 榜：主選單入口大按鈕 */
+  .iq-entry { width:100%; max-width:340px; margin:4px auto 0; display:flex; align-items:center; gap:12px;
+    padding:13px 16px; border:none; border-radius:16px; cursor:pointer; color:#fff; text-align:left;
+    background:linear-gradient(135deg,#7e57c2,#5e35b1); box-shadow:0 6px 20px rgba(94,53,177,.4);
+    border:1px solid rgba(255,255,255,.18); }
+  .iq-entry:active { transform:scale(.97); }
+  .iq-entry-ic { font-size:26px; }
+  .iq-entry-txt { flex:1; display:flex; flex-direction:column; gap:2px; }
+  .iq-entry-name { font-size:16px; font-weight:800; }
+  .iq-entry-sub { font-size:12px; opacity:.85; }
+  .iq-entry-arrow { font-size:22px; opacity:.7; }
+
+  /* ★ v95 IQ 榜 overlay */
+  #iqOverlay { z-index:1002; }
+  #iqOverlay .modal { max-width:390px; text-align:left; }
+  #iqOverlay h2 { text-align:center; margin-bottom:14px; }
+  .iq-tabs { display:flex; gap:6px; margin-bottom:14px; }
+  .iq-tab { flex:1; padding:9px 4px; border:none; border-radius:12px; background:rgba(255,255,255,.10);
+    color:#fff; opacity:.6; font-size:14px; font-weight:700; cursor:pointer; }
+  .iq-tab.active { opacity:1; background:linear-gradient(135deg,#b388ff,#7c4dff); }
+  .iq-list { max-height:40vh; overflow-y:auto; display:flex; flex-direction:column; gap:6px; margin-bottom:12px; }
+  .iq-row { display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:12px;
+    background:rgba(255,255,255,.06); font-size:14px; }
+  .iq-row.you { background:rgba(255,215,64,.18); border:1px solid rgba(255,215,64,.55); }
+  /* 前三名炫耀外框 */
+  .iq-row.podium { border:1px solid; }
+  .iq-row.iq-p1 { background:linear-gradient(135deg,rgba(255,215,0,.28),rgba(255,175,0,.14));
+    border-color:rgba(255,215,0,.85); box-shadow:0 0 14px rgba(255,200,0,.35); }
+  .iq-row.iq-p2 { background:linear-gradient(135deg,rgba(220,225,235,.24),rgba(180,190,205,.12));
+    border-color:rgba(210,220,235,.7); }
+  .iq-row.iq-p3 { background:linear-gradient(135deg,rgba(224,150,90,.24),rgba(190,110,60,.12));
+    border-color:rgba(224,150,90,.7); }
+  .iq-medal { display:inline-block; width:20px; height:20px; border-radius:50%; text-align:center; }
+  .iq-m1::before { content:'🥇'; } .iq-m2::before { content:'🥈'; } .iq-m3::before { content:'🥉'; }
+  .iq-rank { width:30px; font-weight:800; opacity:.85; font-size:15px; }
+  .iq-name { flex:1; display:flex; flex-direction:column; gap:1px; }
+  .iq-ttl { font-size:11px; opacity:.8; font-weight:700; }
+  .iq-score { font-weight:800; font-variant-numeric:tabular-nums; }
+  /* ★ 玩家自己名字慢速閃爍（低頻、柔和，避免刺眼） */
+  .iq-name-flash { animation:iqNameFlash 2.4s ease-in-out infinite; }
+  @keyframes iqNameFlash { 0%,100%{ opacity:1; } 50%{ opacity:.45; } }
+  /* 個人卡片 + 晉升提示 */
+  .iq-mycard { background:rgba(124,77,255,.14); border:1px solid rgba(179,136,255,.4);
+    border-radius:14px; padding:12px 14px; margin-bottom:12px; }
+  .iq-mycard-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .iq-mycard-lbl { font-size:12px; opacity:.75; }
+  .iq-mytitle { font-size:17px; font-weight:900; color:#e1bee7; }
+  .iq-myrank { font-size:12px; opacity:.8; margin-top:4px; }
+  .iq-next { font-size:12px; opacity:.9; margin-top:6px; padding-top:6px;
+    border-top:1px dashed rgba(255,255,255,.15); color:#ffd54f; }
+
+  /* ★ v95 輝煌印記 */
+  #gloryOverlay { z-index:1002; }
+  #gloryOverlay .modal { max-width:360px; }
+  #gloryOverlay h2 { text-align:center; margin-bottom:14px; }
+  .glory-empty { text-align:center; opacity:.6; padding:24px 0; font-size:14px; line-height:1.6; }
+  .glory-card { text-align:center; padding:18px 14px; border-radius:16px; margin-bottom:12px;
+    background:linear-gradient(135deg,rgba(255,215,0,.2),rgba(124,77,255,.14));
+    border:1px solid rgba(255,215,0,.5); }
+  .glory-lbl { font-size:12px; opacity:.7; margin-bottom:4px; }
+  .glory-title-big { font-size:24px; font-weight:900; color:#ffe082;
+    text-shadow:0 2px 10px rgba(255,200,0,.4); }
+  .glory-sub { font-size:12px; opacity:.75; margin-top:4px; }
+  .glory-grid { display:flex; gap:10px; margin-bottom:12px; }
+  .glory-item { flex:1; text-align:center; padding:12px 8px; border-radius:12px;
+    background:rgba(255,255,255,.06); }
+  .glory-val { font-size:20px; font-weight:900; font-variant-numeric:tabular-nums; }
+  .glory-hist { padding:12px 14px; border-radius:12px; background:rgba(255,255,255,.05); }
+  .glory-pbrow { display:flex; justify-content:space-between; font-size:13px; padding:5px 0;
+    border-bottom:1px solid rgba(255,255,255,.06); }
+  .glory-pbrow:last-child { border-bottom:none; }
+  .glory-pbrow small { opacity:.6; }
+
   /* ★ v20 強制過場廣告黑幕 */
   .ad-veil { position:fixed; inset:0; background:#000; z-index:1200; display:flex; flex-direction:column;
     align-items:center; justify-content:center; gap:22px; opacity:0; pointer-events:none; transition:opacity .25s; }
@@ -1052,7 +1126,17 @@
     </span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v94・繽紛樂・排行榜</div>
+  <!-- ★ v95 極限 IQ 榜：主選單顯眼入口，副標顯示玩家目前配戴的稱號 -->
+  <button class="iq-entry" id="iqEntryBtn">
+    <span class="iq-entry-ic">🧠</span>
+    <span class="iq-entry-txt">
+      <span class="iq-entry-name" data-i18n="iq.menu">極限 IQ 榜</span>
+      <span class="iq-entry-sub" id="iqEntrySub"></span>
+    </span>
+    <span class="iq-entry-arrow">›</span>
+  </button>
+
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v95・繽紛樂・極限IQ榜</div>
 </div>
 
 <div id="app">
@@ -1082,7 +1166,9 @@
       <button class="gm-item" id="hapticBtn"><span class="gm-ic">📳</span><span data-i18n="gear.haptic">震動</span></button>
       <button class="gm-item" id="shopBtn"><span class="gm-ic">🛍️</span><span><span data-i18n="gear.shop">商店</span><span class="noti-dot" id="shopItemDot" style="position:static;display:inline-block;margin-left:6px;vertical-align:2px;"></span></span></button>
       <button class="gm-item" id="skinBtn"><span class="gm-ic">🎨</span><span data-i18n="gear.skin">換膚</span></button>
-      <button class="gm-item" id="leaderboardBtn"><span class="gm-ic">🏆</span><span data-i18n="gear.leaderboard">排行榜</span></button>
+      <!-- ★ v95 (B)v94 完整週月榜暫時隱藏，賺錢後再開放；此入口改為「輝煌印記」個人自戀牆 -->
+      <button class="gm-item" id="leaderboardBtn" style="display:none"><span class="gm-ic">🏆</span><span data-i18n="gear.leaderboard">排行榜</span></button>
+      <button class="gm-item" id="gloryBtn"><span class="gm-ic">✨</span><span data-i18n="glory.menu">輝煌印記</span></button>
       <button class="gm-item" id="langBtn"><span class="gm-ic">🌐</span><span id="langName">繁體中文</span></button>
       <button class="gm-item" id="profileBtn"><span class="gm-ic">👤</span><span data-i18n="gear.profile">帳號</span></button>
       <!-- ★ v45 測試員模式：開發者與私人測試員專用入口，一鍵解鎖全部皮膚＋福利總覽 -->
@@ -1177,6 +1263,37 @@
     <div class="lb-combo" id="lbCombo"></div>
     <div class="lb-list" id="lbList"></div>
     <button class="big-btn" id="lbCloseBtn" data-i18n="lb.close">關閉</button>
+  </div>
+
+<!-- ★ v95 極限 IQ 榜 overlay：週/月/歷史三榜切換 + 前三名炫耀 + 個人晉升提示 -->
+</div>
+<div class="overlay" id="iqOverlay">
+  <div class="modal iq-modal">
+    <h2 data-i18n="iq.title">🧠 極限 IQ 榜</h2>
+    <div class="iq-tabs">
+      <button class="iq-tab active" data-period="week" data-i18n="iq.tab.week">本週</button>
+      <button class="iq-tab" data-period="month" data-i18n="iq.tab.month">本月</button>
+      <button class="iq-tab" data-period="history" data-i18n="iq.tab.history">歷史</button>
+    </div>
+    <div class="iq-list" id="iqList"></div>
+    <div class="iq-mycard">
+      <div class="iq-mycard-top">
+        <span class="iq-mycard-lbl" data-i18n="iq.mytitle.lbl">你的稱號</span>
+        <span class="iq-mytitle" id="iqMyTitle"></span>
+      </div>
+      <div class="iq-myrank" id="iqMyRank"></div>
+      <div class="iq-next" id="iqNext"></div>
+    </div>
+    <button class="big-btn" id="iqCloseBtn" data-i18n="iq.close">關閉</button>
+  </div>
+
+<!-- ★ v95 輝煌印記 overlay：純個人自戀牆（生涯最高稱號/名次/分數 + 各模式個人最佳） -->
+</div>
+<div class="overlay" id="gloryOverlay">
+  <div class="modal glory-modal">
+    <h2 data-i18n="glory.title">✨ 輝煌印記</h2>
+    <div class="glory-body" id="gloryBody"></div>
+    <button class="big-btn" id="gloryCloseBtn" data-i18n="glory.close">關閉</button>
   </div>
 </div>
 
@@ -1453,7 +1570,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'放方塊・消整排・餵飽小動物',
-  'menu.footer':'v94・繽紛樂・排行榜',
+  'menu.footer':'v95・繽紛樂・極限IQ榜',
   'menu.best':'最高 {n} 關',
   'menu.resume':'▶ 續玩 第 {n} 關',
   'mode.endless.name':'無盡模式', 'mode.endless.desc':'沒有終點，放到沒空間為止。挑戰你的最高分。',
@@ -1463,6 +1580,23 @@ const I18N = {
   'lb.title':'🏆 排行榜', 'lb.close':'關閉', 'lb.empty':'還沒有紀錄，快去玩一局吧！',
   'lb.you':'你', 'lb.maxCombo':'本模式最高連消 ×{n}',
   'lb.ghost1':'系統玩家・新手', 'lb.ghost2':'系統玩家・穩健', 'lb.ghost3':'系統玩家・高手', 'lb.ghost4':'系統玩家・大魔王',
+  /* ★ v95 極限 IQ 榜 */
+  'iq.menu':'極限 IQ 榜', 'iq.title':'🧠 極限 IQ 榜', 'iq.close':'關閉', 'iq.ghost':'挑戰者',
+  'iq.tab.week':'本週', 'iq.tab.month':'本月', 'iq.tab.history':'歷史',
+  'iq.notitle':'尚無稱號，快挑戰一局！', 'iq.myrank':'目前排名 #{r} / {n} 人',
+  'iq.next':'距離下一個稱號【{title}】還需 {diff} 分',
+  'iq.mytitle.lbl':'你的稱號',
+  // 名次頭銜（歷史/月/週 × 名次）
+  'iq.t.hist.1':'永恆智尊', 'iq.t.hist.23':'傳奇大腦', 'iq.t.hist.410':'先知宗師',
+  'iq.t.month.1':'當月首席', 'iq.t.month.23':'超凡智囊', 'iq.t.month.410':'頂尖門薩',
+  'iq.t.week.1':'本週腦王', 'iq.t.week.23':'機智大師', 'iq.t.week.410':'解謎達人',
+  // 百分比階級
+  'iq.tier.5':'高階神算', 'iq.tier.20':'潛力新星', 'iq.tier.50':'思維敏捷', 'iq.tier.100':'腦力覺醒',
+  /* ★ v95 輝煌印記（個人自戀牆） */
+  'glory.menu':'輝煌印記', 'glory.title':'✨ 輝煌印記', 'glory.close':'關閉',
+  'glory.empty':'還沒有印記。去極限 IQ 榜掙一個稱號回來吧！',
+  'glory.topTitle':'生涯最高稱號', 'glory.bestRank':'生涯最佳名次', 'glory.bestScore':'生涯最高分',
+  'glory.personalBest':'各模式個人最佳', 'glory.sub':'榜單',
   'gear.paused':'遊戲暫停中',   // ★ v87 防作弊暫停幕文字
   'side.level':'關卡', 'side.score':'分數', 'side.best':'最佳', 'side.hint':'提示', 'side.bomb':'炸彈', 'side.dm':'💎 鑽石', 'side.gold':'🪙 金幣',
   'gear.profile':'帳號',
@@ -1528,7 +1662,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Drop blocks, clear lines, feed the critters!',
-  'menu.footer':'v94 · Vivid Blast · Leaderboard',
+  'menu.footer':'v95 · Vivid Blast · IQ Board',
   'menu.best':'Best: Lv {n}',
   'menu.resume':'▶ Resume Lv {n}',
   'mode.endless.name':'Endless', 'mode.endless.desc':'No finish line — play until the board fills up. Chase your high score.',
@@ -1538,6 +1672,21 @@ const I18N = {
   'lb.title':'🏆 Leaderboard', 'lb.close':'Close', 'lb.empty':'No records yet — play a round!',
   'lb.you':'You', 'lb.maxCombo':'Best combo this mode: ×{n}',
   'lb.ghost1':'System Player・Rookie', 'lb.ghost2':'System Player・Steady', 'lb.ghost3':'System Player・Ace', 'lb.ghost4':'System Player・Boss',
+  /* ★ v95 Extreme IQ Board */
+  'iq.menu':'Extreme IQ Board', 'iq.title':'🧠 Extreme IQ Board', 'iq.close':'Close', 'iq.ghost':'Challenger',
+  'iq.tab.week':'Week', 'iq.tab.month':'Month', 'iq.tab.history':'All-Time',
+  'iq.notitle':'No title yet — go earn one!', 'iq.myrank':'Your rank #{r} / {n}',
+  'iq.next':'{diff} pts to your next title 【{title}】',
+  'iq.mytitle.lbl':'Your Title',
+  'iq.t.hist.1':'Eternal Sage', 'iq.t.hist.23':'Legendary Mind', 'iq.t.hist.410':'Grand Oracle',
+  'iq.t.month.1':'Monthly Chief', 'iq.t.month.23':'Supreme Intellect', 'iq.t.month.410':'Elite Mensa',
+  'iq.t.week.1':'Brain King of the Week', 'iq.t.week.23':'Wit Master', 'iq.t.week.410':'Puzzle Ace',
+  'iq.tier.5':'Master Calculator', 'iq.tier.20':'Rising Star', 'iq.tier.50':'Sharp Thinker', 'iq.tier.100':'Awakened Mind',
+  /* ★ v95 Hall of Glory */
+  'glory.menu':'Hall of Glory', 'glory.title':'✨ Hall of Glory', 'glory.close':'Close',
+  'glory.empty':'No marks yet. Go earn a title on the Extreme IQ Board!',
+  'glory.topTitle':'Highest Career Title', 'glory.bestRank':'Best Career Rank', 'glory.bestScore':'Highest Score',
+  'glory.personalBest':'Personal Best by Mode', 'glory.sub':'Board',
   'gear.paused':'Game Paused',   // ★ v87
   'side.level':'LEVEL', 'side.score':'SCORE', 'side.best':'BEST', 'side.hint':'Hint', 'side.bomb':'Bomb', 'side.dm':'💎 Gems', 'side.gold':'🪙 Gold',
   'gear.profile':'Account',
@@ -1603,7 +1752,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを置いて、ライン消して、もぐもぐタイム！',
-  'menu.footer':'v94・ビビッドブラスト・ランキング',
+  'menu.footer':'v95・ビビッドブラスト・IQランキング',
   'menu.best':'ベスト：レベル {n}',
   'menu.resume':'▶ レベル {n} から再開',
   'mode.endless.name':'エンドレス', 'mode.endless.desc':'終わりなき挑戦。盤面が埋まるまでハイスコアを狙おう。',
@@ -1613,6 +1762,21 @@ const I18N = {
   'lb.title':'🏆 ランキング', 'lb.close':'閉じる', 'lb.empty':'まだ記録がありません。プレイしてみよう！',
   'lb.you':'あなた', 'lb.maxCombo':'このモードの最高コンボ ×{n}',
   'lb.ghost1':'システムプレイヤー・初心者', 'lb.ghost2':'システムプレイヤー・安定', 'lb.ghost3':'システムプレイヤー・上級', 'lb.ghost4':'システムプレイヤー・ボス',
+  /* ★ v95 究極IQランキング */
+  'iq.menu':'究極IQランキング', 'iq.title':'🧠 究極IQランキング', 'iq.close':'閉じる', 'iq.ghost':'チャレンジャー',
+  'iq.tab.week':'週間', 'iq.tab.month':'月間', 'iq.tab.history':'歴代',
+  'iq.notitle':'称号なし — 一局挑戦しよう！', 'iq.myrank':'現在の順位 #{r} / {n}人',
+  'iq.next':'次の称号【{title}】まであと {diff} 点',
+  'iq.mytitle.lbl':'あなたの称号',
+  'iq.t.hist.1':'永遠の智尊', 'iq.t.hist.23':'伝説の頭脳', 'iq.t.hist.410':'預言の宗師',
+  'iq.t.month.1':'今月の首席', 'iq.t.month.23':'超凡の智嚢', 'iq.t.month.410':'頂点メンサ',
+  'iq.t.week.1':'今週の脳王', 'iq.t.week.23':'機知の達人', 'iq.t.week.410':'謎解きエース',
+  'iq.tier.5':'高階の神算', 'iq.tier.20':'期待の新星', 'iq.tier.50':'鋭敏な思考', 'iq.tier.100':'脳力覚醒',
+  /* ★ v95 輝きの証 */
+  'glory.menu':'輝きの証', 'glory.title':'✨ 輝きの証', 'glory.close':'閉じる',
+  'glory.empty':'まだ証がありません。究極IQランキングで称号を勝ち取ろう！',
+  'glory.topTitle':'生涯最高称号', 'glory.bestRank':'生涯最高順位', 'glory.bestScore':'生涯最高スコア',
+  'glory.personalBest':'モード別自己ベスト', 'glory.sub':'ランキング',
   'gear.paused':'一時停止中',   // ★ v87
   'side.level':'レベル', 'side.score':'スコア', 'side.best':'ベスト', 'side.hint':'ヒント', 'side.bomb':'ボム', 'side.dm':'💎 ジェム', 'side.gold':'🪙 ゴールド',
   'gear.profile':'アカウント',
@@ -1729,10 +1893,11 @@ const GHOST_KEYS = ['lb.ghost1','lb.ghost2','lb.ghost3','lb.ghost4'];
 function recordRunResult(mode, finalScore){
   if(!mode || !lbData[mode] || finalScore <= 0) return;
   const d = lbData[mode];
-  d.top10.push({ score: finalScore, combo: runMaxCombo });
+  d.top10.push({ score: finalScore, combo: runMaxCombo, ts: Date.now() });   // ★ v95 補 ts：IQ 榜週/月採計靠這欄，舊筆無 ts 視為歷史（見 IQ.periodBest）
   d.top10.sort((a,b)=> b.score - a.score);
   d.top10 = d.top10.slice(0, 10);
   if(runMaxCombo > d.maxCombo) d.maxCombo = runMaxCombo;
+  IQ.onNewScore(mode, finalScore);   // ★ v95 極限 IQ 榜：同一筆成績同步喂進 IQ 服務層（週/月/歷史稱號結算＋輝煌印記收藏）
 }
 
 let lbCurrentMode = 'endless';
@@ -1761,6 +1926,272 @@ function openLeaderboard(mode){
 function closeLeaderboard(){
   document.getElementById('leaderboardOverlay').classList.remove('show');
 }
+
+/* ============================================================
+   ★ v95【極限 IQ 榜】前瞻性模組架構 —— Service Layer + Mock Data
+   ─────────────────────────────────────────────
+   定位：疊在 v94 lbData（玩家個人歷史）之上的「稱號視圖層」。
+        不動 lbData/recordRunResult/showLose 核心，只讀分數當輸入。
+        不碰拖放/消行/防死鎖/公平發牌。
+
+   前後端抽離：
+     Phase 1（現在）= MockGhostProvider，本機生成 40 名 NPC 幽靈池。
+     Phase 2（未來）= FetchRemoteProvider，簽名一致，接 PG/Redis 時 UI 零重構。
+
+   三榜：
+     週榜  = 採計「本週」最高分（lbData.top10 裡 ts 落在本週的那些）
+     月榜  = 採計「本月」最高分
+     歷史榜= lbData.top10[0]（帳號以來最高，永不重置）
+     週/月用 localStorage 時間戳判斷是否跨週/跨月 → 到期刷新幽靈池＋回收舊稱號。
+
+   稱號：前 3 名走絕對名次頭銜；第 11 名後走「你 vs 幽靈池」百分比。
+   輝煌印記：純個人自戀牆，收藏這輩子拿過的最高頭銜/最佳名次/最佳分數。
+   ============================================================ */
+
+/* ── 稱號表：三榜 × 名次階級（key 供三語 T() 查表） ── */
+const IQ_TITLES = {
+  history: { r1:'iq.t.hist.1', r23:'iq.t.hist.23', r410:'iq.t.hist.410' },
+  month:   { r1:'iq.t.month.1', r23:'iq.t.month.23', r410:'iq.t.month.410' },
+  week:    { r1:'iq.t.week.1', r23:'iq.t.week.23', r410:'iq.t.week.410' },
+};
+/* 第 11 名後：百分比稱號（三榜共用同一組，靠 %）。門檻由小到大 = 名次由前到後 */
+const IQ_TIERS = [
+  { pct:0.05, key:'iq.tier.5' },    // 前 5%（非前 10）→ 高階神算
+  { pct:0.20, key:'iq.tier.20' },   // 前 20% → 潛力新星
+  { pct:0.50, key:'iq.tier.50' },   // 前 50% → 思維敏捷
+  { pct:1.00, key:'iq.tier.100' },  // 50% 後 → 腦力覺醒
+];
+
+/* ── 幽靈池：三榜量級遞增，常態分佈（多數中段、少數高分尾巴） ── */
+const IQ_GHOST_BASE = { week: 30000, month: 45000, history: 60000 };
+const IQ_GHOST_N = 40;   // 幽靈池人數 = 稱號百分比分母主體（+玩家自己）
+
+const IQ = {
+  provider: 'mock',            // 'mock' | 'remote'（Phase 2）
+  GHOST_POOL: { week:[], month:[], history:[] },   // 每榜 40 個幽靈分數（降冪）
+  periodStamp: { week:'', month:'' },              // localStorage 記的「上次結算所屬週/月」
+  glory: {                     // 輝煌印記（個人自戀牆，落地存檔）
+    bestTitleKey: null, bestTitleRank: 999, bestScore: 0, bestBoard: '',
+    firstEarnedAt: 0,
+  },
+
+  /* 種子亂數（同一週穩定，不會每次打開榜幽靈都跳） */
+  _rng(seed){ let s = seed>>>0; return ()=>{ s=(s*1664525+1013904223)>>>0; return s/4294967296; }; },
+  _gauss(rng){ // Box-Muller，取 |值| 造右尾
+    let u=0,v=0; while(u===0)u=rng(); while(v===0)v=rng();
+    return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+  },
+  _genPool(base, seed){
+    const rng = this._rng(seed), arr=[];
+    for(let i=0;i<IQ_GHOST_N;i++){
+      // 中心 base*0.55，標準差 base*0.22，右尾少數高手可超越 base
+      let v = base*0.55 + this._gauss(rng)*base*0.22;
+      v = Math.max(base*0.05, Math.round(v/10)*10);
+      arr.push(v);
+    }
+    return arr.sort((a,b)=>b-a);
+  },
+
+  /* MockGhostProvider：現階段從本機種子生成；Phase 2 換成 FetchRemoteLeaderboard() */
+  _fetchGhosts(period, seed){
+    if(this.provider==='remote'){ /* return FetchRemoteLeaderboard(period) —— Phase 2 預留，簽名一致 */ }
+    return this._genPool(IQ_GHOST_BASE[period], seed);
+  },
+
+  /* 週/月週期字串：跨週/跨月時值會變 → 觸發幽靈池刷新＋稱號重派 */
+  _weekKey(d){ const t=new Date(d); const day=(t.getDay()+6)%7; t.setDate(t.getDate()-day); return t.getFullYear()+'-W'+Math.ceil(((t-new Date(t.getFullYear(),0,1))/86400000+1)/7); },
+  _monthKey(d){ const t=new Date(d); return t.getFullYear()+'-'+(t.getMonth()+1); },
+
+  /* 玩家在該榜的「當期最佳分」：從三模式 lbData 撈，取本週/本月/歷史最高 */
+  periodBest(period){
+    const now = Date.now();
+    let best = 0;
+    ['gem','endless','balloon'].forEach(mode=>{
+      const t10 = (lbData[mode] && lbData[mode].top10) || [];
+      t10.forEach(e=>{
+        if(typeof e.score!=='number') return;
+        if(period==='history'){ best = Math.max(best, e.score); return; }
+        if(typeof e.ts!=='number') return;   // 週/月需 ts；舊筆無 ts 只計入歷史
+        if(period==='week'  && this._weekKey(e.ts)===this._weekKey(now))  best = Math.max(best, e.score);
+        if(period==='month' && this._monthKey(e.ts)===this._monthKey(now)) best = Math.max(best, e.score);
+      });
+    });
+    return best;
+  },
+
+  /* 把玩家分數插進幽靈池排序，回傳 { rank, total, titleKey, next } */
+  standing(period){
+    const pool = this.GHOST_POOL[period] || [];
+    const my = this.periodBest(period);
+    const total = pool.length + 1;
+    let rank = 1; for(const g of pool){ if(g > my) rank++; }   // 幾個幽靈贏我 → 我的名次
+    // 名次頭銜
+    let titleKey;
+    const grp = IQ_TITLES[period];
+    if(my<=0) titleKey = null;                       // 還沒下過場
+    else if(rank===1) titleKey = grp.r1;
+    else if(rank<=3)  titleKey = grp.r23;
+    else if(rank<=10) titleKey = grp.r410;
+    else {                                           // 11 名後：百分比
+      const p = rank/total;
+      titleKey = IQ_TIERS.find(t=> p<=t.pct).key;
+    }
+    // 晉升提示：下一個更高名次/門檻要幾分
+    let next = null;
+    if(my>0){
+      const sorted = pool.slice().sort((a,b)=>a-b);  // 升冪
+      const ahead = pool.filter(g=>g>my).sort((a,b)=>a-b)[0];  // 剛好贏我的最近幽靈
+      if(ahead!==undefined) next = { key: this._titleAtScore(period, ahead+1), diff: (ahead+1)-my };
+    }
+    return { rank, total, titleKey, my, next };
+  },
+  _titleAtScore(period, s){
+    const pool = this.GHOST_POOL[period]||[]; const total=pool.length+1;
+    let rank=1; for(const g of pool){ if(g>s) rank++; }
+    const grp=IQ_TITLES[period];
+    if(rank===1)return grp.r1; if(rank<=3)return grp.r23; if(rank<=10)return grp.r410;
+    return IQ_TIERS.find(t=>(rank/total)<=t.pct).key;
+  },
+
+  /* 分數變動時呼叫（由 recordRunResult 觸發）：更新輝煌印記 */
+  onNewScore(mode, finalScore){
+    this.ensureFresh();
+    ['history','month','week'].forEach(period=>{
+      const st = this.standing(period);
+      if(st.titleKey && st.rank < this.glory.bestTitleRank){
+        this.glory.bestTitleKey = st.titleKey;
+        this.glory.bestTitleRank = st.rank;
+        this.glory.bestBoard = period;
+        if(!this.glory.firstEarnedAt) this.glory.firstEarnedAt = Date.now();
+      }
+    });
+    if(finalScore > this.glory.bestScore) this.glory.bestScore = finalScore;
+  },
+
+  /* 週/月到期檢查：跨期就刷新幽靈池、回收舊稱號（重新結算） */
+  ensureFresh(){
+    const now = Date.now();
+    const wk = this._weekKey(now), mo = this._monthKey(now);
+    if(this.periodStamp.week !== wk){
+      this.periodStamp.week = wk;
+      this.GHOST_POOL.week = this._fetchGhosts('week', this._hash(wk));
+    }
+    if(this.periodStamp.month !== mo){
+      this.periodStamp.month = mo;
+      this.GHOST_POOL.month = this._fetchGhosts('month', this._hash(mo));
+    }
+    if(!this.GHOST_POOL.history.length){
+      this.GHOST_POOL.history = this._fetchGhosts('history', 777);   // 歷史榜幽靈固定不重置
+    }
+  },
+  _hash(str){ let h=0; for(let i=0;i<str.length;i++){ h=(h*31+str.charCodeAt(i))>>>0; } return h; },
+
+  /* 存/取（掛在 saveGame data 裡） */
+  serialize(){ return { periodStamp:this.periodStamp, glory:this.glory }; },
+  hydrate(o){
+    if(!o||typeof o!=='object') return;
+    if(o.periodStamp && typeof o.periodStamp==='object'){
+      if(typeof o.periodStamp.week==='string')  this.periodStamp.week  = o.periodStamp.week;
+      if(typeof o.periodStamp.month==='string') this.periodStamp.month = o.periodStamp.month;
+    }
+    if(o.glory && typeof o.glory==='object'){
+      const g=o.glory;
+      if(typeof g.bestTitleKey==='string') this.glory.bestTitleKey = g.bestTitleKey;
+      if(typeof g.bestTitleRank==='number') this.glory.bestTitleRank = g.bestTitleRank;
+      if(typeof g.bestScore==='number') this.glory.bestScore = Math.max(0,g.bestScore);
+      if(typeof g.bestBoard==='string') this.glory.bestBoard = g.bestBoard;
+      if(typeof g.firstEarnedAt==='number') this.glory.firstEarnedAt = g.firstEarnedAt;
+    }
+  },
+};
+
+/* ── IQ 榜 UI 呈現 ── */
+let iqCurrentPeriod = 'week';
+function renderIQBoard(period){
+  IQ.ensureFresh();
+  iqCurrentPeriod = period;
+  const pool = IQ.GHOST_POOL[period] || [];
+  const st = IQ.standing(period);
+  const my = st.my;
+  // 合併：玩家 + 幽靈，降冪，取前 10 顯示
+  const rows = pool.map(s=>({ score:s, you:false }));
+  if(my>0) rows.push({ score:my, you:true });
+  rows.sort((a,b)=> b.score - a.score);
+  const top = rows.slice(0, 10);
+
+  const listEl = document.getElementById('iqList');
+  listEl.innerHTML = top.map((e,i)=>{
+    const rank = i+1;
+    const medal = rank<=3 ? `<span class="iq-medal iq-m${rank}"></span>` : '';
+    const cls = ['iq-row']; if(e.you) cls.push('you'); if(rank<=3) cls.push('podium','iq-p'+rank);
+    const name = e.you ? (playerName || T('lb.you')) : T('iq.ghost');
+    // 這一列若有頭銜（前10名）標出來
+    let title = '';
+    if(rank===1) title = T(IQ_TITLES[period].r1);
+    else if(rank<=3) title = T(IQ_TITLES[period].r23);
+    else if(rank<=10) title = T(IQ_TITLES[period].r410);
+    const titleHtml = title ? `<span class="iq-ttl">${title}</span>` : '';
+    const nameCls = e.you ? 'iq-name iq-name-flash' : 'iq-name';   // ★ 玩家自己名字慢速閃爍
+    return `<div class="${cls.join(' ')}">
+      <span class="iq-rank">${medal}${rank<=3?'':'#'+rank}</span>
+      <span class="${nameCls}">${name}${titleHtml}</span>
+      <span class="iq-score">${e.score.toLocaleString()}</span>
+    </div>`;
+  }).join('');
+
+  // 個人卡片：目前配戴稱號 + 晉升提示
+  const myTitle = st.titleKey ? T(st.titleKey) : T('iq.notitle');
+  document.getElementById('iqMyTitle').textContent = myTitle;
+  document.getElementById('iqMyRank').textContent = my>0 ? T('iq.myrank', { r:st.rank, n:st.total }) : '';
+  const nextEl = document.getElementById('iqNext');
+  if(st.next && st.next.diff>0){
+    nextEl.style.display='';
+    nextEl.textContent = T('iq.next', { title:T(st.next.key), diff:st.next.diff.toLocaleString() });
+  } else nextEl.style.display='none';
+
+  document.querySelectorAll('.iq-tab').forEach(b=> b.classList.toggle('active', b.dataset.period===period));
+
+  // ★ 前三名炫耀特效：玩家自己進前三 → 重用 v49 灑花
+  if(my>0 && st.rank<=3){ try{ spawnBigConfetti(); }catch(e){} }
+}
+function openIQBoard(period){
+  IQ.ensureFresh();
+  renderIQBoard(period || 'week');
+  document.getElementById('iqOverlay').classList.add('show');
+}
+function closeIQBoard(){ document.getElementById('iqOverlay').classList.remove('show'); }
+
+/* ── 輝煌印記（個人自戀牆） ── */
+function openGlory(){
+  const g = IQ.glory;
+  const el = document.getElementById('gloryBody');
+  if(!g.bestTitleKey && !g.bestScore){
+    el.innerHTML = `<div class="glory-empty">${T('glory.empty')}</div>`;
+  } else {
+    const boardName = g.bestBoard ? T('iq.tab.'+g.bestBoard) : '';
+    el.innerHTML = `
+      <div class="glory-card">
+        <div class="glory-lbl">${T('glory.topTitle')}</div>
+        <div class="glory-title-big">${g.bestTitleKey?T(g.bestTitleKey):'—'}</div>
+        ${boardName?`<div class="glory-sub">${boardName}</div>`:''}
+      </div>
+      <div class="glory-grid">
+        <div class="glory-item"><div class="glory-lbl">${T('glory.bestRank')}</div><div class="glory-val">${g.bestTitleRank<999?('#'+g.bestTitleRank):'—'}</div></div>
+        <div class="glory-item"><div class="glory-lbl">${T('glory.bestScore')}</div><div class="glory-val">${(g.bestScore||0).toLocaleString()}</div></div>
+      </div>
+      <div class="glory-hist">
+        <div class="glory-lbl">${T('glory.personalBest')}</div>
+        ${['endless','gem','balloon'].map(mode=>{
+          const b = (lbData[mode]&&lbData[mode].top10[0])?lbData[mode].top10[0].score:0;
+          const c = (lbData[mode]&&lbData[mode].maxCombo)||0;
+          return `<div class="glory-pbrow"><span>${T('mode.'+mode+'.name')}</span><span>${b.toLocaleString()} <small>×${c}</small></span></div>`;
+        }).join('')}
+      </div>`;
+  }
+  document.getElementById('gloryOverlay').classList.add('show');
+}
+function closeGlory(){ document.getElementById('gloryOverlay').classList.remove('show'); }
+
 let movesLeft = 0;         // 剩餘步數（寶石模式核心壓力源）
 
 /* ===== 模式設定表（萬能關卡：換模式 = 換這張表，核心不動） =====
@@ -6162,6 +6593,7 @@ function saveGame(){
     const data = {
       bestScores, maxLevelReached, maxBalloonLevel, isPremium,   // ★ v64 D2 三本帳簿一起落地
       lbData, lbMigratedV94: true,   // ★ v94 排行榜歷史前10 + 最高連消；migrate flag 防止每次載入重複清空舊分數
+      iq: IQ.serialize(),            // ★ v95 極限 IQ 榜：週月結算時間戳 + 輝煌印記
       currentSkin, soundOn,
       moodMode, moodCustomOrder, moodCursor, moodLevelCounter,   // ★ v92 心情轉換系統偏好與進度
       clashHueOverride,                      // ★ v92 玩家自訂的色相覆寫
@@ -6196,6 +6628,7 @@ function loadGame(){
         }
       });
     }
+    if(d.iq) IQ.hydrate(d.iq);   // ★ v95 極限 IQ 榜狀態還原（放 lbData 還原之後，稱號結算需讀 lbData）
     if(typeof d.maxLevelReached==='number') maxLevelReached = Math.max(1, d.maxLevelReached);
     if(typeof d.maxBalloonLevel==='number') maxBalloonLevel = Math.max(1, d.maxBalloonLevel);
     if(typeof d.isPremium==='boolean')      isPremium = d.isPremium;
@@ -6382,6 +6815,7 @@ function refreshMenuBadges(){
     if(maxLevelReached > 1){ g.textContent = T('menu.resume', {n:maxLevelReached}); g.style.display = ''; }
     else                   { g.style.display = 'none'; }
   }
+  if(typeof refreshIQEntrySub==='function') refreshIQEntrySub();   // ★ v95 主選單 IQ 入口副標同步當前稱號
 }
 
 /* ===== 選單按鈕 ===== */
@@ -6405,12 +6839,30 @@ document.getElementById('loseHomeBtn').onclick = goHome;
 document.getElementById('homeBtn').onclick = ()=>{ closeGear(); goHome(); };
 
 /* ★ v94 排行榜入口：齒輪選單（主選單/對局中共用）＋ 失敗結算畫面 */
-document.getElementById('leaderboardBtn').onclick = ()=>{ closeGear(); openLeaderboard(currentMode || 'endless'); };
-document.getElementById('loseLbBtn').onclick = ()=> openLeaderboard(currentMode || 'endless');
+document.getElementById('leaderboardBtn').onclick = ()=>{ closeGear(); openLeaderboard(currentMode || 'endless'); };  // ★ v95 舊榜已隱藏，保留綁定備用
 document.getElementById('lbCloseBtn').onclick = closeLeaderboard;
 document.querySelectorAll('.lb-tab').forEach(btn=>{
   btn.onclick = ()=> renderLeaderboard(btn.dataset.mode);
 });
+
+/* ★ v95 極限 IQ 榜事件 */
+document.getElementById('iqEntryBtn').onclick = ()=> openIQBoard('week');
+document.getElementById('loseLbBtn').onclick   = ()=> openIQBoard('week');   // 失敗畫面「看排行榜」→ 導向 IQ 榜（舊榜已隱藏）
+document.getElementById('iqCloseBtn').onclick   = ()=>{ closeIQBoard(); refreshIQEntrySub(); };
+document.querySelectorAll('.iq-tab').forEach(btn=>{
+  btn.onclick = ()=> renderIQBoard(btn.dataset.period);
+});
+/* ★ v95 輝煌印記事件 */
+document.getElementById('gloryBtn').onclick     = ()=>{ closeGear(); openGlory(); };
+document.getElementById('gloryCloseBtn').onclick = closeGlory;
+
+/* 主選單 IQ 入口副標：顯示玩家目前配戴的稱號（進主選單/關 IQ 榜時刷新） */
+function refreshIQEntrySub(){
+  const el = document.getElementById('iqEntrySub'); if(!el) return;
+  IQ.ensureFresh();
+  const st = IQ.standing('week');
+  el.textContent = st.titleKey ? T(st.titleKey) : T('iq.notitle');
+}
 
 /* ★ v36 救援三路分流：免費廣告（每關 2 次）→ 炸彈道具 → 商店漏斗 */
 document.getElementById('reviveBtn').onclick = ()=>{
