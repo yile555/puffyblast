@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v95</title>
-<meta property="og:title" content="繽紛樂 v95">
+<title>繽紛樂 v97</title>
+<meta property="og:title" content="繽紛樂 v97">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://yile555.github.io/puffyblast/">
@@ -1009,10 +1009,10 @@
   /* ★ v96 換膚卡片：sc-swatch 內嵌迷你模擬棋盤（固定假牌型，鋪滿 8 色，兼作換色預覽）
      ── 棋盤內含背景四色，棋盤外只留一圈桌面色薄邊，凸出到看得見顏色即可，不佔空間。*/
   .sc-swatch.sc-mini { border:none; padding:5px; display:flex; overflow:hidden; }
-  .mini-board { width:100%; aspect-ratio:1; border-radius:9%; padding:5%;
+  .mini-board { width:100%; aspect-ratio:1; border-radius:9%; padding:3%;
     display:grid; grid-template-columns:repeat(8,1fr); grid-template-rows:repeat(8,1fr);
-    gap:5%; box-sizing:border-box; }
-  .mini-cell { border-radius:16%; }
+    gap:1.5px; box-sizing:border-box; }
+  .mini-cell { border-radius:9%; }
   .mini-cell.mc-empty { box-shadow:inset 0 0 0 1px var(--mini-line, rgba(0,0,0,.35)); }
   .sc-silhouette { background:rgba(255,255,255,.08); position:relative; }
   .sc-silhouette::after { content:'🔒'; position:absolute; inset:0; display:flex; align-items:center;
@@ -1144,7 +1144,7 @@
     <span class="iq-entry-arrow">›</span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v95・繽紛樂・極限IQ榜</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v97・繽紛樂・極限IQ榜</div>
 </div>
 
 <div id="app">
@@ -1578,7 +1578,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'放方塊・消整排・餵飽小動物',
-  'menu.footer':'v95・繽紛樂・極限IQ榜',
+  'menu.footer':'v97・繽紛樂・極限IQ榜',
   'menu.best':'最高 {n} 關',
   'menu.resume':'▶ 續玩 第 {n} 關',
   'mode.endless.name':'無盡模式', 'mode.endless.desc':'沒有終點，放到沒空間為止。挑戰你的最高分。',
@@ -1670,7 +1670,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Drop blocks, clear lines, feed the critters!',
-  'menu.footer':'v95 · Vivid Blast · IQ Board',
+  'menu.footer':'v97 · Vivid Blast · IQ Board',
   'menu.best':'Best: Lv {n}',
   'menu.resume':'▶ Resume Lv {n}',
   'mode.endless.name':'Endless', 'mode.endless.desc':'No finish line — play until the board fills up. Chase your high score.',
@@ -1760,7 +1760,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを置いて、ライン消して、もぐもぐタイム！',
-  'menu.footer':'v95・ビビッドブラスト・IQランキング',
+  'menu.footer':'v97・ビビッドブラスト・IQランキング',
   'menu.best':'ベスト：レベル {n}',
   'menu.resume':'▶ レベル {n} から再開',
   'mode.endless.name':'エンドレス', 'mode.endless.desc':'終わりなき挑戦。盤面が埋まるまでハイスコアを狙おう。',
