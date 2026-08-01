@@ -9,6 +9,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <title>繽紛樂 v100</title>
 <meta property="og:title" content="繽紛樂 v100">
+<meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://yile555.github.io/puffyblast/">
@@ -1663,6 +1664,7 @@ const I18N = {
   'skin.persona.disclaimer':'皮膚人格名稱純屬趣味參考，僅供娛樂，不代表任何性格判定',
   'skin.default':'原色果凍', 'skin.marble':'大理石紋', 'skin.rib':'毛線風(羅紋針)',
   'skin.texPaper':'皺紙', 'skin.texBrick':'陶磚', 'skin.texWood':'深木紋', 'skin.texStone':'白石磚', 'skin.texLog':'原木剖面', 'skin.texVelvetS':'絨布', 'skin.texCotton':'棉花唛', 'skin.texYarn':'毛線捲', 'skin.texYarnC':'粗毛線', 'skin.texLace':'蕾絲鉤織', 'skin.texLaceM':'蕾絲花片',
+  'skin.duoTealViolet':'青綠撞紫', 'skin.duoRoseGreen':'玫瑰撞草綠', 'skin.duoIndigoRose':'藍紫撞玫瑰', 'skin.duoGreenSlate':'草綠撞灰藍', 'skin.duoSlateRose':'灰藍撞玫瑰', 'skin.duoTealPlum':'青綠撞梅紫',
 
   'trial.title':'🎁 剛剛試玩的皮膚，喜歡嗎？',
   'combo.skinEquipped':'🎨 已換上「{n}」',
@@ -1758,6 +1760,7 @@ const I18N = {
   'skin.persona.disclaimer':'Persona names are just for fun — not a personality assessment',
   'skin.default':'Classic Jelly', 'skin.marble':'Marble', 'skin.rib':'Rib Knit',
   'skin.texPaper':'Crumpled Paper', 'skin.texBrick':'Terracotta Brick', 'skin.texWood':'Dark Woodgrain', 'skin.texStone':'White Stone', 'skin.texLog':'Log Slice', 'skin.texVelvetS':'Velvet', 'skin.texCotton':'Cotton Puff', 'skin.texYarn':'Yarn Coil', 'skin.texYarnC':'Chunky Yarn', 'skin.texLace':'Crochet Lace', 'skin.texLaceM':'Lace Motif',
+  'skin.duoTealViolet':'Teal & Violet', 'skin.duoRoseGreen':'Rose & Green', 'skin.duoIndigoRose':'Indigo & Rose', 'skin.duoGreenSlate':'Green & Slate', 'skin.duoSlateRose':'Slate & Rose', 'skin.duoTealPlum':'Teal & Plum',
 
   'trial.title':'🎁 Liked the skin you just tried?',
   'combo.skinEquipped':'🎨 Equipped "{n}"',
@@ -1853,6 +1856,7 @@ const I18N = {
   'skin.persona.disclaimer':'性格名は遊び心の演出で、性格診断ではありません',
   'skin.default':'クラシックゼリー', 'skin.marble':'大理石', 'skin.rib':'リブ編み',
   'skin.texPaper':'しわ紙', 'skin.texBrick':'テラコッタレンガ', 'skin.texWood':'ダークウッド', 'skin.texStone':'白い石レンガ', 'skin.texLog':'丸太の切り株', 'skin.texVelvetS':'ベルベット', 'skin.texCotton':'コットンパフ', 'skin.texYarn':'毛糸ロール', 'skin.texYarnC':'極太毛糸', 'skin.texLace':'かぎ針レース', 'skin.texLaceM':'レースモチーフ',
+  'skin.duoTealViolet':'ティール×バイオレット', 'skin.duoRoseGreen':'ローズ×グリーン', 'skin.duoIndigoRose':'インディゴ×ローズ', 'skin.duoGreenSlate':'グリーン×スレート', 'skin.duoSlateRose':'スレート×ローズ', 'skin.duoTealPlum':'ティール×プラム',
 
   'trial.title':'🎁 さっき試したきせかえ、気に入った？',
   'combo.skinEquipped':'🎨「{n}」に着せ替えた',
@@ -2588,6 +2592,47 @@ const TEXTURE_SKIN_DEFS = {
 };
 function isTextureSkin(id){ return !!TEXTURE_SKIN_DEFS[id]; }
 
+/* ============================================================
+   ★ v100 莫蘭迪棋盤背景色卡（總監定案 20260731，繽紛樂_雙色配色系統_定案_20260731.md）
+   ------------------------------------------------------------
+   跟方塊色完全脫鉤的獨立系統，6 組色系各自校準過 S/L（不同色相要好看，
+   S/L 需求本來就不同，不能套同一公式）。「內淺外深」= 總監確認好看的配置
+   （棋盤外/桌面較深、棋盤內/空格較淺），此處直接固定用這個方向，不做隨機對調。
+   套用對象：v100 新增的材質皮膚（11款）＋ 雙色配色皮膚（6款）。
+   舊皮膚（撞色5款／莫蘭迪人格20款）維持原本 deriveBoardColors 色相迴避邏輯不變。
+   ============================================================ */
+const MORANDI_BOARD_BG = [
+  { name:'莫蘭迪米', bg:'#b7b0a4', boardBg:'#b7b0a4', cell:'#e5e2dc', cellLine:'#efece7' },
+  { name:'莫蘭迪粉', bg:'#c3a6a2', boardBg:'#c3a6a2', cell:'#eadedc', cellLine:'#f2e9e7' },
+  { name:'莫蘭迪灰', bg:'#a6a3ae', boardBg:'#a6a3ae', cell:'#dad9de', cellLine:'#e6e5e9' },
+  { name:'莫蘭迪綠', bg:'#97afa3', boardBg:'#97afa3', cell:'#d9e2de', cellLine:'#e6ece9' },
+  { name:'莫蘭迪藍', bg:'#8e9baf', boardBg:'#8e9baf', cell:'#d9dde3', cellLine:'#e6e8ec' },
+  { name:'莫蘭迪紫', bg:'#aa9cb4', boardBg:'#aa9cb4', cell:'#dfd9e3', cellLine:'#eae6ec' },
+];
+/* 決定性挑選：同一皮膚 id 永遠對到同一組背景（不隨機、不閃爍），沿用 _clashHash */
+function pickMorandiBoardBg(skinId){
+  const i = _clashHash('boardbg|'+skinId) % MORANDI_BOARD_BG.length;
+  return MORANDI_BOARD_BG[i];
+}
+
+/* ============================================================
+   ★ v100 雙色三角配色皮膚（總監定案 20260731，非「撞色」——命名與撞色5款區隔）
+   ------------------------------------------------------------
+   色輪三角對位扣掉第三色，只留兩色相隔約120°；固定 S26%/L60%，
+   只讓色相變化（明度/彩度浮動人眼分辨不出，故不做）。
+   colors 只給 2 色，clashSkin() 會照舊 idx%length 邏輯自動在 8 個色票索引間
+   交錯這兩色；bg 改走上面的 MORANDI_BOARD_BG（非 deriveBoardColors 自動迴避）。
+   ============================================================ */
+const DUO_SKINS = {
+  duoTealViolet: { colors:['#7eb4a8','#af7eb4'] },  // 青綠 × 紫
+  duoRoseGreen:  { colors:['#b47e84','#81b47e'] },  // 玫瑰 × 草綠
+  duoIndigoRose: { colors:['#857eb4','#b47e88'] },  // 藍紫 × 玫瑰
+  duoGreenSlate: { colors:['#8eb47e','#7e9ab4'] },  // 草綠 × 灰藍
+  duoSlateRose:  { colors:['#7e8bb4','#b47e87'] },  // 灰藍 × 玫瑰
+  duoTealPlum:   { colors:['#7eb4a8','#9c7eb4'] },  // 青綠 × 紫(另一組)
+};
+function isDuoSkin(id){ return !!DUO_SKINS[id]; }
+
 function materialTexture(id){
   switch(id){
     case 'marble':  // 大理石，斜向雲紋脈絡
@@ -2613,7 +2658,7 @@ const SKIN_MATERIALS = [
   { id:'rib',       name:'skin.rib',       icon:'🧣' },
   { id:'marble',    name:'skin.marble',    icon:'⬜' },
   { id:'clashBluePink',    name:'skin.clashBluePink',    icon:'🔵' },
-  { id:'clashGreenCoral',  name:'skin.clashGreenCoral',  icon:'🟢' },
+  { id:'clashGreenCoral',  name:'skin.clashGreenCoral',  icon:'🐊' },
   { id:'clashVioletLime',  name:'skin.clashVioletLime',  icon:'🟣' },
   { id:'clashRedTeal',     name:'skin.clashRedTeal',     icon:'🔴' },
   { id:'clashAmberIndigo', name:'skin.clashAmberIndigo', icon:'🟠' },
@@ -2651,6 +2696,13 @@ const SKIN_MATERIALS = [
   { id:'texYarnC',   name:'skin.texYarnC',   icon:'🧵' },
   { id:'texLace',    name:'skin.texLace',    icon:'🕸️' },
   { id:'texLaceM',   name:'skin.texLaceM',   icon:'❄️' },
+  // ★ v100 雙色三角配色皮膚（總監定案 20260731，非撞色，命名與撞色5款區隔）
+  { id:'duoTealViolet', name:'skin.duoTealViolet', icon:'💠' },
+  { id:'duoRoseGreen',  name:'skin.duoRoseGreen',  icon:'🌹' },
+  { id:'duoIndigoRose', name:'skin.duoIndigoRose', icon:'🔷' },
+  { id:'duoGreenSlate', name:'skin.duoGreenSlate', icon:'🌾' },
+  { id:'duoSlateRose',  name:'skin.duoSlateRose',  icon:'🩶' },
+  { id:'duoTealPlum',   name:'skin.duoTealPlum',   icon:'🔹' },
 ];
 function skinDef(id){ return SKIN_MATERIALS.find(s=>s.id===id); }
 /* 目前該用哪個材質渲染：心情轉換系統選中的皮膚 > 玩家手動裝備的固定皮膚 */
@@ -3658,28 +3710,36 @@ function clashSkin(id){
   // ★ v99：撞色5款 + 莫蘭迪20款統一由此入口生成，共用快取與色相迴避背景
   const clashDef = CLASH_SKINS[id];
   const morandiDef = MORANDI_SKINS[id];
-  if(!clashDef && !morandiDef) return null;
+  const duoDef = DUO_SKINS[id];
+  if(!clashDef && !morandiDef && !duoDef) return null;
   if(!_clashCache[id]){
-    let colors;
-    if(morandiDef){
+    let colors, bg;
+    if(duoDef){
+      // ★ v100：雙色配色皮膚——2色直接交給既有 idx%colors.length 邏輯在8色票間交錯；
+      // 背景固定走總監定案的莫蘭迪色卡（非自動色相迴避），同一皮膚id每次都對到同一組。
+      colors = duoDef.colors;
+      bg = pickMorandiBoardBg(id);
+    } else if(morandiDef){
       colors = morandiDef.grp==='A'
         ? _morandiA_colors(morandiDef.hue)
         : _morandiB_colors(morandiDef.hue, morandiDef.hue + 130);
+      bg = deriveBoardColors(colors);
     } else {
       // ★ v92 色相列點選：玩家調過的話用覆寫色相，撞色夾角仍沿用該款原本定案的角度
       const override = (typeof clashHueOverride !== 'undefined') ? clashHueOverride[id] : undefined;
       const hueA = (typeof override === 'number') ? override : clashDef.hueA;
       const hueB = hueA + (clashDef.hueB - clashDef.hueA);
       colors = _clashColors(hueA, hueB);
+      bg = deriveBoardColors(colors);
     }
-    _clashCache[id] = { colors, bg: deriveBoardColors(colors) };
+    _clashCache[id] = { colors, bg };
   }
   return _clashCache[id];
 }
-/* isClashSkin：v99 起「是否走撞色渲染管線」的判定要涵蓋莫蘭迪款（兩者渲染路徑相同：
-   都是 8 色映射 + 色相迴避背景 + 寶石防護罩），故一併回 true。純色相微調 UI（tuneClashHue）
-   另有 CLASH_SKINS 專屬判斷，不受影響。 */
-function isClashSkin(id){ return !!CLASH_SKINS[id] || !!MORANDI_SKINS[id]; }
+/* isClashSkin：v99 起「是否走撞色渲染管線」的判定要涵蓋莫蘭迪款＋v100雙色配色款
+   （三者渲染路徑相同：8色映射 + 背景 + 寶石防護罩），故一併回 true。純色相微調 UI
+   （tuneClashHue）另有 CLASH_SKINS 專屬判斷，不受影響。 */
+function isClashSkin(id){ return !!CLASH_SKINS[id] || !!MORANDI_SKINS[id] || !!DUO_SKINS[id]; }
 
 /* ── 決定性雜湊：同樣的輸入永遠得到同樣的數字（取代 Math.random，杜絕重繪閃爍） ── */
 function _clashHash(str){
@@ -4370,7 +4430,9 @@ function applySkinTheme(){
      故改以 inline CSS 變數注入 body（優先權高於 .theme-default，且會往下繼承給
      #board / .cell）。切回非撞色皮膚時把四個變數清掉，讓 CSS 原本的值回到台面。
      只在值真的改變時才寫 DOM，維持 v73 「成本近零」的原則。 */
-  const want = isClashSkin(id) ? clashSkin(id).bg : null;
+  const want = isClashSkin(id) ? clashSkin(id).bg
+             : isTextureSkin(id) ? pickMorandiBoardBg(id)
+             : null;
   if(document.body.dataset.clashApplied !== (want ? id : '')){
     const st = document.body.style;
     if(want){
@@ -6450,7 +6512,9 @@ const _MINI_LAYOUT = [
 ];
 function buildMiniPreview(skinId){
   const sk = isClashSkin(skinId) ? clashSkin(skinId) : null;
-  const bg = sk ? sk.bg : null;
+  // ★ v100：材質皮膚不走 clashSkin 管線（無色票映射），但背景仍要套莫蘭迪定案色卡，
+  // 否則商店預覽卡背景跟實際換上後（applySkinTheme）會不一致。
+  const bg = sk ? sk.bg : (isTextureSkin(skinId) ? pickMorandiBoardBg(skinId) : null);
   const deskC  = bg ? bg.bg       : getComputedStyle(document.documentElement).getPropertyValue('--bg').trim()       || '#2b3a67';
   const boardC = bg ? bg.boardBg  : getComputedStyle(document.documentElement).getPropertyValue('--board-bg').trim() || '#1d2749';
   const emptyC = bg ? bg.cell     : getComputedStyle(document.documentElement).getPropertyValue('--cell').trim()     || '#141c38';
