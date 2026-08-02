@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v100</title>
-<meta property="og:title" content="繽紛樂 v100">
+<title>繽紛樂 v101</title>
+<meta property="og:title" content="繽紛樂 v101">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -788,6 +788,25 @@
   .mode-card.balloon { background:linear-gradient(135deg,#3fb0ea,#7b63e6 52%,#d0388a);
                        box-shadow:0 8px 22px rgba(208,56,138,.4); }
   .mode-card.locked  { background:linear-gradient(135deg,#3a3f5a,#4a4f6e); cursor:default; opacity:.85; }
+
+  /* ★ v101 續玩卡片：偵測到中局存檔才出現，排在所有模式卡之前。
+     金色系＝跟三張模式卡（青綠/靛藍/洋紅）色相拉開，一眼就知道「這張不一樣」。
+     「放棄這局」刻意做成低調的文字鈕、擺左側 —— 破壞性選項不該比正向選項醒目。 */
+  #resumeCard { display:none; width:100%; max-width:340px; margin-bottom:14px; }
+  #resumeCard.show { display:block; }
+  .resume-main { width:100%; border:none; border-radius:20px; padding:16px 20px; text-align:left;
+    color:#fff; cursor:pointer; position:relative; overflow:hidden;
+    display:flex; align-items:center; gap:14px; transition:transform .15s;
+    background:linear-gradient(135deg,#e8a13c,#f2c14e); box-shadow:0 8px 22px rgba(232,161,60,.42); }
+  .resume-main:active { transform:scale(.97); }
+  .resume-main .rc-ic { font-size:30px; flex-shrink:0; filter:drop-shadow(0 2px 4px rgba(0,0,0,.3)); }
+  .resume-main .rc-name { font-size:18px; font-weight:800; margin-bottom:3px;
+    text-shadow:0 1px 2px rgba(0,0,0,.35); }
+  .resume-main .rc-meta { font-size:12.5px; opacity:.95; line-height:1.4;
+    text-shadow:0 1px 2px rgba(0,0,0,.3); }
+  .resume-drop { display:block; margin:6px 0 0 4px; background:transparent; border:none;
+    color:rgba(255,255,255,.5); font-size:12px; padding:4px 6px; cursor:pointer; }
+  .resume-drop:active { color:rgba(255,255,255,.8); }
   .mode-card.locked:active { transform:none; }
   .mode-card .soon { position:absolute; top:10px; right:12px; font-size:10px; letter-spacing:1px;
     background:rgba(255,255,255,.18); padding:3px 8px; border-radius:8px; }
@@ -1113,6 +1132,19 @@
 
   <!-- ★ v98 選單改版（總監定案 20260725）：主線「繽紛收集」升第一順位，氣球降第三並改名「緊張的氣球」；
        文案全面改為寶石/花苗語言，脫離動物框架 -->
+  <!-- ★ v101 中局續玩卡片：偵測到有效的當局存檔才顯示（refreshResumeCard 控制）。
+       刻意不自動跳進去 —— 玩家今天可能想玩別的模式，自動接續等於綁架。 -->
+  <div id="resumeCard">
+    <button class="resume-main" id="resumeBtn">
+      <span class="rc-ic">▶</span>
+      <span>
+        <div class="rc-name" id="resumeName" data-i18n="resume.name">繼續上一局</div>
+        <div class="rc-meta" id="resumeMeta"></div>
+      </span>
+    </button>
+    <button class="resume-drop" id="resumeDropBtn" data-i18n="resume.drop">放棄這局</button>
+  </div>
+
   <button class="mode-card gem" data-mode="gem">
     <span class="soon" id="gemBest" style="display:none"></span><!-- ★ v64 D3 續玩徽章：資料早就在存檔裡，只欠這個 UI -->
     <span class="emoji" id="gemModeIcon">🍡</span>
@@ -1149,7 +1181,7 @@
     <span class="iq-entry-arrow">›</span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v100・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v101・繽紛樂</div>
 </div>
 
 <div id="app">
@@ -1584,9 +1616,14 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v100・繽紛樂',
+  'menu.footer':'v101・繽紛樂',
   'menu.best':'最高 {n} 關',
   'menu.resume':'▶ 續玩 第 {n} 關',
+  /* ★ v101 中局續玩卡片 */
+  'resume.name':'繼續上一局', 'resume.drop':'放棄這局',
+  'resume.meta.gem':'繽紛收集・第 {lv} 關・{s} 分', 'resume.meta.endless':'無盡模式・{s} 分',
+  'resume.meta.balloon':'緊張的氣球・第 {lv} 關・{s} 分',
+  'resume.dropConfirm':'確定放棄這局的進度嗎？放棄後就回不來了。',
   'mode.endless.name':'無盡模式', 'mode.endless.desc':'沒有終點，放到沒空間為止。挑戰你的極限。',
   'mode.gem.name':'繽紛收集', 'mode.gem.desc':'收集不同顏色寶石使對應的花苗成長，全數花朵綻放進入下一關。',
   'mode.balloon.name':'緊張的氣球', 'mode.balloon.desc':'氣球不講理的一路膨脹，消除方塊減緩膨脹，達成收集寶石數過關。',
@@ -1682,9 +1719,14 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v100 · Vivid Blast',
+  'menu.footer':'v101 · Vivid Blast',
   'menu.best':'Best: Lv {n}',
   'menu.resume':'▶ Resume Lv {n}',
+  /* ★ v101 mid-run resume card */
+  'resume.name':'Resume last run', 'resume.drop':'Discard this run',
+  'resume.meta.gem':'Vivid Collect · Lv {lv} · {s} pts', 'resume.meta.endless':'Endless · {s} pts',
+  'resume.meta.balloon':'Nervous Balloon · Lv {lv} · {s} pts',
+  'resume.dropConfirm':'Discard this run for good? There is no undo.',
   'mode.endless.name':'Endless', 'mode.endless.desc':'No finish line — play until the board fills up. Push your limits.',
   'mode.gem.name':'Vivid Collect', 'mode.gem.desc':'Collect gems of each color to grow the matching sprouts — when every flower blooms, you advance.',
   'mode.balloon.name':'Nervous Balloon', 'mode.balloon.desc':'The balloon inflates relentlessly — clear blocks to slow it down and collect enough gems to pass.',
@@ -1778,9 +1820,14 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v100・ビビッドブラスト',
+  'menu.footer':'v101・ビビッドブラスト',
   'menu.best':'ベスト：レベル {n}',
   'menu.resume':'▶ レベル {n} から再開',
+  /* ★ v101 途中セーブの再開カード */
+  'resume.name':'前回の続きから', 'resume.drop':'このプレイを破棄',
+  'resume.meta.gem':'ビビッドコレクト・レベル {lv}・{s} 点', 'resume.meta.endless':'エンドレス・{s} 点',
+  'resume.meta.balloon':'ドキドキ風船・レベル {lv}・{s} 点',
+  'resume.dropConfirm':'このプレイの進行を破棄しますか？元には戻せません。',
   'mode.endless.name':'エンドレス', 'mode.endless.desc':'終わりなき挑戦。盤面が埋まるまで、限界に挑もう。',
   'mode.gem.name':'ビビッドコレクト', 'mode.gem.desc':'色ごとの宝石を集めて花の苗を育てよう。すべての花が咲いたら次のステージへ。',
   'mode.balloon.name':'ハラハラバルーン', 'mode.balloon.desc':'風船は容赦なく膨らみ続ける。ブロックを消して膨張を抑え、宝石を集めてクリアしよう。',
@@ -5771,7 +5818,12 @@ function clearLines(){
 
 function afterMove(){
   // ★ v64 A2 這兩顆延遲計時器同樣掛世代保險：回選單後絕不還魂
+  // ★ v101 過關路徑刻意「不」寫檔：存下已達標的盤面，玩家續玩後隨便放一塊就會
+  //   再觸發一次 checkWin → 重複領過關工資。要擋在這裡，不是擋在還原端。
   if(checkWin()){ const ep=gameEpoch; setTimeout(()=>{ if(ep===gameEpoch) showWin(); }, 300); return; }
+  // ★ v101 中局存檔主力：每手結算完就落地。系統回收 App 不會發任何事件，
+  //   生命週期監聽補不到，只有「每手都寫」才真的救得回來。
+  saveRun();
   // 三塊都用完 → 補新的一組
   if(trayPieces.every(p=>p.used)){ refillTray(); }
   // 失敗判定：剩餘方塊都放不下（盤面塞死）—— 公平、靠實力，不靠步數運氣
@@ -5939,6 +5991,8 @@ function showWin(){
     document.getElementById('nextBtn').style.display='';
   }
   saveGame();   // ★ v21 過關即存檔（最佳分/最高關落地）
+  clearRun();   // ★ v101 這關已過 → 當局存檔作廢。玩家按「下一關」時 startLevel 會寫入新關卡的乾淨盤面；
+                //   若改按「回主選單」，gem 模式仍有 maxLevelReached 續關徽章兜底，不會失去進度
   document.getElementById('winOverlay').classList.add('show');
 }
 
@@ -5962,6 +6016,8 @@ function showLose(){
                       //   玩家讀文案的每一秒都在扣血，甚至會在視窗背後撞上仙人掌，
                       //   讓 HZ.boom 二次呼叫 showLose、把「清出空間」救援覆寫成「洩氣一半」→ 救完盤面還是死的
   saveGame();   // ★ v21 失敗也存檔（無盡模式最佳分落地）
+  clearRun();   // ★ v101 這局已死 → 丟掉當局存檔。重開 App 不該掉進一個註定失敗的盤面；
+                //   玩家若在此視窗選擇復活，下一手落子的 afterMove 會自動重新寫回
   cancelBombAim();       // ★ v36 死局瞬間收掉瞄準模式，避免視窗下誤觸
   refreshReviveBtn();    // ★ v36 救援按鈕依剩餘資源分流：免費廣告 → 炸彈 → 商店
   document.getElementById('loseOverlay').classList.add('show');
@@ -7174,6 +7230,213 @@ function loadGame(){
 }
 
 /* ============================================================
+   ★ v101 中局存檔系統（當局盤面續玩）
+   ─────────────────────────────────────────────
+   為什麼要做：v100 的存檔只有「帳本」（最佳分、最高關、貨幣、皮膚），
+   當局的盤面／手牌／分數一律不存。玩家排隊玩到一半接電話、系統為了
+   釋放 RAM 回收 App、誤觸重整 —— 這一局就蒸發。gem 模式還有
+   maxLevelReached 兜底，無盡模式衝分中斷就是全滅，最傷心的那一種。
+   同類競品（Block Blast）盤面自動續存已是類型標配。
+
+   刻意與 SAVE_KEY 分家的理由：
+     SAVE_KEY = 永久資產（買過的東西、打過的紀錄），壞了是客訴。
+     RUN_KEY  = 拋棄式的當局狀態，隨時可整包丟掉。
+   兩者混在一起，存檔遷移邏輯會越滾越髒，且當局壞檔會波及資產。
+
+   兩個序列化地雷（實作時踩過，別再犯）：
+   ① piece.sig 直接引用 SHAPE_LIB 的定義物件。JSON 走一趟會變成「複本」，
+      還原後 sig === sig 恆為 false → 發牌驗收「三張同形要擋」靜默失靈。
+      解法：存 SHAPE_LIB 的索引，還原時指回原物件。
+   ② HZ.total（氣球跑道長度）隨螢幕高度浮動。存絕對值 inflated 的話，
+      換裝置／轉屏回來氣球會錯位甚至瞬間爆炸。解法：存「比例」。
+
+   保鮮期：不過期（總監定案）。續玩卡片會標明模式與分數，玩家自己判斷。
+   ============================================================ */
+const RUN_KEY = 'puffyblast_run_v1';
+const RUN_VER = 1;   // 當局存檔格式版本；日後改結構時用來擋掉讀不懂的舊檔
+
+/* 把 SHAPE_LIB 的定義物件 ←→ 索引互轉（地雷①的解藥） */
+function _sigToIdx(sig){ const i = SHAPE_LIB.indexOf(sig); return i >= 0 ? i : -1; }
+function _idxToSig(i){ return (typeof i==='number' && i>=0 && i<SHAPE_LIB.length) ? SHAPE_LIB[i] : null; }
+
+/* 序列化單張待命方塊。cells 只留純資料欄位，不夾帶任何 DOM 參照。 */
+function _serPiece(p){
+  if(!p) return null;
+  return {
+    cells: p.cells.map(c=>({ r:c.r, c:c.c, gem:c.gem||null, glow:!!c.glow })),
+    color: p.color, rows: p.rows, cols: p.cols,
+    used: !!p.used, tier: p.tier || 'common',
+    sigIdx: _sigToIdx(p.sig),   // 救命牌/稀有牌沒有 sig → -1，還原成 null，與原本行為一致
+  };
+}
+function _desPiece(o){
+  if(!o || !Array.isArray(o.cells)) return null;
+  const p = {
+    cells: o.cells.map(c=>({ r:c.r|0, c:c.c|0, gem:(c.gem && GEMS[c.gem]) ? c.gem : null, glow:!!c.glow })),
+    color: o.color, rows: o.rows|0, cols: o.cols|0,
+    used: !!o.used, tier: o.tier || 'common',
+  };
+  const sig = _idxToSig(o.sigIdx);
+  if(sig) p.sig = sig;
+  return p;
+}
+
+/* 寫檔。掛在每手結算（afterMove）與生命週期事件上。
+   註：不做節流 —— 一手一次、資料量約數 KB，成本遠低於掉一局的代價。 */
+function saveRun(){
+  if(!currentMode) return;              // 不在對局中（選單）不寫
+  if(!board.length || board.length !== SIZE) return;   // 盤面還沒備妥（開場競態）直接跳過
+  try{
+    const data = {
+      v: RUN_VER, at: Date.now(),
+      mode: currentMode, level, score,
+      board: board.map(row=> row.map(cell=> cell ? { color:cell.color, gem:cell.gem||null, glow:!!cell.glow } : null)),
+      tray: trayPieces.map(_serPiece),
+      goals: goals.map(g=>({ gem:g.gem, need:g.need, got:g.got })),
+      winStreak, curDiff, levelStartScore, movesLeft,
+      clearStreak, lastMilestone, adRevivesUsed, runMaxCombo,
+      levelPalette,                                        // ★ v91 本關配色盤：不存的話續玩後新牌會突然換一批色系
+      hz: HZ.active ? {                                    // ★ 地雷② 存比例不存絕對值
+        ratio: (HZ.total > 0) ? Math.max(0, Math.min(1, HZ.inflated / HZ.total)) : 0,
+        run: HZ.run,
+      } : null,
+    };
+    localStorage.setItem(RUN_KEY, JSON.stringify(data));
+  }catch(e){ /* 隱私模式/配額爆掉 → 靜默略過，遊戲照常，只是不能續玩 */ }
+}
+
+function clearRun(){
+  try{ localStorage.removeItem(RUN_KEY); }catch(e){}
+}
+
+/* 只讀不套用：給主選單卡片判斷「有沒有東西可以續」用。壞檔一律當作沒有。 */
+function peekRun(){
+  try{
+    const raw = localStorage.getItem(RUN_KEY);
+    if(!raw) return null;
+    const d = JSON.parse(raw);
+    if(!d || d.v !== RUN_VER) return null;
+    if(!MODES[d.mode]) return null;                                   // 模式已不存在（改版）→ 作廢
+    if(!Array.isArray(d.board) || d.board.length !== SIZE) return null;
+    if(!Array.isArray(d.tray)) return null;
+    // 全空盤 + 全新牌 = 等於沒開始過，不值得佔一張卡
+    const anyBlock = d.board.some(row=> Array.isArray(row) && row.some(c=>c));
+    const anyUsed  = d.tray.some(p=> p && p.used);
+    if(!anyBlock && !anyUsed) return null;
+    return d;
+  }catch(e){ return null; }
+}
+
+/* 真正把存檔套回引擎。刻意「不」呼叫 startLevel() ——
+   startLevel 會 initBoard/generateGoals/refillTray 全部重新生成，
+   那正是我們要避免的事。這裡走一條平行的還原路徑。 */
+function resumeRun(){
+  const d = peekRun();
+  if(!d) return false;
+
+  gameEpoch++;                     // ★ v64 A2 新世代：任何殘留的舊計時器到此作廢
+  currentMode = d.mode;
+  level  = Math.max(1, d.level|0);
+  score  = Math.max(0, d.score|0);
+  winStreak       = Math.max(0, d.winStreak|0);
+  levelStartScore = Math.max(0, d.levelStartScore|0);
+  movesLeft       = Math.max(0, d.movesLeft|0);
+  clearStreak     = Math.max(0, d.clearStreak|0);
+  lastMilestone   = Math.max(0, d.lastMilestone|0);
+  adRevivesUsed   = Math.max(0, d.adRevivesUsed|0);
+  runMaxCombo     = Math.max(0, d.runMaxCombo|0);
+  if(d.curDiff && typeof d.curDiff==='object') curDiff = d.curDiff;
+  if(d.levelPalette && typeof d.levelPalette==='object') levelPalette = d.levelPalette;
+
+  // 盤面：board 是 const 陣列，只能就地重填，不能整顆換掉
+  initBoard();
+  for(let r=0;r<SIZE;r++){
+    const row = d.board[r] || [];
+    for(let c=0;c<SIZE;c++){
+      const cell = row[c];
+      board[r][c] = cell ? { color:cell.color, gem:(cell.gem && GEMS[cell.gem]) ? cell.gem : null, glow:!!cell.glow } : null;
+    }
+  }
+  trayPieces = d.tray.map(_desPiece).filter(Boolean);
+
+  // 進對局畫面
+  document.getElementById('menu').classList.add('hidden');
+  const aw = document.getElementById('actionWrap'); if(aw) aw.classList.remove('hidden');
+  document.getElementById('winOverlay').classList.remove('show');
+  document.getElementById('loseOverlay').classList.remove('show');
+
+  // HZ 版面必須早於 calcCellSize（它決定左側走廊寬度）。
+  // 但 syncGoals 會覆寫 goals，所以目標在它之後才還原。
+  HZ.syncGoals();
+  goals = Array.isArray(d.goals)
+    ? d.goals.filter(g=>g && GEMS[g.gem]).map(g=>({ gem:g.gem, need:Math.max(1,g.need|0), got:Math.max(0,g.got|0) }))
+    : goals;
+
+  adRevivesUsed = Math.max(0, d.adRevivesUsed|0);
+  cancelBombAim();
+  refreshEconomyUI();
+  calcCellSize();
+  renderBoard();
+  renderGoals();
+  renderTray();
+  updateStatus();
+  updateStreakBadge(false);
+
+  const levelVal = document.getElementById('levelVal');
+  if(levelVal) levelVal.textContent = (currentMode==='endless') ? '∞' : level;
+
+  HZ.syncStage();                  // 內含 HZ.reset()（inflated 歸零）與 HZ.layout()（重算 total）
+  if(d.hz && HZ.active){
+    if(d.hz.run && typeof d.hz.run==='object') HZ.run = d.hz.run;
+    const ratio = Math.max(0, Math.min(1, +d.hz.ratio || 0));
+    HZ.inflated = HZ.total * ratio;   // ★ 地雷② 用當下螢幕的 total 換算回來
+  }
+
+  restSchedule();                  // ★ v98 續玩＝新的一局，休息提醒重新排定
+  saveRun();                       // 立刻回寫一次，確保存檔與當下狀態同步
+  return true;
+}
+
+/* 主選單續玩卡片的顯示／文案同步。goHome、啟動、放棄後都要呼叫。 */
+function refreshResumeCard(){
+  const card = document.getElementById('resumeCard');
+  if(!card) return;
+  const d = peekRun();
+  if(!d){ card.classList.remove('show'); return; }
+  const meta = document.getElementById('resumeMeta');
+  if(meta){
+    // 沉沒成本是留存的正向槓桿：把玩家已投入的成果直接寫在卡片上
+    const key = 'resume.meta.' + d.mode;
+    meta.textContent = T(key, { lv: Math.max(1, d.level|0), s: (Math.max(0, d.score|0)).toLocaleString() });
+  }
+  card.classList.add('show');
+}
+
+/* ============================================================
+   ★ v101 生命週期存檔（切背景／離開頁面）
+   ─────────────────────────────────────────────
+   研究結論（Chrome Page Lifecycle / MDN / 實測數據）：
+     • visibilitychange 的 hidden 是「最後一次可靠的存檔時機」
+     • beforeunload / unload 在行動裝置極不可靠（iOS Safari 根本不發），
+       且會停用 bfcache —— 一律不用
+     • pagehide 補位，兩者併用約 91% 可靠度
+     • 同一次離開可能連續觸發多個事件 → 必須去重
+   剩下那約 9% 的漏網，由「每手落子就寫檔」兜底。這兩個事件只是補位，
+   不是主力 —— 這點很重要，因為系統回收 App 時什麼事件都不會發。
+   ============================================================ */
+let _runFlushLock = false;
+function flushRunOnHide(){
+  if(_runFlushLock) return;      // 去重：一次離開只寫一次
+  _runFlushLock = true;
+  try{ saveRun(); }catch(e){}
+  setTimeout(()=>{ _runFlushLock = false; }, 400);
+}
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState === 'hidden') flushRunOnHide();
+});
+window.addEventListener('pagehide', flushRunOnHide);
+
+/* ============================================================
    ★ v20 廣告節奏系統（強制過場廣告的頻率上限）
    ─────────────────────────────────────────────
    設計哲學：「先讓玩家上癮到回不去，再談廣告。」
@@ -7287,10 +7550,12 @@ function startLevel(){
   HZ.syncStage();           // ★ v32 起舞台（非機關關會自動關閉圖層）
   document.getElementById('winOverlay').classList.remove('show');
   document.getElementById('loseOverlay').classList.remove('show');
+  saveRun();                // ★ v101 新關卡的乾淨盤面立刻落地，覆蓋上一關的殘檔
 }
 
 /* 從選單進入某模式 */
 function enterMode(mode){
+  clearRun();               // ★ v101 玩家主動選模式＝放棄舊局，先把殘檔清掉再開新的
   currentMode = mode;
   if(mode === 'endless') checkMoodTriggerGames();   // ★ v97 每次真正開新局才算一場，累積到隨機門檻才觸發
   restSchedule();   // ★ v98 排定這局的休息提醒（25~35分鐘到點→等停頓才彈）
@@ -7315,6 +7580,7 @@ function goHome(){
   document.getElementById('loseOverlay').classList.remove('show');
   document.getElementById('menu').classList.remove('hidden');
   const aw = document.getElementById('actionWrap'); if(aw) aw.classList.add('hidden');  // ★ v54 回選單收起左上操作鈕
+  refreshResumeCard();           // ★ v101 回選單就長出續玩卡片（存檔在離開對局前已由 afterMove 寫好）
 }
 
 /* 選單徽章：氣球模式的歷史最高關。破紀錄的數字擺在按鈕上，比任何文案都會叫人再按一次。 */
@@ -7759,6 +8025,7 @@ loadGame();
   }
   refreshMenuBadges();   // ★ v33
   applyLang();           // ★ v36 讀完存檔才套語言（內含經濟 UI 與每日紅點刷新）
+  refreshResumeCard();   // ★ v101 續玩卡片必須在 applyLang() 之後 —— 卡片文案要用玩家的語言
   /* ★ v99 繽紛收集選單圖示：把佔位的 🍡 換成遊戲內向量寶石堆（風格與盤面一致） */
   try{
     const gi = document.getElementById('gemModeIcon');
@@ -7890,6 +8157,82 @@ document.addEventListener('visibilitychange', ()=>{
 });
 window.addEventListener('pointerdown', function _wakeOnce(){ acquireWakeLock(); }, { once:true });
 acquireWakeLock();
+
+/* ============================================================
+   ★ v101 續玩卡片接線
+   ============================================================ */
+(function wireResumeCard(){
+  const btn  = document.getElementById('resumeBtn');
+  const drop = document.getElementById('resumeDropBtn');
+  if(btn) btn.onclick = ()=>{
+    if(!resumeRun()) refreshResumeCard();   // 還原失敗（壞檔）→ 卡片自動收起，不留死按鈕
+  };
+  if(drop) drop.onclick = ()=>{
+    // 破壞性操作一律問一次。UX 慣例：不利玩家的選項不做醒目色、不搶正向按鈕的位置
+    if(confirm(T('resume.dropConfirm'))){
+      clearRun();
+      refreshResumeCard();
+    }
+  };
+})();
+
+/* ============================================================
+   ★ v101 返回鍵攔截（Android 實體鍵 / 手勢）
+   ─────────────────────────────────────────────
+   為什麼非做不可：Capacitor 3.0 之後改了預設行為 —— 沒註冊監聽，
+   按下返回鍵就直接關閉 App。玩家對局中誤觸 = 整局蒸發。
+   而一旦註冊監聽，預設行為就完全停用，所有分支都得自己定義，
+   沒有中間地帶。網頁版同理：誤按返回就離開頁面。
+
+   作法：pushState 撐一個「假的歷史層」，返回鍵先撞到它。
+   分層（由上而下，撞到第一個就處理完畢）：
+     ① 有彈窗開著 → 關掉最上層的彈窗
+     ② 齒輪選單開著 → 收起齒輪
+     ③ 對局中 → 開齒輪選單（＝暫停）。刻意不另開確認視窗：
+        齒輪本來就有暫停毛玻璃＋回主選單，行為一致、少一組三語文案
+     ④ 在主選單 → 才真的允許離開
+
+   刻意排除的彈窗（不給返回鍵關）：
+     winOverlay / loseOverlay = 流程性視窗，關掉會讓玩家卡在無主狀態
+     welcomeOverlay           = 首次啟動的必填流程，跳過會沒有暱稱
+   ★ Capacitor 打包待辦：屆時改接 @capacitor/app 的 backButton 事件，
+     並在原生層處理 Android 16 的預測式返回手勢（對局中不該掀開桌面預覽）。
+   ============================================================ */
+(function wireBackButton(){
+  const SKIP = ['winOverlay','loseOverlay','welcomeOverlay'];
+
+  function topOverlay(){
+    const list = Array.from(document.querySelectorAll('.overlay.show'))
+      .filter(el=> SKIP.indexOf(el.id) < 0);
+    return list.length ? list[list.length-1] : null;   // DOM 順序最後的＝視覺最上層
+  }
+
+  /* 回傳 true = 已經吃掉這次返回（不放行離開） */
+  function handleBack(){
+    const ov = topOverlay();
+    if(ov){ ov.classList.remove('show'); return true; }
+
+    if(document.getElementById('gearMenu').classList.contains('show')){
+      closeGear(); return true;
+    }
+
+    if(currentMode){        // 對局中：暫停，不離開
+      openGear(); return true;
+    }
+
+    return false;           // 主選單：放行
+  }
+
+  try{ history.pushState({ vb:1 }, ''); }catch(e){ return; }   // 撐不出歷史層就整段放棄，不影響遊戲
+
+  window.addEventListener('popstate', ()=>{
+    if(handleBack()){
+      // 吃掉了 → 把歷史層補回去，下一次返回鍵才有東西可撞
+      try{ history.pushState({ vb:1 }, ''); }catch(e){}
+    }
+    // 沒吃掉就順其自然：網頁版會離開頁面；Capacitor 版會關閉 App
+  });
+})();
 
 /* 啟動：停在選單，等玩家選模式 */
 /* （不自動開局，讓玩家先選模式）*/
