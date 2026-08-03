@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v102</title>
-<meta property="og:title" content="繽紛樂 v102">
+<title>繽紛樂 v103</title>
+<meta property="og:title" content="繽紛樂 v103">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -114,6 +114,23 @@
     font-variant-numeric:tabular-nums; transition:transform .12s; }
   /* 每次加分的小跳動：輕巧不吵，讓分數「活」起來 */
   #bigScore .bs-num.bump { animation:bsBump .32s cubic-bezier(.34,1.56,.64,1); }
+  /* ★ v103 超越本關紀錄：大分數本體持續發光（不是一次性動畫，是狀態）。
+     用 text-shadow 疊光暈而非 background-clip —— 後者會讓文字透明，
+     底層黑影透出把金色染成髒古銅（v58 踩過的坑，不重蹈）。 */
+  #bigScore .bs-num.record {
+    color:#fff3c4;
+    text-shadow:0 2px 3px rgba(0,0,0,.5),
+                0 0 12px rgba(255,213,79,.95), 0 0 26px rgba(255,179,0,.75),
+                0 0 44px rgba(255,152,0,.45);
+    animation:bsGlow 1.6s ease-in-out infinite; }
+  @keyframes bsGlow {
+    0%,100%{ filter:brightness(1); }
+    50%    { filter:brightness(1.18); } }
+  /* 剛超越的那一下：撞擊感，之後才轉為持續發光 */
+  #bigScore .bs-num.recordHit { animation:bsRecordHit .7s cubic-bezier(.2,1.5,.35,1); }
+  @keyframes bsRecordHit {
+    0%{transform:scale(1);} 30%{transform:scale(1.5) rotate(-4deg);}
+    55%{transform:scale(.94) rotate(2deg);} 100%{transform:scale(1);} }
   @keyframes bsBump { 0%{transform:scale(1);} 45%{transform:scale(1.16);} 100%{transform:scale(1);} }
   /* ★ v102 關卡別最佳分：對局中常駐在大分數正下方，玩家隨時知道離紀錄多遠。
      刻意做小、做暗（12px / 55% 透明）—— 它是背景參照，不能跟主分數搶注意力。
@@ -128,6 +145,22 @@
   #lvBest.pop { animation:lvBestPop .5s cubic-bezier(.34,1.56,.64,1); }
   @keyframes lvBestPop {
     0%{transform:scale(1);} 40%{transform:scale(1.28);} 100%{transform:scale(1);} }
+
+  /* ★ v103 選關視窗 */
+  .lvpick-modal { max-width:380px; }
+  .lvpick-sub { font-size:13px; color:rgba(255,255,255,.6); margin:-4px 0 12px; }
+  #lvPickGrid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px;
+    max-height:46vh; overflow-y:auto; padding:4px 2px; -webkit-overflow-scrolling:touch; }
+  .lvp-cell { border:none; border-radius:12px; padding:9px 4px; cursor:pointer;
+    background:rgba(255,255,255,.11); color:#fff; text-align:center;
+    display:flex; flex-direction:column; gap:3px; transition:transform .12s, background .15s; }
+  .lvp-cell:active { transform:scale(.94); }
+  .lvp-cell .lvp-n { font-size:15px; font-weight:800; line-height:1; }
+  .lvp-cell .lvp-s { font-size:10.5px; font-weight:700; line-height:1;
+    color:#ffd54f; font-variant-numeric:tabular-nums; }
+  .lvp-cell .lvp-s.none { color:rgba(255,255,255,.35); }
+  /* 目前所在關卡：描邊標記，讓玩家一眼找到自己 */
+  .lvp-cell.cur { background:rgba(255,213,79,.22); box-shadow:inset 0 0 0 2px rgba(255,213,79,.7); }
 
   /* ★ v102 過關視窗的本關紀錄對比行 */
   .win-lvbest { margin-top:10px; font-size:13.5px; font-weight:700; line-height:1.5;
@@ -812,6 +845,14 @@
   /* ★ v101 續玩卡片：偵測到中局存檔才出現，排在所有模式卡之前。
      金色系＝跟三張模式卡（青綠/靛藍/洋紅）色相拉開，一眼就知道「這張不一樣」。
      「放棄這局」刻意做成低調的文字鈕、擺左側 —— 破壞性選項不該比正向選項醒目。 */
+  /* ★ v103 模式卡上的選關入口：小、貼右下、不搶主按鈕 */
+  .lvpick-btn { position:absolute; right:10px; bottom:8px; z-index:3;
+    background:rgba(0,0,0,.28); border:none; border-radius:10px;
+    color:rgba(255,255,255,.92); font-size:11.5px; font-weight:800;
+    padding:5px 9px; cursor:pointer; display:none; }
+  .lvpick-btn.show { display:block; }
+  .lvpick-btn:active { background:rgba(0,0,0,.45); }
+
   #resumeCard { display:none; width:100%; max-width:340px; margin-bottom:14px; }
   #resumeCard.show { display:block; }
   .resume-main { width:100%; border:none; border-radius:20px; padding:16px 20px; text-align:left;
@@ -1165,6 +1206,8 @@
     <button class="resume-drop" id="resumeDropBtn" data-i18n="resume.drop">放棄這局</button>
   </div>
 
+  <!-- ★ v103 選關入口：由 refreshMenuBadges 依 modeUsesLevelBest 決定顯示，
+       避免日後新增模式時又要在多處各補一次 if -->
   <button class="mode-card gem" data-mode="gem">
     <span class="soon" id="gemBest" style="display:none"></span><!-- ★ v64 D3 續玩徽章：資料早就在存檔裡，只欠這個 UI -->
     <span class="emoji" id="gemModeIcon">🍡</span>
@@ -1172,6 +1215,7 @@
       <div class="mc-name" data-i18n="mode.gem.name">繽紛收集</div>
       <div class="mc-desc" data-i18n="mode.gem.desc">收集不同顏色寶石使對應的花苗成長，全數花朵綻放進入下一關。</div>
     </span>
+    <span class="lvpick-btn" id="gemLvPick" data-mode="gem" data-i18n="lvpick.btn">🏆 選關</span>
   </button>
 
   <button class="mode-card endless" data-mode="endless">
@@ -1189,6 +1233,7 @@
       <div class="mc-name" data-i18n="mode.balloon.name">緊張的氣球</div>
       <div class="mc-desc" data-i18n="mode.balloon.desc">氣球不講理的一路膨脹，消除方塊減緩膨脹，達成收集寶石數過關。</div>
     </span>
+    <span class="lvpick-btn" id="balloonLvPick" data-mode="balloon" data-i18n="lvpick.btn">🏆 選關</span>
   </button>
 
   <!-- ★ v95 極限 IQ 榜：主選單顯眼入口，副標顯示玩家目前配戴的稱號 -->
@@ -1201,7 +1246,7 @@
     <span class="iq-entry-arrow">›</span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v102・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v103・繽紛樂</div>
 </div>
 
 <div id="app">
@@ -1296,6 +1341,18 @@
 <!-- ★ v54 分數里程碑飄字：達到分數門檻時飄出中文讚美，純顯示層不擋操作 -->
 <div id="scoreMile"></div>
 
+<!-- ★ v103 選關視窗：關卡別最佳分的挑戰入口。
+     每一格顯示關卡號與該關最佳分，未挑戰過的關卡以問號表示。
+     只開放到玩家已抵達的最高關 —— 不能跳關偷跑，否則關卡進度失去意義。 -->
+<div class="overlay" id="levelPickOverlay">
+  <div class="modal lvpick-modal">
+    <h2 id="lvPickTitle" data-i18n="lvpick.title">🏆 選擇關卡</h2>
+    <p class="lvpick-sub" id="lvPickSub" data-i18n="lvpick.sub">挑戰自己的紀錄</p>
+    <div id="lvPickGrid"></div>
+    <button class="big-btn" id="lvPickCloseBtn" style="background:rgba(255,255,255,.18);margin-top:12px;" data-i18n="lvpick.close">關閉</button>
+  </div>
+</div>
+
 <div class="overlay" id="winOverlay">
   <div class="modal">
     <h2 id="winTitle">🎉 過關！</h2>
@@ -1303,6 +1360,9 @@
     <!-- ★ v102 本關紀錄對比：破紀錄時整行轉金並跳動 -->
     <div class="win-lvbest" id="winLvBest" style="display:none"></div>
     <button class="big-btn" id="nextBtn" data-i18n="win.next">下一關 →</button>
+    <!-- ★ v103 總監定案②：刷紀錄的最短路徑。沒有這顆，關卡別最佳分有一半是死的 —— 
+         紀錄只能被動產生一次，玩家永遠無法回頭挑戰自己。 -->
+    <button class="big-btn" id="winReplayBtn" style="background:rgba(255,255,255,.18);margin-top:10px;" data-i18n="win.replay">🏆 再打一次這關</button>
     <button class="big-btn" id="winHomeBtn" style="background:rgba(255,255,255,.18);margin-top:10px;" data-i18n="win.home">回主選單</button>
   </div>
 </div>
@@ -1641,9 +1701,12 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v102・繽紛樂',
+  'menu.footer':'v103・繽紛樂',
+  /* ★ v103 選關系統 */
+  'lvpick.btn':'🏆 選關', 'lvpick.title':'🏆 選擇關卡', 'lvpick.sub':'挑戰自己的紀錄',
+  'lvpick.close':'關閉', 'lvpick.none':'—', 'win.replay':'🏆 再打一次這關',
   /* ★ v102 關卡別最佳分 */
-  'lvb.line':'本關最佳 {n}', 'lvb.beat':'🏆 已超越本關紀錄！',
+  'lvb.line':'本關最佳 {n}・還差 {d}', 'lvb.beat':'🏆 超越紀錄 +{n}！',
   'lvb.first':'首次挑戰本關',
   'lvb.winNew':'🏆 本關新紀錄！{n} 分（前一次 {o}）',
   'lvb.winFirst':'🏆 本關首次紀錄：{n} 分',
@@ -1750,9 +1813,12 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v102 · Vivid Blast',
+  'menu.footer':'v103 · Vivid Blast',
+  /* ★ v103 level picker */
+  'lvpick.btn':'🏆 Levels', 'lvpick.title':'🏆 Select Level', 'lvpick.sub':'Beat your own record',
+  'lvpick.close':'Close', 'lvpick.none':'—', 'win.replay':'🏆 Replay this level',
   /* ★ v102 per-level best score */
-  'lvb.line':'Level best {n}', 'lvb.beat':'🏆 New level best!',
+  'lvb.line':'Level best {n} · {d} to go', 'lvb.beat':'🏆 Record beaten +{n}!',
   'lvb.first':'First attempt at this level',
   'lvb.winNew':'🏆 New level best: {n} (was {o})',
   'lvb.winFirst':'🏆 First record for this level: {n}',
@@ -1857,9 +1923,12 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v102・ビビッドブラスト',
+  'menu.footer':'v103・ビビッドブラスト',
+  /* ★ v103 レベル選択 */
+  'lvpick.btn':'🏆 レベル選択', 'lvpick.title':'🏆 レベルを選ぶ', 'lvpick.sub':'自己記録に挑戦',
+  'lvpick.close':'閉じる', 'lvpick.none':'—', 'win.replay':'🏆 このレベルをもう一度',
   /* ★ v102 レベル別ベストスコア */
-  'lvb.line':'このレベル最高 {n}', 'lvb.beat':'🏆 レベル記録更新中！',
+  'lvb.line':'このレベル最高 {n}・あと {d}', 'lvb.beat':'🏆 記録更新 +{n}！',
   'lvb.first':'このレベル初挑戦',
   'lvb.winNew':'🏆 レベル新記録！{n} 点（前回 {o}）',
   'lvb.winFirst':'🏆 このレベル初記録：{n} 点',
@@ -3559,6 +3628,28 @@ function playAnimal(animal){
   // 尾端疊一顆高頻「✨」亮片音，收尾帶點閃亮驚喜感
   tone(2093, 0.24, 0.16, 'sine', 0.10);
 }
+/* ★ v103 總監定案③：超越本關紀錄的「無敵星星」音效層。
+   ─────────────────────────────────────────────
+   設計意圖：馬利歐吃到星星時音樂變奏，玩家立刻知道「狀態不一樣了」。
+   繽紛樂目前沒有 BGM 系統，所以先做這一層 —— 用既有的 Web Audio 合成，
+   成本極低，未來真的做 BGM 時這段可以直接沿用當變奏觸發點。
+
+   音型設計：上行大三和弦琶音 + 高八度疊音 + 尾端上揚滑音。
+   刻意比 playWin（過關小旋律）更亮、更急促 —— 破紀錄是「當下」的興奮，
+   不是「結束」的滿足，兩者情緒不同，音色必須分得開。 */
+function playRecordBreak(){
+  if(!soundOn) return; if(!actx()) return;
+  // 上行琶音：C-E-G-C-E-G（兩個八度爬升，製造「衝上去」的感覺）
+  [523, 659, 784, 1047, 1319, 1568].forEach((f, i)=>{
+    tone(f, i*0.055, 0.13, 'square',   0.085);   // 方波：亮、有電玩味
+    tone(f, i*0.055, 0.16, 'triangle', 0.13);    // 三角波墊底：不刺耳
+  });
+  // 尾端上揚滑音：把情緒推上去而不是收掉
+  tone(1568, 0.34, 0.30, 'triangle', 0.16, 2093);
+  // 高八度亮片
+  tone(2093, 0.40, 0.22, 'sine', 0.10);
+}
+
 function playWin(){   // 過關小旋律
   if(!soundOn) return; if(!actx()) return;
   [523,659,784,1047].forEach((f,i)=> tone(f, i*0.11, 0.16, 'triangle', 0.18));
@@ -5996,9 +6087,15 @@ function updateStatus(){
   const bigNum = document.getElementById('bigScoreVal');
   if(big) big.classList.toggle('hidden', !m.useScore);
   if(bigNum && m.useScore){
+    // ★ v103 總監定案①：有關卡的模式，大分數改顯示「本關實得」。
+    //   病灶：舊版大分數是累積分（第9關500 + 第10關2911 = 3411），紀錄卻是本關實得（2911），
+    //   兩個數字用不同的尺 → 玩家盯著 3411 卻被告知紀錄 2911，根本無從判斷離紀錄多遠。
+    //   累積分已被實測證實是「被遊玩時間污染」的指標，不值得佔據最大的視覺位置。
+    //   無盡模式沒有關卡，維持累積分不受影響。
+    const shown = modeUsesLevelBest(currentMode) ? (score - levelStartScore) : score;
     const prev = bigNum.textContent;
-    bigNum.textContent = score;
-    if(String(score) !== prev){   // 分數真的變了才跳，避免無謂動畫
+    bigNum.textContent = shown;
+    if(String(shown) !== prev){   // 分數真的變了才跳，避免無謂動畫
       bigNum.classList.remove('bump'); void bigNum.offsetWidth; bigNum.classList.add('bump');
     }
     checkScoreMilestone();
@@ -7262,23 +7359,36 @@ function updateLevelBestLine(){
   }
   el.classList.remove('hidden');
   const best = getLevelBest(currentMode, level);
-  const cur  = score - levelStartScore;          // 本關實得，與紀錄同一把尺
+  const cur  = score - levelStartScore;          // 本關實得，與大分數、與紀錄同一把尺
+  const bigNum = document.getElementById('bigScoreVal');
+
   if(best <= 0){
     el.textContent = T('lvb.first');
     el.classList.remove('beat');
+    if(bigNum) bigNum.classList.remove('record','recordHit');
     return;
   }
+
   if(cur > best){
-    el.textContent = T('lvb.beat');
-    if(!_lvBestBeaten){                          // 只在「剛超越」的那一刻跳一次
+    // ★ v103 差距歸零之後改秀「超越了多少」—— 讓玩家知道自己贏了多少，而不只是贏了
+    el.textContent = T('lvb.beat', { n: (cur - best).toLocaleString() });
+    el.classList.add('beat');
+    if(!_lvBestBeaten){                          // 只在「剛超越」的那一刻演一次
       _lvBestBeaten = true;
-      el.classList.add('beat');
       el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
-      haptic('light');
+      if(bigNum){
+        bigNum.classList.add('record');           // 持續發光（狀態）
+        bigNum.classList.remove('recordHit'); void bigNum.offsetWidth;
+        bigNum.classList.add('recordHit');        // 撞擊感（一次性）
+      }
+      playRecordBreak();                          // ★ 無敵星星音效
+      haptic('medium');
     }
   } else {
-    el.textContent = T('lvb.line', { n: best.toLocaleString() });
+    // ★ v103 還沒超越 → 直接把「還差多少」講出來，這才是挑戰動機的來源
+    el.textContent = T('lvb.line', { n: best.toLocaleString(), d: (best - cur + 1).toLocaleString() });
     el.classList.remove('beat');
+    if(bigNum) bigNum.classList.remove('record','recordHit');
   }
 }
 
@@ -7372,6 +7482,55 @@ function loadGame(){
     if(typeof d.lastRenameAt==='number')    lastRenameAt = Math.max(0, d.lastRenameAt);              // ★ v37 改名卡冷卻
     if(typeof d.lang==='string' && I18N[d.lang]) lang = d.lang;                                 // ★ v36 語言偏好
   }catch(e){ /* 壞檔或禁用 → 用預設值，不崩 */ }
+}
+
+/* ============================================================
+   ★ v103 選關系統（總監定案②）
+   ─────────────────────────────────────────────
+   為什麼非做不可：v102 做了「關卡別最佳分」，卻沒有回頭挑戰的入口，
+   紀錄只能被動產生一次，這個系統有一半是死的。
+   有了選關，紀錄才從「檔案」變成「靶」。
+
+   規則：
+   • 只開放到玩家已抵達的最高關（maxLevelReached / maxBalloonLevel），
+     不能跳關偷跑，否則關卡進度本身失去意義
+   • 從選關進入 = 開新局，分數從 0 起算（與紀錄同一把尺）
+   • 只對有關卡概念的模式開放，統一走 modeUsesLevelBest 判斷
+   ============================================================ */
+function maxLevelOf(mode){
+  if(mode === 'gem')     return Math.max(1, maxLevelReached);
+  if(mode === 'balloon') return Math.max(1, maxBalloonLevel);
+  return 1;
+}
+
+function openLevelPicker(mode){
+  if(!modeUsesLevelBest(mode)) return;
+  const grid = document.getElementById('lvPickGrid');
+  const ov   = document.getElementById('levelPickOverlay');
+  if(!grid || !ov) return;
+
+  const top = maxLevelOf(mode);
+  grid.innerHTML = '';
+  for(let lv = 1; lv <= top; lv++){
+    const best = getLevelBest(mode, lv);
+    const cell = document.createElement('button');
+    cell.className = 'lvp-cell' + (lv === top ? ' cur' : '');
+    cell.dataset.lv = lv;
+    const n = document.createElement('div'); n.className = 'lvp-n'; n.textContent = lv;
+    const sc = document.createElement('div');
+    sc.className = 'lvp-s' + (best > 0 ? '' : ' none');
+    sc.textContent = best > 0 ? best.toLocaleString() : T('lvpick.none');
+    cell.appendChild(n); cell.appendChild(sc);
+    cell.onclick = ()=>{
+      ov.classList.remove('show');
+      enterMode(mode, lv);          // ★ 指定關卡開局
+    };
+    grid.appendChild(cell);
+  }
+  ov.classList.add('show');
+  // 捲到最新關卡，玩家通常想打的是最近的那幾關
+  const cur = grid.querySelector('.lvp-cell.cur');
+  if(cur && cur.scrollIntoView) { try{ cur.scrollIntoView({ block:'nearest' }); }catch(e){} }
 }
 
 /* ============================================================
@@ -7668,6 +7827,10 @@ function startLevel(){
   clearStreak = 0;          // ★ v49 連消每關重新起算
   lastMilestone = 0;        // ★ v54 分數里程碑每關重新起算
   _lvBestBeaten = false;    // ★ v102 新關卡 = 新的紀錄挑戰，破紀錄動畫重新武裝
+  {  // ★ v103 大分數的發光狀態必須跟著清掉，否則新關卡會帶著上一關的金光開場
+    const _bn = document.getElementById('bigScoreVal');
+    if(_bn) _bn.classList.remove('record','recordHit');
+  }
   lastPlacement = null;
   updateStreakBadge(false);
   cancelBombAim();          // ★ v36 換關收掉炸彈瞄準模式
@@ -7700,7 +7863,7 @@ function startLevel(){
 }
 
 /* 從選單進入某模式 */
-function enterMode(mode){
+function enterMode(mode, forceLevel){
   clearRun();               // ★ v101 玩家主動選模式＝放棄舊局，先把殘檔清掉再開新的
   currentMode = mode;
   if(mode === 'endless') checkMoodTriggerGames();   // ★ v97 每次真正開新局才算一場，累積到隨機門檻才觸發
@@ -7709,9 +7872,14 @@ function enterMode(mode){
   // ★ v101 氣球模式補上同樣待遇（真機實測回報）：maxBalloonLevel 一直有記錄、有存檔、
   //   有徽章，唯獨這行判斷漏了它 —— 玩家磨到第 100 關，回一趟主選單就被打回第 1 關。
   //   難度曲線安全：HZ.tuneFor 的 base/need 都有 baseCap/needCap 上限夾，高關續玩不會爆。
-  level = (mode==='gem'     && maxLevelReached > 1) ? maxLevelReached
-        : (mode==='balloon' && maxBalloonLevel  > 1) ? maxBalloonLevel
-        : 1;
+  // ★ v103 選關指定的關卡優先；上限夾在玩家已抵達的最高關，防止跳關偷跑
+  if(typeof forceLevel === 'number' && forceLevel >= 1 && modeUsesLevelBest(mode)){
+    level = Math.min(Math.floor(forceLevel), maxLevelOf(mode));
+  } else {
+    level = (mode==='gem'     && maxLevelReached > 1) ? maxLevelReached
+          : (mode==='balloon' && maxBalloonLevel  > 1) ? maxBalloonLevel
+          : 1;
+  }
   score = 0;
   winStreak = 0;            // ★ v6：新一局從蜜月期重新開始
   runMaxCombo = 0;          // ★ v94 排行榜：本局最高連消歸零
@@ -7743,6 +7911,13 @@ function refreshMenuBadges(){
     if(maxBalloonLevel > 1){ b.textContent = T('menu.resume', {n:maxBalloonLevel}); b.style.display = ''; }
     else                   { b.style.display = 'none'; }
   }
+  // ★ v103 選關入口：至少打過 2 關才顯示（只有 1 關可選等於沒得選，白佔版面）
+  {
+    const gp = document.getElementById('gemLvPick');
+    const bp = document.getElementById('balloonLvPick');
+    if(gp) gp.classList.toggle('show', maxLevelOf('gem')     >= 2);
+    if(bp) bp.classList.toggle('show', maxLevelOf('balloon') >= 2);
+  }
   // ★ v64 D3 gem 模式續玩徽章：磨到第 25 關的玩家明天回來就從第 25 關繼續——留存的命根子
   const g = document.getElementById('gemBest');
   if(g){
@@ -7760,6 +7935,25 @@ document.querySelectorAll('.mode-card').forEach(card=>{
     enterMode(mode);
   };
 });
+
+/* ★ v103 選關入口：mode-card 本身是 button，所以選關做成 span 並阻止冒泡，
+   否則點選關會連帶觸發整張卡的 onclick 直接開局 */
+document.querySelectorAll('.lvpick-btn').forEach(el=>{
+  el.onclick = (e)=>{
+    e.stopPropagation();
+    openLevelPicker(el.dataset.mode);
+  };
+});
+document.getElementById('lvPickCloseBtn').onclick = ()=>{
+  document.getElementById('levelPickOverlay').classList.remove('show');
+};
+/* ★ v103 再打一次這關：刷紀錄的最短路徑。走 enterMode 指定關卡＝乾淨開新局，
+   分數從 0 起算，與紀錄同一把尺（不能用 startLevel，那會沿用當前累積分） */
+document.getElementById('winReplayBtn').onclick = ()=>{
+  const m = currentMode, lv = level;
+  document.getElementById('winOverlay').classList.remove('show');
+  enterMode(m, lv);
+};
 
 /* ===== 過關 / 失敗 / 導覽 按鈕 ===== */
 document.getElementById('nextBtn').onclick = ()=>{ proceedToNextLevel(); };  // ★ v20：下一關過場，自動判斷是否插強制廣告
