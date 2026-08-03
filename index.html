@@ -7559,8 +7559,13 @@ function enterMode(mode){
   currentMode = mode;
   if(mode === 'endless') checkMoodTriggerGames();   // ★ v97 每次真正開新局才算一場，累積到隨機門檻才觸發
   restSchedule();   // ★ v98 排定這局的休息提醒（25~35分鐘到點→等停頓才彈）
-  // ★ v64 D3 gem 模式從歷史最高關續玩（maxLevelReached 早有存檔，只差這一行）；其餘模式照舊從 1 開始
-  level = (mode==='gem' && maxLevelReached > 1) ? maxLevelReached : 1;
+  // ★ v64 D3 gem 模式從歷史最高關續玩（maxLevelReached 早有存檔，只差這一行）
+  // ★ v101 氣球模式補上同樣待遇（真機實測回報）：maxBalloonLevel 一直有記錄、有存檔、
+  //   有徽章，唯獨這行判斷漏了它 —— 玩家磨到第 100 關，回一趟主選單就被打回第 1 關。
+  //   難度曲線安全：HZ.tuneFor 的 base/need 都有 baseCap/needCap 上限夾，高關續玩不會爆。
+  level = (mode==='gem'     && maxLevelReached > 1) ? maxLevelReached
+        : (mode==='balloon' && maxBalloonLevel  > 1) ? maxBalloonLevel
+        : 1;
   score = 0;
   winStreak = 0;            // ★ v6：新一局從蜜月期重新開始
   runMaxCombo = 0;          // ★ v94 排行榜：本局最高連消歸零
@@ -7587,7 +7592,9 @@ function goHome(){
 function refreshMenuBadges(){
   const b = document.getElementById('balloonBest');
   if(b){
-    if(maxBalloonLevel > 1){ b.textContent = T('menu.best', {n:maxBalloonLevel}); b.style.display = ''; }
+    // ★ v101 改用 menu.resume：現在氣球真的會從這關續玩，文案就必須是「續玩」而非
+    //   純炫耀的「最高」—— 否則玩家看到數字會以為按下去得從頭重打，反而不敢按
+    if(maxBalloonLevel > 1){ b.textContent = T('menu.resume', {n:maxBalloonLevel}); b.style.display = ''; }
     else                   { b.style.display = 'none'; }
   }
   // ★ v64 D3 gem 模式續玩徽章：磨到第 25 關的玩家明天回來就從第 25 關繼續——留存的命根子
