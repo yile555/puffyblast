@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v104</title>
-<meta property="og:title" content="繽紛樂 v104">
+<title>繽紛樂 v105</title>
+<meta property="og:title" content="繽紛樂 v105">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -669,8 +669,14 @@
   #tray { margin-bottom:10px; }
 
   /* 彈窗 */
+  /* ★ v105 層級修正：舊版 .overlay 是 1000，但 #menu 是 1100 —— 主選單比彈窗還高。
+     結果從主選單開啟的任何彈窗都被選單整片蓋住，玩家以為沒反應，
+     直到點模式卡讓選單隱藏，彈窗才「浮出來」。這個洞影響名人堂、商店、
+     輝煌印記、皮膚、個人資料與新的選關視窗 —— 一次全部修好。
+     層級秩序（低→高）：特效 930~952 / 拖曳方塊 999 / 主選單 1100 /
+     齒輪與商店浮層 1150 / 一般彈窗 1300 / 排行榜 1301 / IQ 與輝煌印記 1302 / 廣告全屏 1400 */
   .overlay { position:fixed; inset:0; background:rgba(0,0,0,.7); display:flex; align-items:center;
-    justify-content:center; z-index:1000; opacity:0; pointer-events:none; transition:.3s; }
+    justify-content:center; z-index:1300; opacity:0; pointer-events:none; transition:.3s; }
   .overlay.show { opacity:1; pointer-events:auto; }
   .modal { background:var(--panel); border-radius:24px; padding:30px 26px; width:84%; max-width:340px;
     text-align:center; box-shadow:0 20px 60px rgba(0,0,0,.5); transform:scale(.85); transition:.3s; }
@@ -687,7 +693,7 @@
   .modal .text-link:active { color:rgba(255,255,255,.85); }
 
   /* ★ v94 排行榜（L1 本機個人榜 + L2 系統玩家幽靈榜） */
-  #leaderboardOverlay { z-index:1001; }
+  #leaderboardOverlay { z-index:1301; }
   #leaderboardOverlay .modal { max-width:380px; text-align:left; }
   #leaderboardOverlay h2 { text-align:center; margin-bottom:14px; }
   .lb-tabs { display:flex; gap:6px; margin-bottom:14px; }
@@ -717,7 +723,7 @@
   .iq-entry-arrow { font-size:22px; opacity:.7; }
 
   /* ★ v95 IQ 榜 overlay */
-  #iqOverlay { z-index:1002; }
+  #iqOverlay { z-index:1302; }
   #iqOverlay .modal { max-width:390px; text-align:left; }
   #iqOverlay h2 { text-align:center; margin-bottom:14px; }
   .iq-tabs { display:flex; gap:6px; margin-bottom:14px; }
@@ -756,7 +762,7 @@
     border-top:1px dashed rgba(255,255,255,.15); color:#ffd54f; }
 
   /* ★ v95 輝煌印記 */
-  #gloryOverlay { z-index:1002; }
+  #gloryOverlay { z-index:1302; }
   #gloryOverlay .modal { max-width:360px; }
   #gloryOverlay h2 { text-align:center; margin-bottom:14px; }
   .glory-empty { text-align:center; opacity:.6; padding:24px 0; font-size:14px; line-height:1.6; }
@@ -778,7 +784,7 @@
   .glory-pbrow small { opacity:.6; }
 
   /* ★ v20 強制過場廣告黑幕 */
-  .ad-veil { position:fixed; inset:0; background:#000; z-index:1200; display:flex; flex-direction:column;
+  .ad-veil { position:fixed; inset:0; background:#000; z-index:1400; display:flex; flex-direction:column;
     align-items:center; justify-content:center; gap:22px; opacity:0; pointer-events:none; transition:opacity .25s; }
   .ad-veil.show { opacity:1; pointer-events:auto; }
   .ad-veil-tag { position:absolute; top:16px; left:16px; background:rgba(255,255,255,.15); color:#fff;
@@ -858,13 +864,19 @@
      click 判定與 stopPropagation 時序不一致 —— 第一次點擊被 button 自己吃掉，
      要點兩次才開。移出來之後根本沒有冒泡可言，一次點擊必開。
      用負 margin 疊回卡片右下角，視覺位置不變。 */
-  .lvpick-btn { display:none; position:relative; z-index:4;
-    align-self:flex-end; margin:-46px 12px 14px 0;
-    background:rgba(0,0,0,.32); border:none; border-radius:10px;
+  /* ★ v105 定位修正：#menu 是全螢幕寬的 flex column，align-self:flex-end 會把按鈕
+     推到「螢幕」右緣而非「卡片」右緣（卡片 max-width:340px 置中）。
+     改用與卡片同寬的 row 容器對齊，按鈕才會落在卡片右下角。
+     row 本身 pointer-events:none，只有按鈕可點 —— 避免整條透明區攔截點擊。 */
+  .lvpick-row { display:none; width:100%; max-width:340px;
+    justify-content:flex-end; margin:-48px 0 16px 0;
+    position:relative; z-index:4; pointer-events:none; padding-right:12px; }
+  .lvpick-row.show { display:flex; }
+  .lvpick-btn { pointer-events:auto;
+    background:rgba(0,0,0,.34); border:none; border-radius:10px;
     color:rgba(255,255,255,.94); font-size:11.5px; font-weight:800;
     padding:6px 10px; cursor:pointer; -webkit-tap-highlight-color:transparent; }
-  .lvpick-btn.show { display:inline-block; }
-  .lvpick-btn:active { background:rgba(0,0,0,.5); transform:scale(.94); }
+  .lvpick-btn:active { background:rgba(0,0,0,.52); transform:scale(.94); }
 
   #resumeCard { display:none; width:100%; max-width:340px; margin-bottom:14px; }
   #resumeCard.show { display:block; }
@@ -1229,7 +1241,7 @@
       <div class="mc-desc" data-i18n="mode.gem.desc">收集不同顏色寶石使對應的花苗成長，全數花朵綻放進入下一關。</div>
     </span>
   </button>
-  <span class="lvpick-btn" id="gemLvPick" data-mode="gem" data-i18n="lvpick.btn">🏆 選關</span>
+  <div class="lvpick-row" id="gemLvPickRow"><span class="lvpick-btn" id="gemLvPick" data-mode="gem" data-i18n="lvpick.btn">🏆 選關</span></div>
 
   <button class="mode-card endless" data-mode="endless">
     <span class="emoji">♾️</span>
@@ -1247,7 +1259,7 @@
       <div class="mc-desc" data-i18n="mode.balloon.desc">氣球不講理的一路膨脹，消除方塊減緩膨脹，達成收集寶石數過關。</div>
     </span>
   </button>
-  <span class="lvpick-btn" id="balloonLvPick" data-mode="balloon" data-i18n="lvpick.btn">🏆 選關</span>
+  <div class="lvpick-row" id="balloonLvPickRow"><span class="lvpick-btn" id="balloonLvPick" data-mode="balloon" data-i18n="lvpick.btn">🏆 選關</span></div>
 
   <!-- ★ v95 極限 IQ 榜：主選單顯眼入口，副標顯示玩家目前配戴的稱號 -->
   <button class="iq-entry" id="iqEntryBtn">
@@ -1259,7 +1271,7 @@
     <span class="iq-entry-arrow">›</span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v104・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v105・繽紛樂</div>
 </div>
 
 <div id="app">
@@ -1714,7 +1726,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v104・繽紛樂',
+  'menu.footer':'v105・繽紛樂',
   /* ★ v103 選關系統 */
   'lvpick.btn':'🏆 選關', 'lvpick.title':'🏆 選擇關卡', 'lvpick.sub':'挑戰自己的紀錄',
   'lvpick.close':'關閉', 'lvpick.none':'—', 'win.replay':'🏆 再打一次這關',
@@ -1827,7 +1839,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v104 · Vivid Blast',
+  'menu.footer':'v105 · Vivid Blast',
   /* ★ v103 level picker */
   'lvpick.btn':'🏆 Levels', 'lvpick.title':'🏆 Select Level', 'lvpick.sub':'Beat your own record',
   'lvpick.close':'Close', 'lvpick.none':'—', 'win.replay':'🏆 Replay this level',
@@ -1938,7 +1950,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v104・ビビッドブラスト',
+  'menu.footer':'v105・ビビッドブラスト',
   /* ★ v103 レベル選択 */
   'lvpick.btn':'🏆 レベル選択', 'lvpick.title':'🏆 レベルを選ぶ', 'lvpick.sub':'自己記録に挑戦',
   'lvpick.close':'閉じる', 'lvpick.none':'—', 'win.replay':'🏆 このレベルをもう一度',
@@ -7966,8 +7978,8 @@ function refreshMenuBadges(){
   }
   // ★ v103 選關入口：至少打過 2 關才顯示（只有 1 關可選等於沒得選，白佔版面）
   {
-    const gp = document.getElementById('gemLvPick');
-    const bp = document.getElementById('balloonLvPick');
+    const gp = document.getElementById('gemLvPickRow');
+    const bp = document.getElementById('balloonLvPickRow');
     if(gp) gp.classList.toggle('show', maxLevelOf('gem')     >= 2);
     if(bp) bp.classList.toggle('show', maxLevelOf('balloon') >= 2);
   }
