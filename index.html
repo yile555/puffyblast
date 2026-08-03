@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v101</title>
-<meta property="og:title" content="繽紛樂 v101">
+<title>繽紛樂 v102</title>
+<meta property="og:title" content="繽紛樂 v102">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -115,6 +115,26 @@
   /* 每次加分的小跳動：輕巧不吵，讓分數「活」起來 */
   #bigScore .bs-num.bump { animation:bsBump .32s cubic-bezier(.34,1.56,.64,1); }
   @keyframes bsBump { 0%{transform:scale(1);} 45%{transform:scale(1.16);} 100%{transform:scale(1);} }
+  /* ★ v102 關卡別最佳分：對局中常駐在大分數正下方，玩家隨時知道離紀錄多遠。
+     刻意做小、做暗（12px / 55% 透明）—— 它是背景參照，不能跟主分數搶注意力。
+     超越紀錄的瞬間整行轉金並跳動，那一刻才允許它搶戲。 */
+  #lvBest { text-align:center; font-size:12px; font-weight:700; letter-spacing:.4px;
+    color:rgba(255,255,255,.55); margin-top:2px; min-height:15px;
+    pointer-events:none; user-select:none; font-variant-numeric:tabular-nums;
+    text-shadow:0 1px 2px rgba(0,0,0,.5); transition:color .25s; }
+  #lvBest.hidden { display:none; }
+  /* 已超越本關紀錄：轉金 + 一次性跳動。跟里程碑用不同動畫，避免兩者同時發生時視覺打架 */
+  #lvBest.beat { color:#ffd54f; text-shadow:0 1px 2px rgba(0,0,0,.55), 0 0 12px rgba(255,213,79,.55); }
+  #lvBest.pop { animation:lvBestPop .5s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes lvBestPop {
+    0%{transform:scale(1);} 40%{transform:scale(1.28);} 100%{transform:scale(1);} }
+
+  /* ★ v102 過關視窗的本關紀錄對比行 */
+  .win-lvbest { margin-top:10px; font-size:13.5px; font-weight:700; line-height:1.5;
+    color:rgba(255,255,255,.75); }
+  .win-lvbest.record { color:#ffd54f; text-shadow:0 0 14px rgba(255,213,79,.5);
+    animation:lvBestPop .6s cubic-bezier(.34,1.56,.64,1); }
+
   /* 里程碑達成：分數本身燒成金色、放大狂跳，比一般加分更盛大 */
   #bigScore .bs-num.milestone {
     background:linear-gradient(180deg,#fff6d5,#ffb300); -webkit-background-clip:text; background-clip:text;
@@ -1181,7 +1201,7 @@
     <span class="iq-entry-arrow">›</span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v101・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v102・繽紛樂</div>
 </div>
 
 <div id="app">
@@ -1237,6 +1257,9 @@
   <!-- ★ v54 頂部大分數：置於動物任務欄下方、棋盤上方，大字級置中當「本局成就感」主視覺。
        非計分模式（如某些機關關）自動隱藏；里程碑達成時整塊放大發光慶祝。 -->
   <div id="bigScore"><div class="bs-num" id="bigScoreVal">0</div></div>
+  <!-- ★ v102 本關最佳分：常駐顯示，玩家隨時看得到離紀錄多遠（總監定案：增加挑戰動機）。
+       無盡模式沒有關卡概念 → 由 updateLevelBestLine() 自動隱藏。 -->
+  <div id="lvBest" class="hidden"></div>
 
   <!-- ★ v14 中段：左側資訊欄（關卡/分數/最佳/提示，貼最左邊）+ 右側棋盤 -->
   <div id="playArea">
@@ -1277,6 +1300,8 @@
   <div class="modal">
     <h2 id="winTitle">🎉 過關！</h2>
     <p id="winText" data-i18n="win.textDefault">小動物都吃飽囉！</p>
+    <!-- ★ v102 本關紀錄對比：破紀錄時整行轉金並跳動 -->
+    <div class="win-lvbest" id="winLvBest" style="display:none"></div>
     <button class="big-btn" id="nextBtn" data-i18n="win.next">下一關 →</button>
     <button class="big-btn" id="winHomeBtn" style="background:rgba(255,255,255,.18);margin-top:10px;" data-i18n="win.home">回主選單</button>
   </div>
@@ -1616,7 +1641,13 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v101・繽紛樂',
+  'menu.footer':'v102・繽紛樂',
+  /* ★ v102 關卡別最佳分 */
+  'lvb.line':'本關最佳 {n}', 'lvb.beat':'🏆 已超越本關紀錄！',
+  'lvb.first':'首次挑戰本關',
+  'lvb.winNew':'🏆 本關新紀錄！{n} 分（前一次 {o}）',
+  'lvb.winFirst':'🏆 本關首次紀錄：{n} 分',
+  'lvb.winKeep':'本關最佳 {b} 分・這次 {n} 分',
   'menu.best':'最高 {n} 關',
   'menu.resume':'▶ 續玩 第 {n} 關',
   /* ★ v101 中局續玩卡片 */
@@ -1719,7 +1750,13 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v101 · Vivid Blast',
+  'menu.footer':'v102 · Vivid Blast',
+  /* ★ v102 per-level best score */
+  'lvb.line':'Level best {n}', 'lvb.beat':'🏆 New level best!',
+  'lvb.first':'First attempt at this level',
+  'lvb.winNew':'🏆 New level best: {n} (was {o})',
+  'lvb.winFirst':'🏆 First record for this level: {n}',
+  'lvb.winKeep':'Level best {b} · this run {n}',
   'menu.best':'Best: Lv {n}',
   'menu.resume':'▶ Resume Lv {n}',
   /* ★ v101 mid-run resume card */
@@ -1820,7 +1857,13 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v101・ビビッドブラスト',
+  'menu.footer':'v102・ビビッドブラスト',
+  /* ★ v102 レベル別ベストスコア */
+  'lvb.line':'このレベル最高 {n}', 'lvb.beat':'🏆 レベル記録更新中！',
+  'lvb.first':'このレベル初挑戦',
+  'lvb.winNew':'🏆 レベル新記録！{n} 点（前回 {o}）',
+  'lvb.winFirst':'🏆 このレベル初記録：{n} 点',
+  'lvb.winKeep':'レベル最高 {b} 点・今回 {n} 点',
   'menu.best':'ベスト：レベル {n}',
   'menu.resume':'▶ レベル {n} から再開',
   /* ★ v101 途中セーブの再開カード */
@@ -5960,6 +6003,7 @@ function updateStatus(){
     }
     checkScoreMilestone();
   }
+  updateLevelBestLine();   // ★ v102 本關最佳分行跟著分數同步（內含模式判斷，無盡模式會自動隱藏）
 }
 
 function showWin(){
@@ -5989,6 +6033,27 @@ function showWin(){
     document.getElementById('winTitle').textContent = T('win.balloonTitle');
     document.getElementById('winText').textContent = T('win.balloonText', {lv:level, s:score, n:ECON.winReward});
     document.getElementById('nextBtn').style.display='';
+  }
+  // ★ v102 關卡別最佳分結算：用「本關實得」而非累積總分（見 updateLevelBestLine 註解）
+  {
+    const box = document.getElementById('winLvBest');
+    if(box){
+      if(modeUsesLevelBest(currentMode)){
+        const runScore = score - levelStartScore;
+        const r = commitLevelBest(currentMode, level, runScore);
+        box.style.display = '';
+        box.classList.toggle('record', r.isRecord);
+        if(r.isRecord && r.prev > 0){
+          box.textContent = T('lvb.winNew', { n:r.now.toLocaleString(), o:r.prev.toLocaleString() });
+        } else if(r.isRecord){
+          box.textContent = T('lvb.winFirst', { n:r.now.toLocaleString() });
+        } else {
+          box.textContent = T('lvb.winKeep', { b:r.prev.toLocaleString(), n:r.now.toLocaleString() });
+        }
+      } else {
+        box.style.display = 'none';   // 無盡模式沒有關卡概念
+      }
+    }
   }
   saveGame();   // ★ v21 過關即存檔（最佳分/最高關落地）
   clearRun();   // ★ v101 這關已過 → 當局存檔作廢。玩家按「下一關」時 startLevel 會寫入新關卡的乾淨盤面；
@@ -7150,10 +7215,78 @@ const SAVE_KEY = 'puffyblast_save_v1';
 let maxLevelReached = 1;   // gem 模式歷史最高關（進度續玩用）
 let maxBalloonLevel = 1;   // ★ v33 氣球模式歷史最高關（獨立計算）
 
+/* ★ v102 關卡別最佳分（Level Best）
+   ─────────────────────────────────────────────
+   為什麼需要這個指標：
+   關卡數與累積總分本質上都是「時間的函數」——玩得夠久的人自然遙遙領先，
+   用它們排名等於用出席率排名。實測證實：同樣打到第 21 關的兩位玩家，
+   一口氣連打的拿 83,016 分，每關關 App 的碎片玩家只拿 5,979 分，
+   差距 13.9 倍，而兩人實力完全相同。
+
+   關卡別最佳分把「時間」這個變數整個消掉：同一關的難度完全一致，
+   分數直接可比。排隊等雞排只玩得了一關的人，也能在那一關認真爭名次。
+
+   結構：{ gem: { 7: 5204, 8: 4890 }, balloon: { ... } }
+   無盡模式沒有關卡概念，不參與（由 modeUsesLevelBest 統一判斷）。
+   容量：每關一個整數，百來關約 1KB，遠低於 localStorage 限額。 */
+let levelBest = { gem:{}, balloon:{} };
+
+/* 哪些模式適用關卡別最佳分。集中在這裡判斷，避免日後新增模式時
+   又要在四五個地方各補一次 if —— 「氣球不能續關」就是這樣漏掉的。 */
+function modeUsesLevelBest(m){ return m === 'gem' || m === 'balloon'; }
+
+function getLevelBest(mode, lv){
+  if(!modeUsesLevelBest(mode)) return 0;
+  const t = levelBest[mode];
+  return (t && t[lv]) ? t[lv] : 0;
+}
+
+/* 回傳 { isRecord, prev, now }。只在過關時呼叫一次，不在對局中反覆寫。 */
+function commitLevelBest(mode, lv, sc){
+  if(!modeUsesLevelBest(mode) || !(sc > 0)) return { isRecord:false, prev:0, now:sc };
+  if(!levelBest[mode]) levelBest[mode] = {};
+  const prev = levelBest[mode][lv] || 0;
+  if(sc > prev){ levelBest[mode][lv] = sc; return { isRecord:true, prev, now:sc }; }
+  return { isRecord:false, prev, now:sc };
+}
+
+/* 對局中常駐的「本關最佳」那一行。updateStatus 每次加分都會呼叫。
+   ★ 這裡刻意用「本關得分」而非「累積總分」比對 —— 關卡間分數是累加的，
+     拿累積分去比單關紀錄會永遠破紀錄，數字就沒有意義了。 */
+let _lvBestBeaten = false;   // 本關是否已超越紀錄（用來只跳一次動畫，不每次加分都跳）
+function updateLevelBestLine(){
+  const el = document.getElementById('lvBest');
+  if(!el) return;
+  if(!currentMode || !modeUsesLevelBest(currentMode)){
+    el.classList.add('hidden'); return;
+  }
+  el.classList.remove('hidden');
+  const best = getLevelBest(currentMode, level);
+  const cur  = score - levelStartScore;          // 本關實得，與紀錄同一把尺
+  if(best <= 0){
+    el.textContent = T('lvb.first');
+    el.classList.remove('beat');
+    return;
+  }
+  if(cur > best){
+    el.textContent = T('lvb.beat');
+    if(!_lvBestBeaten){                          // 只在「剛超越」的那一刻跳一次
+      _lvBestBeaten = true;
+      el.classList.add('beat');
+      el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+      haptic('light');
+    }
+  } else {
+    el.textContent = T('lvb.line', { n: best.toLocaleString() });
+    el.classList.remove('beat');
+  }
+}
+
 function saveGame(){
   try{
     const data = {
       bestScores, maxLevelReached, maxBalloonLevel, isPremium,   // ★ v64 D2 三本帳簿一起落地
+      levelBest,                     // ★ v102 關卡別最佳分（新增欄位，舊存檔沒有 → 讀檔端給預設值）
       lbData, lbMigratedV94: true,   // ★ v94 排行榜歷史前10 + 最高連消；migrate flag 防止每次載入重複清空舊分數
       iq: IQ.serialize(),            // ★ v95 極限 IQ 榜：週月結算時間戳 + 輝煌印記
       currentSkin, soundOn,
@@ -7195,6 +7328,18 @@ function loadGame(){
     if(d.iq) IQ.hydrate(d.iq);   // ★ v95 極限 IQ 榜狀態還原（放 lbData 還原之後，稱號結算需讀 lbData）
     if(typeof d.maxLevelReached==='number') maxLevelReached = Math.max(1, d.maxLevelReached);
     if(typeof d.maxBalloonLevel==='number') maxBalloonLevel = Math.max(1, d.maxBalloonLevel);
+    // ★ v102 關卡別最佳分：舊存檔沒有這個欄位 → 保持空物件，玩家的第一次過關就會建檔。
+    //   逐項驗型別，避免壞檔把 NaN/字串塞進來，之後 toLocaleString 會炸。
+    if(d.levelBest && typeof d.levelBest==='object'){
+      ['gem','balloon'].forEach(mk=>{
+        const src = d.levelBest[mk];
+        if(!src || typeof src!=='object') return;
+        Object.keys(src).forEach(lv=>{
+          const v = +src[lv];
+          if(Number.isFinite(v) && v > 0) levelBest[mk][lv] = Math.floor(v);
+        });
+      });
+    }
     if(typeof d.isPremium==='boolean')      isPremium = d.isPremium;
     /* ★ v92 皮膚存檔換血：舊存檔的 ownedSkins/seenSkins/skinFragments/rotateMode
        全部無視（碎片經濟已移除）。currentSkin 若指向已封存的材質（brick/wood…），
@@ -7522,6 +7667,7 @@ function startLevel(){
   adRevivesUsed = 0;        // ★ v36 免費救援每關重置（上限 ECON.adReviveCap 次）
   clearStreak = 0;          // ★ v49 連消每關重新起算
   lastMilestone = 0;        // ★ v54 分數里程碑每關重新起算
+  _lvBestBeaten = false;    // ★ v102 新關卡 = 新的紀錄挑戰，破紀錄動畫重新武裝
   lastPlacement = null;
   updateStreakBadge(false);
   cancelBombAim();          // ★ v36 換關收掉炸彈瞄準模式
