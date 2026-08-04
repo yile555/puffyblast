@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v105</title>
-<meta property="og:title" content="繽紛樂 v105">
+<title>繽紛樂 v106</title>
+<meta property="og:title" content="繽紛樂 v106">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -1271,7 +1271,7 @@
     <span class="iq-entry-arrow">›</span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v105・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v106・繽紛樂</div>
 </div>
 
 <div id="app">
@@ -1726,7 +1726,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v105・繽紛樂',
+  'menu.footer':'v106・繽紛樂',
   /* ★ v103 選關系統 */
   'lvpick.btn':'🏆 選關', 'lvpick.title':'🏆 選擇關卡', 'lvpick.sub':'挑戰自己的紀錄',
   'lvpick.close':'關閉', 'lvpick.none':'—', 'win.replay':'🏆 再打一次這關',
@@ -1839,7 +1839,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v105 · Vivid Blast',
+  'menu.footer':'v106 · Vivid Blast',
   /* ★ v103 level picker */
   'lvpick.btn':'🏆 Levels', 'lvpick.title':'🏆 Select Level', 'lvpick.sub':'Beat your own record',
   'lvpick.close':'Close', 'lvpick.none':'—', 'win.replay':'🏆 Replay this level',
@@ -1950,7 +1950,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v105・ビビッドブラスト',
+  'menu.footer':'v106・ビビッドブラスト',
   /* ★ v103 レベル選択 */
   'lvpick.btn':'🏆 レベル選択', 'lvpick.title':'🏆 レベルを選ぶ', 'lvpick.sub':'自己記録に挑戦',
   'lvpick.close':'閉じる', 'lvpick.none':'—', 'win.replay':'🏆 このレベルをもう一度',
@@ -2916,11 +2916,52 @@ let _actx = null;
    ② iOS 會把 context 打成 'interrupted' 狀態（非標準），一併處理
    ③ 每次使用者觸控都補一次 resume —— iOS 要求音訊解鎖必須發生在使用者手勢中，
       這是唯一保證能解鎖的時機（不能用 once，因為每次中斷後都要重新解鎖） */
+/* ★ v106 修復「接電話回來聲音全失」（v104 沒治到的另一種病）
+   ─────────────────────────────────────────────
+   v104 治好的是「切到背景」：context 進 suspended，resume() 叫得醒。
+   但 iOS 接電話是「系統音訊中斷」—— audio session 被系統從 App 手上收走，
+   通話結束後 WebKit 常常不還給網頁。此時 resume() 會「成功」回報 running，
+   但 currentTime 根本沒在走 —— 這是一顆會回話的屍體，音符照樣掉進黑洞。
+
+   所以只檢查 state 是不夠的：問「你醒了嗎」得到的答案，回答不了「你還活著嗎」。
+
+   B 案（心跳偵測 + 整顆重建）：
+   ① 先照舊 resume（一般背景切換零延遲，不付重建成本）
+   ② 250ms 後比對 currentTime 有沒有前進 —— 沒前進 = 屍體
+   ③ 屍體就 close() 掉、_actx=null，下次 actx() 自動生一顆全新的
+   ④ 重建綁在 pointerdown/touchstart —— iOS 只允許在使用者手勢中開音訊，
+      玩家滑回遊戲、手指碰到畫面的第一下就活了
+
+   能「整顆換掉」的前提：_adest（母帶總線）與 _noiseBufs（噪音冰箱）兩個快取
+   都是用 ctx 當 key 比對（if(_adest.ctx === ctx)），換新 context 會自動重建，
+   不需額外清理。這是舊版寫得好的地方。
+
+   ⚠ 這是網頁層的止血，不是永久解。Capacitor 打包後應改用原生 iOS
+     AVAudioSession 的中斷通知（interruption began/ended）來復原 ——
+     那才是系統官方支援的路徑，可靠且無重建延遲。打包時請回來處理這段。 */
+let _hbTimer = null;
+function _killAudio(){
+  const dead = _actx;
+  _actx = null;                      // 先斷開，任何後續 actx() 都會生新的
+  if(dead){ try{ dead.close(); }catch(e){} }
+}
+function _heartbeat(){
+  if(!_actx || _hbTimer) return;
+  const ctx = _actx, t0 = ctx.currentTime;
+  _hbTimer = setTimeout(()=>{
+    _hbTimer = null;
+    if(_actx !== ctx) return;        // 期間已被換掉，不管
+    // currentTime 沒前進 → 這顆 context 已死，換掉它
+    if(ctx.currentTime <= t0) _killAudio();
+  }, 250);
+}
 function _resumeAudio(){
   if(!_actx) return;
+  if(_actx.state === 'closed'){ _killAudio(); return; }
   if(_actx.state === 'suspended' || _actx.state === 'interrupted'){
     try{ const p = _actx.resume(); if(p && p.catch) p.catch(()=>{}); }catch(e){}
   }
+  _heartbeat();                      // 不論 state 回報什麼，都實測心跳
 }
 document.addEventListener('visibilitychange', ()=>{
   if(document.visibilityState === 'visible') _resumeAudio();
