@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v108d 診斷版</title>
-<meta property="og:title" content="繽紛樂 v108">
+<title>繽紛樂 v109</title>
+<meta property="og:title" content="繽紛樂 v109">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -1271,7 +1271,7 @@
     <span class="iq-entry-arrow">›</span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v108d 診斷版</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v109・繽紛樂</div>
 </div>
 
 <div id="app">
@@ -1726,7 +1726,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v108・繽紛樂',
+  'menu.footer':'v109・繽紛樂',
   /* ★ v103 選關系統 */
   'lvpick.btn':'🏆 選關', 'lvpick.title':'🏆 選擇關卡', 'lvpick.sub':'挑戰自己的紀錄',
   'lvpick.close':'關閉', 'lvpick.none':'—', 'win.replay':'🏆 再打一次這關',
@@ -1839,7 +1839,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v108 · Vivid Blast',
+  'menu.footer':'v109 · Vivid Blast',
   /* ★ v103 level picker */
   'lvpick.btn':'🏆 Levels', 'lvpick.title':'🏆 Select Level', 'lvpick.sub':'Beat your own record',
   'lvpick.close':'Close', 'lvpick.none':'—', 'win.replay':'🏆 Replay this level',
@@ -1950,7 +1950,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v108・ビビッドブラスト',
+  'menu.footer':'v109・ビビッドブラスト',
   /* ★ v103 レベル選択 */
   'lvpick.btn':'🏆 レベル選択', 'lvpick.title':'🏆 レベルを選ぶ', 'lvpick.sub':'自己記録に挑戦',
   'lvpick.close':'閉じる', 'lvpick.none':'—', 'win.replay':'🏆 このレベルをもう一度',
@@ -2987,9 +2987,8 @@ function _heartbeat(){
       if(Date.now() - _lastRebuild < 5000) return;  // 保險絲：不連環重建
       _lastRebuild = Date.now();
       _killAudio();
-      _ensureAudio();                         // 主動續命
       _unlocked = false;
-      _silentPing();                          // 新 context 也要實際拿回音訊裝置
+      _wakeAudio();                           // 新 context 是 suspended，必須走完整喚醒流程
     }, 300);
   }, 600);
 }
@@ -3003,42 +3002,79 @@ function _resumeAudio(){
   _heartbeat();
 }
 
-/* ★ v108 靜音緩衝解鎖（Howler.js 的標準解法，v104–v107 一直漏掉的關鍵一步）
+/* ★ v109 音訊喚醒（實機探針數據修正 —— v108 招式對、順序錯）
    ─────────────────────────────────────────────
-   resume() 只是「請求喚醒」，iOS 有時會答應卻不真的把音訊裝置交還給網頁 ——
-   這正是「state 回報 running 卻沒聲音」的成因。
-   真正能拿回音訊硬體的動作是：在使用者手勢中「實際播放一段空緩衝」。
-   Howler.js 十年來的預設行為就是這一招（touchend 時播空 buffer 靜默解鎖）。
+   ── 實機數據（iPhone，切到別的 App 再回遊戲）──
+     ctx: suspended t=76.52
+     PING [sus 76.52] / focus [sus 76.52] / vis:visible [sus 76.52]
+   v108 在 resume() 的「同一個 tick」就播空緩衝 —— 但那時 context 還是
+   suspended。對一顆還沒醒的 context 播空緩衝，等於對關機的喇叭喊話，
+   t 從頭到尾沒動。招式（Howler 的空緩衝解鎖）是對的，順序錯了。
 
-   本函式只播一個取樣點的無聲緩衝，聽不見、不干擾任何音效，
-   作用純粹是向系統宣告「我要用音訊裝置」。 */
+   ── 另一筆數據（放下第一塊沒聲音、第二塊才有）──
+     PING [run 94.24] → KILL [run 94.24] → NEW [sus 0.00] → PING [run 0.56]
+   心跳偵測確實抓到了屍體，但重建的時機正好撞上玩家第一次放方塊，
+   那一塊的音效掉進交接空隙。偵測沒錯，是動作太晚。
+
+   ── v109 三項修正 ──
+   ① 順序：resume() 完成之後才播空緩衝（resume().then(ping)）
+   ② 提前：回前景就立刻做健康檢查，把重建搬到玩家碰螢幕之前完成
+   ③ 重試：0 / 150 / 400ms 三次喚醒，涵蓋 iOS 的延遲抖動；
+           一旦 currentTime 開始前進就提前收工，不做多餘的事
+
+   ⚠ 這是網頁層的止血。Capacitor 打包後應改用原生 iOS AVAudioSession
+     的中斷通知（interruption began/ended）來復原 —— 那才是系統官方支援的
+     路徑，可靠且無交接空隙。打包時請回來處理這段。 */
 let _unlocked = false;
+
+/* 播一個取樣點的無聲緩衝：聽不見、不干擾任何音效，
+   作用純粹是向系統宣告「我要用音訊裝置」。
+   ⚠ 只有在 context 已經 running 時才有意義 —— 這正是 v108 的教訓。 */
 function _silentPing(){
   const c = _actx;
-  if(!c || c.state === 'closed') return;
+  if(!c || c.state !== 'running') return false;   // 沒醒就別喊，等 resume 完成
   try{
     const b = c.createBuffer(1, 1, c.sampleRate || 22050);
     const src = c.createBufferSource();
     src.buffer = b;
-    src.connect(c.destination);          // 直接進喇叭，不經母帶總線（越短越可靠）
+    src.connect(c.destination);        // 直接進喇叭，不經母帶總線（越短越可靠）
     if(src.start) src.start(0); else if(src.noteOn) src.noteOn(0);
     _unlocked = true;
-  }catch(e){}
+    return true;
+  }catch(e){ return false; }
 }
 
-/* 使用者手勢：確保有 context → resume → 實際播空緩衝拿回裝置。
-   不用 { once:true } —— 每次系統中斷後都要在新的手勢中重新解鎖。 */
-function _gestureUnlock(){
+/* 完整喚醒流程：確保有 context → resume →（等它真的醒了）→ 播空緩衝拿回裝置。
+   重試三次涵蓋 iOS 的延遲抖動；成功就提前收工。 */
+let _wakeSeq = 0;
+function _wakeAudio(){
   _ensureAudio();
-  _silentPing();
+  if(!_actx) return;
+  const myseq = ++_wakeSeq;            // 只有最新一輪有效，避免多重觸發疊加
+  const DELAYS = [0, 150, 400];
+  DELAYS.forEach(d=>{
+    setTimeout(()=>{
+      if(myseq !== _wakeSeq) return;   // 已被更新的一輪取代
+      const c = _actx;
+      if(!c || c.state === 'closed') return;
+      if(c.state === 'running'){ _silentPing(); return; }
+      try{
+        const p = c.resume();
+        if(p && p.then) p.then(()=>{ if(myseq === _wakeSeq) _silentPing(); }).catch(()=>{});
+        else _silentPing();            // 舊版瀏覽器 resume 不回傳 promise
+      }catch(e){}
+    }, d);
+  });
 }
+
+function _gestureUnlock(){ _wakeAudio(); }
 
 document.addEventListener('visibilitychange', ()=>{
   if(document.visibilityState === 'hidden'){
-    _unlocked = false;                   // 進背景就視為失去裝置，回來必須重新解鎖
+    _unlocked = false;                 // 進背景就視為失去裝置，回來必須重新解鎖
   }else{
-    _ensureAudio();
-    _silentPing();                       // 回前景先試一次；若被擋，下一次手勢會補上
+    _wakeAudio();
+    _heartbeat();                      // ★ 提前健康檢查：屍體要在玩家碰螢幕前就換掉
   }
 });
 window.addEventListener('focus',   _gestureUnlock);
@@ -3046,54 +3082,6 @@ window.addEventListener('pageshow', _gestureUnlock);
 window.addEventListener('pointerdown', _gestureUnlock, { passive:true });
 window.addEventListener('touchstart',  _gestureUnlock, { passive:true });
 window.addEventListener('touchend',    _gestureUnlock, { passive:true });  // Howler 用的正是 touchend
-
-/* ══════════ v108d 診斷探針（診斷版專用，正式版不含此段）══════════
-   只旁觀記錄，不改任何音訊行為。 */
-window.__AD = { log: [], born: 0, dead: 0, ping: 0, pingFail: 0, heard: 0 };
-(function(){
-  const AD = window.__AD;
-  const t = () => (performance.now()/1000).toFixed(1);
-  function push(tag, extra){
-    const c = _actx;
-    AD.log.push(t()+' '+tag+(extra?' '+extra:'')+' ['+(c? c.state.slice(0,3)+' '+c.currentTime.toFixed(2) : 'null')+']');
-    if(AD.log.length > 13) AD.log.shift();
-    render();
-  }
-  const _k=_killAudio, _e=_ensureAudio, _sp=_silentPing;
-  _killAudio   = function(){ AD.dead++; push('KILL'); return _k.apply(this,arguments); };
-  _ensureAudio = function(){ const had=!!_actx; const r=_e.apply(this,arguments); if(!had&&_actx){AD.born++;push('NEW');} return r; };
-  _silentPing  = function(){
-    const c=_actx; if(!c||c.state==='closed'){ AD.pingFail++; push('PING-skip'); return; }
-    let okp=true; try{ _sp.apply(this,arguments); }catch(e){ okp=false; }
-    if(okp){ AD.ping++; push('PING'); } else { AD.pingFail++; push('PING-FAIL'); }
-  };
-  document.addEventListener('visibilitychange', ()=> push('vis:'+document.visibilityState));
-  window.addEventListener('focus',   ()=> push('focus'));
-  window.addEventListener('blur',    ()=> push('blur'));
-  window.addEventListener('pageshow',e=> push('pageshow', e.persisted?'BFC':''));
-  window.addEventListener('pagehide',e=> push('pagehide', e.persisted?'BFC':''));
-
-  let box;
-  function render(){
-    if(!box) return;
-    const c=_actx;
-    box.innerHTML='<b>AUDIO PROBE v108d</b><br>'+
-      'ctx: '+(c? c.state+' t='+c.currentTime.toFixed(2) : '(null)')+'<br>'+
-      '生'+AD.born+' 殺'+AD.dead+' ping'+AD.ping+' 失敗'+AD.pingFail+'<br>'+
-      'unlocked: '+(typeof _unlocked!=='undefined'?_unlocked:'?')+
-      ' / sound: '+(typeof soundOn!=='undefined'?soundOn:'?')+'<br>'+
-      'UA: '+(/Line/i.test(navigator.userAgent)?'LINE內建':/CriOS/.test(navigator.userAgent)?'Chrome':'Safari/其他')+
-      '<hr style="margin:3px 0;border:0;border-top:1px solid #555">'+AD.log.join('<br>');
-  }
-  (function tick(){ render(); setTimeout(tick, 400); })();
-  document.addEventListener('DOMContentLoaded', ()=>{
-    box=document.createElement('div'); box.id='audioProbe';
-    box.style.cssText='position:fixed;left:4px;top:4px;z-index:99999;background:rgba(0,0,0,.85);'+
-      'color:#7fffd4;font:10px/1.35 monospace;padding:5px 7px;border-radius:6px;max-width:64vw;word-break:break-all';
-    box.addEventListener('click', ()=>{ box.style.opacity = box.style.opacity==='0.15'?'1':'0.15'; });
-    document.body.appendChild(box); push('start');
-  });
-})();
 
 function actx(){
   _audioBorn = true;                   // 從此刻起，手勢／回前景都可主動續命
