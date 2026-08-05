@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v108</title>
+<title>繽紛樂 v108d 診斷版</title>
 <meta property="og:title" content="繽紛樂 v108">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
@@ -1271,7 +1271,7 @@
     <span class="iq-entry-arrow">›</span>
   </button>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v108・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v108d 診斷版</div>
 </div>
 
 <div id="app">
@@ -3046,6 +3046,54 @@ window.addEventListener('pageshow', _gestureUnlock);
 window.addEventListener('pointerdown', _gestureUnlock, { passive:true });
 window.addEventListener('touchstart',  _gestureUnlock, { passive:true });
 window.addEventListener('touchend',    _gestureUnlock, { passive:true });  // Howler 用的正是 touchend
+
+/* ══════════ v108d 診斷探針（診斷版專用，正式版不含此段）══════════
+   只旁觀記錄，不改任何音訊行為。 */
+window.__AD = { log: [], born: 0, dead: 0, ping: 0, pingFail: 0, heard: 0 };
+(function(){
+  const AD = window.__AD;
+  const t = () => (performance.now()/1000).toFixed(1);
+  function push(tag, extra){
+    const c = _actx;
+    AD.log.push(t()+' '+tag+(extra?' '+extra:'')+' ['+(c? c.state.slice(0,3)+' '+c.currentTime.toFixed(2) : 'null')+']');
+    if(AD.log.length > 13) AD.log.shift();
+    render();
+  }
+  const _k=_killAudio, _e=_ensureAudio, _sp=_silentPing;
+  _killAudio   = function(){ AD.dead++; push('KILL'); return _k.apply(this,arguments); };
+  _ensureAudio = function(){ const had=!!_actx; const r=_e.apply(this,arguments); if(!had&&_actx){AD.born++;push('NEW');} return r; };
+  _silentPing  = function(){
+    const c=_actx; if(!c||c.state==='closed'){ AD.pingFail++; push('PING-skip'); return; }
+    let okp=true; try{ _sp.apply(this,arguments); }catch(e){ okp=false; }
+    if(okp){ AD.ping++; push('PING'); } else { AD.pingFail++; push('PING-FAIL'); }
+  };
+  document.addEventListener('visibilitychange', ()=> push('vis:'+document.visibilityState));
+  window.addEventListener('focus',   ()=> push('focus'));
+  window.addEventListener('blur',    ()=> push('blur'));
+  window.addEventListener('pageshow',e=> push('pageshow', e.persisted?'BFC':''));
+  window.addEventListener('pagehide',e=> push('pagehide', e.persisted?'BFC':''));
+
+  let box;
+  function render(){
+    if(!box) return;
+    const c=_actx;
+    box.innerHTML='<b>AUDIO PROBE v108d</b><br>'+
+      'ctx: '+(c? c.state+' t='+c.currentTime.toFixed(2) : '(null)')+'<br>'+
+      '生'+AD.born+' 殺'+AD.dead+' ping'+AD.ping+' 失敗'+AD.pingFail+'<br>'+
+      'unlocked: '+(typeof _unlocked!=='undefined'?_unlocked:'?')+
+      ' / sound: '+(typeof soundOn!=='undefined'?soundOn:'?')+'<br>'+
+      'UA: '+(/Line/i.test(navigator.userAgent)?'LINE內建':/CriOS/.test(navigator.userAgent)?'Chrome':'Safari/其他')+
+      '<hr style="margin:3px 0;border:0;border-top:1px solid #555">'+AD.log.join('<br>');
+  }
+  (function tick(){ render(); setTimeout(tick, 400); })();
+  document.addEventListener('DOMContentLoaded', ()=>{
+    box=document.createElement('div'); box.id='audioProbe';
+    box.style.cssText='position:fixed;left:4px;top:4px;z-index:99999;background:rgba(0,0,0,.85);'+
+      'color:#7fffd4;font:10px/1.35 monospace;padding:5px 7px;border-radius:6px;max-width:64vw;word-break:break-all';
+    box.addEventListener('click', ()=>{ box.style.opacity = box.style.opacity==='0.15'?'1':'0.15'; });
+    document.body.appendChild(box); push('start');
+  });
+})();
 
 function actx(){
   _audioBorn = true;                   // 從此刻起，手勢／回前景都可主動續命
