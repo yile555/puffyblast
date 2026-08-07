@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v115</title>
-<meta property="og:title" content="繽紛樂 v115">
+<title>繽紛樂 v116</title>
+<meta property="og:title" content="繽紛樂 v116">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -1336,7 +1336,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v115・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v116・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1803,7 +1803,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v115・繽紛樂',
+  'menu.footer':'v116・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1921,7 +1921,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v115 · Vivid Blast',
+  'menu.footer':'v116 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -2037,7 +2037,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v115・ビビッドブラスト',
+  'menu.footer':'v116・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -3141,6 +3141,26 @@ function _silentPing(){
   }catch(e){ return false; }
 }
 
+/* ★ v116 手勢內「同步」領裝置。
+   _silentPing() 要求 state==='running' 才動作，而 resume() 是非同步的 ——
+   於是 ping 永遠落在 setTimeout／then 裡，已經離開手勢的那個 tick，
+   iOS 不承認那是使用者手勢，拿不回音訊裝置（v115 失敗的真正原因）。
+   BufferSource.start() 在 suspended 的 context 上呼叫是合法的：節點會排隊，
+   context 一醒就播；而「start() 發生在手勢同一個 tick」才是 iOS 認帳的條件。
+   所以另開一支不檢查 state 的同步版本，只給手勢路徑用。 */
+function _silentPingSync(){
+  const c = _actx;
+  if(!c || c.state === 'closed') return false;
+  try{
+    const b = c.createBuffer(1, 1, c.sampleRate || 22050);
+    const src = c.createBufferSource();
+    src.buffer = b;
+    src.connect(c.destination);
+    if(src.start) src.start(0); else if(src.noteOn) src.noteOn(0);
+    return true;
+  }catch(e){ return false; }
+}
+
 /* 完整喚醒流程：確保有 context → resume →（等它真的醒了）→ 播空緩衝拿回裝置。
    重試三次涵蓋 iOS 的延遲抖動；成功就提前收工。 */
 let _wakeSeq = 0;
@@ -3180,6 +3200,7 @@ function _wakeAudio(force){
    若回前景後音訊本來就活著（桌機／Android 多數情況），700ms 的抽查會撤掉旗標，
    不做無謂重建。完全不碰音效合成邏輯，也不碰 v111 的冷啟動解鎖路徑。 */
 let _needRebirth = false;
+let _hiddenAt = -1;       // ★ v116 進背景那一刻的 currentTime（殭屍判定基準）
 
 /* 使用者手勢 → force 建立。這是唯一能拿到 iOS 音訊裝置的時機，不能放過。 */
 function _gestureUnlock(){
@@ -3187,18 +3208,37 @@ function _gestureUnlock(){
     _needRebirth = false;
     _killAudio();                      // 殭屍就地火化，下一行在同一個手勢裡重建
   }
-  _wakeAudio(true);
   _audioBorn = true;
+  /* ★ v116 順序改成「同步優先」：先在手勢的同一個 tick 內把 context 生出來、
+     resume()、並立刻 start() 一顆空緩衝把裝置領回來；非同步的重試留在後面當後備。 */
+  _ensureAudio(true);
+  _silentPingSync();
+  _unlocked = true;
+  _wakeAudio(true);
 }
 
 document.addEventListener('visibilitychange', ()=>{
   if(document.visibilityState === 'hidden'){
     _unlocked = false;                 // 進背景就視為失去裝置，回來必須重新解鎖
+    // ★ v116 記下進背景時的 currentTime：回來若時間一動也沒動，就是殭屍
+    _hiddenAt = _actx ? _actx.currentTime : -1;
   }else{
-    if(_audioBorn) _needRebirth = true;   // ★ v115 沒啟用過音訊的人不必重生
+    /* ★ v116 重建「提前到回前景當下」（總監 20260807 實機：v115 之後回來第一下仍無聲）。
+       v115 只立旗標、把火化＋重建推遲到第一次觸控 —— 玩家的第一下手勢整個花在
+       重建上，那一下的音效掉進交接空隙，第二下才有聲。這正是「要去碰別的鍵才活」。
+       改成回前景就地換一顆新鮮 context，玩家碰螢幕時手上已經是活的；
+       手勢那一下只剩「領裝置」一件事（_silentPingSync），聲音不再遲到一拍。 */
+    if(_audioBorn){
+      const dead = _actx;
+      const zombie = !dead || dead.state === 'closed' ||
+                     (dead.state === 'running' && dead.currentTime === _hiddenAt);
+      if(zombie || _isIOS){ _killAudio(); _unlocked = false; }
+      _needRebirth = true;               // 手勢仍會補一次同步領裝置（重建過就只是 ping）
+    }
     _wakeAudio();
     _heartbeat();                      // ★ 提前健康檢查：屍體要在玩家碰螢幕前就換掉
-    // ★ v115 抽查：時間真的有走 → 這台裝置回前景後音訊本來就好的，撤掉旗標
+    /* 抽查：時間真的有走 → 這台裝置回前景後音訊本來就好的（桌機／多數 Android），
+       撤掉旗標，下一次手勢不做無謂的火化。 */
     if(_actx){
       const c = _actx, t0 = c.currentTime;
       setTimeout(()=>{
@@ -3238,6 +3278,10 @@ function actx(){
   _audioBorn = true;                   // 從此刻起，手勢／回前景都可主動續命
   if(!_actx){ try{ _actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ _actx=null; } }
   _resumeAudio();
+  /* ★ v116 補聲保險：音效呼叫時 context 若還沒醒（回前景的頭幾百毫秒），
+     順手同步 start() 一顆空緩衝再認領一次裝置。suspended 期間 currentTime 是凍結的，
+     resume 後從凍結點續走，所以這一聲的排程不會落在過去、不會被丟掉。 */
+  if(_actx && _actx.state !== 'running') _silentPingSync();
   return _actx;
 }
 /* ★ v50 母帶總線：所有合成音先過「柔化壓縮器」再出喇叭 ——
@@ -9061,9 +9105,11 @@ function buildMenuSVG(padMul){
               + ' C 70 34.5, 57.5 34.5, 50 50 C 42.5 65.5, 30 65.5, 30 50 Z';
       const lay = (w, col)=> _v112el('path', { d:D, fill:'none', stroke:col,
         'stroke-width':w, 'stroke-linecap':'round', 'stroke-linejoin':'round' });
-      nested.appendChild(lay(15.5, '#ffffff'));   // 白紙底
-      nested.appendChild(lay(10.5, '#3f6fd8'));   // 實色藍本體
-      nested.appendChild(lay(3.6,  '#a8c8f2'));   // 受光高光
+      /* ★ v116 白紙底拿掉（總監 20260807 實機：白邊）。白紙底是為「實心色塊」
+         隔離背景而設計的；∞ 是線條圖，白底必須比線條粗才蓋得住 →
+         溢出的部分就直接變成外框白邊。⏰🏆 同為實心不透明圖案也沒有白底，
+         ∞ 比照辦理：單層實色藍，opacity 全程不動，跨瀏覽器同色不受影響。 */
+      nested.appendChild(lay(11.5, '#3f6fd8'));   // 實色藍本體（總監定案：乙）
       o.ico = nested;
     } else {
       /* emoji 一律 text-anchor:middle 對到方格中心 ——
@@ -9117,8 +9163,12 @@ function buildMenuSVG(padMul){
   const txtX   = startX + icw + GAP;
 
   made.forEach(o=>{
-    if(o.r.kind === 'gemPile') o.ico.setAttribute('x', startX);
-    else                       o.ico.setAttribute('x', startX + icw/2);
+    /* ★ v116 巢狀 <svg> 的 x 是「左緣」，<text> 的 x 是「中心」（text-anchor:middle）。
+       v115 新增的 ∞ 也是巢狀 <svg>，卻掉進 else 分支被當成 text 處理 →
+       整顆右移半格（icw/2＝18），黏在 ENDLESS 文字上、與上下兩列不同軸
+       （總監 20260807 實機截圖）。判斷條件補上 infinity。 */
+    if(o.r.kind === 'gemPile' || o.r.kind === 'infinity') o.ico.setAttribute('x', startX);
+    else                                                  o.ico.setAttribute('x', startX + icw/2);
     /* ★ v113 抖動軸心寫死成該圖示的實際中心（user unit）。
        原本靠 transform-box:fill-box + transform-origin:center —— iOS Safari 對 SVG
        <text> 的 fill-box 支援不穩，會退回 view-box，旋轉軸變成整張 SVG 的中心，
