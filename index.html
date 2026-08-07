@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v114</title>
-<meta property="og:title" content="繽紛樂 v114">
+<title>繽紛樂 v115</title>
+<meta property="og:title" content="繽紛樂 v115">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -1336,7 +1336,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v114・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v115・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1803,7 +1803,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v114・繽紛樂',
+  'menu.footer':'v115・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1921,7 +1921,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v114 · Vivid Blast',
+  'menu.footer':'v115 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -2037,7 +2037,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v114・ビビッドブラスト',
+  'menu.footer':'v115・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -3164,15 +3164,47 @@ function _wakeAudio(force){
   });
 }
 
+/* ★ v115 回前景重生旗標（總監 20260807 實測：玩一半離開再回來就沒聲，
+   要刻意去點功能鍵才活過來）。
+   ─────────────────────────────────────────────
+   v111 修的是「冷啟動」解鎖，這是另一種病：App 切背景時 iOS 收走音訊裝置，
+   回前景後 context 常常變成「殭屍」—— state 自稱 running，但 currentTime 不前進。
+   舊鏈條的死結是「重生」與「手勢」永遠錯開：
+     ① 回前景 _wakeAudio() 看到 state==='running' → 只補靜音 ping，不重建 → 仍無聲
+     ② 玩家拖方塊 → _gestureUnlock → _wakeAudio(true) → 一樣看到 running → 一樣不重建
+     ③ 心跳 900ms 後才判死重建，但那一刻手上沒有使用者手勢
+        → 新 context 是 suspended 且拿不到 iOS 音訊裝置 → 還是無聲
+     ④ 玩家再碰一次按鈕，這次 context 已重建、又剛好在手勢裡 → 才終於有聲
+   解法：把「重生」搬到手勢的同一個 tick。回前景只記旗標，
+   下一次任何使用者手勢先 _killAudio() 再 force 喚醒 —— 建立與領裝置一次完成。
+   若回前景後音訊本來就活著（桌機／Android 多數情況），700ms 的抽查會撤掉旗標，
+   不做無謂重建。完全不碰音效合成邏輯，也不碰 v111 的冷啟動解鎖路徑。 */
+let _needRebirth = false;
+
 /* 使用者手勢 → force 建立。這是唯一能拿到 iOS 音訊裝置的時機，不能放過。 */
-function _gestureUnlock(){ _wakeAudio(true); _audioBorn = true; }
+function _gestureUnlock(){
+  if(_needRebirth){
+    _needRebirth = false;
+    _killAudio();                      // 殭屍就地火化，下一行在同一個手勢裡重建
+  }
+  _wakeAudio(true);
+  _audioBorn = true;
+}
 
 document.addEventListener('visibilitychange', ()=>{
   if(document.visibilityState === 'hidden'){
     _unlocked = false;                 // 進背景就視為失去裝置，回來必須重新解鎖
   }else{
+    if(_audioBorn) _needRebirth = true;   // ★ v115 沒啟用過音訊的人不必重生
     _wakeAudio();
     _heartbeat();                      // ★ 提前健康檢查：屍體要在玩家碰螢幕前就換掉
+    // ★ v115 抽查：時間真的有走 → 這台裝置回前景後音訊本來就好的，撤掉旗標
+    if(_actx){
+      const c = _actx, t0 = c.currentTime;
+      setTimeout(()=>{
+        if(_actx === c && c.state === 'running' && c.currentTime > t0) _needRebirth = false;
+      }, 700);
+    }
   }
 });
 /* focus / pageshow 不是真正的使用者手勢 —— 走保守路徑，不主動建立 context，
@@ -8924,7 +8956,7 @@ const V112 = {
 const V112_ROWS = [
   { id:'gem',  mode:'gem',     kind:'gemPile', name:'COLLECT',
     c:[[38,190,172],[0,120,108],[0,96,88]] },
-  { id:'end',  mode:'endless', kind:'emoji', ico:'\u267E\uFE0F', name:'ENDLESS',
+  { id:'end',  mode:'endless', kind:'infinity', name:'ENDLESS',
     c:[[104,120,214],[52,66,166],[40,52,140]] },
   { id:'tim',  mode:'balloon', kind:'emoji', ico:'\u23F0', name:'TIMED', shake:true,
     c:[[120,150,240],[140,96,224],[206,64,150]] },
@@ -8959,7 +8991,6 @@ function _v112measure(node, size, ls){
    （總監 20260807 實測：圖二比圖一更貼）。解法是把 topPad 先除以 k 再畫，
    縮完之後在螢幕上的「LOGO 底 → 第一列」距離就與未縮放時完全相同。
    收尾處自行遞迴一次並用 _v112PadLock 上鎖，保證最多重畫一輪。 */
-let _v112PadLock = false;
 function buildMenuSVG(padMul){
   const host = document.getElementById('menuSvgHost');
   if(!host) return;
@@ -9013,6 +9044,26 @@ function buildMenuSVG(padMul){
         const src = tmp.querySelector('svg');
         while(src && src.firstChild) nested.appendChild(src.firstChild);
       }catch(e){}
+      o.ico = nested;
+    } else if(r.kind === 'infinity'){
+      /* ★ v115 ∞ 從系統 emoji（U+267E FE0F）收回來自己畫。
+         emoji 是「跟字型借的字符」：拿不到輪廓，就沒辦法照寶石那套白紙底處理，
+         而且彩色字符各家支援不同 —— LINE 內建瀏覽器吃得到彩色版顯示藍色，
+         Safari 退回單色字形變灰（總監 20260807 實機對照）。借來的東西控制不住。
+         改自繪路徑後就跟寶石同一套規矩：
+           下層＝不透明白色實底（白紙底，把顏色與彩虹背景隔開）
+           上層＝預先算好的實色藍，禁用 opacity<1
+           再上＝更細的淺藍高光，做出圓管受光面
+         這樣它壓在背景的哪一段彩虹上，都是同一顆藍。 */
+      const nested = _v112el('svg', { x:0, y:cy - icw/2,
+                                      width:icw, height:icw, viewBox:'0 0 100 100' });
+      const D = 'M 30 50 C 30 34.5, 42.5 34.5, 50 50 C 57.5 65.5, 70 65.5, 70 50'
+              + ' C 70 34.5, 57.5 34.5, 50 50 C 42.5 65.5, 30 65.5, 30 50 Z';
+      const lay = (w, col)=> _v112el('path', { d:D, fill:'none', stroke:col,
+        'stroke-width':w, 'stroke-linecap':'round', 'stroke-linejoin':'round' });
+      nested.appendChild(lay(15.5, '#ffffff'));   // 白紙底
+      nested.appendChild(lay(10.5, '#3f6fd8'));   // 實色藍本體
+      nested.appendChild(lay(3.6,  '#a8c8f2'));   // 受光高光
       o.ico = nested;
     } else {
       /* emoji 一律 text-anchor:middle 對到方格中心 ——
@@ -9110,11 +9161,25 @@ function buildMenuSVG(padMul){
       const k = avail / shown;
       svg.style.width  = (k * 100) + '%';
       svg.style.margin = '0 auto';
-      // ★ v114 反向補償：用 1/k 放大 topPad 後重畫一次，讓縮放後的上緣間距回到原值
-      if(!_v112PadLock && k > 0.35 && Math.abs(PADM - 1/k) > 0.01){
-        _v112PadLock = true;
-        try{ buildMenuSVG(1 / k); } finally { _v112PadLock = false; }
-        return;
+      /* ★ v115 反向補償改「解析解」（v114 的單輪迭代在寬視窗發散，選項被推到右下角）。
+         推導：縮放後 SVG 高度＝可視高 avail，令 s = avail × VBW / hostW
+         （可視高度換算成 user unit）。要讓縮放後螢幕上的上緣留白等於未縮放時的 P，
+         需 topPad × k = P，而 k = s / VBH、VBH = topPad + rowsH，聯立得
+             VBH = rowsH × s / (s − P)
+         成立前提是 s > P —— 可視高度至少放得下 LOGO。寬視窗（背景圖 100% 寬被拉伸、
+         LOGO 底緣直接超出可視區）時 s ≤ P，方程無解：畫面上根本沒位置放選項。
+         此時完全不補償、退回 v113 行為，不硬算 —— 硬算就是 v114 破版的成因。
+         桌面寬視窗要真正修好得換一張 16:9 的桌面版背景圖（另案）。 */
+      if(PADM === 1){
+        const hostW = host.clientWidth || 0;
+        const rowsH = rowH * V112_ROWS.length + 34;
+        const P     = VBW * V112.LOGO_RATIO + V112.SAFE;
+        const sUnit = hostW > 0 ? (avail * VBW / hostW) : 0;
+        if(sUnit > P * 1.02){
+          const wantVBH = rowsH * sUnit / (sUnit - P);
+          const mul = (wantVBH - rowsH) / P;
+          if(mul > 1.01 && mul < 4){ buildMenuSVG(mul); return; }
+        }
       }
     } else {
       svg.style.width = ''; svg.style.margin = '';
