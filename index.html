@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v120</title>
-<meta property="og:title" content="繽紛樂 v120">
+<title>繽紛樂 v121</title>
+<meta property="og:title" content="繽紛樂 v121">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -222,12 +222,12 @@
   #goals[data-n="4"] { gap:4px; padding:13px 62px 9px 62px; }
   #goals[data-n="4"] .goal  { max-width:76px; padding:6px 6px 5px; }
   #goals[data-n="4"] .gicon { max-width:62px; border-radius:14px; }
-  #goals[data-n="4"] .gtext { font-size:18px; padding:2px 4px; --gw:1.35px; }   /* ★ v120 輪廓同比例縮放（字級 7.5%） */
+  #goals[data-n="4"] .gtext { font-size:24px; padding:2px 4px; --gw:1.8px; }   /* ★ v121 18→24px；輪廓同比例縮放（字級 7.5%） */
 
   #goals[data-n="5"] { gap:1px; padding:12px 64px 8px 64px; }   /* ★ v65 ① 左側讓開按鈕柱；★ v79 再收緊給寶石外溢留空間 */
   #goals[data-n="5"] .goal  { max-width:66px; padding:4px; border-radius:16px; }
   #goals[data-n="5"] .gicon { max-width:58px; border-radius:13px; }
-  #goals[data-n="5"] .gtext { font-size:16px; padding:2px 3px; --gw:1.2px; }   /* ★ v120 輪廓同比例縮放；border-radius 隨白底牌一起退場 */
+  #goals[data-n="5"] .gtext { font-size:21px; padding:2px 3px; --gw:1.58px; }   /* ★ v121 16→21px；輪廓同比例縮放 */
   #goals[data-n="5"] .goal-check { right:-2px; bottom:-1px; font-size:14px; }
 
   .goal { background:transparent; border-radius:20px; padding:8px 14px 6px; display:flex;
@@ -274,7 +274,7 @@
      ⚠ 只導出明度階，色相一度都不轉 —— 哪個盆對應哪色，數字仍然自己講清楚。
      ⚠ 全程實色，無 opacity<1；白描邊仍全面禁用（輪廓是同色系深色）。
      ⚠ 輪廓粗細 --gw 固定為字級的 7.5%，三種盆數同比例縮放，避免小字被啃掉字腔。 */
-  .goal .gtext { font-size:20px; font-weight:900; --gw:1.5px;
+  .goal .gtext { font-size:26px; font-weight:900; --gw:1.95px;   /* ★ v121 字級 20→26px（總監 20260808：「還是感覺字太小」）。輪廓維持字級 7.5%。 */
     background:transparent; padding:2px 4px; color:var(--gt,#ffffff);
     text-shadow:
       var(--gw) 0 0 var(--go), calc(var(--gw) * -1) 0 0 var(--go),
@@ -1372,7 +1372,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v120・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v121・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1839,7 +1839,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v120・繽紛樂',
+  'menu.footer':'v121・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1957,7 +1957,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v120 · Vivid Blast',
+  'menu.footer':'v121 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -2073,7 +2073,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v120・ビビッドブラスト',
+  'menu.footer':'v121・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -2794,19 +2794,36 @@ function _hsl2rgb(h,s,l){
   const p = 2*l-q;
   return [hue(p,q,h+1/3)*255, hue(p,q,h)*255, hue(p,q,h-1/3)*255];
 }
-/* ★ v120 任務數字的兩階導出（只服務 .gtext，不觸碰任何寶石渲染路徑）。
-   與 gemVivid 的差別是「絕對」而非「相對」：gemVivid 走 l+lAdd，起點高的顏色
-   加完還是高（鑽石 L64 減 26 只到 L38，在莫蘭迪灰上仍然糊）。這裡直接把明度
-   鎖成定值，七色不管原本多亮多暗，出來一律同一階 —— 這樣對比才是可保證的，
-   而不是「大部分情況下應該夠」。飽和度只設上限不放大，避免高飽和色轉亮階後刺眼。 */
-function _gtTone(hex, L, sCap){
+/* ★ v121 任務數字兩階導出（只服務 .gtext，不觸碰任何寶石渲染路徑）。
+   ── v120 的兩個錯誤（總監 20260808 實機）──
+   ① 「粉粉的、不夠亮麗」：v120 把飽和度設「上限 78%」，等於只會扣不會加。
+      鑽石本身 S 只有 40%，拉到亮階 L72 後直接變成嬰兒藍。高明度 + 低飽和 = 粉彩，
+      這是 HSL 的幾何必然，不是調得不夠準。v121 反過來設「下限 92%」：
+      飽和度只補不扣，暗階顏色轉亮之後才不會被稀釋成粉色。
+   ② 「藍色淡到跟水晶藍沒兩樣」：這是 v120 最實質的傷害。
+      鑽石 H206、藍寶石 H214 —— 色相只差 8 度，它們本來就分不出來；
+      原本能分辨全靠明度（鑽石 L64 淺、藍寶石 L33 深）。v120 把七色明度
+      全部鎖成同一個 72%，等於親手把唯一的辨識資訊刪掉。
+      v121 改成「壓縮而非鎖死」：原始明度 0.27~0.64 等比映射到 0.54~0.78。
+      順序完全保留，鑽石與藍寶石仍差 20 個明度階，一眼分得開；
+      同時整段band 抬高到 54% 以上，深桌的對比照樣有。
+   ⚠ 色相仍然一度都不轉 —— 哪個盆對哪色，數字自己講清楚。
+   ⚠ 全程實色，無 opacity<1；輪廓是同色系深色，白描邊仍全面禁用。 */
+const GT_L0 = 0.27, GT_L1 = 0.64;    // 七顆 gemColor 的原始明度範圍
+const GT_B0 = 0.54, GT_B1 = 0.78;    // 本體映射後的明度帶（下緣越低越濃豔）
+function _gtBody(hex){
   const [r,g,b]=_hex2rgb(hex);
-  const [h,s]=_rgb2hsl(r,g,b);
-  const [R,G,B]=_hsl2rgb(h, Math.min(s, sCap), L);
+  const [h,s,l]=_rgb2hsl(r,g,b);
+  const t = Math.max(0, Math.min(1, (l - GT_L0) / (GT_L1 - GT_L0)));
+  const [R,G,B]=_hsl2rgb(h, Math.max(s, 0.92), GT_B0 + t * (GT_B1 - GT_B0));
   return _rgb2hex(R,G,B);
 }
-function _gtBody(hex){ return _gtTone(hex, 0.72, 0.78); }   // 亮階本體：深桌靠它
-function _gtRim (hex){ return _gtTone(hex, 0.20, 0.85); }   // 暗階輪廓：淺桌靠它
+function _gtRim(hex){
+  const [r,g,b]=_hex2rgb(hex);
+  const [h,s]=_rgb2hsl(r,g,b);
+  const [R,G,B]=_hsl2rgb(h, Math.min(Math.max(s, 0.75), 0.95), 0.20);
+  return _rgb2hex(R,G,B);
+}
 
 function gemVivid(hex, sMul, lAdd){
   const [r,g,b]=_hex2rgb(hex);
@@ -9098,10 +9115,11 @@ function buildMenuSVG(padMul){
          KS/KW = 1.226 即為線條在螢幕上實際加粗的倍率（略粗一階，圓管感保留）。
          v117 在調整台定案的兩個色值一個字都沒動。 */
       /* ★ v120 線寬方案甲（總監 20260807 實機：「圖示大小 OK，線條再稍微粗一點」）。
-         KW 1.55 → 1.42，螢幕線寬 3.09px → 3.37px（+9%）。放大倍率 KS 不動，
+         ★ v121 總監 20260808 實機改判方案乙：KW 1.42 → 1.30，
+         螢幕線寬 3.37px → 3.68px（較 v119 +19%），圈心留空 6.6px。放大倍率 KS 不動，
          所以圖示的外框尺寸與版面對齊完全不受影響，只有筆畫變實。
          再往上（KW 1.20）兩個圈的留空會收到 5.7px，開始糊成實心 8 —— 那是天花板。 */
-      const KS = 1.90, KW = 1.42;
+      const KS = 1.90, KW = 1.30;
       const lay = (w, col, dy)=> _v112el('path', { d:D, fill:'none', stroke:col,
         'stroke-width':(w/KW), 'stroke-linecap':'round', 'stroke-linejoin':'round',
         transform: dy ? ('translate(0 '+dy+')') : '' });
