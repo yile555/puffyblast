@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v112</title>
-<meta property="og:title" content="繽紛樂 v112">
+<title>繽紛樂 v113</title>
+<meta property="og:title" content="繽紛樂 v113">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -1208,7 +1208,11 @@
      既有的 refreshMenuBadges / refreshResumeCard / wireResumeCard
      全部照常運作，不必動它們，降低回歸風險。
      ============================================================ */
-  #menu.v112 { justify-content:flex-start; padding:0; overflow-y:auto;
+  /* ★ v113 鎖死不可捲。背景圖是 background-position:top center 的固定底，
+     前景 SVG 一旦能滑就必定脫離背景，選項會壓到 LOGO 上（總監 20260807 實測）。
+     改為 overflow:hidden，SVG 高度以可視區為上限等比縮小（見 buildMenuSVG 收尾）。
+     矮機型上四列會小一點 —— 這是版面該吞的代價，換來背景與前景永遠對齊。 */
+  #menu.v112 { justify-content:flex-start; padding:0; overflow:hidden;
     background-image:var(--menuBg); background-size:100% auto;
     background-position:top center; background-repeat:no-repeat;
     background-color:#736396; }
@@ -1224,8 +1228,9 @@
   #menuSvgHost .v112hit { cursor:pointer; }
   #menuSvgHost .v112hit:active { opacity:.7; }
   @keyframes v112shk { 0%,100%{transform:rotate(-10deg)} 50%{transform:rotate(10deg)} }
-  #menuSvgHost .v112shake { animation:v112shk .15s infinite;
-    transform-origin:center; transform-box:fill-box; }
+  /* ★ v113 軸心不在此指定：改由 buildMenuSVG() 以 user unit 座標寫進 style，
+     避免 iOS Safari 的 transform-box:fill-box 在 <text> 上退回 view-box 造成公轉 */
+  #menuSvgHost .v112shake { animation:v112shk .15s infinite; }
 
   /* 開局選項視窗 */
   #startOpt { position:fixed; inset:0; z-index:1310; display:none;
@@ -1327,7 +1332,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v112・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v113・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1794,7 +1799,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v112・繽紛樂',
+  'menu.footer':'v113・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1912,7 +1917,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v112 · Vivid Blast',
+  'menu.footer':'v113 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -2028,7 +2033,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v112・ビビッドブラスト',
+  'menu.footer':'v113・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -5774,6 +5779,7 @@ function makeBalancedTrio(){
    自動退回全量重建，行為與舊版一致。 */
 let _traySlots = null;                 // 3 個常駐槽位 DOM
 let _trayKeys  = ['\u0000','\u0000','\u0000'];
+let _trayRetry = false;   // ★ v113 零尺寸重試旗標（見 renderTray）
 function _trayPieceKey(p, sw, sh){
   if(p.used) return 'U';
   return p.color + '|' + p.rows + 'x' + p.cols + '|' +
@@ -5785,6 +5791,19 @@ function renderTray(){
   // 槽內可用空間（扣一點內距，牌不貼邊）
   const SLOT_W = tray.clientWidth/3 - 16;
   const SLOT_H = tray.clientHeight - 16;
+  /* ★ v113 零尺寸守門：還原對局／剛切換畫面時，#tray 可能尚未完成排版，
+     clientWidth/Height 讀到 0 → SLOT 變負值 → scale 為負，牌畫不出來，
+     而且這個壞尺寸會被寫進 _trayKeys 指紋快取，之後每一次 renderTray 都
+     「指紋沒變」直接跳過 → 托盤永久空白，點任何地方都救不回來
+     （總監 20260807 實測：托盤方塊消失且不會自己回來）。
+     量到非法尺寸就完全不動 DOM、不寫快取，等下一幀排版完成再畫。 */
+  if(!(SLOT_W > 0) || !(SLOT_H > 0)){
+    if(!_trayRetry){
+      _trayRetry = true;
+      requestAnimationFrame(()=>{ _trayRetry = false; renderTray(); });
+    }
+    return;
+  }
   const PS = 26;   // 預覽用固定小格；真正大小由 scale 決定 → 大小牌視覺趨於一致
   // 骨架不存在／被外力清空 → 重建三個常駐槽位
   if(!_traySlots || tray.childElementCount !== 3 || tray.firstElementChild !== _traySlots[0]){
@@ -7989,6 +8008,7 @@ function resumeRun(){
     }
   }
   trayPieces = d.tray.map(_desPiece).filter(Boolean);
+  _trayKeys = ['\u0000','\u0000','\u0000'];   // ★ v113 還原對局＝整組換牌，指紋快取一律作廢，不容許任何一槽被「指紋沒變」跳過
 
   // 進對局畫面
   document.getElementById('menu').classList.add('hidden');
@@ -8371,6 +8391,13 @@ function closeGear(){
 }
 document.getElementById('gearBtn').onclick = (e)=>{
   e.stopPropagation();
+  /* ★ v113 歸位保險：不管節點被哪條路徑帶走（語言視窗、商店、未來新彈窗），
+     對局內按齒輪一律先把它拉回 .gear-wrap。單一防線不夠，這是第二道。 */
+  {
+    const gm = document.getElementById('gearMenu');
+    const gw = document.querySelector('.gear-wrap');
+    if(gw && gm.parentElement !== gw) gw.appendChild(gm);
+  }
   const open = document.getElementById('gearMenu').classList.contains('show');
   open ? closeGear() : openGear();
 };
@@ -8483,7 +8510,14 @@ function renderLangList(){
 }
 
 function openLangMenu(){
-  document.getElementById('gearMenu').classList.remove('show');   // 先收起齒輪選單，避免疊窗
+  /* ★ v113 這裡原本只移除 .show，沒有走 closeGear() —— 三個副作用一次爆掉：
+     ① #gearMenu 是「同一顆節點在選單頁/對局頁之間搬家」的設計，只有 closeGear()
+        會把它搬回 .gear-wrap。從主選單齒輪點進語言視窗，節點就永遠卡在 #menu 裡，
+        進對局後 #menu 隱藏 → 齒輪選單跟著隱形，按齒輪只剩暫停毛玻璃。
+     ② #gearBackdrop 的 .show 沒被移除 → 一層透明全屏層一直蓋在遊戲上。
+     ③ HZ.paused 停在 true，氣球凍結。
+     （總監 20260807 實測：換語言後齒輪異常）改為完整關閉流程。 */
+  closeGear();
   renderLangList();
   document.getElementById('langOverlay').classList.add('show');
 }
@@ -8655,6 +8689,8 @@ _bombBoardEl.addEventListener('pointercancel', ()=>{
 });
 
 window.addEventListener('resize', ()=>{
+  // ★ v113 選單頁改為「一屏鎖死」，可視高度變了就得重算縮放比，否則轉向後版面失準
+  if(!currentMode){ if(typeof buildMenuSVG === 'function') buildMenuSVG(); return; }
   if(!currentMode) return;              // ★ v18 還在開場選單就別重繪，避免 board 未建立時崩潰
   calcCellSize(); renderBoard(); renderTray();
 });
@@ -9010,6 +9046,15 @@ function buildMenuSVG(){
   made.forEach(o=>{
     if(o.r.kind === 'gemPile') o.ico.setAttribute('x', startX);
     else                       o.ico.setAttribute('x', startX + icw/2);
+    /* ★ v113 抖動軸心寫死成該圖示的實際中心（user unit）。
+       原本靠 transform-box:fill-box + transform-origin:center —— iOS Safari 對 SVG
+       <text> 的 fill-box 支援不穩，會退回 view-box，旋轉軸變成整張 SVG 的中心，
+       時鐘不是原地震動而是繞著畫面公轉（總監 20260807 實機錄影確認；桌機正常）。
+       軸心由座標算出來，就不留給瀏覽器推斷的餘地。 */
+    if(o.r.shake){
+      o.ico.style.transformBox = 'view-box';
+      o.ico.style.transformOrigin = (startX + icw/2) + 'px ' + o.cy + 'px';
+    }
     o.name.setAttribute('x', txtX);
     if(o.sub)   o.sub.setAttribute('x', txtX);
     if(o.arrow) o.arrow.setAttribute('x', startX + groupW - arrowW + 3);
@@ -9031,6 +9076,22 @@ function buildMenuSVG(){
     });
     hitLayer.appendChild(hit);
   });
+
+  /* ★ v113 一屏約束：SVG 預設 width:100% / height:auto，內容高於可視區就會撐出捲軸。
+     量到超出就把寬度按比例收，讓 SVG 高度剛好等於可視高度。等比縮放，
+     不改 viewBox、不動任何座標計算，對齊邏輯完全不受影響。 */
+  const menuEl = document.getElementById('menu');
+  const avail  = (menuEl && menuEl.clientHeight) || 0;
+  if(avail > 0){
+    const shown = svg.getBoundingClientRect().height || (host.clientWidth * VBH / VBW);
+    if(shown > avail){
+      const k = avail / shown;
+      svg.style.width  = (k * 100) + '%';
+      svg.style.margin = '0 auto';
+    } else {
+      svg.style.width = ''; svg.style.margin = '';
+    }
+  }
 }
 
 /* 寶石堆圖示：沿用 v99 既有的產生器，不重造 */
