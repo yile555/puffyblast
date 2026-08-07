@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v116</title>
-<meta property="og:title" content="繽紛樂 v116">
+<title>繽紛樂 v117</title>
+<meta property="og:title" content="繽紛樂 v117">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -1336,7 +1336,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v116・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v117・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1803,7 +1803,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v116・繽紛樂',
+  'menu.footer':'v117・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1921,7 +1921,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v116 · Vivid Blast',
+  'menu.footer':'v117 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -2037,7 +2037,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v116・ビビッドブラスト',
+  'menu.footer':'v117・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -3043,6 +3043,31 @@ let _hbTimer = null;      // 心跳偵測進行中的 timer（避免重複排程
 let _lastRebuild = 0;     // 上次重建時間戳（保險絲用）
 let _audioBorn = false;   // 音訊是否曾被啟用過（沒用過就不該無故 new context）
 
+/* ★ v117 音訊探針（預設完全關閉，只有網址帶 ?dbg=1 才存在）
+   ─────────────────────────────────────────────
+   這是第五次修同一個病，而前四次都是靠推理 —— 推理已經錯過一次
+   （把 currentTime 前進當成健康指標）。留一支可召喚的探針，下次若再復發，
+   實機錄一段畫面就能直接看到 context 世代／state／時間／解鎖狀態，
+   不必再猜。正式玩家看不到、不建立任何 DOM、不耗一絲效能。 */
+const _AUDBG = (function(){ try{ return /[?&]dbg=1/.test(location.search); }catch(e){ return false; } })();
+let _audDbgEl = null, _audGen = 0;
+function _audioProbe(tag){
+  if(!_AUDBG) return;
+  if(!_audDbgEl){
+    _audDbgEl = document.createElement('div');
+    _audDbgEl.style.cssText = 'position:fixed;left:4px;bottom:4px;z-index:99999;'
+      + 'font:10px/1.35 ui-monospace,monospace;color:#9fe;background:rgba(0,0,0,.72);'
+      + 'padding:4px 6px;border-radius:6px;max-width:82vw;pointer-events:none;white-space:pre-wrap;';
+    (document.body || document.documentElement).appendChild(_audDbgEl);
+  }
+  const c = _actx;
+  _audDbgEl.textContent =
+    'gen#' + _audGen + '  ' + (c ? c.state : 'null')
+    + '  t=' + (c ? c.currentTime.toFixed(2) : '-')
+    + '\nunlocked=' + _unlocked + '  rebirth=' + _needRebirth + '  iOS=' + (typeof _isIOS!=='undefined' ? _isIOS : '?')
+    + '\n' + tag;
+}
+
 function _killAudio(){
   const dead = _actx;
   _actx = null;                        // 先斷開，任何後續 actx() 都會生新的
@@ -3060,8 +3085,9 @@ function _ensureAudio(force){
      自動喚醒（回前景）仍維持保守，不主動建立。 */
   if(!_audioBorn && !force) return null;
   if(!_actx){
-    try{ _actx = new (window.AudioContext||window.webkitAudioContext)(); }
+    try{ _actx = new (window.AudioContext||window.webkitAudioContext)(); _audGen++; }
     catch(e){ _actx = null; return null; }
+    _audioProbe('NEW ctx (force=' + !!force + ')');
   }
   _resumeAudio();
   return _actx;
@@ -3136,7 +3162,11 @@ function _silentPing(){
     src.buffer = b;
     src.connect(c.destination);        // 直接進喇叭，不經母帶總線（越短越可靠）
     if(src.start) src.start(0); else if(src.noteOn) src.noteOn(0);
-    _unlocked = true;
+    /* ★ v117 iOS 上「非手勢的 ping」不得認證解鎖。
+       心跳偵測若在無手勢時重建 context 並 ping 成功，會把一顆拿不到裝置的
+       幽靈標記成 _unlocked=true，_gestureUnlock 的新判斷就再也不會火化它 ——
+       等於把剛修好的漏洞從另一頭鑿開。iOS 的解鎖認證只由使用者手勢發出。 */
+    if(!_isIOS) _unlocked = true;
     return true;
   }catch(e){ return false; }
 }
@@ -3204,7 +3234,12 @@ let _hiddenAt = -1;       // ★ v116 進背景那一刻的 currentTime（殭屍
 
 /* 使用者手勢 → force 建立。這是唯一能拿到 iOS 音訊裝置的時機，不能放過。 */
 function _gestureUnlock(){
-  if(_needRebirth){
+  /* ★ v117 iOS 的判斷條件從「旗標」改成「手上這顆是不是在手勢裡生的」。
+     旗標會被抽查誤撤（v116 的死因）；而「_unlocked === false」代表這顆 context
+     從來沒有在使用者手勢內領過裝置 —— 那就是幽靈，不管它 state 多健康。
+     火化與重建落在同一個 tick，iOS 才認這張手勢門票。 */
+  const needKill = _isIOS ? (_needRebirth || !_unlocked) : _needRebirth;
+  if(needKill){
     _needRebirth = false;
     _killAudio();                      // 殭屍就地火化，下一行在同一個手勢裡重建
   }
@@ -3212,9 +3247,10 @@ function _gestureUnlock(){
   /* ★ v116 順序改成「同步優先」：先在手勢的同一個 tick 內把 context 生出來、
      resume()、並立刻 start() 一顆空緩衝把裝置領回來；非同步的重試留在後面當後備。 */
   _ensureAudio(true);
-  _silentPingSync();
+  const ok = _silentPingSync();
   _unlocked = true;
   _wakeAudio(true);
+  _audioProbe('GESTURE unlock (kill=' + needKill + ', ping=' + ok + ')');
 }
 
 document.addEventListener('visibilitychange', ()=>{
@@ -3222,28 +3258,55 @@ document.addEventListener('visibilitychange', ()=>{
     _unlocked = false;                 // 進背景就視為失去裝置，回來必須重新解鎖
     // ★ v116 記下進背景時的 currentTime：回來若時間一動也沒動，就是殭屍
     _hiddenAt = _actx ? _actx.currentTime : -1;
+    _audioProbe('vis:hidden');
   }else{
     /* ★ v116 重建「提前到回前景當下」（總監 20260807 實機：v115 之後回來第一下仍無聲）。
        v115 只立旗標、把火化＋重建推遲到第一次觸控 —— 玩家的第一下手勢整個花在
        重建上，那一下的音效掉進交接空隙，第二下才有聲。這正是「要去碰別的鍵才活」。
        改成回前景就地換一顆新鮮 context，玩家碰螢幕時手上已經是活的；
        手勢那一下只剩「領裝置」一件事（_silentPingSync），聲音不再遲到一拍。 */
+    /* ★ v117 病灶修正（總監 20260807 實機：v116 反覆 3～4 次仍全程無聲）
+       ─────────────────────────────────────────────
+       v116 這段有兩行在互打，形成一條每次都走得通的死亡路徑：
+
+         ① _killAudio()      → 殺掉舊 context
+         ② _wakeAudio()      → 下一行「立刻」又生一顆新的（此時沒有使用者手勢）
+         ③ 這顆幽靈 resume() 後 currentTime 是會前進的 —— 它在跑，只是 iOS
+            從沒把音訊裝置發給它（非手勢誕生的 context 拿不到裝置）
+         ④ 700ms 抽查看到「時間有走」→ 判定健康 → _needRebirth = false
+         ⑤ 玩家切回來看一眼畫面再拖方塊，這段間隔幾乎必定 > 0.7 秒
+         ⑥ 手勢到達時旗標已被撤掉 → 不火化 → _ensureAudio(true) 看到 _actx
+            存在就只 resume → _silentPingSync() 打在幽靈身上 → 無聲
+
+       根本錯誤在假設：v116 把「currentTime 前進」當成健康指標。在 iOS 上這
+       只證明 context 在跑，不證明它握有音訊裝置。抽查用了一把量錯東西的尺，
+       於是每一次都親手把唯一的救命旗標撤掉。
+
+       三項修正：
+         ① 回前景殺掉之後「空著」，不預先重建 —— 把誕生完整留給手勢那個 tick
+         ② iOS 取消抽查撤旗；_needRebirth 只能由手勢清除（旗標可以錯，手勢不會錯）
+         ③ 桌機／Android 維持原抽查（它們的 context 回前景本來就是好的，
+            無謂火化只會製造交接空隙） */
     if(_audioBorn){
       const dead = _actx;
       const zombie = !dead || dead.state === 'closed' ||
                      (dead.state === 'running' && dead.currentTime === _hiddenAt);
       if(zombie || _isIOS){ _killAudio(); _unlocked = false; }
-      _needRebirth = true;               // 手勢仍會補一次同步領裝置（重建過就只是 ping）
+      _needRebirth = true;
     }
-    _wakeAudio();
-    _heartbeat();                      // ★ 提前健康檢查：屍體要在玩家碰螢幕前就換掉
-    /* 抽查：時間真的有走 → 這台裝置回前景後音訊本來就好的（桌機／多數 Android），
-       撤掉旗標，下一次手勢不做無謂的火化。 */
-    if(_actx){
-      const c = _actx, t0 = c.currentTime;
-      setTimeout(()=>{
-        if(_actx === c && c.state === 'running' && c.currentTime > t0) _needRebirth = false;
-      }, 700);
+    if(_isIOS){
+      /* iOS：什麼都不做。沒有 context 就是正確狀態 —— 下一次觸控會在同一個
+         tick 內完成「建立 → resume → 領裝置」，中間沒有幽靈佔位的餘地。 */
+      _audioProbe('vis:visible(iOS, 留白等手勢)');
+    }else{
+      _wakeAudio();
+      _heartbeat();
+      if(_actx){
+        const c = _actx, t0 = c.currentTime;
+        setTimeout(()=>{
+          if(_actx === c && c.state === 'running' && c.currentTime > t0) _needRebirth = false;
+        }, 700);
+      }
     }
   }
 });
@@ -9000,8 +9063,9 @@ const V112 = {
 const V112_ROWS = [
   { id:'gem',  mode:'gem',     kind:'gemPile', name:'COLLECT',
     c:[[38,190,172],[0,120,108],[0,96,88]] },
+  /* ★ v117 色值＝v116 原值 ×1.40 後夾在 255（總監調整台定案）；aMul 為該列專屬濃度係數 */
   { id:'end',  mode:'endless', kind:'infinity', name:'ENDLESS',
-    c:[[104,120,214],[52,66,166],[40,52,140]] },
+    c:[[146,168,255],[73,92,232],[56,73,196]], aMul:0.84 },
   { id:'tim',  mode:'balloon', kind:'emoji', ico:'\u23F0', name:'TIMED', shake:true,
     c:[[120,150,240],[140,96,224],[206,64,150]] },
   { id:'hall', mode:'__iq__',  kind:'emoji', ico:'\uD83C\uDFC6', name:'VIVID RANK',
@@ -9060,9 +9124,15 @@ function buildMenuSVG(padMul){
     V112.STOPS.forEach(st=>{
       const pos = st[0], mul = st[1];
       const ci = pos < 0.4 ? 0 : (pos < 0.8 ? 1 : 2);
+      /* ★ v117 單列濃度 override（總監 20260807 調整台定案）。
+         ENDLESS 的色團與它的 ∞ 同屬藍系，藍壓藍先天對比低 —— 圖案「看起來暗」
+         有一半的成因在底，不在圖案本身。故此列色團提亮 40%、濃度降到 84%：
+         底退一步，藍色的 ∞ 才浮得起來。
+         ⚠ 只讀該列自己的 aMul，全域 V112.ALPHA 一個數字都不動，其餘三列不受影響。 */
+      const aMul = (typeof r.aMul === 'number') ? r.aMul : 1;
       g.appendChild(_v112el('stop', { offset:(pos*100)+'%',
         'stop-color':'rgb('+r.c[ci][0]+','+r.c[ci][1]+','+r.c[ci][2]+')',
-        'stop-opacity':(V112.ALPHA[ci]*mul).toFixed(3) }));
+        'stop-opacity':Math.min(1, V112.ALPHA[ci]*mul*aMul).toFixed(3) }));
     });
     defs.appendChild(g);
   });
@@ -9103,13 +9173,22 @@ function buildMenuSVG(padMul){
                                       width:icw, height:icw, viewBox:'0 0 100 100' });
       const D = 'M 30 50 C 30 34.5, 42.5 34.5, 50 50 C 57.5 65.5, 70 65.5, 70 50'
               + ' C 70 34.5, 57.5 34.5, 50 50 C 42.5 65.5, 30 65.5, 30 50 Z';
-      const lay = (w, col)=> _v112el('path', { d:D, fill:'none', stroke:col,
-        'stroke-width':w, 'stroke-linecap':'round', 'stroke-linejoin':'round' });
+      /* ★ v117 lay() 增加第三個參數 dy（垂直位移，user unit）。純新增，
+         省略時行為與 v116 完全一致 —— 高光層需要往上偏一點才像受光面。 */
+      const lay = (w, col, dy)=> _v112el('path', { d:D, fill:'none', stroke:col,
+        'stroke-width':w, 'stroke-linecap':'round', 'stroke-linejoin':'round',
+        transform: dy ? ('translate(0 '+dy+')') : '' });
       /* ★ v116 白紙底拿掉（總監 20260807 實機：白邊）。白紙底是為「實心色塊」
          隔離背景而設計的；∞ 是線條圖，白底必須比線條粗才蓋得住 →
          溢出的部分就直接變成外框白邊。⏰🏆 同為實心不透明圖案也沒有白底，
-         ∞ 比照辦理：單層實色藍，opacity 全程不動，跨瀏覽器同色不受影響。 */
-      nested.appendChild(lay(11.5, '#3f6fd8'));   // 實色藍本體（總監定案：乙）
+         ∞ 比照辦理：實色藍，opacity 全程不動，跨瀏覽器同色不受影響。 */
+      /* ★ v117 深淺定案（總監於「ENDLESS 深淺調整台」實測，H222 S100 L69）：
+         v116 的 #3f6fd8 / 11.5 太粗太沉。改細線高明度 —— 線條變細後單位面積的
+         深色減少，同一顆藍在視覺上就亮一階；再疊一層更淡的藍當受光面，
+         讓它從「一條藍線」變成「一根藍色圓管」。
+         兩層都是預先算好的實色 HEX，opacity 一律不碰。 */
+      nested.appendChild(lay(7,   '#6190ff'));        // 實色本體
+      nested.appendChild(lay(1.5, '#92aff2', -1.5));  // 高光層（上緣受光面）
       o.ico = nested;
     } else {
       /* emoji 一律 text-anchor:middle 對到方格中心 ——
