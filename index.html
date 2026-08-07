@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v113</title>
-<meta property="og:title" content="繽紛樂 v113">
+<title>繽紛樂 v114</title>
+<meta property="og:title" content="繽紛樂 v114">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -1220,9 +1220,13 @@
   #menu.v112 #resumeCard, #menu.v112 .mode-card,
   #menu.v112 .lvpick-row, #menu.v112 .iq-entry { display:none !important; }
   #menu.v112 #menuDm { top:18px; right:66px; }
-  #menu.v112 .footer-note { position:absolute; left:0; right:0; bottom:10px;
-    margin:0; text-align:center; font-size:11px; opacity:.45;
-    text-shadow:0 1px 3px rgba(0,0,0,.6); }
+  /* ★ v114 版本字（總監定案：丙）—— 從正下方置中移到右下角。
+     滿版彩色背景吃掉細小低對比文字是必然，正中央又剛好落在最亮的寶石堆上。
+     右下角是全圖最暗的一塊，配上加重的黑色投影就讀得到；同時退出視覺中軸，
+     不與四列選項搶注意力。白色描邊仍禁用，一律走 text-shadow。 */
+  #menu.v112 .footer-note { position:absolute; left:auto; right:12px; bottom:10px;
+    margin:0; text-align:right; font-size:11px; opacity:.75;
+    text-shadow:0 1px 2px rgba(0,0,0,.9), 0 0 6px rgba(0,0,0,.75); }
   #menuSvgHost { width:100%; }
   #menuSvgHost svg.v112menu { display:block; width:100%; height:auto; }
   #menuSvgHost .v112hit { cursor:pointer; }
@@ -1332,7 +1336,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v113・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v114・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1799,7 +1803,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v113・繽紛樂',
+  'menu.footer':'v114・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1917,7 +1921,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v113 · Vivid Blast',
+  'menu.footer':'v114 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -2033,7 +2037,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v113・ビビッドブラスト',
+  'menu.footer':'v114・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -6293,11 +6297,17 @@ function afterMove(){
   if(checkWin()){ const ep=gameEpoch; setTimeout(()=>{ if(ep===gameEpoch) showWin(); }, 300); return; }
   // ★ v101 中局存檔主力：每手結算完就落地。系統回收 App 不會發任何事件，
   //   生命週期監聽補不到，只有「每手都寫」才真的救得回來。
-  saveRun();
   // 三塊都用完 → 補新的一組
   if(trayPieces.every(p=>p.used)){ refillTray(); }
   // 失敗判定：剩餘方塊都放不下（盤面塞死）—— 公平、靠實力，不靠步數運氣
   else if(!anyPlaceable()){ const ep=gameEpoch; setTimeout(()=>{ if(ep===gameEpoch) showLose(); }, 300); }
+  /* ★ v114 存檔必須「晚於」補牌（總監 20260807 實測「續玩托盤全空」的根因）。
+     舊順序是先 saveRun() 再 refillTray()：玩家放下的若是第三張（最後一張）牌，
+     存檔記下的托盤就是「三張全 used」，補的新牌沒被寫進去。還原時 renderTray()
+     對 used 的牌一律畫空槽 → 三格全空；而 refillTray 只掛在 afterMove，玩家
+     沒牌可放就永遠觸發不到 → 反覆進出都救不回來，只有改按「開始」才正常。
+     把寫檔移到補牌之後，存下的永遠是「玩家看得到的那個托盤」。 */
+  saveRun();
 }
 
 /* ============================================================
@@ -8043,6 +8053,11 @@ function resumeRun(){
     HZ.inflated = HZ.total * ratio;   // ★ 地雷② 用當下螢幕的 total 換算回來
   }
 
+  /* ★ v114 壞檔保底：v113 之前寫出的存檔可能整組托盤都是 used（見 afterMove 註解）。
+     玩家的舊存檔不該被判死刑 —— 還原後發現無牌可用就當場補一組，
+     等同於「上一手剛好用完第三張」的正常續局，不清資料、不擋卡片。 */
+  if(trayPieces.length !== 3 || trayPieces.every(p=>p.used)) refillTray();
+
   restSchedule();                  // ★ v98 續玩＝新的一局，休息提醒重新排定
   saveRun();                       // 立刻回寫一次，確保存檔與當下狀態同步
   return true;
@@ -8892,7 +8907,7 @@ acquireWakeLock();
 const V112 = {
   NS: 'http://www.w3.org/2000/svg',
   VBW: 340,          // 畫布寬；背景圖也是 100% 寬，兩者比例永遠鎖住
-  LOGO_RATIO: 0.51,  // LOGO 在背景圖裡佔掉的高度比例
+  LOGO_RATIO: 0.57,  // ★ v114 校到真實 LOGO 底緣（0.51 低估了「繽紛樂」的發光暈）
   SAFE: 66,          // 第一列與遊戲名的安全距離（總監定案：很遠）
   ROW_GAP: 6,        // 四列一律等距（總監定案：密）
   ICW: 36,           // 圖示方格寬（總監定案：大）
@@ -8939,15 +8954,22 @@ function _v112measure(node, size, ls){
   return v;
 }
 
-function buildMenuSVG(){
+/* ★ v114 padMul：一屏約束把整張 SVG 等比縮小 k 倍時，SAFE 也跟著縮，
+   但背景圖是 background-size:100% auto 不縮 —— 螢幕越矮，選項越貼 LOGO
+   （總監 20260807 實測：圖二比圖一更貼）。解法是把 topPad 先除以 k 再畫，
+   縮完之後在螢幕上的「LOGO 底 → 第一列」距離就與未縮放時完全相同。
+   收尾處自行遞迴一次並用 _v112PadLock 上鎖，保證最多重畫一輪。 */
+let _v112PadLock = false;
+function buildMenuSVG(padMul){
   const host = document.getElementById('menuSvgHost');
   if(!host) return;
   host.innerHTML = '';
+  const PADM = (typeof padMul === 'number' && padMul > 0) ? padMul : 1;
 
   const { VBW, ICW:icw, FS:fs, GAP, BLOB } = V112;
   const subFs  = Math.round(fs * V112.SUB_RATIO * 10) / 10;
   const rowH   = Math.max(icw, fs * 1.35) + V112.ROW_GAP;
-  const topPad = VBW * V112.LOGO_RATIO + V112.SAFE;
+  const topPad = (VBW * V112.LOGO_RATIO + V112.SAFE) * PADM;
   const VBH    = topPad + rowH * V112_ROWS.length + 34;
 
   const svg = _v112el('svg', { class:'v112menu', viewBox:'0 0 '+VBW+' '+VBH,
@@ -9088,6 +9110,12 @@ function buildMenuSVG(){
       const k = avail / shown;
       svg.style.width  = (k * 100) + '%';
       svg.style.margin = '0 auto';
+      // ★ v114 反向補償：用 1/k 放大 topPad 後重畫一次，讓縮放後的上緣間距回到原值
+      if(!_v112PadLock && k > 0.35 && Math.abs(PADM - 1/k) > 0.01){
+        _v112PadLock = true;
+        try{ buildMenuSVG(1 / k); } finally { _v112PadLock = false; }
+        return;
+      }
     } else {
       svg.style.width = ''; svg.style.margin = '';
     }
