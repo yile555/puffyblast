@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v119</title>
-<meta property="og:title" content="繽紛樂 v119">
+<title>繽紛樂 v120</title>
+<meta property="og:title" content="繽紛樂 v120">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -222,12 +222,12 @@
   #goals[data-n="4"] { gap:4px; padding:13px 62px 9px 62px; }
   #goals[data-n="4"] .goal  { max-width:76px; padding:6px 6px 5px; }
   #goals[data-n="4"] .gicon { max-width:62px; border-radius:14px; }
-  #goals[data-n="4"] .gtext { font-size:18px; padding:2px 7px; }
+  #goals[data-n="4"] .gtext { font-size:18px; padding:2px 4px; --gw:1.35px; }   /* ★ v120 輪廓同比例縮放（字級 7.5%） */
 
   #goals[data-n="5"] { gap:1px; padding:12px 64px 8px 64px; }   /* ★ v65 ① 左側讓開按鈕柱；★ v79 再收緊給寶石外溢留空間 */
   #goals[data-n="5"] .goal  { max-width:66px; padding:4px; border-radius:16px; }
   #goals[data-n="5"] .gicon { max-width:58px; border-radius:13px; }
-  #goals[data-n="5"] .gtext { font-size:16px; padding:2px 5px; border-radius:9px; }
+  #goals[data-n="5"] .gtext { font-size:16px; padding:2px 3px; --gw:1.2px; }   /* ★ v120 輪廓同比例縮放；border-radius 隨白底牌一起退場 */
   #goals[data-n="5"] .goal-check { right:-2px; bottom:-1px; font-size:14px; }
 
   .goal { background:transparent; border-radius:20px; padding:8px 14px 6px; display:flex;
@@ -250,21 +250,39 @@
         泛白、像貼紙，與盤面格格不入，已否決；此處留下記錄避免重蹈。）
      ④ 達標時整個 .gtext 不渲染（見 renderGoals）：計量器數到 0 就功成身退，
         完成的訊息交給綻放的花朵，不留一個多餘的「0」跟花搶話。 */
-  /* ★ v119 白紙底（總監 20260807 定案：「讓數字不透明，就不會被其他顏色混搭」）。
-     v89 的「gemColor 原值直取 + 黑色 text-shadow」是在深藍桌 --bg:#2b3a67（L29%）
-     上定案的。材質皮膚走 pickMorandiBoardBg() 之後桌面換成莫蘭迪系（L66%），
-     七色數字對桌面的對比全數掉到 3:1 以下，鑽石 #7fa8c8 更只剩 1.03:1 ——
-     等於隱形（總監實機截圖：那個「8」）。黑描邊在淺底上還是幫倒忙，它讓字往下沉。
-     解法沿用寶石那套「白紙底」：底下墊一層不透明實色，把數字的顏色與桌面隔開。
-       ① 底牌色 = GEMS[x].color（既有的淡方塊色資料源，不新造顏色、不調色）
-       ② 數字色 = GEMS[x].gemColor 原值直取，v89 的規矩完全不動
-       ③ 底牌是實色，不是 opacity —— 全域禁用 opacity<1 的規矩照舊
-     描邊改為 1px 硬投影、不帶暈開：原本的 3px 柔光是為深底設計的，
-     壓在淺色底牌上會糊成一圈灰邊（＝總監說的「糊掉」）。白描邊仍全面禁用。 */
-  .goal .gtext { font-size:20px; font-weight:900;
-    background:var(--gp,#ffffff); border-radius:9px; padding:2px 7px;
-    box-shadow:0 1px 3px rgba(0,0,0,.32);
-    text-shadow:0 1px 0 rgba(0,0,0,.30); }
+  /* ★ v120 亮階本體＋暗階輪廓（總監 20260807 定案，取代 v119 白底牌）。
+     ── 為什麼 v119 的白底牌要退場 ──
+     底牌是「面」的解法：白紙藏在實心輪廓底下，剛好重合，永遠看不見（寶石就是這樣）。
+     但數字是「線」，底牌必須比筆畫寬才蓋得住，多出來的部分就露成一張白貼紙。
+     ∞ 在 v116 已經撞過同一面牆（白紙底 → 白邊 → 拆掉），這是第二次。
+     結論：對線條圖形而言，「墊底」與「露出底牌」是同一件事，躲不掉。
+
+     ── v120 改抄真正的寶石畫法 ──
+     總監提供的商業寶石插畫參考（20260807）拆解出三條規則：
+       ① 最暗的值鎖死在輪廓上，而且是同色系深色，不是黑（純黑框會讓整個畫面分不出主次）
+       ② 內部值域拉滿：亮 → 中 → 暗全在同一個圖形裡。所謂「透光」是值差演出來的，
+          不是真的透明 —— 那些插畫全是 100% 不透明，所以丟在純黑底上照樣站得住
+       ③ 本體用亮階，深色只准住在輪廓裡。這是關鍵：肚子夠亮，深底才吃不掉它
+     套到數字上：
+       本體 = gemColor 色相不動、飽和上限 78%、明度絕對值鎖 72%
+       輪廓 = gemColor 色相不動、飽和上限 85%、明度絕對值鎖 20%，八向實色 text-shadow
+     結果一組值走遍所有桌面，不需要判斷背景、不需要切換分支：
+       淺桌（莫蘭迪 L66%）靠輪廓吃對比 —— 七色全數 3.17 以上
+       深桌（預設藍 L29%）靠亮肚子吃對比 —— 七色全數 4.33 以上
+     ⚠ 這推翻了 v89 的「gemColor 原值直取、零調色」。那條規則假設桌面永遠是深藍，
+       材質皮膚上線後假設就破了（鑽石 #7fa8c8 對莫蘭迪灰只有 1.03:1，等同隱形）。
+     ⚠ 只導出明度階，色相一度都不轉 —— 哪個盆對應哪色，數字仍然自己講清楚。
+     ⚠ 全程實色，無 opacity<1；白描邊仍全面禁用（輪廓是同色系深色）。
+     ⚠ 輪廓粗細 --gw 固定為字級的 7.5%，三種盆數同比例縮放，避免小字被啃掉字腔。 */
+  .goal .gtext { font-size:20px; font-weight:900; --gw:1.5px;
+    background:transparent; padding:2px 4px; color:var(--gt,#ffffff);
+    text-shadow:
+      var(--gw) 0 0 var(--go), calc(var(--gw) * -1) 0 0 var(--go),
+      0 var(--gw) 0 var(--go), 0 calc(var(--gw) * -1) 0 var(--go),
+      calc(var(--gw) * .707) calc(var(--gw) * .707) 0 var(--go),
+      calc(var(--gw) * -.707) calc(var(--gw) * .707) 0 var(--go),
+      calc(var(--gw) * .707) calc(var(--gw) * -.707) 0 var(--go),
+      calc(var(--gw) * -.707) calc(var(--gw) * -.707) 0 var(--go); }
   /* ★ v87 花苗：取代 v79 .animal-svg。viewBox 100×134（直立），
      上緣與畫面邊距維持原樣，多出來的花盆從下緣長出去 —— #goals 與 #bigScore
      是普通流的兄弟節點，任務欄長高後分數會自動順著下移，不必動分數定位。 */
@@ -1354,7 +1372,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v119・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v120・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1821,7 +1839,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v119・繽紛樂',
+  'menu.footer':'v120・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1939,7 +1957,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v119 · Vivid Blast',
+  'menu.footer':'v120 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -2055,7 +2073,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v119・ビビッドブラスト',
+  'menu.footer':'v120・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -2776,6 +2794,20 @@ function _hsl2rgb(h,s,l){
   const p = 2*l-q;
   return [hue(p,q,h+1/3)*255, hue(p,q,h)*255, hue(p,q,h-1/3)*255];
 }
+/* ★ v120 任務數字的兩階導出（只服務 .gtext，不觸碰任何寶石渲染路徑）。
+   與 gemVivid 的差別是「絕對」而非「相對」：gemVivid 走 l+lAdd，起點高的顏色
+   加完還是高（鑽石 L64 減 26 只到 L38，在莫蘭迪灰上仍然糊）。這裡直接把明度
+   鎖成定值，七色不管原本多亮多暗，出來一律同一階 —— 這樣對比才是可保證的，
+   而不是「大部分情況下應該夠」。飽和度只設上限不放大，避免高飽和色轉亮階後刺眼。 */
+function _gtTone(hex, L, sCap){
+  const [r,g,b]=_hex2rgb(hex);
+  const [h,s]=_rgb2hsl(r,g,b);
+  const [R,G,B]=_hsl2rgb(h, Math.min(s, sCap), L);
+  return _rgb2hex(R,G,B);
+}
+function _gtBody(hex){ return _gtTone(hex, 0.72, 0.78); }   // 亮階本體：深桌靠它
+function _gtRim (hex){ return _gtTone(hex, 0.20, 0.85); }   // 暗階輪廓：淺桌靠它
+
 function gemVivid(hex, sMul, lAdd){
   const [r,g,b]=_hex2rgb(hex);
   let [h,s,l]=_rgb2hsl(r,g,b);
@@ -5099,7 +5131,7 @@ function renderGoals(){
     }
     const anim = grew ? (st==='bloom' ? ' bloom-in' : ' grow') : '';
     div.innerHTML = `<span class="gicon${anim}" style="--gc:${GEMS[g.gem].gemColor}">${sproutSVG(g.gem, st)}${done?'<span class="goal-check">✓</span>':''}</span>
-      ${done?'':`<span class="gtext" style="--gp:${GEMS[g.gem].color};color:${GEMS[g.gem].gemColor}">${Math.max(g.need-g.got,0)}</span>`}`;
+      ${done?'':`<span class="gtext" style="--gt:${_gtBody(GEMS[g.gem].gemColor)};--go:${_gtRim(GEMS[g.gem].gemColor)}">${Math.max(g.need-g.got,0)}</span>`}`;
     el.appendChild(div);
   });
 }
@@ -9065,7 +9097,11 @@ function buildMenuSVG(padMul){
          整組以格心 (50,50) 為軸放大 KS 倍，線寬同步除以 KW；
          KS/KW = 1.226 即為線條在螢幕上實際加粗的倍率（略粗一階，圓管感保留）。
          v117 在調整台定案的兩個色值一個字都沒動。 */
-      const KS = 1.90, KW = 1.55;
+      /* ★ v120 線寬方案甲（總監 20260807 實機：「圖示大小 OK，線條再稍微粗一點」）。
+         KW 1.55 → 1.42，螢幕線寬 3.09px → 3.37px（+9%）。放大倍率 KS 不動，
+         所以圖示的外框尺寸與版面對齊完全不受影響，只有筆畫變實。
+         再往上（KW 1.20）兩個圈的留空會收到 5.7px，開始糊成實心 8 —— 那是天花板。 */
+      const KS = 1.90, KW = 1.42;
       const lay = (w, col, dy)=> _v112el('path', { d:D, fill:'none', stroke:col,
         'stroke-width':(w/KW), 'stroke-linecap':'round', 'stroke-linejoin':'round',
         transform: dy ? ('translate(0 '+dy+')') : '' });
