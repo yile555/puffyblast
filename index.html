@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v117</title>
-<meta property="og:title" content="繽紛樂 v117">
+<title>繽紛樂 v118</title>
+<meta property="og:title" content="繽紛樂 v118">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -1336,7 +1336,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v117・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v118・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1803,7 +1803,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v117・繽紛樂',
+  'menu.footer':'v118・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1921,7 +1921,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v117 · Vivid Blast',
+  'menu.footer':'v118 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -2037,7 +2037,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v117・ビビッドブラスト',
+  'menu.footer':'v118・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -3008,71 +3008,41 @@ let _actx = null;
    ② iOS 會把 context 打成 'interrupted' 狀態（非標準），一併處理
    ③ 每次使用者觸控都補一次 resume —— iOS 要求音訊解鎖必須發生在使用者手勢中，
       這是唯一保證能解鎖的時機（不能用 once，因為每次中斷後都要重新解鎖） */
-/* ★ v107 音訊中斷復原（取代 v106 的心跳偵測 —— v106 誤殺健康 context）
-   ─────────────────────────────────────────────
-   ── 兩種不同的病 ──
-   ① 切到背景／看個 LINE 再回來：context 進 suspended，resume() 叫得醒
-   ② iOS 接電話（系統音訊中斷）：audio session 被系統收走，通話後 WebKit
-      常常不還給網頁 —— 此時 resume() 會「成功」回報 running，但 currentTime
-      根本沒在走。這是一顆會回話的屍體，音符照樣排進黑洞。
+/* ★ v118 音訊架構定案（總監 20260807 核准：方案甲 —— 拆除後封存）
+   ───────────────────────────────────
+   【為什麼拆】
+   v115～v117 為了治「切背景回來沒聲」，引進了「close() 舊 context、
+   重建新 context」的機制。實機連續三版失敗，且症狀比 v114 更嚴重（碰什麼、
+   等多久都完全無聲）。溯源後確認這個方向本身就是錯的：
 
-   ── v106 的錯誤（必須記住，不要再犯）──
-   v106 在 resume() 後 250ms 就量 currentTime，沒前進就判死。但 resume() 是
-   非同步的 —— 那 250ms 內 context 往往「還沒醒」，currentTime 本來就不會走。
-   於是每次切背景回來都被誤殺；殺掉後新生的 context 冷啟動同樣沒在走，又被
-   判死 → 無限重建 → 聲音永遠回不來。
-   病根：把「還沒醒」誤判成「已經死」。這兩件事在短尺度上長得一模一樣。
+     ① Safari 每頁只允許約 4 個 AudioContext，重複使用同一顆是官方建議。
+        每次切背景回來就換一顆 → 反覆幾次即跨過上限 → 新生的永遠靖音。
+     ② MDN 明訂：中斷期間對 suspended 的 context 呼叫 resume()，會立刻
+        變回 interrupted。所以 v104～v117 那套「回前景先預熱」在規格上
+        就不可能成立 —— 不是實作沒寫好，是方向錯了。
 
-   ── v107 的修法 ──
-   ① 只在 state 確實回到 'running' 之後才開始量（醒了才問活不活）
-   ② 量法改成「前後兩次取樣比對」：先記 t0，300ms 後再看有沒有前進。
-      真正 running 的 context，currentTime 必定前進；屍體不會。
-   ③ 保險絲：兩次重建至少相隔 5 秒，杜絕連環自殺
-   ④ 重建後主動接手續命（_ensureAudio），不等下一次音效才發現沒有 context
-   ⑤ 使用者手勢（pointerdown/touchstart）走 _ensureAudio —— 若 context 已被
-      重建流程清空，這一碰就會生出新的並解鎖（iOS 只允許在手勢中開音訊）
+   【為什麼不改成 MDN 官方寫法】
+   這是 iOS Safari 十年未修的 WebKit bug（Phaser / Howler / SoundJS 至今都有
+   未關閉的 issue）。本專案的終點是 Capacitor 打包上架，屆時改由原生
+   AVAudioSession 的中斷通知（interruption began/ended）接手 —— 這段網頁層
+   邏輯會被整段刪除。為一個打包後必定消失的問題繼續磨網頁實作，是白費工。
 
-   能「整顆換掉」的前提：_adest（母帶總線）與 _noiseBufs（噪音冰箱）兩個快取
-   都是用 ctx 當 key 比對（if(_adest.ctx === ctx)），換新 context 會自動重建，
-   不需額外清理。這是舊版寫得好的地方。
+   【拆成什麼樣】
+   回到 v111 架構：一顆 context 用到底，永不 close()，只叫醒。
+   已拆除：_killAudio()、_heartbeat() 心跳偵測、殭屍判定、_needRebirth 旗標、
+             _hiddenAt 基準、700ms 抽查、v117 探針。
+   保留：v110 捕獲階段解鎖、v111 冷啟動解鎖、v116 _silentPingSync()（手勢同一個
+             tick 內同步領裝置）—— 這三項都不涉及關閉 context，是純增益。
 
-   ⚠ 這是網頁層的止血，不是永久解。Capacitor 打包後應改用原生 iOS
-     AVAudioSession 的中斷通知（interruption began/ended）來復原 ——
-     那才是系統官方支援的路徑，可靠且無重建延遲。打包時請回來處理這段。 */
-let _hbTimer = null;      // 心跳偵測進行中的 timer（避免重複排程）
-let _lastRebuild = 0;     // 上次重建時間戳（保險絲用）
+   ⚠️ 本系統自 v118 起封存。切背景後的殘餘無聲問題不再以網頁層修復，
+      一律推到 Capacitor 打包那一關處理。日後若有人想在這裡加「重建 context」
+      的邏輯，請先讀完上面那兩條 —— 那條路已經走了三版，死路。 */
 let _audioBorn = false;   // 音訊是否曾被啟用過（沒用過就不該無故 new context）
 
-/* ★ v117 音訊探針（預設完全關閉，只有網址帶 ?dbg=1 才存在）
-   ─────────────────────────────────────────────
-   這是第五次修同一個病，而前四次都是靠推理 —— 推理已經錯過一次
-   （把 currentTime 前進當成健康指標）。留一支可召喚的探針，下次若再復發，
-   實機錄一段畫面就能直接看到 context 世代／state／時間／解鎖狀態，
-   不必再猜。正式玩家看不到、不建立任何 DOM、不耗一絲效能。 */
-const _AUDBG = (function(){ try{ return /[?&]dbg=1/.test(location.search); }catch(e){ return false; } })();
-let _audDbgEl = null, _audGen = 0;
-function _audioProbe(tag){
-  if(!_AUDBG) return;
-  if(!_audDbgEl){
-    _audDbgEl = document.createElement('div');
-    _audDbgEl.style.cssText = 'position:fixed;left:4px;bottom:4px;z-index:99999;'
-      + 'font:10px/1.35 ui-monospace,monospace;color:#9fe;background:rgba(0,0,0,.72);'
-      + 'padding:4px 6px;border-radius:6px;max-width:82vw;pointer-events:none;white-space:pre-wrap;';
-    (document.body || document.documentElement).appendChild(_audDbgEl);
-  }
-  const c = _actx;
-  _audDbgEl.textContent =
-    'gen#' + _audGen + '  ' + (c ? c.state : 'null')
-    + '  t=' + (c ? c.currentTime.toFixed(2) : '-')
-    + '\nunlocked=' + _unlocked + '  rebirth=' + _needRebirth + '  iOS=' + (typeof _isIOS!=='undefined' ? _isIOS : '?')
-    + '\n' + tag;
-}
-
-function _killAudio(){
-  const dead = _actx;
-  _actx = null;                        // 先斷開，任何後續 actx() 都會生新的
-  if(_hbTimer){ clearTimeout(_hbTimer); _hbTimer = null; }
-  if(dead){ try{ dead.close(); }catch(e){} }
+/* ★ v118 只在 context 已經自己進入 closed（瀏覽器單方面關掉）時斷開參照，
+   讓下一次手勢能重新生一顆。絕不主動呼叫 close() —— 那正是 v115～v117 的病因。 */
+function _dropClosedCtx(){
+  _actx = null;
 }
 
 /* 確保有一顆可用的 context：沒有就生、有就叫醒。
@@ -3085,44 +3055,21 @@ function _ensureAudio(force){
      自動喚醒（回前景）仍維持保守，不主動建立。 */
   if(!_audioBorn && !force) return null;
   if(!_actx){
-    try{ _actx = new (window.AudioContext||window.webkitAudioContext)(); _audGen++; }
+    try{ _actx = new (window.AudioContext||window.webkitAudioContext)(); }
     catch(e){ _actx = null; return null; }
-    _audioProbe('NEW ctx (force=' + !!force + ')');
   }
   _resumeAudio();
   return _actx;
 }
 
-/* 心跳偵測：只對「自稱 running」的 context 做，且用前後兩次取樣比對。
-   關鍵是絕不在 resume 尚未完成時下判斷 —— 那正是 v106 的死因。 */
-function _heartbeat(){
-  if(!_actx || _hbTimer) return;
-  const ctx = _actx;
-  _hbTimer = setTimeout(()=>{
-    _hbTimer = null;
-    if(_actx !== ctx) return;                 // 期間已被換掉，不管
-    if(ctx.state !== 'running') return;       // 還沒醒 → 不判死（v106 就死在這）
-    const t0 = ctx.currentTime;
-    setTimeout(()=>{
-      if(_actx !== ctx) return;
-      if(ctx.state !== 'running') return;
-      if(ctx.currentTime > t0) return;        // 時間有走 → 活著，什麼都不做
-      if(Date.now() - _lastRebuild < 5000) return;  // 保險絲：不連環重建
-      _lastRebuild = Date.now();
-      _killAudio();
-      _unlocked = false;
-      _wakeAudio();                           // 新 context 是 suspended，必須走完整喚醒流程
-    }, 300);
-  }, 600);
-}
-
 function _resumeAudio(){
   if(!_actx) return;
-  if(_actx.state === 'closed'){ _killAudio(); return; }
+  /* ★ v118 context 自己進入 closed（瀏覽器單方面回收）才斷開參照。
+     不主動 close()、不偵測殭屍、不重建 —— 一顆用到底。 */
+  if(_actx.state === 'closed'){ _dropClosedCtx(); return; }
   if(_actx.state === 'suspended' || _actx.state === 'interrupted'){
     try{ const p = _actx.resume(); if(p && p.catch) p.catch(()=>{}); }catch(e){}
   }
-  _heartbeat();
 }
 
 /* ★ v109 音訊喚醒（實機探針數據修正 —— v108 招式對、順序錯）
@@ -3134,20 +3081,16 @@ function _resumeAudio(){
    suspended。對一顆還沒醒的 context 播空緩衝，等於對關機的喇叭喊話，
    t 從頭到尾沒動。招式（Howler 的空緩衝解鎖）是對的，順序錯了。
 
-   ── 另一筆數據（放下第一塊沒聲音、第二塊才有）──
-     PING [run 94.24] → KILL [run 94.24] → NEW [sus 0.00] → PING [run 0.56]
-   心跳偵測確實抓到了屍體，但重建的時機正好撞上玩家第一次放方塊，
-   那一塊的音效掉進交接空隙。偵測沒錯，是動作太晚。
-
-   ── v109 三項修正 ──
+   ── v109 保留至今的兩項修正 ──
    ① 順序：resume() 完成之後才播空緩衝（resume().then(ping)）
-   ② 提前：回前景就立刻做健康檢查，把重建搬到玩家碰螢幕之前完成
-   ③ 重試：0 / 150 / 400ms 三次喚醒，涵蓋 iOS 的延遲抖動；
-           一旦 currentTime 開始前進就提前收工，不做多餘的事
+   ② 重試：0 / 150 / 400ms 三次喚醒，涵蓋 iOS 的延遲抖動
 
-   ⚠ 這是網頁層的止血。Capacitor 打包後應改用原生 iOS AVAudioSession
-     的中斷通知（interruption began/ended）來復原 —— 那才是系統官方支援的
-     路徑，可靠且無交接空隙。打包時請回來處理這段。 */
+   ★ v118 已拆：v109 原本還有第三項「回前景做健康檢查、提前重建」，
+     那是 v115～v117 火化重建機制的源頭，已隨著拆除。
+
+   ⚠ 這是網頁層的止血，不是永久解，也不打算再經由網頁層改善。
+     Capacitor 打包後改由原生 AVAudioSession 的中斷通知（interruption
+     began/ended）接手，屆時這整段直接刪除。 */
 let _unlocked = false;
 
 /* 播一個取樣點的無聲緩衝：聽不見、不干擾任何音效，
@@ -3162,11 +3105,7 @@ function _silentPing(){
     src.buffer = b;
     src.connect(c.destination);        // 直接進喇叭，不經母帶總線（越短越可靠）
     if(src.start) src.start(0); else if(src.noteOn) src.noteOn(0);
-    /* ★ v117 iOS 上「非手勢的 ping」不得認證解鎖。
-       心跳偵測若在無手勢時重建 context 並 ping 成功，會把一顆拿不到裝置的
-       幽靈標記成 _unlocked=true，_gestureUnlock 的新判斷就再也不會火化它 ——
-       等於把剛修好的漏洞從另一頭鑿開。iOS 的解鎖認證只由使用者手勢發出。 */
-    if(!_isIOS) _unlocked = true;
+    _unlocked = true;
     return true;
   }catch(e){ return false; }
 }
@@ -3214,100 +3153,28 @@ function _wakeAudio(force){
   });
 }
 
-/* ★ v115 回前景重生旗標（總監 20260807 實測：玩一半離開再回來就沒聲，
-   要刻意去點功能鍵才活過來）。
-   ─────────────────────────────────────────────
-   v111 修的是「冷啟動」解鎖，這是另一種病：App 切背景時 iOS 收走音訊裝置，
-   回前景後 context 常常變成「殭屍」—— state 自稱 running，但 currentTime 不前進。
-   舊鏈條的死結是「重生」與「手勢」永遠錯開：
-     ① 回前景 _wakeAudio() 看到 state==='running' → 只補靜音 ping，不重建 → 仍無聲
-     ② 玩家拖方塊 → _gestureUnlock → _wakeAudio(true) → 一樣看到 running → 一樣不重建
-     ③ 心跳 900ms 後才判死重建，但那一刻手上沒有使用者手勢
-        → 新 context 是 suspended 且拿不到 iOS 音訊裝置 → 還是無聲
-     ④ 玩家再碰一次按鈕，這次 context 已重建、又剛好在手勢裡 → 才終於有聲
-   解法：把「重生」搬到手勢的同一個 tick。回前景只記旗標，
-   下一次任何使用者手勢先 _killAudio() 再 force 喚醒 —— 建立與領裝置一次完成。
-   若回前景後音訊本來就活著（桌機／Android 多數情況），700ms 的抽查會撤掉旗標，
-   不做無謂重建。完全不碰音效合成邏輯，也不碰 v111 的冷啟動解鎖路徑。 */
-let _needRebirth = false;
-let _hiddenAt = -1;       // ★ v116 進背景那一刻的 currentTime（殭屍判定基準）
-
-/* 使用者手勢 → force 建立。這是唯一能拿到 iOS 音訊裝置的時機，不能放過。 */
+/* 使用者手勢 → force 建立。這是唯一能拿到 iOS 音訊裝置的時機，不能放過。
+   ★ v118 拆掉 v115～v117 的火化重建判斷，回到 v111：手勢只做兩件事 ——
+   確保有 context（沒有就生一顆）、在同一個 tick 內領音訊裝置。 */
 function _gestureUnlock(){
-  /* ★ v117 iOS 的判斷條件從「旗標」改成「手上這顆是不是在手勢裡生的」。
-     旗標會被抽查誤撤（v116 的死因）；而「_unlocked === false」代表這顆 context
-     從來沒有在使用者手勢內領過裝置 —— 那就是幽靈，不管它 state 多健康。
-     火化與重建落在同一個 tick，iOS 才認這張手勢門票。 */
-  const needKill = _isIOS ? (_needRebirth || !_unlocked) : _needRebirth;
-  if(needKill){
-    _needRebirth = false;
-    _killAudio();                      // 殭屍就地火化，下一行在同一個手勢裡重建
-  }
   _audioBorn = true;
-  /* ★ v116 順序改成「同步優先」：先在手勢的同一個 tick 內把 context 生出來、
-     resume()、並立刻 start() 一顆空緩衝把裝置領回來；非同步的重試留在後面當後備。 */
+  /* ★ v116 順序「同步優先」：先在手勢的同一個 tick 內把 context 生出來、
+     resume()、並立刻 start() 一顆空緩衝把裝置領回來；非同步的重試留後面當後備。 */
   _ensureAudio(true);
-  const ok = _silentPingSync();
+  _silentPingSync();
   _unlocked = true;
   _wakeAudio(true);
-  _audioProbe('GESTURE unlock (kill=' + needKill + ', ping=' + ok + ')');
 }
 
 document.addEventListener('visibilitychange', ()=>{
   if(document.visibilityState === 'hidden'){
     _unlocked = false;                 // 進背景就視為失去裝置，回來必須重新解鎖
-    // ★ v116 記下進背景時的 currentTime：回來若時間一動也沒動，就是殭屍
-    _hiddenAt = _actx ? _actx.currentTime : -1;
-    _audioProbe('vis:hidden');
   }else{
-    /* ★ v116 重建「提前到回前景當下」（總監 20260807 實機：v115 之後回來第一下仍無聲）。
-       v115 只立旗標、把火化＋重建推遲到第一次觸控 —— 玩家的第一下手勢整個花在
-       重建上，那一下的音效掉進交接空隙，第二下才有聲。這正是「要去碰別的鍵才活」。
-       改成回前景就地換一顆新鮮 context，玩家碰螢幕時手上已經是活的；
-       手勢那一下只剩「領裝置」一件事（_silentPingSync），聲音不再遲到一拍。 */
-    /* ★ v117 病灶修正（總監 20260807 實機：v116 反覆 3～4 次仍全程無聲）
-       ─────────────────────────────────────────────
-       v116 這段有兩行在互打，形成一條每次都走得通的死亡路徑：
-
-         ① _killAudio()      → 殺掉舊 context
-         ② _wakeAudio()      → 下一行「立刻」又生一顆新的（此時沒有使用者手勢）
-         ③ 這顆幽靈 resume() 後 currentTime 是會前進的 —— 它在跑，只是 iOS
-            從沒把音訊裝置發給它（非手勢誕生的 context 拿不到裝置）
-         ④ 700ms 抽查看到「時間有走」→ 判定健康 → _needRebirth = false
-         ⑤ 玩家切回來看一眼畫面再拖方塊，這段間隔幾乎必定 > 0.7 秒
-         ⑥ 手勢到達時旗標已被撤掉 → 不火化 → _ensureAudio(true) 看到 _actx
-            存在就只 resume → _silentPingSync() 打在幽靈身上 → 無聲
-
-       根本錯誤在假設：v116 把「currentTime 前進」當成健康指標。在 iOS 上這
-       只證明 context 在跑，不證明它握有音訊裝置。抽查用了一把量錯東西的尺，
-       於是每一次都親手把唯一的救命旗標撤掉。
-
-       三項修正：
-         ① 回前景殺掉之後「空著」，不預先重建 —— 把誕生完整留給手勢那個 tick
-         ② iOS 取消抽查撤旗；_needRebirth 只能由手勢清除（旗標可以錯，手勢不會錯）
-         ③ 桌機／Android 維持原抽查（它們的 context 回前景本來就是好的，
-            無謂火化只會製造交接空隙） */
-    if(_audioBorn){
-      const dead = _actx;
-      const zombie = !dead || dead.state === 'closed' ||
-                     (dead.state === 'running' && dead.currentTime === _hiddenAt);
-      if(zombie || _isIOS){ _killAudio(); _unlocked = false; }
-      _needRebirth = true;
-    }
-    if(_isIOS){
-      /* iOS：什麼都不做。沒有 context 就是正確狀態 —— 下一次觸控會在同一個
-         tick 內完成「建立 → resume → 領裝置」，中間沒有幽靈佔位的餘地。 */
-      _audioProbe('vis:visible(iOS, 留白等手勢)');
-    }else{
-      _wakeAudio();
-      _heartbeat();
-      if(_actx){
-        const c = _actx, t0 = c.currentTime;
-        setTimeout(()=>{
-          if(_actx === c && c.state === 'running' && c.currentTime > t0) _needRebirth = false;
-        }, 700);
-      }
-    }
+    /* ★ v118 回前景只做一件事：叫醒。不判殭屍、不重建、不抽查。
+       叫得醒就醒（桌機、Android、iOS 多數情況）；叫不醒就等下一次手勢。
+       若 iOS 這一次就是不還音訊裝置，網頁層沒有合法手段可以要回來 ——
+       這是已知的 WebKit 限制，留給 Capacitor 打包後的原生中斷通知處理。 */
+    _wakeAudio();
   }
 });
 /* focus / pageshow 不是真正的使用者手勢 —— 走保守路徑，不主動建立 context，
