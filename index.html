@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v124</title>
-<meta property="og:title" content="繽紛樂 v124">
+<title>繽紛樂 v125</title>
+<meta property="og:title" content="繽紛樂 v125">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -722,7 +722,7 @@
     color:rgba(255,255,255,.55); font-size:14px; cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
   .modal .text-link:active { color:rgba(255,255,255,.85); }
 
-  /* ★ v124 極簡失敗卡（甲款：底部滑入小卡）
+  /* ★ v125 極簡失敗卡（甲款：底部滑入小卡）
      ⚠ 分數行的「閃爍」刻意用實色漸變（白↔金），不用 opacity：
         此卡浮在盤面上，半透明文字會透出底下的格線，看起來像髒掉／沒對齊。
         金色本來就是分數的顏色，呼吸起來像「這是你的成績」而非「這裡有東西在閃」。 */
@@ -730,26 +730,39 @@
     transform:translateY(140%); transition:transform .32s cubic-bezier(.22,1,.36,1);
     pointer-events:none; }
   #miniLose.show { transform:translateY(0); pointer-events:auto; }
-  #miniLose .mini-card { background:var(--panel); border-radius:24px; padding:16px 16px 14px;
-    text-align:center; box-shadow:0 18px 46px rgba(0,0,0,.55); max-width:360px; margin:0 auto; }
-  #miniLose .mini-ttl { font-size:16px; font-weight:700; margin-bottom:3px; color:#fff; }
-  #miniLose .mini-sc { font-size:13px; margin-bottom:12px; color:#ffd54f;
+  /* ★ v125 放大（實機回報：字太小、閃爍感弱、容易被忽略）
+     卡片變高會蓋到棋盤下緣 —— 總監確認可接受：低分局的殘局沒有回味價值。 */
+  #miniLose .mini-card { background:var(--panel); border-radius:26px; padding:22px 20px 18px;
+    text-align:center; box-shadow:0 18px 46px rgba(0,0,0,.55); max-width:380px; margin:0 auto; }
+  #miniLose .mini-ttl { font-size:23px; font-weight:800; margin-bottom:8px; color:#fff;
+    letter-spacing:.5px; }
+  #miniLose .mini-sc { font-size:21px; font-weight:700; margin-bottom:17px; color:#ffd54f;
     animation:miniBreath 2.4s ease-in-out infinite; }
+  /* ★ v125 呼吸幅度加大：字級提高後光暈也要放大，否則比例上反而更不明顯。
+     ⚠ 全程實色（金↔白），不用 opacity —— 此卡浮在盤面上，
+        半透明文字會透出底下的格線，看起來像髒掉／沒對齊。 */
   @keyframes miniBreath {
-    0%,100% { color:#ffd54f; text-shadow:0 0 0 rgba(255,213,79,0); }
-    50%     { color:#ffffff; text-shadow:0 0 10px rgba(255,213,79,.9); }
+    0%,100% { color:#ffc107; text-shadow:0 0 0 rgba(255,213,79,0); }
+    50%     { color:#ffffff; text-shadow:0 0 18px rgba(255,213,79,1), 0 0 6px rgba(255,213,79,1); }
   }
-  #miniLose .mini-row { display:flex; gap:9px; }
-  #miniLose .mini-btn { flex:1; padding:12px; border:none; border-radius:14px; font-size:15px;
+  #miniLose .mini-row { display:flex; gap:10px; }
+  #miniLose .mini-btn { flex:1; padding:15px; border:none; border-radius:16px; font-size:18px;
     font-weight:700; color:#fff; cursor:pointer;
     background:linear-gradient(135deg,#4fc3f7,#2196f3); }
   #miniLose .mini-btn.ghost { flex:0 0 40%; background:rgba(255,255,255,.16); }
   #miniLose .mini-btn:active { transform:scale(.97); }
 
-  /* ★ v124 慶祝式救援視窗的分數行：同一組呼吸效果，但這裡它是主角 */
-  #loseOverlay .celebrate-score { font-size:30px; font-weight:800; color:#ffd54f;
-    margin:2px 0 10px; animation:miniBreath 2.4s ease-in-out infinite; }
+  /* ★ v125 慶祝式救援視窗的分數行：同一組呼吸效果，但這裡它是主角 */
+  #loseOverlay .celebrate-score { font-size:38px; font-weight:800; color:#ffd54f;
+    margin:4px 0 12px; animation:miniBreath 2.4s ease-in-out infinite; }
   #loseOverlay .celebrate-score.hide { display:none; }
+
+  /* ★ v125 高分慶祝視窗：背景模糊（總監定案）
+     理由是公平性 —— 玩家在此視窗可以選擇續命，
+     若還看得見完整殘局，等於邊看答案邊決定要不要救。
+     低分的極簡卡不模糊：那局已經結束，殘局隨便看。 */
+  #loseOverlay.celebrate { background:rgba(0,0,0,.55);
+    -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); }
 
   /* ★ v94 排行榜（L1 本機個人榜 + L2 系統玩家幽靈榜） */
   #leaderboardOverlay { z-index:1301; }
@@ -1401,7 +1414,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v124・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v125・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1548,7 +1561,7 @@
   </div>
 </div>
 
-<!-- ★ v124 極簡失敗卡（甲款：底部滑入）
+<!-- ★ v125 極簡失敗卡（甲款：底部滑入）
      低分死亡時顯示。刻意不放廣告、炸彈、排行榜 —— 只負責讓玩家一秒重來。
      貼底設計讓盤面完全看得見，玩家能一邊回味自己怎麼死的一邊按重來。
      ⚠ App 版底部橫幅上線後，此卡需上移，兩者不重疊。 -->
@@ -1883,7 +1896,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v124・繽紛樂',
+  'menu.footer':'v125・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1951,7 +1964,7 @@ const I18N = {
   'lose.score':'本局得分 {s}　最佳 {b}。{nr}', 'lose.newRecord':'刷新紀錄！',
   'lose.boomTitle':'💥 氣球爆了！', 'lose.boomText':'仙人掌把氣球戳破了⋯⋯看廣告讓氣球洩掉一半，原地再拼一次！',
   'lose.retry':'重新開始', 'lose.home':'回主選單', 'lose.leaderboard':'🏆 看排行榜',
-  /* ★ v124 極簡失敗卡（低分死亡）＋ 慶祝式救援視窗（高分死亡） */
+  /* ★ v125 極簡失敗卡（低分死亡）＋ 慶祝式救援視窗（高分死亡） */
   'mini.title':'再接再厲', 'mini.retry':'再來一局', 'mini.home':'主選單',
   'mini.score':'本局 {s} 分',
   'hi.newRecord':'🎉 新紀錄！', 'hi.hot':'🔥 手感正熱！', 'hi.close':'✨ 差一點就破紀錄！',
@@ -2007,7 +2020,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v124 · Vivid Blast',
+  'menu.footer':'v125 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -2128,7 +2141,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v124・ビビッドブラスト',
+  'menu.footer':'v125・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -2869,7 +2882,7 @@ function _hsl2rgb(h,s,l){
      上限 18% 下限 8%），維持「亮階本體＋暗階輪廓」的畫法不變。
    ⚠ 全程實色，無 opacity<1；白描邊仍全面禁用。
 
-   ── 七色來源（★ v124 全數由總監於「數字色卡調整台」實機拉桿定案）──
+   ── 七色來源（★ v125 全數由總監於「數字色卡調整台」實機拉桿定案）──
    v122 那組是我推算的，總監在調整台上逐顆重調，這裡採用的是他交回的最終值。
    相對 v122 的走向：飽和度全部拉到 100%（更濃豔），色相重新挑開。
    色相環間距：紅→黃 63°、黃→綠 73°、綠→鑽 64°、鑽→藍 25°、
@@ -2890,7 +2903,7 @@ const GT_CARD = {
   carrot:   '#FF24E9',   // 粉晶    H306  L57
   seed:     '#7729FF'    // 紫水晶  H262  L58
 };
-/* ★ v124 輪廓深度 0.30 → 0.50（總監於調整台實測定案）。
+/* ★ v125 輪廓深度 0.30 → 0.50（總監於調整台實測定案）。
    實務上七色本體明度都在 51% 以上，×0.50 一律撞到 18% 的上限，
    等於七顆輪廓統一為該色相的最深階 —— 這正是總監在調整台上看到並認可的結果。
    上下限保留不動：低於 8% 會黑到看不出色相，高於 18% 在淺桌會壓不住。 */
@@ -6680,7 +6693,7 @@ function showLose(){
                 //   玩家若在此視窗選擇復活，下一手落子的 afterMove 會自動重新寫回
   cancelBombAim();       // ★ v36 死局瞬間收掉瞄準模式，避免視窗下誤觸
 
-  /* ★ v124 死亡分流（總監定案 2026/08/08）
+  /* ★ v125 死亡分流（總監定案 2026/08/08）
      ─────────────────────────────────────────
      低分死亡 → 極簡失敗卡「再接再厲」，沒有廣告、沒有炸彈、沒有排行榜，
                 玩家一秒重來，完全不被打擾。
@@ -6724,16 +6737,21 @@ function showLose(){
     if(_cs){ _cs.textContent = score.toLocaleString(); _cs.classList.remove('hide'); }
     // 「放棄」是負面的；「保留成績」讓收手也成為一個正面選擇
     if(_rt) _rt.textContent = T('hi.keep');
+    _loseOv().classList.add('celebrate');   // ★ v125 背景模糊：能續命就不該看得見殘局
   } else {
     if(_cs) _cs.classList.add('hide');
     if(_rt) _rt.textContent = T('lose.retry');
+    _loseOv().classList.remove('celebrate');
   }
 
   refreshReviveBtn();    // ★ v36 救援按鈕依剩餘資源分流：免費廣告 → 炸彈 → 商店
   document.getElementById('loseOverlay').classList.add('show');
 }
 
-/* ★ v124 極簡失敗卡：低分死亡的出口。只做一件事 —— 讓玩家一秒重來。 */
+/* ★ v125 小工具：失敗視窗節點 */
+function _loseOv(){ return document.getElementById('loseOverlay'); }
+
+/* ★ v125 極簡失敗卡：低分死亡的出口。只做一件事 —— 讓玩家一秒重來。 */
 function showMiniLose(){
   const el = document.getElementById('miniLose');
   if(!el) return;
@@ -6990,7 +7008,7 @@ function restTick(){
    復用 moodAdGate 的 DOM，只換文案與按鈕行為，不新建第二種彈窗樣式。 */
 let restGateOpen = false;   // 彈窗當下是否為「休息提醒」語境（決定按鈕行為）
 function openRestGate(){
-  /* ★ v124 blockblast profile：休息提醒整個隱藏。
+  /* ★ v125 blockblast profile：休息提醒整個隱藏。
      它是「自願」的，但不是玩家按出來的 —— 系統主動彈的滿版中斷，
      跟強制插頁是同一種難受，只是換了個包裝。 */
   if(AD_PROFILE === 'blockblast') return;
@@ -7028,7 +7046,7 @@ function openMoodAdGate(id){
   const wb = document.getElementById('magWatchBtn');
   if(wb){
     wb.textContent = T('mood.watch');
-    /* ★ v124 blockblast profile：拿掉換膚的廣告捷徑，只能等 CD。
+    /* ★ v125 blockblast profile：拿掉換膚的廣告捷徑，只能等 CD。
        這題廣告的動機低、出現頻繁，是典型的低情緒峰值廣告位。 */
     wb.style.display = (AD_PROFILE === 'blockblast') ? 'none' : '';
   }
@@ -7161,7 +7179,7 @@ const ECON = {
   dailyGift: 150,                        // 每日簽到金幣
   adGoldLadder: [30, 50, 80, 120, 180],  // 看廣告賺金幣，階梯遞增，長度＝每日上限次數
   winReward: 20, bossReward: 50,         // 過關金幣工資（一般／魔王關）
-  adReviveCap: 1,                        // ★ v124 2→1：一局只能救一次（救太多次分數就虛了）
+  adReviveCap: 1,                        // ★ v125 2→1：一局只能救一次（救太多次分數就虛了）
   // 道具雙標價（金幣價／鑽石特惠價，皆以 1💎=200🪙 回推）
   bombPacks: [ { n:1, gold:1000, dm:5 }, { n:3, gold:2500, dm:12 } ],
   hint: { gold:400, dm:2 },
@@ -7861,7 +7879,7 @@ function refreshReviveBtn(){
   const q   = document.getElementById('reviveQuota');
   if(!btn || !q) return;
   const freeLeft = ECON.adReviveCap - adRevivesUsed;
-  /* ★ v124 blockblast profile：救援用完就不再引導去商店。
+  /* ★ v125 blockblast profile：救援用完就不再引導去商店。
      那顆按鈕是畫面上唯一的廣告入口，額度用完直接收掉，不留變現漏斗。 */
   if(AD_PROFILE === 'blockblast' && freeLeft <= 0 && bombCount <= 0){
     btn.style.display = 'none'; q.textContent = ''; return;
@@ -7998,7 +8016,7 @@ function saveGame(){
       diamonds, bombCount, lastDailyClaim,   // ★ v36 經濟系統（買了東西重開失效 = 客訴，必存）
       goldCoin, adGoldDate, adGoldCount, firstPurchaseUsed, playerName, lastRenameAt,   // ★ v37 雙貨幣＋暱稱（含改名卡冷卻）
       lang,                                  // ★ v36 語言偏好
-      _runCount, _recentScores, _lastAdRun,  // ★ v124 局數累計與近局手感（不存檔的話關 App 再回來高分判定就重來）
+      _runCount, _recentScores, _lastAdRun,  // ★ v125 局數累計與近局手感（不存檔的話關 App 再回來高分判定就重來）
     };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
   }catch(e){ /* 隱私模式/預覽環境禁用 → 靜默退回記憶體模式 */ }
@@ -8071,7 +8089,7 @@ function loadGame(){
     if(typeof d.playerName==='string')      playerName = d.playerName;                               // ★ v37
     if(typeof d.lastRenameAt==='number')    lastRenameAt = Math.max(0, d.lastRenameAt);              // ★ v37 改名卡冷卻
     if(typeof d.lang==='string' && I18N[d.lang]) lang = d.lang;                                 // ★ v36 語言偏好
-    if(typeof d._runCount==='number')       _runCount = Math.max(0, d._runCount|0);              // ★ v124
+    if(typeof d._runCount==='number')       _runCount = Math.max(0, d._runCount|0);              // ★ v125
     if(Array.isArray(d._recentScores))      _recentScores = d._recentScores.filter(x=>Number.isFinite(x)).slice(-adConfig.reviveRecentWindow);
     if(typeof d._lastAdRun==='number')      _lastAdRun = Math.max(0, d._lastAdRun|0);
   }catch(e){ /* 壞檔或禁用 → 用預設值，不崩 */ }
@@ -8350,11 +8368,11 @@ window.addEventListener('pagehide', flushRunOnHide);
    全部參數化，隨時可調；接真 SDK 只改 playInterstitialAd() 內部。
    ============================================================ */
 /* ============================================================
-   ★ v124 廣告節奏總表
+   ★ v125 廣告節奏總表
    ─────────────────────────────────────────────
    AD_PROFILE 是本次改版的總開關：
      'blockblast' = 新節奏（極度克制，畫面上只留一個廣告入口）
-     'puffy'      = v124 原設計（完整保留，一個字都沒刪）
+     'puffy'      = v125 原設計（完整保留，一個字都沒刪）
    要切回舊設計只改這一行。
 
    核心分流（總監定案 2026/08/08）：
@@ -8368,8 +8386,8 @@ const AD_PROFILE = 'blockblast';
 
 const adConfig = {
   /* ── 收集模式：以「關」計 ── */
-  gracePeriodLevels: 50,   // ★ v124 20→50：前 50 關完全免強制廣告（保護第一印象）
-  minLevelMin: 5,          // ★ v124 固定 3 關 → 隨機 5～9 關。固定值會被玩家預期，
+  gracePeriodLevels: 50,   // ★ v125 20→50：前 50 關完全免強制廣告（保護第一印象）
+  minLevelMin: 5,          // ★ v125 固定 3 關 → 隨機 5～9 關。固定值會被玩家預期，
   minLevelMax: 9,          //   「廣告觸發不可預測」是專案原則
 
   /* ── 無盡模式：以「局」計 ── */
@@ -8381,7 +8399,7 @@ const adConfig = {
   interstitialSec: 5,      // 過場廣告長度（秒）
 
   /* ── 死亡救援（自願式激勵廣告）── */
-  reviveCap: 1,            // ★ v124 2→1：一局只能救一次。救太多次分數就虛了，
+  reviveCap: 1,            // ★ v125 2→1：一局只能救一次。救太多次分數就虛了，
                            //   排行榜也會失真——「只有一次機會」本身就是張力
   reviveGraceRuns: 3,      // 前 3 局一律不彈救援視窗（新玩家的第一印象裡不該有廣告）
   reviveHiBestRatio: 0.80, // 判定①：分數 ≥ 個人最佳 × 80%（快破紀錄）
@@ -8392,12 +8410,12 @@ const adConfig = {
 };
 let _lastAdTime = 0;       // 上一支強制廣告的時間戳（ms）
 let _lastAdLevel = 0;      // 上一支強制廣告時的關卡數
-let _lastAdRun = 0;        // ★ v124 上一支強制廣告時的「局數」（無盡模式用）
-let _runCount = 0;         // ★ v124 玩家累計完成的局數（存檔）
-let _recentScores = [];    // ★ v124 近 N 局分數（手感基準，存檔）
+let _lastAdRun = 0;        // ★ v125 上一支強制廣告時的「局數」（無盡模式用）
+let _runCount = 0;         // ★ v125 玩家累計完成的局數（存檔）
+let _recentScores = [];    // ★ v125 近 N 局分數（手感基準，存檔）
 let _nextLevelGate = 5;    // 本輪隨機出來的關數門檻
 let _nextRunGate = 5;      // 本輪隨機出來的局數門檻
-let _reviveOffered = false;// ★ v124 這一局是否已經給過救援機會
+let _reviveOffered = false;// ★ v125 這一局是否已經給過救援機會
 
 /* 重新骰「下一支廣告要隔幾關 / 幾局」。播完廣告後呼叫。 */
 function rollAdGates(){
@@ -8416,12 +8434,12 @@ function shouldShowInterstitial(){
                                                     //   氣球是全遊戲最緊張的模式，過關喘口氣被塞 5 秒廣告 = 體驗謀殺；
                                                     //   endless 沒有過場、選單(null)更不用說——一行擋光所有漏網模式。
   if(level <= adConfig.gracePeriodLevels) return false;         // 新手保護期
-  if(level - _lastAdLevel < _nextLevelGate) return false; // 關數閘門（★ v124 隨機 5~9）
+  if(level - _lastAdLevel < _nextLevelGate) return false; // 關數閘門（★ v125 隨機 5~9）
   if(Date.now() - _lastAdTime < adConfig.minCooldownSec*1000) return false; // 時間閘門
   return true;
 }
 
-/* ★ v124 無盡模式專用：判斷「按下再來一局之後」是否該播廣告。
+/* ★ v125 無盡模式專用：判斷「按下再來一局之後」是否該播廣告。
    刻意不在 showLose() 當下判斷 —— 廣告要落在「玩家已經決定繼續玩」的那一刻，
    不是他剛輸掉、正在懊惱的那一秒。 */
 function shouldShowRunAd(){
@@ -8435,7 +8453,7 @@ function shouldShowRunAd(){
   return true;
 }
 
-/* ★ v124 高分判定：這一局值不值得彈救援視窗。
+/* ★ v125 高分判定：這一局值不值得彈救援視窗。
    兩條任一成立即可 ——
      ① 快破自己的紀錄（≥ 個人最佳 80%）
      ② 今天手感特別好（≥ 近 5 局中位數 ×1.3）
@@ -8447,8 +8465,17 @@ function shouldShowRunAd(){
 function isHighScoreRun(sc){
   const m = MODE();
   if(!m || !m.useScore) return false;
-  if(_runCount < adConfig.reviveGraceRuns) return false;   // 前 3 局一律不彈
   const best = getBest();
+
+  /* ★ v125 修正（實機回報）：破個人紀錄是「絕對事件」，不受保護期限制。
+     v125 的 bug —— 玩家換上新版後 _runCount 從 0 起算，
+     頭三局就算打破生涯紀錄也被判低分、只跳極簡卡。
+     保護期的用意是「系統還不認識這個玩家的水準，先別亂判」，
+     但破紀錄根本不需要認識水準：他自己就是基準。
+     （老玩家每次改版 _runCount 都歸零，不修的話每次改版都要再等三局） */
+  if(best > 0 && sc >= best) return true;
+
+  if(_runCount < adConfig.reviveGraceRuns) return false;   // 相對判定才需要前 3 局暖機
   if(best > 0 && sc >= best * adConfig.reviveHiBestRatio) return true;
   if(_recentScores.length >= 3){
     const sorted = _recentScores.slice().sort((a,b)=>a-b);
@@ -8466,8 +8493,8 @@ function isHighScoreRun(sc){
 function playInterstitialAd(done){
   _lastAdTime = Date.now();
   _lastAdLevel = level;
-  _lastAdRun = _runCount;   // ★ v124 無盡模式以「局」計，一併記錄
-  rollAdGates();            // ★ v124 播完立刻重骰下一個隨機門檻，玩家無法預期
+  _lastAdRun = _runCount;   // ★ v125 無盡模式以「局」計，一併記錄
+  rollAdGates();            // ★ v125 播完立刻重骰下一個隨機門檻，玩家無法預期
   // ── 模擬 5 秒廣告：黑幕 + 倒數 + 「廣告」字樣 ──
   const veil = document.getElementById('adVeil');
   const cd   = document.getElementById('adCountdown');
@@ -8652,14 +8679,14 @@ document.getElementById('retryBtn').onclick = ()=>{
   restartRun();
 }; // 重新開始本關
 
-/* ★ v124 無盡模式的廣告點就在這裡。
+/* ★ v125 無盡模式的廣告點就在這裡。
    刻意不在 showLose() 當下播 —— 廣告要落在「玩家已經決定繼續玩」的那一刻，
    不是他剛輸掉、正在懊惱的那一秒。
    結構上跟收集模式的「過關 → 廣告 → 下一關」同源：廣告在過場，不在傷口上。 */
 function restartRun(){
   hideMiniLose();
   const lo = document.getElementById('loseOverlay');
-  if(lo) lo.classList.remove('show');
+  if(lo){ lo.classList.remove('show'); lo.classList.remove('celebrate'); }
   if(shouldShowRunAd()){ playInterstitialAd(()=>startLevel()); }
   else startLevel();
 }
@@ -8725,7 +8752,7 @@ function reviveClearSpace(){
 }
 
 document.getElementById('hintBtn').onclick = ()=>{ closeGear(); watchAdForHint(); };
-/* ★ v124 blockblast profile：提示按鈕隱藏。
+/* ★ v125 blockblast profile：提示按鈕隱藏。
    目標是「畫面上只留一個廣告入口」，那個入口留給死亡救援。 */
 if(AD_PROFILE === 'blockblast'){
   const _hb = document.getElementById('hintBtn');
