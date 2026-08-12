@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v125</title>
-<meta property="og:title" content="繽紛樂 v125">
+<title>繽紛樂 v126</title>
+<meta property="og:title" content="繽紛樂 v126">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・拯救小動物！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -1414,7 +1414,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v125・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v126・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1896,7 +1896,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v125・繽紛樂',
+  'menu.footer':'v126・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -2020,7 +2020,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v125 · Vivid Blast',
+  'menu.footer':'v126 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -2141,7 +2141,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v125・ビビッドブラスト',
+  'menu.footer':'v126・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -6704,12 +6704,17 @@ function showLose(){
      ⚠ 救援視窗是玩家的「權利」不是「打擾」——高分卻不被問要不要救，
        玩家會覺得被剝奪。所以這裡刻意沒有任何冷卻閘。 */
   _runCount++;
+  /* ★ v126 修正 Bug①「分數計入自身基準」：
+     push 必須在 isHighScoreRun() 判定「之後」才做。
+     舊寫法先把這局分數塞進 _recentScores，isHighScoreRun() 裡的中位數
+     比較時池子已經含有這局自己——等於拿分數跟「包含它自己」的基準比，
+     統計上不成立。判定完才寫入，池子永遠只反映「這局之前」的手感。 */
+  const hiRun = (AD_PROFILE === 'blockblast') && !HZ.loseNow && isHighScoreRun(score);
+  _reviveOffered = hiRun;
   if(m.useScore){
     _recentScores.push(score);
     if(_recentScores.length > adConfig.reviveRecentWindow) _recentScores.shift();
   }
-  const hiRun = (AD_PROFILE === 'blockblast') && !HZ.loseNow && isHighScoreRun(score);
-  _reviveOffered = hiRun;
 
   if(AD_PROFILE === 'blockblast' && !hiRun){
     showMiniLose();
@@ -8402,8 +8407,16 @@ const adConfig = {
   reviveCap: 1,            // ★ v125 2→1：一局只能救一次。救太多次分數就虛了，
                            //   排行榜也會失真——「只有一次機會」本身就是張力
   reviveGraceRuns: 3,      // 前 3 局一律不彈救援視窗（新玩家的第一印象裡不該有廣告）
-  reviveHiBestRatio: 0.80, // 判定①：分數 ≥ 個人最佳 × 80%（快破紀錄）
-  reviveHiRecentMul: 1.30, // 判定②：分數 ≥ 近 5 局中位數 × 1.30（今天手感特別好）
+  reviveHiBestRatio: 0.80, // 判定①：分數 ≥ 個人最佳 × 80%（快破紀錄，錨點＝生涯最高分）
+  /* ★ v126 修正 Bug②「閾值以異常高分校準」（總監定案：甲，雙軌並存）：
+     生涯最高分（best）只會往上棘輪、永不下修——若玩家曾有過一次離群值爆發
+     （運氣好連炸、道具衝分等），從此 reviveHiBestRatio 這條線就卡在那個異常值上，
+     之後正常發揮永遠構不到「快破紀錄」的判定。
+     解法：不動①原本的邏輯（生涯紀錄照樣顯示、照樣判），
+     另開一條判定錨點改用「近 N 局最高分」而非生涯最高分，兩條任一成立即觸發。
+     近期基準會隨新對局自然更新，離群值的影響只留在窗口內，不會被永久卡死。 */
+  reviveHiRecentBestRatio: 0.80, // 判定②：分數 ≥ 近 5 局最高分 × 80%（貼近近期實力，不被生涯離群值卡住）
+  reviveHiRecentMul: 1.30, // 判定③：分數 ≥ 近 5 局中位數 × 1.30（今天手感特別好，抓的是「持續手感」不是「單次高峰」）
   reviveRecentWindow: 5,
 
   rewardedAdsExempt: true, // 自願式激勵廣告不計入插頁上限
@@ -8453,10 +8466,12 @@ function shouldShowRunAd(){
   return true;
 }
 
-/* ★ v125 高分判定：這一局值不值得彈救援視窗。
-   兩條任一成立即可 ——
-     ① 快破自己的紀錄（≥ 個人最佳 80%）
-     ② 今天手感特別好（≥ 近 5 局中位數 ×1.3）
+/* ★ v126 高分判定：這一局值不值得彈救援視窗。
+   四條任一成立即可 ——
+     ① 破生涯紀錄（絕對事件，≥ 個人最佳 100%）
+     ② 快破生涯紀錄（≥ 個人最佳 80%）
+     ③ 快追上近期高峰（≥ 近 5 局最高分 80%，v126 新增，見 Bug② 註解）
+     ④ 今天手感特別好（≥ 近 5 局中位數 ×1.3）
    分數低就完全不彈，走極簡失敗卡，玩家一秒重來不被打擾。
 
    ⚠ 刻意「不」加冷卻閘：救援視窗是玩家的權利，不是打擾。
@@ -8477,6 +8492,12 @@ function isHighScoreRun(sc){
 
   if(_runCount < adConfig.reviveGraceRuns) return false;   // 相對判定才需要前 3 局暖機
   if(best > 0 && sc >= best * adConfig.reviveHiBestRatio) return true;
+  /* ★ v126 新增（Bug②甲：雙軌並存）：生涯紀錄（best）不動，
+     另開一條錨點改用「近期窗口最高分」，離群值只留在窗口內，不會永久卡死判定。 */
+  if(_recentScores.length >= 3){
+    const recentBest = Math.max(..._recentScores);
+    if(recentBest > 0 && sc >= recentBest * adConfig.reviveHiRecentBestRatio) return true;
+  }
   if(_recentScores.length >= 3){
     const sorted = _recentScores.slice().sort((a,b)=>a-b);
     const med = sorted[Math.floor(sorted.length/2)];
