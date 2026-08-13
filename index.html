@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v129</title>
-<meta property="og:title" content="繽紛樂 v129">
+<title>繽紛樂 v130</title>
+<meta property="og:title" content="繽紛樂 v130">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・看花開！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -1127,18 +1127,16 @@
   .wm-lang-chip .ic { font-size:15px; }
   .wm-lang-chip:active { background:rgba(255,255,255,.16); }
   .wm-lang-chip.active { opacity:1; background:rgba(102,187,106,.16); border-color:rgba(102,187,106,.55); }
-  .welcome-modal .wm-emoji { font-size:48px; margin-bottom:6px; }
   .welcome-modal h2 { font-size:21px; margin:0 0 6px; }
   /* ★ v128 首次登入獎勵標題：金色實色，不用 opacity 壓暗（獎勵要看得清楚才有份量） */
-  .welcome-modal .wm-gifttitle { font-size:14px; font-weight:800; color:#ffd54f;
-    margin:2px 0 10px; letter-spacing:.5px; }
+  /* ★ v130 首登禮包：大禮盒圖示 + 金色題字，取代原本的三格獎勵明細 */
+  .welcome-modal .wm-giftbox { font-size:88px; line-height:1; margin:14px 0 6px; }
+  .welcome-modal .wm-gifttitle { font-size:17px; font-weight:800; color:#ffd54f;
+    margin:0 0 22px; letter-spacing:1px; }
   .name-input { width:100%; box-sizing:border-box; border:none; border-radius:12px; padding:12px 14px;
     font-size:16px; font-weight:700; text-align:center; background:rgba(255,255,255,.14); color:#fff;
     margin-bottom:14px; }
   .name-input::placeholder { color:rgba(255,255,255,.4); }
-  .wm-gifts { display:flex; justify-content:center; gap:14px; margin-bottom:20px; }
-  .wm-gift { background:rgba(255,255,255,.08); border-radius:12px; padding:10px 14px; font-size:13px; font-weight:800; }
-  .wm-gift .n { font-size:19px; display:block; margin-bottom:2px; }
 
   /* 個人資料視窗：暱稱編輯 + 登入方式（骨架，Google/Apple 即將推出） */
   .profile-modal { max-width:330px; text-align:center; padding:24px 20px 20px; }
@@ -1296,7 +1294,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v129・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v130・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1461,14 +1459,12 @@
   <div class="modal welcome-modal">
     <!-- ★ v44 開場語言快選：JS 依 LANGS 動態生成，選了立刻套用全站文字（含這個視窗本身） -->
     <div class="wm-langrow" id="welcomeLangRow"></div>
-    <div class="wm-emoji">🐾</div>
     <h2 data-i18n="welcome.title">歡迎來到繽紛樂！</h2>
-    <div class="wm-gifttitle" data-i18n="welcome.giftTitle">🎁 首次登入獎勵</div>
-    <div class="wm-gifts">
-      <div class="wm-gift"><span class="n">🪙300</span><span data-i18n="welcome.gold">新手金幣</span></div>
-      <div class="wm-gift"><span class="n">💎30</span><span data-i18n="welcome.dm">新手鑽石</span></div>
-      <div class="wm-gift"><span class="n">💣1</span><span data-i18n="welcome.bomb">新手炸彈</span></div>
-    </div>
+    <!-- ★ v130 首登禮包：不再逐項列出金幣／鑽石／炸彈的數量，改用一個大禮盒代表。
+         獎勵本身照發不誤（走 ECON.startGold / startDiamonds / startBombs 的變數預設值），
+         這裡純粹是「你有東西可拿」的視覺告知，不是發放邏輯。 -->
+    <div class="wm-giftbox">🎁</div>
+    <div class="wm-gifttitle" data-i18n="welcome.giftTitle">首登禮包</div>
     <button class="big-btn" id="welcomeStartBtn" data-i18n="welcome.start">開始冒險 →</button>
   </div>
 </div>
@@ -1723,7 +1719,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v129・繽紛樂',
+  'menu.footer':'v130・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1753,9 +1749,9 @@ const I18N = {
   'gear.paused':'遊戲暫停中',   // ★ v87 防作弊暫停幕文字
   'side.level':'關卡', 'side.score':'分數', 'side.best':'最佳', 'side.hint':'提示', 'side.bomb':'炸彈', 'side.dm':'💎 鑽石', 'side.gold':'🪙 金幣',
   'gear.profile':'帳號',
-  'welcome.title':'歡迎來到繽紛樂！', 'welcome.giftTitle':'🎁 首次登入獎勵',
+  'welcome.title':'歡迎來到繽紛樂！', 'welcome.giftTitle':'首登禮包',
   'welcome.defaultName':'繽紛玩家',
-  'welcome.gold':'新手金幣', 'welcome.dm':'新手鑽石', 'welcome.bomb':'新手炸彈', 'welcome.start':'開始冒險 →',
+  'welcome.start':'開始冒險 →',
   'profile.title':'👤 個人資料', 'profile.save':'儲存暱稱', 'profile.close':'關閉',
   'login.guest':'遊客模式', 'login.using':'使用中', 'login.google':'Google 登入', 'login.apple':'Apple 登入', 'login.soon':'即將推出',
   'lang.title':'🌐 選擇語言', 'lang.using':'使用中',
@@ -1825,7 +1821,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v129 · Vivid Blast',
+  'menu.footer':'v130 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -1855,9 +1851,9 @@ const I18N = {
   'gear.paused':'Game Paused',   // ★ v87
   'side.level':'LEVEL', 'side.score':'SCORE', 'side.best':'BEST', 'side.hint':'Hint', 'side.bomb':'Bomb', 'side.dm':'💎 Gems', 'side.gold':'🪙 Gold',
   'gear.profile':'Account',
-  'welcome.title':'Welcome to Vivid Blast!', 'welcome.giftTitle':'🎁 First Login Rewards',
+  'welcome.title':'Welcome to Vivid Blast!', 'welcome.giftTitle':'First Login Pack',
   'welcome.defaultName':'Vivid Player',
-  'welcome.gold':'Starter Gold', 'welcome.dm':'Starter Gems', 'welcome.bomb':'Starter Bomb', 'welcome.start':'Start Adventure →',
+  'welcome.start':'Start Adventure →',
   'profile.title':'👤 Account', 'profile.save':'Save Nickname', 'profile.close':'Close',
   'login.guest':'Guest', 'login.using':'Active', 'login.google':'Sign in with Google', 'login.apple':'Sign in with Apple', 'login.soon':'Coming soon',
   'lang.title':'🌐 Select Language', 'lang.using':'Active',
@@ -1926,7 +1922,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v129・ビビッドブラスト',
+  'menu.footer':'v130・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -1956,9 +1952,9 @@ const I18N = {
   'gear.paused':'一時停止中',   // ★ v87
   'side.level':'レベル', 'side.score':'スコア', 'side.best':'ベスト', 'side.hint':'ヒント', 'side.bomb':'ボム', 'side.dm':'💎 ジェム', 'side.gold':'🪙 ゴールド',
   'gear.profile':'アカウント',
-  'welcome.title':'ビビッドブラストへようこそ！', 'welcome.giftTitle':'🎁 初回ログイン特典',
+  'welcome.title':'ビビッドブラストへようこそ！', 'welcome.giftTitle':'初回ログインパック',
   'welcome.defaultName':'ビビッドプレイヤー',
-  'welcome.gold':'初回ゴールド', 'welcome.dm':'初回ジェム', 'welcome.bomb':'初回ボム', 'welcome.start':'冒険を始める →',
+  'welcome.start':'冒険を始める →',
   'profile.title':'👤 アカウント', 'profile.save':'ニックネームを保存', 'profile.close':'閉じる',
   'login.guest':'ゲストモード', 'login.using':'使用中', 'login.google':'Googleでログイン', 'login.apple':'Appleでログイン', 'login.soon':'近日公開',
   'lang.title':'🌐 言語を選択', 'lang.using':'使用中',
@@ -8590,6 +8586,7 @@ loadGame();
    新手禮包本身已透過 ECON.startGold/startDiamonds/startBombs 的
    變數預設值發放（跟舊存檔玩家不會衝突，因為 loadGame 讀到值就覆蓋）；
    這個視窗只負責「讓玩家看見獎勵、順手挑個語言」。
+   ★ v130 獎勵改用單一禮盒圖示呈現，不再逐項列出數量——發放邏輯完全沒變。
    ============================================================ */
 /* ★ v44 開場語言快選列：跟齒輪選單裡的 renderLangList 用同一套資料（LANGS/I18N/lang），
    只是渲染成緊湊的膠囊列，塞進歡迎視窗最上方。點了直接呼叫既有的 selectLang()，
