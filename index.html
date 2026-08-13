@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v128</title>
-<meta property="og:title" content="繽紛樂 v128">
+<title>繽紛樂 v129</title>
+<meta property="og:title" content="繽紛樂 v129">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・看花開！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -704,8 +704,11 @@
      直到點模式卡讓選單隱藏，彈窗才「浮出來」。這個洞影響名人堂、商店、
      輝煌印記、皮膚、個人資料與新的選關視窗 —— 一次全部修好。
      層級秩序（低→高）：特效 930~952 / 拖曳方塊 999 / 主選單 1100 /
-     齒輪與商店浮層 1150 / 一般彈窗 1300 / 廣告全屏 1400 */
-     ★ v127 拆除競爭層後，1301/1302 兩層已空出，未來個人紀錄頁可沿用 */
+     齒輪與商店浮層 1150 / 一般彈窗 1300 / 廣告全屏 1400
+     ★ v127 拆除競爭層後，1301/1302 兩層已空出，未來個人紀錄頁可沿用。
+     ⚠ v129 教訓：這段註解曾經多打一個結束符，導致緊接在後的 .overlay
+       整條規則被 CSS 解析器丟棄（彈窗全部並排常駐、寬度縮成一條）。
+       改這裡時務必確認整段只有一個結束符。 */
   .overlay { position:fixed; inset:0; background:rgba(0,0,0,.7); display:flex; align-items:center;
     justify-content:center; z-index:1300; opacity:0; pointer-events:none; transition:.3s; }
   .overlay.show { opacity:1; pointer-events:auto; }
@@ -1293,7 +1296,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v128・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v129・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1720,7 +1723,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v128・繽紛樂',
+  'menu.footer':'v129・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1822,7 +1825,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v128 · Vivid Blast',
+  'menu.footer':'v129 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -1923,7 +1926,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v128・ビビッドブラスト',
+  'menu.footer':'v129・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
