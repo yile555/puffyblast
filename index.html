@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v131</title>
-<meta property="og:title" content="繽紛樂 v131">
+<title>繽紛樂 v132</title>
+<meta property="og:title" content="繽紛樂 v132">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・看花開！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -1057,8 +1057,7 @@
     transition:.12s; flex-shrink:0; }
   .hue-swatch:active { transform:scale(.85); }
   .hue-swatch.active { border-color:#fff; box-shadow:0 0 0 2px rgba(255,255,255,.3); }
-  .custom-check { display:flex; align-items:center; justify-content:center; gap:4px; font-size:10.5px;
-    opacity:.75; margin-top:4px; }
+  .sc-free { text-align:center; font-size:10.5px; opacity:.72; margin-top:4px; letter-spacing:.3px; }
   .skin-card { position:relative; }
 
   /* ★ v39 皮膚圖鑑 */
@@ -1273,7 +1272,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v131・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v132・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1574,7 +1573,7 @@
 <!-- ============================================================
      ★ v92 皮膚圖鑑：全部免費，不再有「未解鎖剪影」狀態
      心情轉換系統仿播放器三種模式：隨機／固定／自訂（不選則系統預設走 auto，
-     行為同隨機，但語意是「系統幫你安排驚喜」，見 checkMoodTrigger 註解）
+     ★ v132 收斂成兩態：預設（連消 4 次系統臨時借你一款）／固定（系統不插手）
      ============================================================ -->
 <div class="overlay shop-z" id="skinGalleryOverlay">
   <div class="modal shop-modal">
@@ -1586,11 +1585,10 @@
 
     <!-- ★ v92 心情轉換三模式 -->
     <div class="rotate-modes" id="rotateModes">
-      <button class="rotate-mode-btn" data-rmode="random"><span class="rm-ic">🔀</span><span>隨機</span></button>
-      <button class="rotate-mode-btn" data-rmode="fixed"><span class="rm-ic">📌</span><span>固定</span></button>
-      <button class="rotate-mode-btn" data-rmode="custom"><span class="rm-ic">🎛️</span><span>自訂</span></button>
+      <button class="rotate-mode-btn" data-rmode="auto"><span class="rm-ic">✨</span><span data-i18n="rotate.auto">預設</span></button>
+      <button class="rotate-mode-btn" data-rmode="fixed"><span class="rm-ic">📌</span><span data-i18n="rotate.fixed">固定</span></button>
     </div>
-    <p class="rotate-hint" id="rotateHint">遊玩過程中系統會不定時安排換裝驚喜——隨機模式全池亂抽；固定模式完全不自動換；自訂模式照你在下面勾選的清單輪流播放。</p>
+    <p class="rotate-hint" id="rotateHint">連續消除方塊 4 次，系統會臨時幫你換上一款造型；中斷後再消除 3 次就會換回來。</p>
 
     <div class="skin-grid" id="skinGrid"></div>
     <p class="persona-disclaimer" data-i18n="skin.persona.disclaimer" style="text-align:center;font-size:11px;color:rgba(255,255,255,.4);font-style:italic;margin:8px 0 2px;line-height:1.5;">皮膚人格名稱純屬趣味參考，僅供娛樂，不代表任何性格判定</p>
@@ -1698,7 +1696,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v131・繽紛樂',
+  'menu.footer':'v132・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1785,11 +1783,17 @@ const I18N = {
 
   'combo.skinEquipped':'🎨 已換上「{n}」',
 
-  'gallery.title':'🎨 換膚', 'gallery.sub':'所有造型都免費，看廣告即可立即換上',
+  'gallery.title':'🎨 換膚', 'gallery.sub':'看一支廣告，這款造型免費用三天',
+  'rotate.auto':'預設', 'rotate.fixed':'固定',
+  'rotate.hintAuto':'連續消除方塊 4 次，系統會臨時幫你換上一款造型；中斷後再消除 3 次就會換回來。',
+  'rotate.hintFixed':'固定造型：系統不會臨時幫你換裝，你穿的就是你自己挑的那款。',
+  'rotate.toastAuto':'✨ 已切換為預設造型', 'rotate.toastFixed':'📌 已切換為固定造型',
+  'gallery.freeLeftD':'免費使用中・剩 {n} 天', 'gallery.freeLeftH':'免費使用中・剩 {n} 小時',
+  'gallery.freeLeftEnd':'免費使用中・即將結束',
   'gallery.close':'關閉', 'gallery.equip':'使用', 'gallery.equipped':'使用中 ✓',
 
-  'mood.hint':'造型免費，看個廣告立即換上', 'mood.watch':'📺 看廣告免費換上', 'mood.skip':'先不要',
-  'mood.cdHint':'免費換膚CD還剩 {t}，可以等時間到免費換，或看個廣告立即換上', 'rest.title':'眼睛該休息囉～', 'rest.hint':'玩了好一陣子了！換個皮膚讓眼睛減輕一點疲勞，或看個廣告拿提示幫你解盤', 'rest.watch':'📺 看廣告拿提示',
+  'mood.hint':'看一支廣告，這款造型免費用三天', 'mood.watch':'📺 看廣告免費換上', 'mood.skip':'先不要',
+  'mood.freeHint':'鑑賞期內，可免看廣告直接換上（限一次）', 'rest.title':'眼睛該休息囉～', 'rest.hint':'玩了好一陣子了！換個皮膚讓眼睛減輕一點疲勞，或看個廣告拿提示幫你解盤', 'rest.watch':'📺 看廣告拿提示',
   'combo.adGold':'🪙 +{n}！', 'combo.exchange':'🔁 兌換成功 +{n}🪙', 'combo.firstBonus':'🎉 首購加碼！鑽石 +{n}',
   'combo.nameBad':'暱稱需 2~12 個字', 'combo.nameSaved':'✅ 暱稱已儲存',
   'diff.boss':'⚠ 魔王關', 'diff.spike':'🔥 挑戰關',
@@ -1798,7 +1802,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v131 · Vivid Blast',
+  'menu.footer':'v132 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -1884,11 +1888,17 @@ const I18N = {
 
   'combo.skinEquipped':'🎨 Equipped "{n}"',
 
-  'gallery.title':'🎨 Skins', 'gallery.sub':'All skins are free — just watch a short ad to equip',
+  'gallery.title':'🎨 Skins', 'gallery.sub':'Watch one short ad — wear this skin free for 3 days',
+  'rotate.auto':'Default', 'rotate.fixed':'Fixed',
+  'rotate.hintAuto':'Clear 4 times in a row and a skin drops in for a while. Break the chain, clear 3 more, and it changes back.',
+  'rotate.hintFixed':'Fixed: no surprise swaps. You keep whatever you picked.',
+  'rotate.toastAuto':'✨ Default skin mode', 'rotate.toastFixed':'📌 Fixed skin mode',
+  'gallery.freeLeftD':'Free — {n} days left', 'gallery.freeLeftH':'Free — {n} hours left',
+  'gallery.freeLeftEnd':'Free — ending soon',
   'gallery.close':'Close', 'gallery.equip':'Equip', 'gallery.equipped':'Equipped ✓',
 
-  'mood.hint':'Free skins — watch a short ad to equip', 'mood.watch':'📺 Watch ad to equip', 'mood.skip':'Not now',
-  'mood.cdHint':'Free skin swap in {t} — wait it out, or watch an ad to equip now', 'rest.title':'Time to rest your eyes~', 'rest.hint':'You\'ve been playing a while! Try a fresh skin to ease eye strain, or watch an ad for a hint', 'rest.watch':'📺 Watch ad for a hint',
+  'mood.hint':'Watch one short ad — wear this skin free for 3 days', 'mood.watch':'📺 Watch ad to equip', 'mood.skip':'Not now',
+  'mood.freeHint':'Preview window — one free swap, no ad needed', 'rest.title':'Time to rest your eyes~', 'rest.hint':'You\'ve been playing a while! Try a fresh skin to ease eye strain, or watch an ad for a hint', 'rest.watch':'📺 Watch ad for a hint',
   'combo.adGold':'🪙 +{n}!', 'combo.exchange':'🔁 Exchanged +{n}🪙', 'combo.firstBonus':'🎉 First-purchase bonus! +{n} gems',
   'combo.nameBad':'Nickname must be 2-12 characters', 'combo.nameSaved':'✅ Nickname saved',
   'diff.boss':'⚠ BOSS LEVEL', 'diff.spike':'🔥 CHALLENGE',
@@ -1897,7 +1907,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v131・ビビッドブラスト',
+  'menu.footer':'v132・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -1983,11 +1993,17 @@ const I18N = {
 
   'combo.skinEquipped':'🎨「{n}」に着せ替えた',
 
-  'gallery.title':'🎨 きせかえ', 'gallery.sub':'すべて無料。広告を見ればすぐ着替えられます',
+  'gallery.title':'🎨 きせかえ', 'gallery.sub':'広告を1本見ると、このスキンを3日間無料で使えます',
+  'rotate.auto':'デフォルト', 'rotate.fixed':'固定',
+  'rotate.hintAuto':'4回連続で消すと、スキンが一時的に変わります。途切れてから3回消すと元に戻ります。',
+  'rotate.hintFixed':'固定：自動で着替えません。自分で選んだスキンのままです。',
+  'rotate.toastAuto':'✨ デフォルトに切り替えました', 'rotate.toastFixed':'📌 固定に切り替えました',
+  'gallery.freeLeftD':'無料で使用中・残り{n}日', 'gallery.freeLeftH':'無料で使用中・残り{n}時間',
+  'gallery.freeLeftEnd':'無料で使用中・まもなく終了',
   'gallery.close':'閉じる', 'gallery.equip':'使用する', 'gallery.equipped':'使用中 ✓',
 
-  'mood.hint':'全部無料。広告を見るとすぐ着替えられます', 'mood.watch':'📺 広告を見て着替える', 'mood.skip':'今はしない',
-  'mood.cdHint':'無料着替えまであと {t}。待てば無料、広告を見ればすぐ着替えられます', 'rest.title':'目を休めましょう～', 'rest.hint':'長く遊んでいますね！スキンを変えて目の疲れを和らげるか、広告を見てヒントをもらいましょう', 'rest.watch':'📺 広告を見てヒント',
+  'mood.hint':'広告を1本見ると、このスキンを3日間無料で使えます', 'mood.watch':'📺 広告を見て着替える', 'mood.skip':'今はしない',
+  'mood.freeHint':'お試し期間中：広告なしで1回だけ着替えられます', 'rest.title':'目を休めましょう～', 'rest.hint':'長く遊んでいますね！スキンを変えて目の疲れを和らげるか、広告を見てヒントをもらいましょう', 'rest.watch':'📺 広告を見てヒント',
   'combo.adGold':'🪙 +{n}！', 'combo.exchange':'🔁 交換成功 +{n}🪙', 'combo.firstBonus':'🎉 初回購入ボーナス！ジェム +{n}',
   'combo.nameBad':'ニックネームは2〜12文字で入力してください', 'combo.nameSaved':'✅ ニックネームを保存しました',
   'diff.boss':'⚠ ボス面', 'diff.spike':'🔥 チャレンジ面',
@@ -5634,6 +5650,7 @@ function clearLines(){
   if(fullRows.length===0 && fullCols.length===0){
     // ★ v49 連消中斷：歸零、徽章收起，一切回到初始的基本小碎光
     if(clearStreak !== 0){ clearStreak = 0; updateStreakBadge(false); }
+    moodOnBreak();           // ★ v132 連消中斷：借穿中的話從下一次消除開始倒數歸還
     checkSmartPlacement();   // ★ v49 沒消行才判定「聰明的一步」（消行有自己的讚美系統）
     afterMove();
     return;
@@ -5641,6 +5658,8 @@ function clearLines(){
 
   // ★ v49 連消 +1：放下即消，不間斷就一路疊
   clearStreak++;
+  skinCheckExpiry();         // ★ v132 免費期 72 小時到了就在這一刻換回初始皮膚
+  moodOnClear();             // ★ v132 連消借穿／歸還（獨立計數，不動 clearStreak）
   lastPlacement = null;      // 這一手已用消行慶祝，聰明讚不重複跳
   // ★ v68 ⑥ 徽章＋中央大字（各含一次「強制重排」重啟動畫的招式）挪到下方視覺幀一起演，
   //   pointerup 幀不再被這些小重排零星扎針。
@@ -5707,7 +5726,6 @@ function clearLines(){
     updateStatus();
     playScoreRun(totalLines, clearStreak);   // ★ v93 啾啾啾爬升音（行數越多、連消越高越華麗）
     announceCombo(totalLines, clearStreak);  // ★ v93 激勵播報（合成音為主，人聲素材備妥即自動切換）
-    // ★ v97 無盡模式改用「局數」門檻，不再用分數（見 checkMoodTriggerGames，掛在 enterMode）
   }
 
   const _clearEpoch = gameEpoch;   // ★ v64 A2 記下發射當下的世代（視覺幀與 360ms 收尾共用）
@@ -6151,7 +6169,7 @@ function highlightHint(p,r,c){
 // ===== 商業接口：付費去廣告 / 換膚 解鎖（預留 flag） =====
 let isPremium = false;       // 之後接內購：true 後隱藏廣告
 /* ★ v92 全免費：不再有「已擁有／未擁有」的概念，ownedSkins 整個移除。
-   所有皮膚永遠可選，門檻只剩「這次換裝要不要看廣告」（見 adUnlockedThisSession）。 */
+   所有皮膚永遠可選，門檻只剩「這次換裝要不要看廣告」（見 skinGateState）。 */
 let currentSkin = 'default';    // ★ v21 目前裝備的皮膚（平常關卡都用這個渲染）
 
 /* ============================================================
@@ -6163,18 +6181,17 @@ let currentSkin = 'default';    // ★ v21 目前裝備的皮膚（平常關卡�
    預設走 auto（行為＝隨機，但語意上是「系統幫你安排下一場驚喜」，
    跟玩家主動點「隨機」的心情不同，故保留成獨立的第四種內部狀態）。
 
-   【觸發時機，見 checkMoodTrigger()】
-     闖關模式：每 LEVELS_PER_MOOD 關觸發一次
-     無盡模式：每跨過 SCORE_PER_MOOD 分的整數倍觸發一次
+   【觸發時機，見 moodOnClear()】
+     ★ v132 改為「連續消除 4 次」靜默借穿，中斷後再消除 3 次歸還。
+     關數/局數里程碑與自動彈窗整組廢除。
 
    【廣告閘，見 equipSkinViaAd()】
      所有「切換到一款目前沒在用的皮膚」的動作——無論是系統自動觸發、
      還是玩家在圖鑑手動點裝備——一律先跳「看廣告免費換上」。
      換膚是免費的，但玩家幾乎每次都會乖乖看廣告，這才是這次改版
      真正的營收設計：用免費換膚的驚喜感，換玩家自願的廣告曝光。
-     例外：切回目前已裝備過、且「這個 session 已經看過廣告解鎖」的
-     皮膚（即 currentSkin 本身）不需要重複看廣告——重複索取廣告
-     只會讓玩家反感，不會增加營收，見 adUnlockedThisSession。
+     ★ v132 廢除「本 session 看過就免廣告」的款式清單——那條路可以讓
+     玩家兩件皮膚無限來回穿，繞過「鑑賞期外想換就要看廣告」的定案。
      default（原色果凍）是零門檻基礎款，永遠免廣告即點即換。
 
    【色相微調，見色相列點選 UI】
@@ -6193,8 +6210,6 @@ let currentSkin = 'default';    // ★ v21 目前裝備的皮膚（平常關卡�
       才彈「眼睛該休息囉」溫馨視窗＋看廣告拿提示/獎勵；到點後苦等 5 分鐘
       都等不到停頓則保底直接彈。填空檔，不搶心流。 */
 const MOOD_RULE = {
-  levelRange: [8, 12],
-  gamesRange: [4, 8],
   restTimeRangeMs: [25*60*1000, 35*60*1000],   // 一局內到點才進入待彈
   restIdleRangeMs: [8000, 12000],              // 停頓偵測門檻（無操作多久算真的停）
   restForceMs: 5*60*1000,                      // 到點後最多再等這麼久，等不到停頓就保底彈
@@ -6211,37 +6226,47 @@ function _moodRandInt(range){ return Math.floor(Math.random()*(range[1]-range[0]
    ── 同時解掉 v97 疊加轟炸 bug：換膚看廣告會重排休息提醒計時，剛看完廣告
       不會馬上又被另一條線逼看一次 */
 const SKIN_CD = {
-  freeWindowMs: 3*60*1000,
-  cooldownMs:   60*60*1000,
+  freeWindowMs:  3*60*1000,        // 鑑賞期：看完廣告後 3 分鐘，可免廣告換一次
+  freeOwnMs:    72*60*60*1000,     // 免費使用期：72 小時（現實時間，關 App 照走）
 };
-let skinAdWatchedAt = 0;   // 上次看廣告換膚的現實時間戳（存檔）。0 = 從沒看過
-/* 換膚閘狀態：'free' = 後悔窗內或 CD 已走完（直接換不跳廣告）
-              'gate' = 需要看廣告（首次、或 CD 進行中玩家選擇不等） */
+let skinAdWatchedAt   = 0;      // 上次看廣告換膚的現實時間戳（存檔）。0 = 從沒看過
+let skinFreeUntil     = 0;      // 目前這款免費用到什麼時候（存檔）。0 = 沒有免費期（穿初始皮膚）
+let skinFreeSwapUsed  = false;  // 這輪鑑賞期的那一次免費換是否已用掉（存檔）
+let testerSkinFree    = false;  // ★ 測試員面板的繞閘旗標（session-only，不存檔）
+/* 換膚閘狀態：'free' = 鑑賞期內且那一次還沒用掉（直接換不跳廣告）
+              'gate' = 需要看廣告
+   ★ v132 一小時 CD 整套移除（總監定案）：免費權限只由「鑑賞期一次」管理，
+   不再有「等時間到就免費」這條路——想換就看廣告，玩家自己決定換幾次。 */
 function skinGateState(){
-  if(!skinAdWatchedAt) return 'gate';                                   // 首次換膚也要看廣告
-  const dt = Date.now() - skinAdWatchedAt;
-  if(dt <= SKIN_CD.freeWindowMs) return 'free';                         // 3 分鐘後悔窗內
-  if(dt >= SKIN_CD.cooldownMs) return 'free';                           // CD 已自然走完
-  return 'gate';
+  if(testerSkinFree) return 'free';
+  if(!skinAdWatchedAt) return 'gate';        // 首次換膚也要看廣告
+  if(skinFreeSwapUsed) return 'gate';        // 鑑賞期的那一次已經用掉
+  return (Date.now() - skinAdWatchedAt <= SKIN_CD.freeWindowMs) ? 'free' : 'gate';
 }
-function skinCdRemainMs(){
-  if(!skinAdWatchedAt) return 0;
-  return Math.max(0, SKIN_CD.cooldownMs - (Date.now() - skinAdWatchedAt));
+function skinFreeRemainMs(){
+  return skinFreeUntil ? Math.max(0, skinFreeUntil - Date.now()) : 0;
 }
-function fmtCd(ms){   // 59:55 這種 mm:ss；超過一小時不會發生（CD 上限就是 1 小時）
-  const s = Math.ceil(ms/1000);
-  return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
+/* ★ v132 72 小時到期 → 直接回初始皮膚（總監定案：不彈窗、不預告，畫面自己變回去。
+   掛在消行結算後與載檔時各檢查一次；久沒回來的玩家開檔即回初始皮膚）。 */
+function skinCheckExpiry(){
+  if(currentSkin === 'default'){ skinFreeUntil = 0; return false; }
+  if(!skinFreeUntil || Date.now() < skinFreeUntil) return false;
+  skinFreeUntil = 0;
+  moodLastSkin  = currentSkin;
+  currentSkin   = 'default';
+  saveGame();
+  if(!moodSkinId){ renderBoard(); renderTray(); }   // 借穿中就先不動畫面，歸還時自然回到初始皮膚
+  renderSkinGallery();
+  return true;
 }
 
-let moodMode = null;              // null(auto) | 'fixed' | 'random' | 'custom'（存檔）
-let moodCustomOrder = [];         // 自訂模式的播放清單（存檔，元素為 skin id）
-let moodCursor = 0;               // 自訂模式播放到第幾個（存檔）
-let moodSkinId = null;            // 心情轉換系統目前選中的皮膚（session-only，優先權最高，見 activeSkinId）
-let moodLastSkin = null;          // 上一次選中的皮膚，避免連續兩次同款（session-only）
-let moodLevelCounter = 0;         // 距離上次觸發過了幾關（存檔，跨關卡累加）
-let moodLevelThreshold = _moodRandInt(MOOD_RULE.levelRange);   // 這輪門檻，觸發後重抽（存檔）
-let moodGamesCounter = 0;         // 距離上次觸發過了幾場（無盡模式，存檔，跨局累加）
-let moodGamesThreshold = _moodRandInt(MOOD_RULE.gamesRange);   // 這輪門檻，觸發後重抽（存檔）
+let moodMode = null;              // null(預設) | 'fixed'（存檔）
+let moodSkinId = null;            // 目前臨時借穿的皮膚（session-only，優先權最高，見 activeSkinId）
+let moodLastSkin = null;          // 上一次借穿的皮膚，避免連續兩次同款（session-only）
+/* ★ v132 連消借穿計數（全 session-only，跨關不保留）*/
+let moodStreak = 0;               // 未借穿時：連續消除了幾次（放下沒消到 → 歸零）
+let moodReturnArmed = false;      // 借穿中且連消已中斷 → 開始倒數歸還
+let moodReturnCount = 0;          // 倒數期間已消除幾次
 /* ★ v98 休息提醒狀態（全部 session-only，一局一輪）*/
 let restDueAt = 0;                // 這局的到點時間戳（enterMode 時排定）
 let restArmed = false;            // 已到點，進入「待彈」偵測停頓中
@@ -6252,9 +6277,6 @@ let restCheckHandle = null;       // 停頓輪詢計時器（session-only）
 let restFiredThisRun = false;     // 這局已彈過就不再彈（一局最多一次）
 let pendingMoodSkin = null;       // 廣告閘彈窗當下待確認的皮膚 id（session-only）
 let _pendingHueTune = null;       // ★ v98 廣告閘確認前暫存的調色請求 {skinId, newHue}（session-only）
-let adUnlockedThisSession = new Set([activeSkinIdSafe()]);  // 見下方安全存取
-
-function activeSkinIdSafe(){ try{ return currentSkin || 'default'; }catch(e){ return 'default'; } }
 
 /* 從全部皮膚（扣掉目前已裝備那款）挑一個，避免連續兩次抽到同一款 */
 function pickRandomSkin(){
@@ -6263,45 +6285,56 @@ function pickRandomSkin(){
   if(!real.length) return currentSkin;
   return real[Math.floor(Math.random()*real.length)];
 }
-/* 自訂模式：依玩家排好的清單順序輪流播放；清單是空的就退回隨機（保底，不讓功能卡死） */
-function pickCustomSkin(){
-  const list = moodCustomOrder.filter(id => SKIN_MATERIALS.some(s=>s.id===id));
-  if(!list.length) return pickRandomSkin();
-  moodCursor = (moodCursor + 1) % list.length;
-  return list[moodCursor];
-}
-function pickMoodSkin(){
-  if(moodMode === 'custom') return pickCustomSkin();
-  return pickRandomSkin();   // 'random' 與 auto(null) 目前共用同一套隨機邏輯（見上方大註解）
-}
+/* ============================================================
+   ★ v132 連消借穿引擎（總監定案 20260815，取代 v92 的關數/局數里程碑）
+   ------------------------------------------------------------
+   舊設計的死結：系統定時彈窗問「要不要換」，是打斷，而且免費送出去的
+   東西玩家不會想要，廣告閘等於沒有入口。
 
-/* 關卡/分數里程碑到了 → 決定要不要開啟「換裝驚喜」廣告閘。
-   fixed 模式下完全不觸發，玩家的裝備只由自己手動決定。 */
-function checkMoodTrigger(){
-  if(moodMode === 'fixed') return;
-  const picked = pickMoodSkin();
+   新設計把「魅惑」拆成兩層：
+     ① 誘因 —— 連續消除 4 次，系統靜默換上一款造型（不彈窗、不看廣告、
+        不影響 72 小時免費期）。它會自己收回去，所以送得起。
+     ② 變現 —— 玩家捨不得剛剛那件，自己去換膚頁點，那裡才有廣告閘。
+
+   歸還規則（總監親自定義的時序，不可改）：
+     連消還在延續時「不倒數」——玩家連消到第 10 次，皮膚就穿到第 10 次；
+     中斷之後才開始算，再消除 3 次才歸還。歸還後計數歸零，
+     要再連 4 次才會重新借穿（所以不會出現「還了馬上又借」的畫面跳動）。
+   ============================================================ */
+const MOOD_STREAK_TRIGGER = 4;   // 連續消除幾次觸發借穿
+const MOOD_RETURN_CLEARS  = 3;   // 中斷後再消除幾次歸還
+function moodRepaint(){ renderBoard(); renderTray(); }   // renderBoard 內會先對齊 applySkinTheme
+/* 這一手放下去沒消到行 */
+function moodOnBreak(){
+  moodStreak = 0;
+  if(moodSkinId) moodReturnArmed = true;   // 借穿中：連消斷了，從下一次消除開始倒數
+}
+/* 這一手放下去有消到行 */
+function moodOnClear(){
+  if(moodSkinId){                          // 借穿中
+    if(!moodReturnArmed) return;           // 連消還在延續 → 不倒數
+    if(++moodReturnCount < MOOD_RETURN_CLEARS) return;
+    moodReturn();
+    return;
+  }
+  if(moodMode === 'fixed') return;         // 固定造型：系統不插手
+  if(++moodStreak < MOOD_STREAK_TRIGGER) return;
+  const picked = pickRandomSkin();
+  moodStreak = 0;
   if(!picked || picked === currentSkin) return;
-  pendingMoodSkin = picked;
-  openMoodAdGate(picked);
+  moodLastSkin    = picked;
+  moodSkinId      = picked;
+  moodReturnArmed = false;
+  moodReturnCount = 0;
+  moodRepaint();                           // 靜默換上：不彈窗、不飄字
 }
-/* 闖關模式：每關呼叫一次，累積到「這輪隨機門檻」才真的觸發，觸發後重抽下一輪 */
-function checkMoodTriggerLevel(){
-  if(currentMode !== 'gem') return;
-  moodLevelCounter++;
-  if(moodLevelCounter < moodLevelThreshold) return;
-  moodLevelCounter = 0;
-  moodLevelThreshold = _moodRandInt(MOOD_RULE.levelRange);
-  checkMoodTrigger();
-}
-/* ★ v97 無盡模式：改用「玩了幾場」而非分數（分數因玩家實力差幾十倍，用分數當門檻
-   等於高手被連環轟炸廣告——總監抓出的錯誤設定）。掛在 enterMode('endless')，
-   每次真正開新局才算一場，觸發後重抽下一輪。 */
-function checkMoodTriggerGames(){
-  moodGamesCounter++;
-  if(moodGamesCounter < moodGamesThreshold) return;
-  moodGamesCounter = 0;
-  moodGamesThreshold = _moodRandInt(MOOD_RULE.gamesRange);
-  checkMoodTrigger();
+/* 歸還：回到玩家目前那件（免費期內就是那款，過期或沒有就是初始皮膚 default） */
+function moodReturn(){
+  moodSkinId      = null;
+  moodReturnArmed = false;
+  moodReturnCount = 0;
+  moodStreak      = 0;                     // 要再連 4 次才會重新借穿
+  moodRepaint();
 }
 /* ★ v98 休息提醒引擎（取代 v97 無差別全域計時器）：
    排定 → 到點武裝 → 輪詢偵測停頓 → 彈窗（或保底）。一局最多一次。
@@ -6380,20 +6413,16 @@ function openMoodAdGate(id){
   if(!box) return;   // jsdom smoke test 環境可能沒渲染到這塊 DOM，安全跳過
   box.querySelector('.mag-swatch').style.background = gemMaterial('#7ba9e0', id);
   box.querySelector('.mag-name').textContent = T(s.name);
-  /* ★ v98 CD 內顯示剩餘倒數（資訊透明：玩家知道自己也可以選擇等） */
+  /* ★ v132 只剩兩種語氣：鑑賞期內（免廣告換一次）／要看廣告換三天免費 */
   const hint = box.querySelector('.mag-hint');
-  if(hint){
-    const rem = skinCdRemainMs();
-    hint.textContent = (skinGateState()==='gate' && rem>0)
-      ? T('mood.cdHint', {t: fmtCd(rem)})
-      : T('mood.hint');
-  }
+  if(hint) hint.textContent = (skinGateState()==='free') ? T('mood.freeHint') : T('mood.hint');
   const wb = document.getElementById('magWatchBtn');
   if(wb){
     wb.textContent = T('mood.watch');
-    /* ★ v125 blockblast profile：拿掉換膚的廣告捷徑，只能等 CD。
-       這題廣告的動機低、出現頻繁，是典型的低情緒峰值廣告位。 */
-    wb.style.display = (AD_PROFILE === 'blockblast') ? 'none' : '';
+    /* ★ v132 修復：v125 為了節制廣告把這顆藏起來，但彈窗裡只剩「先不要」，
+       玩家點皮膚卡上的 📺 等於開到一張死卡。換膚廣告是玩家自願、動機明確的
+       激勵廣告（他想留住剛剛借穿的那件），照常顯示。 */
+    wb.style.display = '';
   }
   const sb = document.getElementById('magSkipBtn');  if(sb) sb.textContent = T('mood.skip');
   box.classList.add('show');
@@ -6411,13 +6440,15 @@ function closeMoodAdGate(){
 function watchAdForSkin(){
   if(restGateOpen){                       // 休息提醒語境：看廣告拿提示
     closeMoodAdGate();
-    skinAdWatchedAt = Date.now();         // 這也算看了廣告 → 換膚後悔窗順便開（給眼睛換個皮膚的溫馨提議成立）
+    skinAdWatchedAt = Date.now();         // 這也算看了廣告 → 鑑賞期順便開（給眼睛換個皮膚的溫馨提議成立）
+    skinFreeSwapUsed = false;
     saveGame();
     doHint();
     return;
   }
   if(!pendingMoodSkin) return;
-  skinAdWatchedAt = Date.now();           // ★ v98 記帳：開 3 分鐘後悔窗＋起 1 小時 CD（現實時間）
+  skinAdWatchedAt  = Date.now();          // ★ v132 記帳：開 3 分鐘鑑賞期（可免廣告再換一次）
+  skinFreeSwapUsed = false;
   if(_pendingHueTune){                    // ★ v98 玩家是為了「調色」看的廣告 → 套色相，不是換皮膚
     const t = _pendingHueTune; _pendingHueTune = null;
     _applyHueTune(t.skinId, t.newHue);
@@ -6435,7 +6466,9 @@ function applyMoodSkin(id){
   moodLastSkin = currentSkin;
   currentSkin = id;
   moodSkinId = null;      // 已經寫進 currentSkin 了，activeSkinId() 直接讀 currentSkin 即可
-  adUnlockedThisSession.add(id);
+  moodStreak = 0; moodReturnArmed = false; moodReturnCount = 0;   // ★ v132 借穿狀態一併結清
+  /* ★ v132 免費使用期：72 小時起算（現實時間）。default 是永久的初始皮膚，不計時。 */
+  skinFreeUntil = (id === 'default') ? 0 : Date.now() + SKIN_CD.freeOwnMs;
   saveGame();
   renderBoard(); renderTray();
   showCombo(T('combo.skinEquipped', {n:T(skinDef(id).name)}));
@@ -6446,11 +6479,12 @@ function applyMoodSkin(id){
    ★ v98 改走 CD 狀態機——3 分鐘後悔窗內或 CD 已走完 → 直接換（免廣告）；
    否則走廣告閘（彈窗會秀 CD 剩餘倒數，玩家可以選擇等）。
    default 永遠免廣告即點即換（品牌承諾不變）。
-   舊的 adUnlockedThisSession「本 session 看過就永久免廣告」邏輯廢除——
-   免廣告權限現在由時間窗管理，不是款式清單。 */
+   ★ v132 免廣告權限只由「鑑賞期那一次」管理，不是款式清單、也不再有 CD。 */
 function equipSkin(id){
   if(!skinDef(id)) return;
-  if(id === 'default' || skinGateState() === 'free'){
+  if(id === 'default'){ applyMoodSkin(id); return; }   // 初始皮膚零門檻，永遠免廣告
+  if(skinGateState() === 'free'){
+    if(!testerSkinFree) skinFreeSwapUsed = true;       // ★ v132 鑑賞期的免費換只有一次
     applyMoodSkin(id);
     return;
   }
@@ -6630,10 +6664,8 @@ function closeSkinGallery(){
      && !document.getElementById('gearMenu').classList.contains('show')) HZ.paused = false;
 }
 /* ============================================================
-   ★ v92 換膚頁渲染：全部免費、無鎖頭剪影。
-   撞色皮膚額外帶一列「色相列點選」；自訂模式下每張卡多一個打勾方塊，
-   勾選狀態就是 moodCustomOrder 的內容（順序＝勾選順序，取消勾選就從
-   清單中移除，不影響裝備狀態本身）。
+   ★ v92 換膚頁渲染：全部免費、無鎖頭剪影。撞色皮膚額外帶一列「色相列點選」。
+   ★ v132 使用中那款下方顯示免費剩餘時間（剩 N 天／剩 N 小時／即將結束）。
    ============================================================ */
 /* ★ v96 迷你模擬棋盤：固定假牌型（全卡共用、寫死，絕不讀當下真牌 → 杜絕作弊）。
    8×8 鋪滿，8 個色索引各成一條斜帶，深淺完整呈現供玩家對照搭配；少數空格縫
@@ -6674,6 +6706,7 @@ function buildMiniPreview(skinId){
   return { deskC, html: `<div class="mini-board" style="background:${boardC};--mini-line:${lineC};">${cells}</div>` };
 }
 function renderSkinGallery(){
+  skinCheckExpiry();   // ★ v132 開頁先對時：過期的皮膚不該還掛著「免費使用中」
   const gg = document.getElementById('gallGold'); if(gg) gg.textContent = goldCoin;
   const gd = document.getElementById('gallDm');   if(gd) gd.textContent = diamonds;
   renderRotateModes();
@@ -6681,8 +6714,8 @@ function renderSkinGallery(){
   if(!grid) return;
   grid.innerHTML = SKIN_MATERIALS.map(s=>{
     const equipped = currentSkin === s.id;
-    const needsAd = s.id !== 'default' && !adUnlockedThisSession.has(s.id);
-    const inCustom = moodCustomOrder.includes(s.id);
+    /* ★ v132 免廣告權限由時間窗管理，不再有「本 session 看過就免費」的款式清單 */
+    const needsAd = s.id !== 'default' && skinGateState() !== 'free';
     // ★ v99：色相微調列僅撞色5款有（莫蘭迪款是固定人格配色，不開放調色，避免 CLASH_SKINS 取值崩潰）
     const tunable = !!CLASH_SKINS[s.id];
     const curHue = tunable ? (typeof clashHueOverride[s.id]==='number' ? clashHueOverride[s.id] : CLASH_SKINS[s.id].hueA) : null;
@@ -6690,16 +6723,23 @@ function renderSkinGallery(){
         const active = Math.round(curHue)===h ? ' active' : '';
         return `<span class="hue-swatch${active}" data-hue="${h}" data-skin="${s.id}" style="background:${_spHsl2Hex(h,65,55)}"></span>`;
       }).join('')}</div>` : '';
-    const customRow = (moodMode==='custom') ? `<label class="custom-check">
-        <input type="checkbox" data-custom="${s.id}" ${inCustom?'checked':''}> 加入自訂清單
-      </label>` : '';
+    /* ★ v132 使用中那款秀免費剩餘時間（文案不出現「租」字，只講免費） */
+    let freeRow = '';
+    if(equipped && s.id !== 'default'){
+      const rem = skinFreeRemainMs();
+      const txt = rem <= 0 ? ''
+        : (rem >= 24*60*60*1000) ? T('gallery.freeLeftD', {n: Math.floor(rem/(24*60*60*1000))})
+        : (rem >= 60*60*1000)    ? T('gallery.freeLeftH', {n: Math.floor(rem/(60*60*1000))})
+        : T('gallery.freeLeftEnd');
+      if(txt) freeRow = `<div class="sc-free">${txt}</div>`;
+    }
     const mini = buildMiniPreview(s.id);
     return `<div class="skin-card owned${equipped?' equipped':''}">
       <div class="sc-swatch sc-mini" style="background:${mini.deskC}">${mini.html}</div>
       <div class="sc-name">${T(s.name)}</div>
       ${hueRow}
       <button class="shop-buy${equipped?' owned-tag':''}" data-equip="${s.id}" ${equipped?'disabled':''}>${equipped?T('gallery.equipped'):(needsAd?'📺 '+T('gallery.equip'):T('gallery.equip'))}</button>
-      ${customRow}
+      ${freeRow}
     </div>`;
   }).join('');
   grid.querySelectorAll('[data-equip]').forEach(btn=>{
@@ -6707,14 +6747,6 @@ function renderSkinGallery(){
   });
   grid.querySelectorAll('.hue-swatch').forEach(sw=>{
     sw.onclick = ()=> tuneClashHue(sw.dataset.skin, Number(sw.dataset.hue));
-  });
-  grid.querySelectorAll('[data-custom]').forEach(chk=>{
-    chk.onchange = ()=>{
-      const id = chk.dataset.custom;
-      if(chk.checked){ if(!moodCustomOrder.includes(id)) moodCustomOrder.push(id); }
-      else { moodCustomOrder = moodCustomOrder.filter(x=>x!==id); }
-      saveGame();
-    };
   });
 }
 /* 廣告閘按鈕綁定（頁面只有一份，開檔就綁一次即可） */
@@ -6724,37 +6756,29 @@ if(_magWatch) _magWatch.onclick = watchAdForSkin;
 if(_magSkip)  _magSkip.onclick  = closeMoodAdGate;
 
 /* ============================================================
-   ★ v92 心情轉換模式列（隨機／固定／自訂）
-   點下去立刻切換並存檔；下一次心情轉換觸發點（見 checkMoodTrigger）
-   才會套用新模式的選歌邏輯，但按鈕狀態與提示文字即時反映選取結果。
+   ★ v132 造型模式列（預設／固定）
+   預設：連消 4 次系統靜默借你一款，中斷後再消 3 次歸還。
+   固定：系統完全不插手，切過去時會立刻收回當下的借穿。
    ============================================================ */
 function renderRotateModes(){
   const box = document.getElementById('rotateModes');
   const hint = document.getElementById('rotateHint');
   if(!box) return;
-  const effective = moodMode || 'random';   // 未設定(auto) 在 UI 上視覺對齊「隨機」
+  const effective = (moodMode === 'fixed') ? 'fixed' : 'auto';   // 未設定(null) 對齊「預設」
   box.querySelectorAll('.rotate-mode-btn').forEach(btn=>{
     btn.classList.toggle('active', btn.dataset.rmode === effective);
   });
-  if(hint){
-    if(moodMode === 'fixed'){
-      hint.textContent = '固定模式：完全不自動換裝，你裝備的皮膚會一直用到你自己再換。';
-    } else if(moodMode === 'custom'){
-      hint.textContent = moodCustomOrder.length
-        ? `自訂播放清單（${moodCustomOrder.length} 款）：達到里程碑時依序輪流換上。`
-        : '自訂模式：先在下面勾選想放進清單的皮膚，清單是空的話會暫時退回隨機。';
-    } else {
-      hint.textContent = '遊玩過程中系統會不定時從全部造型裡隨機挑一款給你驚喜，看廣告即可免費換上。';
-    }
-  }
+  if(hint) hint.textContent = T(effective === 'fixed' ? 'rotate.hintFixed' : 'rotate.hintAuto');
 }
 function setRotateMode(mode){
-  if(moodMode === mode) return;
-  moodMode = mode;
+  const next = (mode === 'fixed') ? 'fixed' : null;   // ★ v132 只剩兩態：預設(null) / 固定
+  if(moodMode === next) return;
+  moodMode = next;
+  if(next === 'fixed' && moodSkinId) moodReturn();     // 切固定 → 立刻收回借穿，穿回自己挑的那款
   saveGame();
   renderRotateModes();
   renderSkinGallery();
-  showCombo(mode==='fixed' ? '📌 已切換為固定造型' : mode==='custom' ? '🎛️ 已切換為自訂播放清單' : '🔀 已切換為隨機驚喜');
+  showCombo(T(next==='fixed' ? 'rotate.toastFixed' : 'rotate.toastAuto'));
 }
 document.querySelectorAll('.rotate-mode-btn').forEach(btn=>{
   btn.onclick = ()=> setRotateMode(btn.dataset.rmode);
@@ -6763,7 +6787,7 @@ document.querySelectorAll('.rotate-mode-btn').forEach(btn=>{
 /* ============================================================
    ★ v45 測試員模式：開發者／私人測試員（老婆）專用面板
    ─────────────────────────────────────────────
-   跟正式商業機制完全共用底層資料（SKIN_MATERIALS / adUnlockedThisSession / ECON），
+   跟正式商業機制完全共用底層資料（SKIN_MATERIALS / skinGateState / ECON），
    只是提供「繞過機率鎖、一鍵擁有」的捷徑按鈕，方便快速評分美術與手感，
    不新增任何獨立資料表，未來新皮膚只要進 SKIN_MATERIALS 就自動出現在這裡。
    ============================================================ */
@@ -6786,7 +6810,7 @@ function renderTesterPanel(){
   if(list){
     list.innerHTML = SKIN_MATERIALS.map(s=>{
       const equipped = currentSkin === s.id;
-      const adFree = (s.id==='default' || adUnlockedThisSession.has(s.id));
+      const adFree = (s.id==='default' || skinGateState()==='free');
       return `<div class="shop-item">
         <span class="si-ic">${s.icon}</span>
         <div class="si-info">
@@ -6799,23 +6823,19 @@ function renderTesterPanel(){
 
   const unlockBtn = document.getElementById('testerUnlockSkinsBtn');
   if(unlockBtn){
-    const allFree = SKIN_MATERIALS.every(s=>s.id==='default'||adUnlockedThisSession.has(s.id));
+    const allFree = testerSkinFree;
     unlockBtn.classList.toggle('done', allFree);
     unlockBtn.textContent = allFree
       ? '✓ 本次已全部免廣告（可直接去換膚頁試用）'
       : '🎨 一鍵跳過本次所有換膚廣告（測試用）';
   }
 }
-/* ★ v92 測試捷徑：皮膚本身已全部免費，這顆按鈕改為「跳過廣告閘」，
-   讓開發者/測試員快速逐款切換評分，不用每次看模擬廣告。
-   不影響一般玩家流程 —— 只有這顆按鈕會寫 adUnlockedThisSession。 */
+/* ★ v132 測試捷徑：改為一個 session-only 的繞閘旗標（不存檔、不污染正式資料），
+   讓開發者/測試員快速逐款切換評分，不用每次看模擬廣告。 */
 function testerUnlockAllSkins(){
-  let added = 0;
-  SKIN_MATERIALS.forEach(s=>{
-    if(!adUnlockedThisSession.has(s.id)){ adUnlockedThisSession.add(s.id); added++; }
-  });
-  saveGame(); refreshEconomyUI(); renderTesterPanel(); renderSkinGallery();
-  showCombo(added > 0 ? `🎉 已解除 ${added} 款造型的廣告閘，換膚頁直接點即可` : '本次已經全部免廣告囉～');
+  testerSkinFree = true;
+  refreshEconomyUI(); renderTesterPanel(); renderSkinGallery();
+  showCombo('🎉 本次已跳過所有換膚廣告閘，換膚頁直接點即可');
 }
 /* 補滿資源：純測試用，方便反覆試買、試邂逅、試炸彈救援，不用一直等或課金。
    不接 IAP、不動 firstPurchaseUsed 等正式商業旗標，避免污染上線後的真實數據。 */
@@ -7337,8 +7357,8 @@ function saveGame(){
       levelBest,                     // ★ v102 關卡別最佳分（新增欄位，舊存檔沒有 → 讀檔端給預設值）
       lbMigratedV94: true,           // ★ v94 分數量級重定案的一次性遷移標記；v131 拆掉 lbData 後仍需保留，否則 pre-v94 舊存檔會漏做歸零
       currentSkin, soundOn,
-      moodMode, moodCustomOrder, moodCursor, moodLevelCounter,   // ★ v92 心情轉換系統偏好與進度
-      moodLevelThreshold, moodGamesCounter, moodGamesThreshold,   // ★ v97 隨機門檻與無盡模式局數，跨局/重開持續累加
+      moodMode,                              // ★ v132 造型模式：null(預設) / 'fixed'
+      skinFreeUntil, skinFreeSwapUsed,       // ★ v132 72 小時免費期 + 鑑賞期那一次是否用掉
       skinAdWatchedAt,                       // ★ v98 換膚CD時間戳（現實時間，關App回來照走）
       clashHueOverride,                      // ★ v92 玩家自訂的色相覆寫
       hapticEnabled: hapticConfig.enabled,
@@ -7387,19 +7407,16 @@ function loadGame(){
        全部無視（碎片經濟已移除）。currentSkin 若指向已封存的材質（brick/wood…），
        退回 default，避免載入後渲染出一款已經不存在的皮膚。 */
     if(typeof d.currentSkin==='string' && SKIN_MATERIALS.some(x=>x.id===d.currentSkin)) currentSkin = d.currentSkin;
-    if(d.moodMode==='fixed'||d.moodMode==='random'||d.moodMode==='custom') moodMode = d.moodMode;
-    if(Array.isArray(d.moodCustomOrder))    moodCustomOrder = d.moodCustomOrder.filter(id=>SKIN_MATERIALS.some(x=>x.id===id));
-    if(typeof d.moodCursor==='number')      moodCursor = d.moodCursor;
-    if(typeof d.moodLevelCounter==='number')moodLevelCounter = d.moodLevelCounter;
-    if(typeof d.moodLevelThreshold==='number'&&d.moodLevelThreshold>0) moodLevelThreshold = d.moodLevelThreshold;
-    if(typeof d.moodGamesCounter==='number') moodGamesCounter = d.moodGamesCounter;
-    if(typeof d.moodGamesThreshold==='number'&&d.moodGamesThreshold>0) moodGamesThreshold = d.moodGamesThreshold;
-    if(typeof d.skinAdWatchedAt==='number'&&d.skinAdWatchedAt>0) skinAdWatchedAt = d.skinAdWatchedAt;   // ★ v98 換膚CD跨重啟
+    /* ★ v132 舊存檔的 'random'/'custom' 一律轉判成預設(null)，不會壞檔 */
+    moodMode = (d.moodMode === 'fixed') ? 'fixed' : null;
+    if(typeof d.skinFreeUntil==='number' && d.skinFreeUntil>0) skinFreeUntil = d.skinFreeUntil;
+    skinFreeSwapUsed = !!d.skinFreeSwapUsed;
+    if(typeof d.skinAdWatchedAt==='number'&&d.skinAdWatchedAt>0) skinAdWatchedAt = d.skinAdWatchedAt;   // 鑑賞期時間戳跨重啟
     if(d.clashHueOverride && typeof d.clashHueOverride==='object'){
       clashHueOverride = d.clashHueOverride;
       Object.keys(clashHueOverride).forEach(id=>{ delete _clashCache[id]; });   // 讓覆寫色相在載檔後立刻生效
     }
-    adUnlockedThisSession = new Set([currentSkin]);   // 廣告閘每個 session 重新計算，不存檔
+    skinCheckExpiry();   // ★ v132 久沒回來的玩家：免費期早就過了，開檔即回初始皮膚
     if(typeof d.soundOn==='boolean')        soundOn = d.soundOn;
     if(typeof d.hapticEnabled==='boolean')  hapticConfig.enabled = d.hapticEnabled;
     if(typeof d.hapticOn==='boolean')       hapticOn = d.hapticOn;   // ★ v41
@@ -7888,7 +7905,6 @@ function startLevel(){
   updateStreakBadge(false);
   cancelBombAim();          // ★ v36 換關收掉炸彈瞄準模式
   refreshEconomyUI();       // ★ v36 側欄鑽石/炸彈數即時同步
-  checkMoodTriggerLevel();  // ★ v92 心情轉換里程碑：每 N 關安排一次換裝驚喜
 
   initBoard();
   generateGoals();          // 走當前模式的 setup()（會讀 curDiff）
@@ -7919,7 +7935,6 @@ function startLevel(){
 function enterMode(mode, forceLevel){
   clearRun();               // ★ v101 玩家主動選模式＝放棄舊局，先把殘檔清掉再開新的
   currentMode = mode;
-  if(mode === 'endless') checkMoodTriggerGames();   // ★ v97 每次真正開新局才算一場，累積到隨機門檻才觸發
   restSchedule();   // ★ v98 排定這局的休息提醒（25~35分鐘到點→等停頓才彈）
   // ★ v64 D3 gem 模式從歷史最高關續玩（maxLevelReached 早有存檔，只差這一行）
   // ★ v101 氣球模式補上同樣待遇（真機實測回報）：maxBalloonLevel 一直有記錄、有存檔、
