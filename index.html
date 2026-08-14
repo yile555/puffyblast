@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v130</title>
-<meta property="og:title" content="繽紛樂 v130">
+<title>繽紛樂 v131</title>
+<meta property="og:title" content="繽紛樂 v131">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・看花開！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -599,10 +599,10 @@
     100%{ opacity:0; transform:translate(-50%,-90%) scale(.9); } }
 
   /* ★ v87 連 5+ 歡呼：改為一朵盛開的花蹦出來（原 v49 動物版素材已隨動物系統下架） */
-  .cheer-animal { position:fixed; z-index:944; pointer-events:none; width:76px; height:76px;
+  .cheer-bloom { position:fixed; z-index:944; pointer-events:none; width:76px; height:76px;
     filter:drop-shadow(0 4px 8px rgba(0,0,0,.35));
     animation:cheerJump 1s cubic-bezier(.34,1.56,.64,1) both; }
-  .cheer-animal .sprout-svg { filter:none; }
+  .cheer-bloom .sprout-svg { filter:none; }
   @keyframes cheerJump {
     0%{ opacity:0; transform:translateY(60px) scale(.4) rotate(-8deg); }
     30%{ opacity:1; transform:translateY(-24px) scale(1.08) rotate(4deg); }
@@ -990,7 +990,6 @@
 
   /* 失敗視窗：免費救援配額提示（小字，貼在按鈕上方） */
   .revive-quota { font-size:12.5px; opacity:.6; margin:-10px 0 12px !important; }
-  .lose-skin-miss { font-size:13px; color:#ffab91; margin:-6px 0 12px !important; font-weight:700; }
 
   /* 商店彈窗：z 高於失敗視窗（1000）低於廣告黑幕（1200）→ 卡關可直接彈商店 */
   .shop-z { z-index:1150; }
@@ -1023,18 +1022,6 @@
   .shop-buy:active:not(:disabled) { transform:scale(.95); }
   .shop-own { font-size:12.5px; opacity:.65; margin-top:10px; text-align:center; }
   .shop-modal .text-link { margin-top:8px; }
-
-  /* ★ v39 過關結算的皮膚試吃購買卡 */
-  .skin-trial-promo { display:flex; align-items:center; gap:11px; background:rgba(255,255,255,.1);
-    border:1px solid rgba(255,255,255,.18); border-radius:14px; padding:10px 12px; margin:12px 0; text-align:left; }
-  .stp-swatch { width:44px; height:44px; border-radius:14%; flex-shrink:0;
-    position:relative; z-index:0; border:6px solid;
-    border-color:rgba(255,255,255,.52) rgba(0,0,0,.22) rgba(0,0,0,.36) rgba(255,255,255,.24); }
-  .stp-info { flex:1; min-width:0; }
-  .stp-title { font-size:11px; opacity:.7; font-weight:700; }
-  .stp-name { font-size:15px; font-weight:800; margin-top:1px; }
-  .stp-buy { display:flex; flex-direction:column; gap:5px; flex-shrink:0; }
-  .stp-buy .shop-buy { padding:7px 11px; font-size:12.5px; }
 
   /* ★ v45 測試員模式：開發者／私人測試員專用福利總覽 + 一鍵解鎖 */
   .tester-badge { display:inline-block; font-size:10px; letter-spacing:1px; font-weight:800;
@@ -1072,9 +1059,6 @@
   .hue-swatch.active { border-color:#fff; box-shadow:0 0 0 2px rgba(255,255,255,.3); }
   .custom-check { display:flex; align-items:center; justify-content:center; gap:4px; font-size:10.5px;
     opacity:.75; margin-top:4px; }
-  .skin-card.in-rotation { outline:2px solid #66bb6a; }
-  .sc-rotate-tag { position:absolute; top:6px; left:6px; font-size:9px; font-weight:800;
-    background:rgba(102,187,106,.85); padding:2px 6px; border-radius:7px; }
   .skin-card { position:relative; }
 
   /* ★ v39 皮膚圖鑑 */
@@ -1094,12 +1078,7 @@
     gap:1.5px; box-sizing:border-box; }
   .mini-cell { border-radius:9%; }
   .mini-cell.mc-empty { box-shadow:inset 0 0 0 1px var(--mini-line, rgba(0,0,0,.35)); }
-  .sc-silhouette { background:rgba(255,255,255,.08); position:relative; }
-  .sc-silhouette::after { content:'🔒'; position:absolute; inset:0; display:flex; align-items:center;
-    justify-content:center; font-size:20px; opacity:.5; }
   .sc-name { font-size:13px; font-weight:800; }
-  .skin-card.locked .sc-name { opacity:.45; }
-  .sc-seen { font-size:10.5px; opacity:.6; }
   .skin-card .shop-buy.owned-tag { background:rgba(255,255,255,.15); }
 
   /* ============================================================
@@ -1294,7 +1273,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v130・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v131・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1682,7 +1661,7 @@
 <div class="ad-veil" id="adVeil">
   <div class="ad-veil-tag" data-i18n="ad.tag">廣告</div>
   <div class="ad-veil-box">
-    <div class="ad-veil-title" data-i18n="ad.brand">🐾 繽紛樂</div>
+    <div class="ad-veil-title" data-i18n="ad.brand">繽紛樂</div>
     <div class="ad-veil-sub" data-i18n="ad.sub">感謝你的支持，讓遊戲免費又好玩</div>
   </div>
   <div class="ad-veil-cd" id="adVeilCd">廣告結束：<span id="adCountdown">5</span> 秒</div>
@@ -1719,7 +1698,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v130・繽紛樂',
+  'menu.footer':'v131・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1729,13 +1708,12 @@ const I18N = {
   'lvpick.btn':'🏆 選關', 'lvpick.title':'🏆 選擇關卡', 'lvpick.sub':'挑戰自己的紀錄',
   'lvpick.close':'關閉', 'lvpick.none':'—', 'win.replay':'🏆 再打一次這關',
   /* ★ v102 關卡別最佳分 */
-  'lvb.line':'本關最佳 {n}', 'lvb.beat':'🏆 超越紀錄 +{n}！',
+  'lvb.line':'本關最佳 {n}',
   'lvb.lineBest':'歷史最佳 {n}', 'lvb.firstBest':'首次挑戰無盡模式',
   'lvb.first':'首次挑戰本關',
   'lvb.winNew':'🏆 本關新紀錄！{n} 分（前一次 {o}）',
   'lvb.winFirst':'🏆 本關首次紀錄：{n} 分',
   'lvb.winKeep':'本關最佳 {b} 分・這次 {n} 分',
-  'menu.best':'最高 {n} 關',
   'menu.resume':'▶ 續玩 第 {n} 關',
   /* ★ v101 中局續玩卡片 */
   'resume.name':'繼續上一局', 'resume.drop':'放棄這局',
@@ -1784,7 +1762,7 @@ const I18N = {
   'shop.daily.name':'每日簽到禮', 'shop.daily.desc':'每天回來領 {n}🪙，天天有進帳',
   'shop.daily.claim':'領取 {n}🪙', 'shop.daily.claimed':'今日已領取',
   'shop.bomb1.name':'炸彈 ×1', 'shop.bomb1.desc':'引爆 3×3 區域，也能在死局免廣告續命',
-  'shop.bomb3.name':'炸彈 ×3', 'shop.bomb3.desc':'量販優惠包，囤起來有備無患', 'shop.save30':'省 30💎',
+  'shop.bomb3.name':'炸彈 ×3', 'shop.bomb3.desc':'量販優惠包，囤起來有備無患',
   'shop.removeAds.name':'永久去廣告', 'shop.removeAds.desc':'移除所有強制過場廣告，激勵廣告仍可自願觀看',
   'shop.iapTag':'售價由商店後台設定・App 內僅引用商品 ID：{id}',
   'shop.topup':'儲值', 'shop.buy':'購買', 'shop.owned':'已擁有 ✓',
@@ -1792,7 +1770,7 @@ const I18N = {
   'iap.s.name':'鑽石小包', 'iap.s.desc':'一小把亮晶晶',
   'iap.m.name':'鑽石中包', 'iap.m.desc':'最多人選的划算包',
   'iap.l.name':'鑽石大包', 'iap.l.desc':'豪華大禮，一步到位',
-  'combo.shuffle':'🔄 自動換牌', 'combo.hint':'💡 試試這裡', 'combo.skin':'🎨 換膚功能開發中',
+  'combo.shuffle':'🔄 自動換牌', 'combo.hint':'💡 試試這裡',
   'combo.deflate':'🫧 氣球洩氣了一半！',
   'combo.warnGem':'🎈 機關關！別讓氣球碰到仙人掌', 'combo.warn':'🎈 別讓氣球碰到仙人掌！',
   'combo.noAds':'🚫 已永久去廣告！', 'combo.dm':'💎 +{n}！', 'combo.daily':'🎁 每日禮物 +{n}💎',
@@ -1805,7 +1783,6 @@ const I18N = {
   'skin.texPaper':'皺紙', 'skin.texBrick':'陶磚', 'skin.texWood':'深木紋', 'skin.texStone':'白石磚', 'skin.texLog':'原木剖面', 'skin.texVelvetS':'絨布', 'skin.texCotton':'棉花唛', 'skin.texYarn':'毛線捲', 'skin.texYarnC':'粗毛線', 'skin.texLace':'蕾絲鉤織', 'skin.texLaceM':'蕾絲花片',
   'skin.duoTealViolet':'青綠撞紫', 'skin.duoRoseGreen':'玫瑰撞草綠', 'skin.duoIndigoRose':'藍紫撞玫瑰', 'skin.duoGreenSlate':'草綠撞灰藍', 'skin.duoSlateRose':'灰藍撞玫瑰', 'skin.duoTealPlum':'青綠撞梅紫',
 
-  'trial.title':'🎁 剛剛試玩的皮膚，喜歡嗎？',
   'combo.skinEquipped':'🎨 已換上「{n}」',
 
   'gallery.title':'🎨 換膚', 'gallery.sub':'所有造型都免費，看廣告即可立即換上',
@@ -1816,12 +1793,12 @@ const I18N = {
   'combo.adGold':'🪙 +{n}！', 'combo.exchange':'🔁 兌換成功 +{n}🪙', 'combo.firstBonus':'🎉 首購加碼！鑽石 +{n}',
   'combo.nameBad':'暱稱需 2~12 個字', 'combo.nameSaved':'✅ 暱稱已儲存',
   'diff.boss':'⚠ 魔王關', 'diff.spike':'🔥 挑戰關',
-  'ad.tag':'廣告', 'ad.brand':'🐾 繽紛樂', 'ad.sub':'感謝你的支持，讓遊戲免費又好玩', 'ad.end':'廣告結束：{n} 秒',
+  'ad.tag':'廣告', 'ad.brand':'繽紛樂', 'ad.sub':'感謝你的支持，讓遊戲免費又好玩', 'ad.end':'廣告結束：{n} 秒',
 },
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v130 · Vivid Blast',
+  'menu.footer':'v131 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -1831,13 +1808,12 @@ const I18N = {
   'lvpick.btn':'🏆 Levels', 'lvpick.title':'🏆 Select Level', 'lvpick.sub':'Beat your own record',
   'lvpick.close':'Close', 'lvpick.none':'—', 'win.replay':'🏆 Replay this level',
   /* ★ v102 per-level best score */
-  'lvb.line':'Level best {n}', 'lvb.beat':'🏆 Record beaten +{n}!',
+  'lvb.line':'Level best {n}',
   'lvb.lineBest':'All-time best {n}', 'lvb.firstBest':'First endless run',
   'lvb.first':'First attempt at this level',
   'lvb.winNew':'🏆 New level best: {n} (was {o})',
   'lvb.winFirst':'🏆 First record for this level: {n}',
   'lvb.winKeep':'Level best {b} · this run {n}',
-  'menu.best':'Best: Lv {n}',
   'menu.resume':'▶ Resume Lv {n}',
   /* ★ v101 mid-run resume card */
   'resume.name':'Resume last run', 'resume.drop':'Discard this run',
@@ -1885,7 +1861,7 @@ const I18N = {
   'shop.daily.name':'Daily Check-in Gift', 'shop.daily.desc':'Come back every day for {n}🪙',
   'shop.daily.claim':'Claim {n}🪙', 'shop.daily.claimed':'Claimed today',
   'shop.bomb1.name':'Bomb ×1', 'shop.bomb1.desc':'Blast a 3×3 area — also revives you when the board jams, no ad needed',
-  'shop.bomb3.name':'Bomb ×3', 'shop.bomb3.desc':'Value bundle — stock up for emergencies', 'shop.save30':'SAVE 30💎',
+  'shop.bomb3.name':'Bomb ×3', 'shop.bomb3.desc':'Value bundle — stock up for emergencies',
   'shop.removeAds.name':'Remove Ads Forever', 'shop.removeAds.desc':'Removes all interstitial ads. Rewarded ads stay optional.',
   'shop.iapTag':'Price set in the store backend · app references product ID only: {id}',
   'shop.topup':'Buy', 'shop.buy':'Buy', 'shop.owned':'Owned ✓',
@@ -1893,7 +1869,7 @@ const I18N = {
   'iap.s.name':'Gem Pouch', 'iap.s.desc':'A little handful of sparkle',
   'iap.m.name':'Gem Chest', 'iap.m.desc':'Most popular — best value', 
   'iap.l.name':'Gem Vault', 'iap.l.desc':'The deluxe haul, all at once',
-  'combo.shuffle':'🔄 Auto Shuffle', 'combo.hint':'💡 Try here', 'combo.skin':'🎨 Themes coming soon',
+  'combo.shuffle':'🔄 Auto Shuffle', 'combo.hint':'💡 Try here',
   'combo.deflate':'🫧 Balloon deflated halfway!',
   'combo.warnGem':'🎈 Hazard level! Keep the balloon off the cactus', 'combo.warn':'🎈 Keep the balloon off the cactus!',
   'combo.noAds':'🚫 Ads removed forever!', 'combo.dm':'💎 +{n}!', 'combo.daily':'🎁 Daily gift +{n}💎',
@@ -1906,7 +1882,6 @@ const I18N = {
   'skin.texPaper':'Crumpled Paper', 'skin.texBrick':'Terracotta Brick', 'skin.texWood':'Dark Woodgrain', 'skin.texStone':'White Stone', 'skin.texLog':'Log Slice', 'skin.texVelvetS':'Velvet', 'skin.texCotton':'Cotton Puff', 'skin.texYarn':'Yarn Coil', 'skin.texYarnC':'Chunky Yarn', 'skin.texLace':'Crochet Lace', 'skin.texLaceM':'Lace Motif',
   'skin.duoTealViolet':'Teal & Violet', 'skin.duoRoseGreen':'Rose & Green', 'skin.duoIndigoRose':'Indigo & Rose', 'skin.duoGreenSlate':'Green & Slate', 'skin.duoSlateRose':'Slate & Rose', 'skin.duoTealPlum':'Teal & Plum',
 
-  'trial.title':'🎁 Liked the skin you just tried?',
   'combo.skinEquipped':'🎨 Equipped "{n}"',
 
   'gallery.title':'🎨 Skins', 'gallery.sub':'All skins are free — just watch a short ad to equip',
@@ -1917,12 +1892,12 @@ const I18N = {
   'combo.adGold':'🪙 +{n}!', 'combo.exchange':'🔁 Exchanged +{n}🪙', 'combo.firstBonus':'🎉 First-purchase bonus! +{n} gems',
   'combo.nameBad':'Nickname must be 2-12 characters', 'combo.nameSaved':'✅ Nickname saved',
   'diff.boss':'⚠ BOSS LEVEL', 'diff.spike':'🔥 CHALLENGE',
-  'ad.tag':'AD', 'ad.brand':'🐾 Vivid Blast', 'ad.sub':'Thanks for your support — it keeps the game free!', 'ad.end':'Ad ends in {n}s',
+  'ad.tag':'AD', 'ad.brand':'Vivid Blast', 'ad.sub':'Thanks for your support — it keeps the game free!', 'ad.end':'Ad ends in {n}s',
 },
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v130・ビビッドブラスト',
+  'menu.footer':'v131・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -1932,13 +1907,12 @@ const I18N = {
   'lvpick.btn':'🏆 レベル選択', 'lvpick.title':'🏆 レベルを選ぶ', 'lvpick.sub':'自己記録に挑戦',
   'lvpick.close':'閉じる', 'lvpick.none':'—', 'win.replay':'🏆 このレベルをもう一度',
   /* ★ v102 レベル別ベストスコア */
-  'lvb.line':'このレベル最高 {n}', 'lvb.beat':'🏆 記録更新 +{n}！',
+  'lvb.line':'このレベル最高 {n}',
   'lvb.lineBest':'自己最高 {n}', 'lvb.firstBest':'エンドレス初挑戦',
   'lvb.first':'このレベル初挑戦',
   'lvb.winNew':'🏆 レベル新記録！{n} 点（前回 {o}）',
   'lvb.winFirst':'🏆 このレベル初記録：{n} 点',
   'lvb.winKeep':'レベル最高 {b} 点・今回 {n} 点',
-  'menu.best':'ベスト：レベル {n}',
   'menu.resume':'▶ レベル {n} から再開',
   /* ★ v101 途中セーブの再開カード */
   'resume.name':'前回の続きから', 'resume.drop':'このプレイを破棄',
@@ -1986,7 +1960,7 @@ const I18N = {
   'shop.daily.name':'ログインボーナス', 'shop.daily.desc':'毎日 {n}🪙 もらえる！',
   'shop.daily.claim':'{n}🪙 受け取る', 'shop.daily.claimed':'本日は受取済み',
   'shop.bomb1.name':'ボム ×1', 'shop.bomb1.desc':'3×3 を爆破。詰んだ時は広告なしで復活にも使える',
-  'shop.bomb3.name':'ボム ×3', 'shop.bomb3.desc':'おトクなまとめ買い。備えあれば憂いなし', 'shop.save30':'30💎 おトク',
+  'shop.bomb3.name':'ボム ×3', 'shop.bomb3.desc':'おトクなまとめ買い。備えあれば憂いなし',
   'shop.removeAds.name':'広告を永久に削除', 'shop.removeAds.desc':'強制広告をすべて削除。リワード広告は任意のまま。',
   'shop.iapTag':'価格はストア側で設定・アプリは商品IDのみ参照：{id}',
   'shop.topup':'購入', 'shop.buy':'購入', 'shop.owned':'購入済み ✓',
@@ -1994,7 +1968,7 @@ const I18N = {
   'iap.s.name':'ジェム（小）', 'iap.s.desc':'きらきらひとつかみ',
   'iap.m.name':'ジェム（中）', 'iap.m.desc':'一番人気のお得パック',
   'iap.l.name':'ジェム（大）', 'iap.l.desc':'豪華な大盛りパック',
-  'combo.shuffle':'🔄 自動シャッフル', 'combo.hint':'💡 ここに置いてみて', 'combo.skin':'🎨 きせかえは準備中',
+  'combo.shuffle':'🔄 自動シャッフル', 'combo.hint':'💡 ここに置いてみて',
   'combo.deflate':'🫧 空気が半分抜けた！',
   'combo.warnGem':'🎈 ギミックレベル！風船をサボテンに当てないで', 'combo.warn':'🎈 風船をサボテンに当てないで！',
   'combo.noAds':'🚫 広告を永久削除しました！', 'combo.dm':'💎 +{n}！', 'combo.daily':'🎁 デイリーギフト +{n}💎',
@@ -2007,7 +1981,6 @@ const I18N = {
   'skin.texPaper':'しわ紙', 'skin.texBrick':'テラコッタレンガ', 'skin.texWood':'ダークウッド', 'skin.texStone':'白い石レンガ', 'skin.texLog':'丸太の切り株', 'skin.texVelvetS':'ベルベット', 'skin.texCotton':'コットンパフ', 'skin.texYarn':'毛糸ロール', 'skin.texYarnC':'極太毛糸', 'skin.texLace':'かぎ針レース', 'skin.texLaceM':'レースモチーフ',
   'skin.duoTealViolet':'ティール×バイオレット', 'skin.duoRoseGreen':'ローズ×グリーン', 'skin.duoIndigoRose':'インディゴ×ローズ', 'skin.duoGreenSlate':'グリーン×スレート', 'skin.duoSlateRose':'スレート×ローズ', 'skin.duoTealPlum':'ティール×プラム',
 
-  'trial.title':'🎁 さっき試したきせかえ、気に入った？',
   'combo.skinEquipped':'🎨「{n}」に着せ替えた',
 
   'gallery.title':'🎨 きせかえ', 'gallery.sub':'すべて無料。広告を見ればすぐ着替えられます',
@@ -2018,7 +1991,7 @@ const I18N = {
   'combo.adGold':'🪙 +{n}！', 'combo.exchange':'🔁 交換成功 +{n}🪙', 'combo.firstBonus':'🎉 初回購入ボーナス！ジェム +{n}',
   'combo.nameBad':'ニックネームは2〜12文字で入力してください', 'combo.nameSaved':'✅ ニックネームを保存しました',
   'diff.boss':'⚠ ボス面', 'diff.spike':'🔥 チャレンジ面',
-  'ad.tag':'広告', 'ad.brand':'🐾 ビビッドブラスト', 'ad.sub':'応援ありがとう！おかげでゲームは無料です', 'ad.end':'広告終了まで {n} 秒',
+  'ad.tag':'広告', 'ad.brand':'ビビッドブラスト', 'ad.sub':'応援ありがとう！おかげでゲームは無料です', 'ad.end':'広告終了まで {n} 秒',
 },
 };
 
@@ -2046,36 +2019,11 @@ let bestScores = { gem:0, endless:0, balloon:0 };
 function getBest(){ return (currentMode && bestScores[currentMode]) || 0; }
 function bumpBest(){ if(currentMode && score > (bestScores[currentMode]||0)) bestScores[currentMode] = score; }
 
-/* ============================================================
-   ★ v127 個人紀錄底層資料（純本機，無任何比較/排名）
-   ─────────────────────────────────────────────
-   v94~v126 這份資料曾支撐「排行榜 + 系統玩家幽靈榜 + IQ榜稱號」，
-   總監定案（v127）拆除全部競爭包裝，只留兩個安靜的數字：
-     生涯最高分  → bestScores[mode]
-     最高連消    → lbData[mode].maxCombo
-   lbData 本身完整保留（top10 仍照常寫入），目前不顯示於任何畫面，
-   等未來要做「個人紀錄頁」時直接取用，不必回頭考古重建。
-
-   與 bestScores 分開存在：bestScores 是「對局中即時最佳分」，
-   lbData 只在一局真正結束（showLose）時寫入一筆「本局最終成績」，
-   兩者資料源不同，互不干擾，不動 bumpBest/getBest 既有邏輯。
-   ============================================================ */
-let lbData = {
-  gem:     { top10: [], maxCombo: 0 },
-  endless: { top10: [], maxCombo: 0 },
-  balloon: { top10: [], maxCombo: 0 },
-};
-let runMaxCombo = 0;   // 本局目前為止的最高連消（session 變數，enterMode 時歸零）
-
-/* 一局結束時寫入個人紀錄（只在有分數的模式呼叫，見 showLose） */
-function recordRunResult(mode, finalScore){
-  if(!mode || !lbData[mode] || finalScore <= 0) return;
-  const d = lbData[mode];
-  d.top10.push({ score: finalScore, combo: runMaxCombo, ts: Date.now() });   // ★ v127 ts 保留：純本機時間戳，未來個人紀錄頁可用，目前不參與任何結算
-  d.top10.sort((a,b)=> b.score - a.score);
-  d.top10 = d.top10.slice(0, 10);
-  if(runMaxCombo > d.maxCombo) d.maxCombo = runMaxCombo;
-}
+/* ★ v131 lbData / recordRunResult / runMaxCombo 全數拆除。
+   v94 建立、v127 拆掉競爭包裝後就再無任何讀取端 —— 每局照常寫入 top10
+   與最高連消，卻不顯示於任何畫面，是純粹的空轉。總監定案（v131）清除，
+   完整實作留在 v130 存檔，未來要做「個人紀錄頁」直接回頭擷取即可。
+   注意：復活彈窗的高分偵測走 bestScores，與此無關，不受影響。 */
 
 let movesLeft = 0;         // 剩餘步數（寶石模式核心壓力源）
 
@@ -2260,20 +2208,19 @@ let retrySameDiff = false;
 let levelStartScore = 0;
 
 /* ===== 收集物定義（模組化：換膚只要換這組） =====
-   每種收集物綁定一隻動物 + 一種達標叫聲。gemShape 決定盤面寶石外觀，animal 決定任務欄圖與達標音效。 */
-/* ★ v53 盤面食物 → 寶石：一獸一形一色。
    ・color   同時決定「方塊底色」與「寶石主色」→ 換寶石＝盤面配色一起煥新。
    ・gemShape 對應 gemShapeSVG() 裡的七款切面形狀（純程式繪製，零檔案增量）。
    ・food    舊食物圖 key 保留為資料欄位，但 ASSETS.food 素材已於 v87 隨動物系統一併下架。
-   ・animal  任務欄動物 + 達標音效，這次完全不動。 */
+   ★ v131 拆除 animal / emoji 兩欄：v87 花苗轉型後全檔已無任何讀取端，
+     達標音效自 v26 起就統一成單一「叮叮鈴」，不再依動物分歧。 */
 const GEMS = {
-  banana:  { name:'黃水晶', color:'#fff9e6', gemColor:'#d4a617', food:'banana',   animal:'monkey',  emoji:'🐵', gemShape:'citrine'  },
-  taiyaki: { name:'紅寶石', color:'#ffe8ec', gemColor:'#c41e3a', food:'taiyaki',  animal:'cat',     emoji:'🐱', gemShape:'ruby'     },
-  bone:    { name:'鑽石',   color:'#f0f8fc', gemColor:'#7fa8c8', food:'bone',     animal:'dog',     emoji:'🐶', gemShape:'diamond'  },
-  fish:    { name:'藍寶石', color:'#e8f1fc', gemColor:'#1a4d8f', food:'fish',     animal:'penguin', emoji:'🐧', gemShape:'sapphire' },
-  leafwrap:{ name:'祖母綠', color:'#e6f7f1', gemColor:'#0b7f4c', food:'leafwrap', animal:'frog',    emoji:'🐸', gemShape:'emerald'  },
-  carrot:  { name:'粉晶',   color:'#fce4ec', gemColor:'#d81b60', food:'carrot',   animal:'rabbit',  emoji:'🐰', gemShape:'rose'     },
-  seed:    { name:'紫水晶', color:'#f3e5f5', gemColor:'#6b2d8e', food:'seed',     animal:'hamster', emoji:'🐹', gemShape:'amethyst' },
+  banana:  { name:'黃水晶', color:'#fff9e6', gemColor:'#d4a617', food:'banana',   gemShape:'citrine'  },
+  taiyaki: { name:'紅寶石', color:'#ffe8ec', gemColor:'#c41e3a', food:'taiyaki',  gemShape:'ruby'     },
+  bone:    { name:'鑽石',   color:'#f0f8fc', gemColor:'#7fa8c8', food:'bone',     gemShape:'diamond'  },
+  fish:    { name:'藍寶石', color:'#e8f1fc', gemColor:'#1a4d8f', food:'fish',     gemShape:'sapphire' },
+  leafwrap:{ name:'祖母綠', color:'#e6f7f1', gemColor:'#0b7f4c', food:'leafwrap', gemShape:'emerald'  },
+  carrot:  { name:'粉晶',   color:'#fce4ec', gemColor:'#d81b60', food:'carrot',   gemShape:'rose'     },
+  seed:    { name:'紫水晶', color:'#f3e5f5', gemColor:'#6b2d8e', food:'seed',     gemShape:'amethyst' },
 };
 const GEM_KEYS = Object.keys(GEMS);
 
@@ -2534,7 +2481,6 @@ const DUO_SKINS = {
   duoSlateRose:  { colors:['#7e8bb4','#b47e87'] },  // 灰藍 × 玫瑰
   duoTealPlum:   { colors:['#7eb4a8','#9c7eb4'] },  // 青綠 × 紫(另一組)
 };
-function isDuoSkin(id){ return !!DUO_SKINS[id]; }
 
 function materialTexture(id){
   switch(id){
@@ -2616,7 +2562,7 @@ function activeSkinId(){ return moodSkinId || currentSkin; }
    ── 兩層架構 ──
    底層(每次都有)：消一排 = 碎裂聲 + 手機輕震  → 樸素、當節奏骨架
    表層(稀有驚喜)：某動物「收齊達標」才叫一聲 → 中獎音，絕不吵
-   soundOn 由玩家自由開關；未來要換真錄音，替換 playAnimal 內部即可。
+   soundOn 由玩家自由開關；未來要換真錄音，替換 playGoalDone 內部即可。
    ============================================================ */
 let soundOn = true;
 let _actx = null;
@@ -3260,8 +3206,9 @@ function spawnBigConfetti(){
 }
 
 /* ── 連 5+ 歡呼：隨機一朵盛開的花從棋盤下緣蹦出來跳一下（v87 由動物改花，
-      複用花苗 bloom 階段，零新增素材；花色取七寶石之一，每次隨機） ── */
-function spawnCheerAnimal(){
+      複用花苗 bloom 階段，零新增素材；花色取七寶石之一，每次隨機）
+      ★ v131 由 spawnCheerAnimal 更名為 spawnCheerBloom，函式內容不動。 ── */
+function spawnCheerBloom(){
   const keys = Object.keys(GEMS || {});
   if(!keys.length) return;
   const gk = keys[Math.floor(Math.random()*keys.length)];
@@ -3269,7 +3216,7 @@ function spawnCheerAnimal(){
   const rect = boardEl ? boardEl.getBoundingClientRect()
                        : { left:80, top:200, width:280, height:280 };
   const div = document.createElement('div');
-  div.className = 'cheer-animal';
+  div.className = 'cheer-bloom';
   div.innerHTML = sproutSVG(gk, 'bloom');
   div.style.left = (rect.left + rect.width*(0.25+Math.random()*0.5) - 38) + 'px';
   div.style.top  = (rect.top + rect.height - 60) + 'px';
@@ -3572,10 +3519,10 @@ function tone(freq, t0, dur, type='sine', vol=0.25, bendTo=null){
 }
 
 // ★ v26 統一達標音：任意一種收齊 → 同一個清脆愉悅的「叮叮鈴✨」中獎音。
-//    設計理由（體驗一致性）：角色池擴到 7 種後，若每隻各一種叫聲，玩家反而
-//    記不住「達標」信號、變成雜訊。統一成單一上揚音 = 清晰的正向增強，一聽就懂。
-//    參數 animal 保留只為相容既有呼叫點（playAnimal(g.animal)），不再依動物分歧。
-function playAnimal(animal){
+//    設計理由（體驗一致性）：目標池有 7 種，若每種各一個音，玩家反而記不住
+//    「達標」信號、變成雜訊。統一成單一上揚音 = 清晰的正向增強，一聽就懂。
+//    ★ v131 由 playAnimal(animal) 更名為 playGoalDone()，並拆掉那個從來沒被讀取的參數。
+function playGoalDone(){
   if(!soundOn) return; if(!actx()) return;
   // 三音階上行主旋律（C6→E6→G6 大三和弦，明亮悅耳），triangle 音色乾淨不刺
   tone(1047, 0.00, 0.12, 'triangle', 0.20);
@@ -3763,12 +3710,6 @@ function _morandiB_ramp(hue,n,satBase){
 }
 function _morandiB_colors(hueA,hueB){ return [..._morandiB_ramp(hueA,5,28), ..._morandiB_ramp(hueB,3,34)]; }
 
-function _circularMeanHue(hues){
-  let x=0,y=0;
-  hues.forEach(h=>{ const r=h*Math.PI/180; x+=Math.cos(r); y+=Math.sin(r); });
-  const a = Math.atan2(y,x)*180/Math.PI;
-  return a<0 ? a+360 : a;
-}
 function _hueDist(a,b){ const d = Math.abs(a-b)%360; return d>180 ? 360-d : d; }
 
 /* ★ v99 色相迴避暖灰空格（總監定案 20260726）：
@@ -3841,7 +3782,6 @@ const MORANDI_SKINS = {
   moodRebel:    { grp:'B', hue:320 }, moodProud:    { grp:'B', hue:250 },
   moodWild:     { grp:'B', hue:160 }, moodCharming: { grp:'B', hue:15  },
 };
-function isMorandiSkin(id){ return !!MORANDI_SKINS[id]; }
 const _clashCache = {};
 function clashSkin(id){
   // ★ v99：撞色5款 + 莫蘭迪20款統一由此入口生成，共用快取與色相迴避背景
@@ -4186,69 +4126,6 @@ function _gemTwinkleDots(){
   }).join('');
 }
 let _gemCidSeq = 0;
-function _gemRadialFacetsWithGradient(hi, hi2, dk, dk2, n, cx, cy, R){
-  const bases = [hi, dk, hi2, dk2, hi, dk2, hi2, dk];
-  const facets = [];
-  for(let i=0;i<n;i++){
-    const a0 = (360/n)*i - 90 - (360/n)/2;
-    const a1 = (360/n)*(i+1) - 90 - (360/n)/2;
-    const aMid = (a0+a1)/2;
-    const p0 = _gemPolar(cx,cy,R,a0), p1 = _gemPolar(cx,cy,R,a1);
-    const far = _gemPolar(cx,cy,R,aMid);
-    const base = bases[i % bases.length];
-    const near = shadeColor(base, 0.16);
-    const gid = 'gfg_' + (_gemCidSeq++);
-    facets.push({
-      gid,
-      gradDef: `<linearGradient id="${gid}" gradientUnits="userSpaceOnUse" x1="${cx}" y1="${cy}" x2="${far.x.toFixed(1)}" y2="${far.y.toFixed(1)}">`+
-                `<stop offset="0%" stop-color="${near}"/><stop offset="100%" stop-color="${base}"/></linearGradient>`,
-      d: `M${cx} ${cy} L${p0.x.toFixed(1)} ${p0.y.toFixed(1)} L${p1.x.toFixed(1)} ${p1.y.toFixed(1)} Z`,
-    });
-  }
-  return facets;
-}
-function _gemFacetedWithTable(outlineD, hi, hi2, dk, dk2, edgeColor){
-  const cid = 'gclip_' + (_gemCidSeq++);
-  const pid = 'gpath_' + (_gemCidSeq++);
-  const crown = _gemRadialFacetsWithGradient(hi, hi2, dk, dk2, 8, 50, 50, 95);
-  let defs = `<path id="${pid}" d="${outlineD}"/><clipPath id="${cid}"><use href="#${pid}" xlink:href="#${pid}"/></clipPath>`;
-  crown.forEach(f=>{ defs += f.gradDef; });
-  const tableGid = 'gft_' + (_gemCidSeq++);
-  defs += `<radialGradient id="${tableGid}" cx="50%" cy="42%" r="65%">`+
-          `<stop offset="0%" stop-color="${shadeColor(hi,0.38)}"/><stop offset="100%" stop-color="${shadeColor(hi,0.10)}"/></radialGradient>`;
-  let inner = `<defs>${defs}</defs>`;
-  inner += `<g clip-path="url(#${cid})">`;
-  crown.forEach(f=>{ inner += `<path d="${f.d}" fill="url(#${f.gid})"/>`; });
-  inner += `<use href="#${pid}" xlink:href="#${pid}" transform="translate(50 50) scale(.72) translate(-50 -50)" fill="url(#${tableGid})"/>`;
-  inner += _gemTwinkleDots();
-  inner += `</g>`;
-  inner += `<use href="#${pid}" xlink:href="#${pid}" fill="none" stroke="${edgeColor}" stroke-width="1.2" opacity=".5"/>`;
-  return inner;
-}
-/* ============================================================
-   ★ v81 幾何工具：從輪廓頂點推導切面（取代「一律八等分」的硬套邏輯）
-   ------------------------------------------------------------
-   v79/v80 的病根：不管什麼形狀，都均分 45° 切成八片扇形。
-   六芒星的尖與凹、水滴的頂與底、心形的雙峰 —— 全被同一套假設輾過去，
-   切面走向跟輪廓幾何完全脫節，所以「受光面看起來像不同時空貼上來的」。
-   v81 改法：切面由輪廓自己的頂點長出來，每片的兩端就是相鄰兩個頂點，
-   法線方向由它自己的幾何決定。一套程式碼、七顆各算各的 —— 真正的一招抵百。
-   ============================================================ */
-function _gemFacetsFromVertices(verts, cx, cy){
-  /* 每兩個相鄰頂點 + 中心 = 一片三角切面。
-     法線推導：以該片「中心→外緣中點」的方向為水平分量（決定它朝哪邊傾），
-     搭配冠部傾角決定垂直分量 —— 這就是這片切面在 3D 空間的真實朝向。 */
-  const out=[], n=verts.length;
-  for(let i=0;i<n;i++){
-    const a=verts[i], b=verts[(i+1)%n];
-    const mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
-    let dx=mx-cx, dy=my-cy;
-    const len=Math.hypot(dx,dy)||1;
-    dx/=len; dy/=len;
-    out.push({ a, b, mx, my, dx, dy, r:len });
-  }
-  return out;
-}
 /* 貝茲/弧線輪廓（心形、水滴）取樣成頂點：用瀏覽器無關的粗略採樣，
    讓這兩顆也能走「頂點推導」同一條路徑，不必寫特例。 */
 function _gemSampleOutline(kind){
@@ -5764,7 +5641,6 @@ function clearLines(){
 
   // ★ v49 連消 +1：放下即消，不間斷就一路疊
   clearStreak++;
-  if(clearStreak > runMaxCombo) runMaxCombo = clearStreak;   // ★ v94 排行榜：追蹤本局最高連消
   lastPlacement = null;      // 這一手已用消行慶祝，聰明讚不重複跳
   // ★ v68 ⑥ 徽章＋中央大字（各含一次「強制重排」重啟動畫的招式）挪到下方視覺幀一起演，
   //   pointerup 幀不再被這些小重排零星扎針。
@@ -5775,7 +5651,7 @@ function clearLines(){
   fullCols.forEach(c=>{ for(let r=0;r<SIZE;r++) toClear.add(r+'_'+c); });
 
   let collected=0;
-  const justDone = [];   // 這一次「剛好收齊達標」的動物 → 只有這些才叫
+  const justDone = [];   // 這一次「剛好收齊達標」的目標 → 只有這些才響達標音
   const flyList = [];    // ★ v21 待飛的食物：{gem, cellEl, rect} → 稍後拋向任務欄
   const cellFx  = [];    // ★ v68 ⑥ 每格特效素材先入袋：{data, cellHost, rect}，下一幀才開演
   // ★ v66 ② 棋盤座標只量 1 次、其餘用數學推（v68 沿用）。
@@ -5800,7 +5676,7 @@ function clearLines(){
         const wasDone = goal.got>=goal.need;   // 收集前是否已達標
         goal.got++;
         if(!wasDone && goal.got>=goal.need){    // 從未達標 → 剛好達標的那一刻
-          justDone.push(GEMS[goal.gem].animal);
+          justDone.push(goal.gem);
         }
       }
       // ★ v21 記下飛行起點（座標已用數學推好，連 DOM 都不必再摸）
@@ -5816,8 +5692,8 @@ function clearLines(){
   playCrack();
   playClearSparkle(fullRows.length+fullCols.length);   // ★ v21 消除特殊音（疊在碎裂聲上；v49 起音高隨連消爬升）
   haptic(streakClearHaptic(fullRows.length+fullCols.length));  // ★ v49 震動階梯：連越多脈衝越密
-  // ── 表層音效（稀有）：某動物剛好收齊 → 叫一聲；多隻同時達標依序叫 ──
-  justDone.forEach((animal,i)=> setTimeout(()=>playAnimal(animal), 180 + i*420));
+  // ── 表層音效（稀有）：某個目標剛好收齊 → 響一次；多個同時達標依序響 ──
+  justDone.forEach((_,i)=> setTimeout(()=>playGoalDone(), 180 + i*420));
 
   // ===== 計分：單行 10 分，一次多行有倍率加成（鼓勵憋大招）=====
   // ★ v49 再乘連消倍率（上限 ×5）：保持連消 = 分數翻倍，一眼看懂
@@ -5873,7 +5749,7 @@ function clearLines(){
     if(clearStreak >= 4 && boardEl0){
       boardEl0.classList.remove('streak-glow'); void boardEl0.offsetWidth; boardEl0.classList.add('streak-glow');
     }
-    if(clearStreak >= 5){ setTimeout(()=>{ if(_clearEpoch===gameEpoch) spawnCheerAnimal(); }, 200); }
+    if(clearStreak >= 5){ setTimeout(()=>{ if(_clearEpoch===gameEpoch) spawnCheerBloom(); }, 200); }
     if(clearStreak >= 6){ spawnBigConfetti(); }
     // ★ v24 消行時盤面輕微震動，強化打擊感（多行消除更有感）
     if(boardEl0){ boardEl0.classList.remove('board-shake'); void boardEl0.offsetWidth; boardEl0.classList.add('board-shake'); }
@@ -6149,7 +6025,6 @@ function showLose(){
     txt = T('lose.boomText');
   }
   document.getElementById('loseText').textContent = txt;
-  if(m.useScore) recordRunResult(currentMode, score);   // ★ v94 本局結束才算一筆排行榜紀錄
   HZ.paused = true;   // ★ v35 凍結氣球。否則「盤面塞死」視窗開著時氣球仍在膨脹：
                       //   玩家讀文案的每一秒都在扣血，甚至會在視窗背後撞上仙人掌，
                       //   讓 HZ.boom 二次呼叫 showLose、把「清出空間」救援覆寫成「洩氣一半」→ 救完盤面還是死的
@@ -7171,7 +7046,7 @@ function startBombAim(){
 function explodeAt(r0, c0){
   const hits = [];        // 有方塊的格子
   const flyList = [];     // 待飛食物
-  const justDone = [];    // 剛好達標的動物 → 叫一聲
+  const justDone = [];    // 剛好達標的目標 → 響一次達標音
   for(let r=r0-1; r<=r0+1; r++) for(let c=c0-1; c<=c0+1; c++){
     if(r<0||c<0||r>=SIZE||c>=SIZE) continue;
     const data = board[r][c];
@@ -7182,7 +7057,7 @@ function explodeAt(r0, c0){
       if(goal){
         const wasDone = goal.got>=goal.need;
         goal.got++;
-        if(!wasDone && goal.got>=goal.need) justDone.push(GEMS[goal.gem].animal);
+        if(!wasDone && goal.got>=goal.need) justDone.push(goal.gem);
       }
       const srcEl = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
       flyList.push({ gem:data.gem, el:srcEl });
@@ -7203,7 +7078,7 @@ function explodeAt(r0, c0){
   playBoom();
   haptic([28, 36, 90]);   // 連續脈衝「喀-喀-轟」（navigator.vibrate 原生支援 pattern 陣列）
   spawnBoomFX(r0, c0);
-  justDone.forEach((animal,i)=> setTimeout(()=>playAnimal(animal), 180 + i*420));
+  justDone.forEach((_,i)=> setTimeout(()=>playGoalDone(), 180 + i*420));
   // ★ v53 與消行同步：連發間隔拉到 95ms，搭配新的三拍子飛行時序
   if(flyList.length) flyList.forEach((f,i)=> flyGemToGoal(f.gem, f.el, Math.min(i*95, 700)));
 
@@ -7460,7 +7335,7 @@ function saveGame(){
     const data = {
       bestScores, maxLevelReached, maxBalloonLevel, isPremium,   // ★ v64 D2 三本帳簿一起落地
       levelBest,                     // ★ v102 關卡別最佳分（新增欄位，舊存檔沒有 → 讀檔端給預設值）
-      lbData, lbMigratedV94: true,   // ★ v94 排行榜歷史前10 + 最高連消；migrate flag 防止每次載入重複清空舊分數
+      lbMigratedV94: true,           // ★ v94 分數量級重定案的一次性遷移標記；v131 拆掉 lbData 後仍需保留，否則 pre-v94 舊存檔會漏做歸零
       currentSkin, soundOn,
       moodMode, moodCustomOrder, moodCursor, moodLevelCounter,   // ★ v92 心情轉換系統偏好與進度
       moodLevelThreshold, moodGamesCounter, moodGamesThreshold,   // ★ v97 隨機門檻與無盡模式局數，跨局/重開持續累加
@@ -7490,16 +7365,9 @@ function loadGame(){
       // ★ v64 D2 新版三本帳簿；舊存檔的單一 bestScore 已被 gem 累積分污染，遷移時同時抄進 gem 與 endless（寧多勿刪，不吃掉玩家紀錄）
       ['gem','endless','balloon'].forEach(k=>{ if(typeof d.bestScores[k]==='number') bestScores[k]=Math.max(0,d.bestScores[k]); });
     } else if(typeof d.bestScore==='number'){ bestScores.gem = d.bestScore; bestScores.endless = d.bestScore; }
-    if(d.lbData && typeof d.lbData==='object'){
-      ['gem','endless','balloon'].forEach(k=>{
-        if(d.lbData[k] && Array.isArray(d.lbData[k].top10)){
-          lbData[k].top10 = d.lbData[k].top10.filter(e=>e && typeof e.score==='number').slice(0,10);
-          lbData[k].maxCombo = typeof d.lbData[k].maxCombo==='number' ? d.lbData[k].maxCombo : 0;
-        }
-      });
-    }
-    /* ★ v127 舊存檔可能帶 d.iq（IQ榜稱號/輝煌印記），系統已拆除 → 直接忽略，不讀不寫。
-       其餘欄位照常還原，老玩家開起來不會壞，只是稱號牆消失。 */
+    /* ★ v127 舊存檔可能帶 d.iq（IQ榜稱號/輝煌印記），★ v131 舊存檔可能帶 d.lbData
+       （排行榜前10／最高連消）—— 兩套系統皆已拆除，直接忽略，不讀不寫。
+       其餘欄位照常還原，老玩家開起來不會壞。 */
     if(typeof d.maxLevelReached==='number') maxLevelReached = Math.max(1, d.maxLevelReached);
     if(typeof d.maxBalloonLevel==='number') maxBalloonLevel = Math.max(1, d.maxBalloonLevel);
     // ★ v102 關卡別最佳分：舊存檔沒有這個欄位 → 保持空物件，玩家的第一次過關就會建檔。
@@ -7665,7 +7533,7 @@ function saveRun(){
       tray: trayPieces.map(_serPiece),
       goals: goals.map(g=>({ gem:g.gem, need:g.need, got:g.got })),
       winStreak, curDiff, levelStartScore, movesLeft,
-      clearStreak, lastMilestone, adRevivesUsed, runMaxCombo,
+      clearStreak, lastMilestone, adRevivesUsed,
       levelPalette,                                        // ★ v91 本關配色盤：不存的話續玩後新牌會突然換一批色系
       hz: HZ.active ? {                                    // ★ 地雷② 存比例不存絕對值
         ratio: (HZ.total > 0) ? Math.max(0, Math.min(1, HZ.inflated / HZ.total)) : 0,
@@ -7715,7 +7583,6 @@ function resumeRun(){
   clearStreak     = Math.max(0, d.clearStreak|0);
   lastMilestone   = Math.max(0, d.lastMilestone|0);
   adRevivesUsed   = Math.max(0, d.adRevivesUsed|0);
-  runMaxCombo     = Math.max(0, d.runMaxCombo|0);
   if(d.curDiff && typeof d.curDiff==='object') curDiff = d.curDiff;
   if(d.levelPalette && typeof d.levelPalette==='object') levelPalette = d.levelPalette;
 
@@ -8069,7 +7936,6 @@ function enterMode(mode, forceLevel){
   }
   score = 0;
   winStreak = 0;            // ★ v6：新一局從蜜月期重新開始
-  runMaxCombo = 0;          // ★ v94 排行榜：本局最高連消歸零
   document.getElementById('menu').classList.add('hidden');
   const aw = document.getElementById('actionWrap'); if(aw) aw.classList.remove('hidden');  // ★ v54 進對局才顯示左上操作鈕
   startLevel();
