@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v133</title>
-<meta property="og:title" content="繽紛樂 v133">
+<title>繽紛樂 v134</title>
+<meta property="og:title" content="繽紛樂 v134">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・看花開！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -1272,7 +1272,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v133・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v134・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1699,7 +1699,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v133・繽紛樂',
+  'menu.footer':'v134・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1805,7 +1805,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v133 · Vivid Blast',
+  'menu.footer':'v134 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -1910,7 +1910,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v133・ビビッドブラスト',
+  'menu.footer':'v134・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -2216,6 +2216,17 @@ let curDiff = { tier:'normal', label:'', trapCap:1, rareBoost:1, goalMul:1, move
    所有「幾百毫秒後才落地」的計時器發射前記下世代，到點發現世代變了就自我作廢——
    從此不會有玩家回到選單後，過期的過關視窗還魂蓋在選單上。 */
 let gameEpoch = 0;
+
+/* ★ v134 回合結束閘門（總監定案 20260815）：
+   病史：過關彈窗蓋上來的那一刻，玩家手上若已經提起一塊牌，照樣放得下去。
+   原因不是 z-index 沒調好 —— v31 為了修「手機假性 pointercancel 導致方塊縮回去」，
+   刻意把 setPointerCapture 綁到 documentElement、監聽掛在 document 上。
+   事件從此不經過彈窗，蓋幾層都攔不住。
+   後果有三：分數在彈窗背後繼續跳、放牌聲穿透彈窗、
+   而且 afterMove 會再跑一次 checkWin → 300ms 後二度 showWin → 過關工資重複入帳。
+   解法：回合一結束就升旗，放手時沒收這一手（退牌不計分不出聲），
+   並在 showWin 前擋重入。旗標只在「這一局重新可玩」的四個入口降下。 */
+let roundEnded = false;
 
 /* ★ v64 D1 重試沿用旗標：retry 同一關必須沿用同一份 curDiff。
    否則 showLose 已把 winStreak 歸零，重擲 difficultyOf() 魔王牆瞬間變紙糊，
@@ -5391,6 +5402,7 @@ function renderTray(){
    ============================================================ */
 function attachDrag(el, idx){
   el.addEventListener('pointerdown', e=>{
+    if(roundEnded) return;  // ★ v134 回合已結束，連提牌都不給（彈窗現在蓋得住托盤，但儀式畫面階段未必）
     if(dragState) return;   // ★ v64 A4 一次只認一根手指：第二指碰其他牌不准覆寫 dragState，第一指的拖曳不再懸空報廢
     e.preventDefault();
     const p = trayPieces[idx];
@@ -5559,6 +5571,20 @@ function onCancel(e){
 
 function onUp(e){
   if(!dragState || e.pointerId!==dragState.pid) return;
+  /* ★ v134 沒收：回合已結束，這一手不放、不計分、不出聲。
+     牌沒有標記 used（placePiece 根本沒跑），脫掉 .dragging 就原地復原 ——
+     玩家不損失任何資源，只是這一手作廢。收尾動作與 onCancel 的退牌路徑同款。 */
+  if(roundEnded){
+    detachDrag();
+    if(dragRAF){ cancelAnimationFrame(dragRAF); dragRAF=null; }
+    latestMoveEvent = null;
+    clearHints();
+    const fp0 = document.getElementById('floatPiece');
+    fp0.innerHTML=''; fp0.classList.remove('lifted');
+    document.querySelectorAll('.piece').forEach(p=>p.classList.remove('dragging'));
+    dragState = null;
+    return;
+  }
   detachDrag();
   if(dragRAF){ cancelAnimationFrame(dragRAF); dragRAF=null; }
   latestMoveEvent = null;
@@ -5978,6 +6004,12 @@ function updateStatus(){
 
 function showWin(){
   if(!currentMode) return;   // ★ v64 A2 雙保險：已回選單就絕不彈過關視窗（任何漏網計時器到此為止）
+  /* ★ v134 重入鎖：舊版沒有這道，玩家在彈窗背後補放一塊 → afterMove → checkWin 仍為真
+     → 300ms 後二度進來，goldCoin 再 +20、winStreak 再 +1、maxLevelReached 再推一關。
+     這是可重複觸發的金幣漏洞，鎖在最前面。 */
+  if(roundEnded) return;
+  roundEnded = true;
+  cancelBombAim();           // ★ v134 與 showLose 對齊：結束瞬間收掉瞄準，避免視窗下誤觸
   const m = MODE();
   // ★ v32：機關關過關 → 仙人掌鬆一口氣，並凍結氣球（停在當下高度，當作勳章）
   if(HZ.active){ HZ.relief(); if(HZ.raf){ cancelAnimationFrame(HZ.raf); HZ.raf = 0; } }
@@ -6033,6 +6065,9 @@ function showWin(){
 
 function showLose(){
   if(!currentMode) return;   // ★ v64 A2 雙保險：已回選單就絕不彈失敗視窗（含氣球 boomTimer 900ms 路徑）
+  /* ★ v134 升旗但「不」加重入鎖 —— 氣球模式的救援分流仰賴 HZ 二次呼叫 showLose 的既有行為，
+     加鎖會改動失敗流程，超出本刀範圍（總監授權的是 showWin 重入鎖）。 */
+  roundEnded = true;
   const m = MODE();
   // ★ v6：卡關失敗 → 連勝歸零，重新進入「放水→爬升」的舒服節奏
   winStreak = 0;
@@ -7218,6 +7253,7 @@ function spawnBoomFX(r0, c0){
 /* 純續命邏輯（廣告救援與炸彈救援共用同一段身體，只是門票不同） */
 function doRevive(){
   document.getElementById('loseOverlay').classList.remove('show');
+  roundEnded = false;  // ★ v134 降旗：救援續戰 = 回合復活，重新收得到玩家的手
   HZ.paused = false;   // 救援續戰 → 解凍
   // 氣球爆炸的救援是「洩氣一半」，盤面不動；與盤面塞死分流（沿用 v32 規則）
   if(HZ.loseNow){ HZ.rescue(); return; }
@@ -7594,6 +7630,7 @@ function resumeRun(){
   if(!d) return false;
 
   gameEpoch++;                     // ★ v64 A2 新世代：任何殘留的舊計時器到此作廢
+  roundEnded = false;              // ★ v134 降旗：續玩當局存檔 = 回合重新開放
   currentMode = d.mode;
   level  = Math.max(1, d.level|0);
   score  = Math.max(0, d.score|0);
@@ -7887,6 +7924,7 @@ function proceedToNextLevel(){
    ============================================================ */
 function startLevel(){
   gameEpoch++;              // ★ v64 A2 開新關 = 新世代，舊計時器全數作廢
+  roundEnded = false;       // ★ v134 降旗：下一關/重試 = 這局重新可玩
   rollLevelPalette();       // ★ v91 每關重抽配色盤（常規 3 色＋稀有跳色 1 色）
   levelStartScore = score;  // ★ v64 D4 記下進關時的累積分（retry 回滾用）
   // ★ v6：開關卡時先抽出本關「難度性格」，整關沿用（gem 模式才有層次，其它維持平穩）
@@ -7962,6 +8000,7 @@ function enterMode(mode, forceLevel){
 /* 回主選單 */
 function goHome(){
   gameEpoch++;                   // ★ v64 A2 回選單 = 世代翻頁，所有在飛的過關/失敗計時器落地即作廢
+  roundEnded = false;            // ★ v134 降旗：離開對局，旗子不留到下一次進場
   currentMode = null;            // ★ v64 A2 回選單後系統不再誤以為「還在對局中」（商店買提示等誤觸的總根源）
   restStop();                    // ★ v98 回選單 = 這局的休息提醒作廢（不在選單背後偷偷彈）
   HZ.stop();                     // ★ v33 收掉機關圖層 + 停 rAF，否則氣球在選單背後繼續膨脹
@@ -8334,6 +8373,7 @@ function _bombDetonate(r, c){
 const _bombBtnEl = document.getElementById('bombBtn');
 let _bombDragFromBtn = false, _bombDownX = 0, _bombDownY = 0;
 _bombBtnEl.addEventListener('pointerdown', (e)=>{
+  if(roundEnded) return;                       // ★ v134 回合已結束，炸彈也一併沒收
   if(!currentMode || bombCount <= 0) return;   // 沒貨 → 留給下方 pointerup 開商店
   e.preventDefault();
   _bombDragFromBtn = false;
