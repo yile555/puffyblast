@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v132</title>
-<meta property="og:title" content="繽紛樂 v132">
+<title>繽紛樂 v133</title>
+<meta property="og:title" content="繽紛樂 v133">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・看花開！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -1272,7 +1272,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v132・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v133・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1391,7 +1391,10 @@
 <div class="overlay" id="winOverlay">
   <div class="modal">
     <h2 id="winTitle">🎉 過關！</h2>
-    <p id="winText" data-i18n="win.textDefault">小動物都吃飽囉！</p>
+    <!-- ★ v133 拆除 data-i18n：本行由 6001/6008 行執行期寫入分數文字。
+         掛 data-i18n 會被 applyI18n 全域掃描覆寫 → 過關窗開著切語言時分數行被打回死文案。
+         預設留空，未來若要加副標由總監主導文案。 -->
+    <p id="winText"></p>
     <!-- ★ v102 本關紀錄對比：破紀錄時整行轉金並跳動 -->
     <div class="win-lvbest" id="winLvBest" style="display:none"></div>
     <button class="big-btn" id="nextBtn" data-i18n="win.next">下一關 →</button>
@@ -1696,7 +1699,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v132・繽紛樂',
+  'menu.footer':'v133・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1734,7 +1737,7 @@ const I18N = {
   'win.title':'🎉 過關！', 'win.text':'第 {lv} 關完成！總分 {s}　🪙+{n}',
   'intro.level':'第 {n} 關', 'mode.endless':'無盡模式',
   'win.balloonTitle':'🎈 氣球守住了！', 'win.balloonText':'第 {lv} 關完成！仙人掌鬆了一口氣（得分 {s}）　🪙+{n}',
-  'win.textDefault':'小動物都吃飽囉！', 'win.next':'下一關 →', 'win.home':'回主選單',
+  'win.next':'下一關 →', 'win.home':'回主選單',
   'lose.title':'😿 沒空間了',
   'lose.text.endless':'盤面塞滿了，這局到此為止。看廣告換一批方塊續命，或重新開始。',
   'lose.text.gem':'盤面塞滿放不下了！看廣告換一批方塊續命，或重新挑戰本關。',
@@ -1802,7 +1805,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v132 · Vivid Blast',
+  'menu.footer':'v133 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -1840,7 +1843,7 @@ const I18N = {
   'win.title':'🎉 Level Clear!', 'win.text':'Level {lv} complete! Total score {s}　🪙+{n}',
   'intro.level':'Level {n}', 'mode.endless':'Endless',
   'win.balloonTitle':'🎈 Balloon Saved!', 'win.balloonText':'Level {lv} complete! The cactus sighs in relief (score {s})　🪙+{n}',
-  'win.textDefault':'All puffies are full and happy!', 'win.next':'Next Level →', 'win.home':'Main Menu',
+  'win.next':'Next Level →', 'win.home':'Main Menu',
   'lose.title':'😿 No Space Left',
   'lose.text.endless':'The board is full — that\'s the run. Watch an ad for fresh blocks, or restart.',
   'lose.text.gem':'The board jammed up! Watch an ad for fresh blocks, or retry this level.',
@@ -1907,7 +1910,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v132・ビビッドブラスト',
+  'menu.footer':'v133・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -1945,7 +1948,7 @@ const I18N = {
   'win.title':'🎉 クリア！', 'win.text':'レベル {lv} クリア！合計スコア {s}　🪙+{n}',
   'intro.level':'レベル {n}', 'mode.endless':'エンドレス',
   'win.balloonTitle':'🎈 風船を守った！', 'win.balloonText':'レベル {lv} クリア！サボテンもひと安心（スコア {s}）　🪙+{n}',
-  'win.textDefault':'みんな満腹、大満足！', 'win.next':'次のレベル →', 'win.home':'メニューへ',
+  'win.next':'次のレベル →', 'win.home':'メニューへ',
   'lose.title':'😿 置き場がない…',
   'lose.text.endless':'盤面がいっぱいに。広告を見て新しいブロックで続けるか、最初からやり直そう。',
   'lose.text.gem':'盤面が詰まった！広告を見て新しいブロックで続けるか、このレベルに再挑戦しよう。',
