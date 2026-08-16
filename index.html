@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v134</title>
-<meta property="og:title" content="繽紛樂 v134">
+<title>繽紛樂 v135</title>
+<meta property="og:title" content="繽紛樂 v135">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・看花開！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -40,10 +40,13 @@
   .icon-btn:active { transform:scale(.92); }
 
   /* ★ v14 齒輪：固定浮在右上角，貼齊右邊界，不佔版面 */
-  .gear-wrap { position:absolute; right:12px; top:12px; z-index:60; }
+  .gear-wrap { position:absolute; right:12px; top:12px; z-index:70; }   /* ★ v135 抬到 70：展開的齒輪選單必須蓋過正下方的炸彈鍵 */
   /* ★ v54 左上角操作鈕：提示💡＋炸彈💣 縮小浮在左上，跟右上角齒輪左右對稱。
      遊戲進行中才顯示；讓中段版面完全讓給棋盤，簡單大方。 */
-  .action-wrap { position:absolute; left:12px; top:12px; z-index:60; display:flex; flex-direction:column; gap:8px; }
+  /* ★ v135 總監定案 20260816：炸彈搬到右上齒輪正下方，左上角整塊讓給獎盃列。
+     right 對齊而非 left —— 兩顆鈕的右緣要與齒輪切齊，才像同一條垂直軸上的東西。 */
+  .action-wrap { position:absolute; right:12px; top:62px; z-index:60;
+                 display:flex; flex-direction:column; align-items:flex-end; gap:8px; }
   .action-wrap.hidden { display:none; }
   .action-wrap .act-btn { position:relative; width:44px; height:44px; border:none; border-radius:14px;
     color:#fff; font-size:22px; font-weight:800; cursor:pointer; padding:0;
@@ -135,10 +138,18 @@
   /* ★ v102 關卡別最佳分：對局中常駐在大分數正下方，玩家隨時知道離紀錄多遠。
      刻意做小、做暗（12px / 55% 透明）—— 它是背景參照，不能跟主分數搶注意力。
      超越紀錄的瞬間整行轉金並跳動，那一刻才允許它搶戲。 */
-  #lvBest { text-align:center; font-size:12px; font-weight:700; letter-spacing:.4px;
-    color:rgba(255,255,255,.55); margin-top:2px; min-height:15px;
+  /* ★ v135 獎盃列（總監定案 20260816）：從大分數正下方搬到左上角，改絕對定位。
+     搬家的兩個理由：
+       ① v102 加這行時漏了把它掛進 v65 的堆疊群組（#goals/#bigScore/#playArea/#tray），
+          花苗轉型後任務欄變高、版面壓力上升，它被擠扁後溢出的字直接被棋盤蓋掉（真機實錘）。
+       ② 內容改為「里程碑」而非「當下分數的對照組」，本來就不該貼在大分數旁邊。
+     零文字設計：玩家看到獎盃就知道那是紀錄，不需要標籤（三語問題連帶消失）。 */
+  #lvBest { position:absolute; left:12px; top:12px; z-index:60;
+    display:flex; align-items:center; gap:5px; height:40px;
+    font-size:15px; font-weight:800; letter-spacing:.3px;
+    color:rgba(255,255,255,.72);
     pointer-events:none; user-select:none; font-variant-numeric:tabular-nums;
-    text-shadow:0 1px 2px rgba(0,0,0,.5); transition:color .25s; }
+    text-shadow:0 1px 2px rgba(0,0,0,.55); transition:color .25s; }
   #lvBest.hidden { display:none; }
   /* 已超越本關紀錄：轉金 + 一次性跳動。跟里程碑用不同動畫，避免兩者同時發生時視覺打架 */
   /* ★ v104 超越紀錄：慢速規律呼吸閃爍（2.2 秒一循環）。
@@ -1272,7 +1283,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v134・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v135・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1337,8 +1348,10 @@
   <!-- ★ v54 頂部大分數：置於動物任務欄下方、棋盤上方，大字級置中當「本局成就感」主視覺。
        非計分模式（如某些機關關）自動隱藏；里程碑達成時整塊放大發光慶祝。 -->
   <div id="bigScore"><div class="bs-num" id="bigScoreVal">0</div></div>
-  <!-- ★ v102 本關最佳分：常駐顯示，玩家隨時看得到離紀錄多遠（總監定案：增加挑戰動機）。
-       無盡模式沒有關卡概念 → 由 updateLevelBestLine() 自動隱藏。 -->
+  <!-- ★ v135 獎盃列：左上角常駐里程碑（總監定案 20260816）。
+       無盡 → 🏆 歷史最高分；寶石/氣球 → 🏆 第 N 關（最遠抵達）。
+       收集模式的分數是過關的副產品，玩家真正在意的是走到第幾關 —— 計量單位跟著模式走，
+       圖示與位置三模式一致，玩家看到獎盃就知道那是自己的最好成績。 -->
   <div id="lvBest" class="hidden"></div>
 
   <!-- ★ v14 中段：左側資訊欄（關卡/分數/最佳/提示，貼最左邊）+ 右側棋盤 -->
@@ -1699,7 +1712,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v134・繽紛樂',
+  'menu.footer':'v135・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1709,9 +1722,7 @@ const I18N = {
   'lvpick.btn':'🏆 選關', 'lvpick.title':'🏆 選擇關卡', 'lvpick.sub':'挑戰自己的紀錄',
   'lvpick.close':'關閉', 'lvpick.none':'—', 'win.replay':'🏆 再打一次這關',
   /* ★ v102 關卡別最佳分 */
-  'lvb.line':'本關最佳 {n}',
-  'lvb.lineBest':'歷史最佳 {n}', 'lvb.firstBest':'首次挑戰無盡模式',
-  'lvb.first':'首次挑戰本關',
+  'lvb.trophyLevel':'第 {n} 關',
   'lvb.winNew':'🏆 本關新紀錄！{n} 分（前一次 {o}）',
   'lvb.winFirst':'🏆 本關首次紀錄：{n} 分',
   'lvb.winKeep':'本關最佳 {b} 分・這次 {n} 分',
@@ -1805,7 +1816,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v134 · Vivid Blast',
+  'menu.footer':'v135 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -1815,9 +1826,7 @@ const I18N = {
   'lvpick.btn':'🏆 Levels', 'lvpick.title':'🏆 Select Level', 'lvpick.sub':'Beat your own record',
   'lvpick.close':'Close', 'lvpick.none':'—', 'win.replay':'🏆 Replay this level',
   /* ★ v102 per-level best score */
-  'lvb.line':'Level best {n}',
-  'lvb.lineBest':'All-time best {n}', 'lvb.firstBest':'First endless run',
-  'lvb.first':'First attempt at this level',
+  'lvb.trophyLevel':'Level {n}',
   'lvb.winNew':'🏆 New level best: {n} (was {o})',
   'lvb.winFirst':'🏆 First record for this level: {n}',
   'lvb.winKeep':'Level best {b} · this run {n}',
@@ -1910,7 +1919,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v134・ビビッドブラスト',
+  'menu.footer':'v135・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -1920,9 +1929,7 @@ const I18N = {
   'lvpick.btn':'🏆 レベル選択', 'lvpick.title':'🏆 レベルを選ぶ', 'lvpick.sub':'自己記録に挑戦',
   'lvpick.close':'閉じる', 'lvpick.none':'—', 'win.replay':'🏆 このレベルをもう一度',
   /* ★ v102 レベル別ベストスコア */
-  'lvb.line':'このレベル最高 {n}',
-  'lvb.lineBest':'自己最高 {n}', 'lvb.firstBest':'エンドレス初挑戦',
-  'lvb.first':'このレベル初挑戦',
+  'lvb.trophyLevel':'レベル {n}',
   'lvb.winNew':'🏆 レベル新記録！{n} 点（前回 {o}）',
   'lvb.winFirst':'🏆 このレベル初記録：{n} 点',
   'lvb.winKeep':'レベル最高 {b} 点・今回 {n} 点',
@@ -2226,7 +2233,29 @@ let gameEpoch = 0;
    而且 afterMove 會再跑一次 checkWin → 300ms 後二度 showWin → 過關工資重複入帳。
    解法：回合一結束就升旗，放手時沒收這一手（退牌不計分不出聲），
    並在 showWin 前擋重入。旗標只在「這一局重新可玩」的四個入口降下。 */
-let roundEnded = false;
+let roundEnded = false;   // 輸入閘門：判定成立的「當下」升起（不是彈窗出現時）
+let winShown   = false;   // showWin 重入鎖：與輸入閘門分家，否則提前升旗會把彈窗自己擋掉
+
+/* ★ v135 收尾（總監實測 20260816）：v134 把旗子升在 showWin 裡，但 showWin 是判定成立後
+   300ms 才跑的 —— 那 300ms 內玩家提得起牌，拖曳一旦成立，彈窗蓋上來也攔不住（事件走 document）。
+   真機重現：過關瞬間故意提牌，彈窗下方的方塊照樣移來移去。
+   改成判定成立的當下就升旗，並把「手上那塊」立刻退回 —— 氣球模式會在拖到一半爆炸，
+   那條路 v134 完全沒顧到。退牌路徑與 v65 ⑤ 的 onCancel 同款：牌未標記 used，玩家零損失。 */
+function endRound(){
+  if(roundEnded) return;
+  roundEnded = true;
+  cancelBombAim();                     // 結束瞬間收掉瞄準，避免視窗下誤觸
+  if(dragState){                       // 手上還握著牌 → 當場退回預備區
+    try{ detachDrag(); }catch(_){}
+    if(dragRAF){ cancelAnimationFrame(dragRAF); dragRAF = null; }
+    latestMoveEvent = null;
+    clearHints();
+    const fp = document.getElementById('floatPiece');
+    if(fp){ fp.innerHTML=''; fp.classList.remove('lifted'); }
+    document.querySelectorAll('.piece').forEach(p=>p.classList.remove('dragging'));
+    dragState = null;
+  }
+}
 
 /* ★ v64 D1 重試沿用旗標：retry 同一關必須沿用同一份 curDiff。
    否則 showLose 已把 winStreak 歸零，重擲 difficultyOf() 魔王牆瞬間變紙糊，
@@ -5847,13 +5876,15 @@ function afterMove(){
   // ★ v64 A2 這兩顆延遲計時器同樣掛世代保險：回選單後絕不還魂
   // ★ v101 過關路徑刻意「不」寫檔：存下已達標的盤面，玩家續玩後隨便放一塊就會
   //   再觸發一次 checkWin → 重複領過關工資。要擋在這裡，不是擋在還原端。
-  if(checkWin()){ const ep=gameEpoch; setTimeout(()=>{ if(ep===gameEpoch) showWin(); }, 300); return; }
+  if(checkWin()){ endRound();   // ★ v135 升旗提前到「判定成立」，不等 300ms 後的彈窗
+    const ep=gameEpoch; setTimeout(()=>{ if(ep===gameEpoch) showWin(); }, 300); return; }
   // ★ v101 中局存檔主力：每手結算完就落地。系統回收 App 不會發任何事件，
   //   生命週期監聽補不到，只有「每手都寫」才真的救得回來。
   // 三塊都用完 → 補新的一組
   if(trayPieces.every(p=>p.used)){ refillTray(); }
   // 失敗判定：剩餘方塊都放不下（盤面塞死）—— 公平、靠實力，不靠步數運氣
-  else if(!anyPlaceable()){ const ep=gameEpoch; setTimeout(()=>{ if(ep===gameEpoch) showLose(); }, 300); }
+  else if(!anyPlaceable()){ endRound();   // ★ v135 同上：盤面塞死的當下就收手
+    const ep=gameEpoch; setTimeout(()=>{ if(ep===gameEpoch) showLose(); }, 300); }
   /* ★ v114 存檔必須「晚於」補牌（總監 20260807 實測「續玩托盤全空」的根因）。
      舊順序是先 saveRun() 再 refillTray()：玩家放下的若是第三張（最後一張）牌，
      存檔記下的托盤就是「三張全 used」，補的新牌沒被寫進去。還原時 renderTray()
@@ -6007,9 +6038,9 @@ function showWin(){
   /* ★ v134 重入鎖：舊版沒有這道，玩家在彈窗背後補放一塊 → afterMove → checkWin 仍為真
      → 300ms 後二度進來，goldCoin 再 +20、winStreak 再 +1、maxLevelReached 再推一關。
      這是可重複觸發的金幣漏洞，鎖在最前面。 */
-  if(roundEnded) return;
-  roundEnded = true;
-  cancelBombAim();           // ★ v134 與 showLose 對齊：結束瞬間收掉瞄準，避免視窗下誤觸
+  if(winShown) return;
+  winShown = true;
+  endRound();                // 保底：若走的是不經 afterMove 的路徑（計時器等），這裡補升旗
   const m = MODE();
   // ★ v32：機關關過關 → 仙人掌鬆一口氣，並凍結氣球（停在當下高度，當作勳章）
   if(HZ.active){ HZ.relief(); if(HZ.raf){ cancelAnimationFrame(HZ.raf); HZ.raf = 0; } }
@@ -6067,7 +6098,7 @@ function showLose(){
   if(!currentMode) return;   // ★ v64 A2 雙保險：已回選單就絕不彈失敗視窗（含氣球 boomTimer 900ms 路徑）
   /* ★ v134 升旗但「不」加重入鎖 —— 氣球模式的救援分流仰賴 HZ 二次呼叫 showLose 的既有行為，
      加鎖會改動失敗流程，超出本刀範圍（總監授權的是 showWin 重入鎖）。 */
-  roundEnded = true;
+  endRound();   // ★ v135 氣球爆炸走的是 900ms boomTimer，不經 afterMove —— 這裡補升旗兼退牌
   const m = MODE();
   // ★ v6：卡關失敗 → 連勝歸零，重新進入「放水→爬升」的舒服節奏
   winStreak = 0;
@@ -7253,7 +7284,7 @@ function spawnBoomFX(r0, c0){
 /* 純續命邏輯（廣告救援與炸彈救援共用同一段身體，只是門票不同） */
 function doRevive(){
   document.getElementById('loseOverlay').classList.remove('show');
-  roundEnded = false;  // ★ v134 降旗：救援續戰 = 回合復活，重新收得到玩家的手
+  roundEnded = false; winShown = false;   // ★ v134 降旗：救援續戰 = 回合復活
   HZ.paused = false;   // 救援續戰 → 解凍
   // 氣球爆炸的救援是「洩氣一半」，盤面不動；與盤面塞死分流（沿用 v32 規則）
   if(HZ.loseNow){ HZ.rescue(); return; }
@@ -7345,47 +7376,52 @@ let _runStartBest = 0;
 function updateLevelBestLine(){
   const el = document.getElementById('lvBest');
   if(!el) return;
-  // ★ v104 ⑦ 無盡模式改為「顯示歷史最佳」，不再隱藏 —— 只有沒計分的模式才藏
-  if(!currentMode || !MODE().useScore){
-    el.classList.add('hidden'); return;
-  }
-  el.classList.remove('hidden');
-  // ★ v104 ⑦ 無盡模式也要有紀錄可追：用開局當下的歷史最佳快照。
-  //   不能直接用 bestScores —— bumpBest() 在對局中即時改寫它，
+  if(!currentMode || !MODE().useScore){ el.classList.add('hidden'); el.classList.remove('beat'); return; }
+
+  // ★ v104 ⑦ 無盡模式的追趕目標用「開局當下的歷史最佳快照」——
+  //   不能直接用 bestScores，bumpBest() 在對局中即時改寫它，
   //   玩家會永遠追著一個跟自己同速前進的影子，永遠「超越」不了。
   const isLvMode = modeUsesLevelBest(currentMode);
-  const best = isLvMode ? getLevelBest(currentMode, level) : _runStartBest;
-  const cur  = isLvMode ? (score - levelStartScore) : score;   // 與大分數同一把尺
+  const best   = isLvMode ? getLevelBest(currentMode, level) : _runStartBest;
+  const cur    = isLvMode ? (score - levelStartScore) : score;   // 與大分數同一把尺
   const bigNum = document.getElementById('bigScoreVal');
-  const lineKey = isLvMode ? 'lvb.line' : 'lvb.lineBest';      // 本關最佳 / 歷史最佳
+  const beaten = (best > 0 && cur > best);
 
-  if(best <= 0){
-    el.textContent = T(isLvMode ? 'lvb.first' : 'lvb.firstBest');
+  /* ── 獎盃列內容：里程碑，不是當下分數的對照組（★ v135 總監定案）──
+     無盡模式的分數是唯一產出 → 歷史最高分。
+     收集模式的分數是過關的副產品，玩家真正在意的是走到第幾關 → 最遠抵達關卡。
+     後者讓收集模式第一次有了長期目標；本關最佳只在重打同一關時有意義，
+     而玩家大多數時間是往前走的，那個數字對他幾乎永遠是背景雜訊。 */
+  if(isLvMode){
+    el.classList.remove('hidden', 'beat');   // 里程碑是靜態事實，不呼吸閃爍
+    el.textContent = '🏆 ' + T('lvb.trophyLevel', { n: maxLevelOf(currentMode) });
+  } else if(best > 0){
+    el.classList.remove('hidden');
+    // 超越之後數字跟著目前分同步爬升 —— 紀錄正被玩家親手改寫，就該一起往上跑（v104 定案②）
+    el.textContent = '🏆 ' + (beaten ? cur : best).toLocaleString();
+    el.classList.toggle('beat', beaten);     // 慢速呼吸閃爍：快閃是警告，慢閃才是榮耀
+  } else {
+    el.classList.add('hidden');              // 無盡模式還沒有紀錄 → 沒有獎盃可秀
     el.classList.remove('beat');
-    if(bigNum) bigNum.classList.remove('record','recordHit');
-    return;
   }
 
-  if(cur > best){
-    // ★ v104 總監定案②：超越之後，這行的數字改為「跟著目前分同步爬升」——
-    //   紀錄正被玩家親手改寫，數字就該一起往上跑，而不是停在舊值旁邊報差距。
-    el.textContent = T(lineKey, { n: cur.toLocaleString() });
-    el.classList.add('beat');                    // 慢速呼吸閃爍（CSS 動畫，持續狀態）
-    if(!_lvBestBeaten){                          // 只在「剛超越」的那一刻演一次
+  /* ── 破紀錄慶祝：與獎盃列顯示什麼無關，一律照舊 ──
+     收集模式的獎盃改秀關卡後，這裡是玩家「正在改寫本關紀錄」的唯一提示，
+     所以大分數的發光與撞擊感一個都不能少。 */
+  if(beaten){
+    if(!_lvBestBeaten){                      // 只在「剛超越」的那一刻演一次
       _lvBestBeaten = true;
-      el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+      if(!isLvMode){ el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
       if(bigNum){
-        bigNum.classList.add('record');           // 持續發光（狀態）
+        bigNum.classList.add('record');       // 持續發光（狀態）
         bigNum.classList.remove('recordHit'); void bigNum.offsetWidth;
-        bigNum.classList.add('recordHit');        // 撞擊感（一次性）
+        bigNum.classList.add('recordHit');    // 撞擊感（一次性）
       }
-      playRecordBreak();                          // ★ 無敵星星音效
+      playRecordBreak();                      // ★ 無敵星星音效
       haptic('medium');
     }
-  } else {
-    el.textContent = T(lineKey, { n: best.toLocaleString() });
-    el.classList.remove('beat');
-    if(bigNum) bigNum.classList.remove('record','recordHit');
+  } else if(bigNum){
+    bigNum.classList.remove('record','recordHit');
   }
 }
 
@@ -7630,7 +7666,7 @@ function resumeRun(){
   if(!d) return false;
 
   gameEpoch++;                     // ★ v64 A2 新世代：任何殘留的舊計時器到此作廢
-  roundEnded = false;              // ★ v134 降旗：續玩當局存檔 = 回合重新開放
+  roundEnded = false; winShown = false;   // ★ v134 降旗：續玩當局存檔 = 回合重新開放
   currentMode = d.mode;
   level  = Math.max(1, d.level|0);
   score  = Math.max(0, d.score|0);
@@ -7924,7 +7960,7 @@ function proceedToNextLevel(){
    ============================================================ */
 function startLevel(){
   gameEpoch++;              // ★ v64 A2 開新關 = 新世代，舊計時器全數作廢
-  roundEnded = false;       // ★ v134 降旗：下一關/重試 = 這局重新可玩
+  roundEnded = false; winShown = false;   // ★ v134 降旗：下一關/重試 = 這局重新可玩
   rollLevelPalette();       // ★ v91 每關重抽配色盤（常規 3 色＋稀有跳色 1 色）
   levelStartScore = score;  // ★ v64 D4 記下進關時的累積分（retry 回滾用）
   // ★ v6：開關卡時先抽出本關「難度性格」，整關沿用（gem 模式才有層次，其它維持平穩）
@@ -8000,7 +8036,7 @@ function enterMode(mode, forceLevel){
 /* 回主選單 */
 function goHome(){
   gameEpoch++;                   // ★ v64 A2 回選單 = 世代翻頁，所有在飛的過關/失敗計時器落地即作廢
-  roundEnded = false;            // ★ v134 降旗：離開對局，旗子不留到下一次進場
+  roundEnded = false; winShown = false;   // ★ v134 降旗：離開對局，旗子不留到下一次進場
   currentMode = null;            // ★ v64 A2 回選單後系統不再誤以為「還在對局中」（商店買提示等誤觸的總根源）
   restStop();                    // ★ v98 回選單 = 這局的休息提醒作廢（不在選單背後偷偷彈）
   HZ.stop();                     // ★ v33 收掉機關圖層 + 停 rAF，否則氣球在選單背後繼續膨脹
