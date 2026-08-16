@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v135</title>
-<meta property="og:title" content="繽紛樂 v135">
+<title>繽紛樂 v136</title>
+<meta property="og:title" content="繽紛樂 v136">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・看花開！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -109,7 +109,11 @@
      右側 padding 一律 ≥56px：浮動齒輪佔 right:12 起算 40px 寬，
      flex 填滿後右緣 = W - padR，必須把齒輪讓開。 */
   /* ★ v54 頂部大分數：置中、超大字、簡單大方。這是玩家一眼就看到的「本局成就感」主角。 */
-  #bigScore { display:flex; justify-content:center; align-items:flex-end; padding:0 56px 4px;
+  /* ★ v136 padding-bottom 4→14（總監實測：分數黏在棋盤上）：
+     line-height:1 讓行框等於字級，但數字字形只佔約七成，空隙全部落在上方（那是給降部
+     預留的，數字用不到），再被 align-items:flex-end 壓到盒底 —— 上面空一截、下面貼死。
+     這 10px 是從 #goals 的 padding-bottom 挪過來的，欄位總高不變，棋盤大小不受影響。 */
+  #bigScore { display:flex; justify-content:center; align-items:flex-end; padding:0 56px 14px;
     pointer-events:none; user-select:none; }
   #bigScore.hidden { display:none; }
   #bigScore .bs-num { font-size:52px; font-weight:900; line-height:1; letter-spacing:1px;
@@ -144,8 +148,8 @@
           花苗轉型後任務欄變高、版面壓力上升，它被擠扁後溢出的字直接被棋盤蓋掉（真機實錘）。
        ② 內容改為「里程碑」而非「當下分數的對照組」，本來就不該貼在大分數旁邊。
      零文字設計：玩家看到獎盃就知道那是紀錄，不需要標籤（三語問題連帶消失）。 */
-  #lvBest { position:absolute; left:12px; top:12px; z-index:60;
-    display:flex; align-items:center; gap:5px; height:40px;
+  #lvBest { position:absolute; left:12px; top:10px; z-index:60;
+    display:flex; align-items:center; gap:5px; height:22px;   /* ★ v136 40→22：只裝一行字，40 是照抄 icon-btn 的多餘高度 */
     font-size:15px; font-weight:800; letter-spacing:.3px;
     color:rgba(255,255,255,.72);
     pointer-events:none; user-select:none; font-variant-numeric:tabular-nums;
@@ -216,9 +220,16 @@
     76%{opacity:1; transform:translateX(-50%) scale(1);}
     100%{opacity:0; transform:translateX(-50%) scale(1) translateY(-40px);} }
 
-  #goals { display:flex; justify-content:center; gap:16px; padding:16px 56px 10px; }
+  /* ★ v136 版面三調（總監實測 20260816）：
+     ① padding-top 16→32：綻放時植株頂端在 viewBox y=5（SOIL 101 − BLOOM_H 96），
+        等於貼著框頂。獎盃列佔 y10~32，兩者原本正面相撞。整排下移才拉得開。
+     ② padding-bottom 10→2：把這裡省下的高度讓給大分數的下緣呼吸。 */
+  #goals { display:flex; justify-content:center; gap:16px; padding:32px 56px 2px; }
   #goals .goal  { flex:1 1 0; min-width:0; }   /* min-width:0 是關鍵：否則 flex item 不肯縮到內容寬以下 */
-  #goals .gicon { width:100%; height:auto; aspect-ratio:100/134; }   /* ★ v87 直立：花盆從下緣長出去 */
+  /* ★ v136 框高 134→122（縮 9%）：苗期上半框是替綻放預留的成長空間，134 給得偏大。
+     viewBox 仍是 100×134，preserveAspectRatio 預設 meet 會以高度為準等比縮小並水平置中 ——
+     花整體縮 9%，苗期空白同步變少，順帶把整排長回 padding-top 吃掉的高度。 */
+  #goals .gicon { width:100%; height:auto; aspect-ratio:100/122; }   /* ★ v87 直立：花盆從下緣長出去 */
   #goals .gtext { white-space:nowrap; }
 
   #goals[data-n="3"] .goal  { max-width:92px; }
@@ -1283,7 +1294,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v135・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v136・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1712,7 +1723,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v135・繽紛樂',
+  'menu.footer':'v136・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1816,7 +1827,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v135 · Vivid Blast',
+  'menu.footer':'v136 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -1919,7 +1930,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v135・ビビッドブラスト',
+  'menu.footer':'v136・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
