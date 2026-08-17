@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v136</title>
-<meta property="og:title" content="繽紛樂 v136">
+<title>繽紛樂 v137</title>
+<meta property="og:title" content="繽紛樂 v137">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・看花開！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -909,7 +909,9 @@
      ★ v32 機關引擎（BALLOON_CACTUS）視覺層
      氣球躺在 z-index:0，所有 UI 壓在它上面 → 從資訊卡縫隙間穿過。
      ============================================================ */
-  #app > #hzLayer { position:absolute; inset:0; z-index:0; pointer-events:none;
+  /* ★ v137 圖層抬升 0→3：外框壓力條必須畫在棋盤「之上」（舊版氣球躲在 z:0 走側邊
+     走廊，繞棋盤之後躲不了了）。pointer-events:none 保證不吃拖放事件。 */
+  #app > #hzLayer { position:absolute; inset:0; z-index:3; pointer-events:none;
                     overflow:hidden; display:none; }
   #app > #hzLayer.on { display:block; }
   /* UI 全部抬到氣球之上（原本是 static，會被 positioned 圖層蓋住） */
@@ -917,55 +919,28 @@
      氣球管一經過就把分數蓋住（真機實錘「分數被氣球擋住」）。現在分數永遠壓在管線之上。 */
   #goals, #bigScore, #playArea, #tray { position:relative; z-index:1; }
 
-  /* ★ v55 機關關版面：#app.hz-on（由 HZ.syncGoals 掛上）
-     ① 棋盤讓出左側走廊 —— v54 隱藏側欄後棋盤變寬，把氣球的左側跑道整條蓋住。
-        padding-left 配合 calcCellSize 的 gutter 扣寬，跑道 x≈32 完整重見天日。
-     ② 大分數改亮白＋天藍光暈 —— 原本的暗金色在深藍底＋藍色管線旁對比不足，
-        機關模式的分數必須一眼即讀。 */
-  /* ★ v58 走廊補全：v55 只讓出左側，上/下走廊靠「剛好有縫」硬撐——
-     矮螢幕上棋盤吃滿高度，頂部管線直接被棋盤蓋住（真機截圖實錘）。
-     現在上下各保留 38px 專屬跑道，配合 calcCellSize 的垂直扣高，
-     氣球（時間線）的完整軌跡在任何螢幕上都保證可見。 */
-  /* ★ v62 底部保留區 38 → 62px：走廊要塞「管線(22px) + 仙人掌(34px)」兩層，
-     38px 根本不夠 —— 擠壓環境（瀏覽器工具列吃掉高度）下管線被迫躺到托盤方塊頭上。
-     62 = 仙人掌 38（34 高 + 4 呼吸）+ 管線半寬 11 + 托盤安全距 13。 */
-  #app.hz-on #boardWrap { padding:38px 12px 62px 50px; }
-  #app.hz-on #streakBadge { left:58px; }   /* 連消徽章讓開走廊，別壓在氣球管上 */
+  /* ★ v137 走廊全數退役（總監定案 20260817）：壓力條改繞棋盤外框，不再需要專屬跑道。
+     連同退役的有 v55 左側走廊、v58 上下走廊、v62 底部加高、v63 的 CELL 回饋迴圈 ——
+     那四層補丁全是為了「讓 ㄈ 形管線在四個約束之間找活路」，跑道貼上棋盤後全部不成立。
+     收益：機關關棋盤尺寸與其餘兩模式完全一致（原本小 29%）。
+     保留 hz-on：大分數在壓力條旁仍需要高對比。 */
   #app.hz-on #bigScore .bs-num { color:#ffffff;
     text-shadow:0 0 14px rgba(79,195,247,.85), 0 2px 3px rgba(0,0,0,.6), 0 6px 18px rgba(0,0,0,.45); }
 
   #hzSvg { position:absolute; inset:0; width:100%; height:100%; }
 
-  /* 噴氣嘴：金屬管，氣球嘴從外面套住它 */
-  #hzNozzle { position:absolute; width:46px; height:30px; transform-origin:right center; }
-  #hzNozzle .barrel { position:absolute; right:0; top:7px; width:40px; height:16px;
-        border-radius:3px 0 0 3px;
-        background:linear-gradient(#8d949f,#5a616c 44%,#3c424b 64%,#6c737e);
-        box-shadow:inset 0 1px 0 #ffffff33, 0 2px 4px #0003; }
-  #hzNozzle .ring { position:absolute; right:15px; top:4px; width:5px; height:22px;
-        border-radius:2px;
-        background:linear-gradient(#7c838e,#454b55 48%,#2e343c 70%,#5f666f);
-        box-shadow:0 1px 3px #0004; }
-  #hzNozzle .cuff { position:absolute; left:0; top:2px; width:15px; height:26px; z-index:2;
-        border-radius:7px 4px 4px 7px;
-        background:linear-gradient(#6ec6f2,#3fb0ea 45%,#2b8ac2);
-        box-shadow:inset 0 1px 0 #ffffff44, 0 2px 4px #0003; }
-  #hzNozzle .cuff::after { content:''; position:absolute; right:2px; top:3px; bottom:3px;
-        width:2px; background:#00000033; border-radius:1px; }
-  #hzNozzle .puff { position:absolute; left:-4px; top:9px; width:12px; height:12px;
-        border-radius:50%; background:#fff; opacity:0; }
-  #hzNozzle.popped .cuff { width:11px; height:20px; top:5px; border-radius:6px 3px 3px 6px;
-        background:linear-gradient(#4f9ec2,#2a6f92 60%,#1c4f68); transform:rotate(-7deg); }
+  /* ★ v137 噴氣嘴與仙人掌全數移除（總監定案：留下沒意義）。
+     兩者都是「氣球從嘴巴吹出來、往仙人掌爬過去」這條敘事的道具；
+     改成棋盤外框的時間線之後，起點與終點是同一個角，中間沒有角色可站。 */
 
-  /* ★ v63 抬層：仙人掌不再住在 z:0 的氣球圖層裡 —— 獨立 absolute 元素、z-index:2，
-     壓在棋盤(z:1)之上。顯示與否跟著 #hzLayer.on 走（相鄰選擇器），機關關以外完全不存在。 */
-  #hzCactus { position:absolute; font-size:34px; line-height:1; transform-origin:bottom center;
-              z-index:2; pointer-events:none; display:none; }
-  #hzLayer.on + #hzCactus { display:block; }
-  #hzCactus .em { display:block; }
-
+  /* 危險暈影：紅光從右緣打進來 —— 對齊壓力條最後那條邊（進度 75%~100%）。
+     ★ v137 位置 84% 80% → 92% 50%：舊值瞄準的是右下角的仙人掌，不是右緣。 */
   #hzDanger { position:absolute; inset:0; opacity:0; transition:opacity .25s;
-        background:radial-gradient(circle at 84% 80%, #ff2d2d44, #0000 55%); }
+        background:radial-gradient(circle at 92% 50%, #ff2d2d44, #0000 55%); }
+
+  /* ★ v137 棋盤炸開：#board 平時 overflow:hidden（切齊圓角），碎塊要飛出框外
+     必須臨時解除，否則整場爆炸被裁在棋盤裡面完全看不到。 */
+  #board.hz-shatter { overflow:visible; }
 
   /* ★ 發光食物：盤面 + 托盤共用。用 ::after 疊環，不破壞原本的立體斜角 */
   .pcell { position:relative; }
@@ -1281,12 +1256,16 @@
     </span>
   </button>
 
+  <!-- ⚠ v119 起 #menu.v112 讓所有 .mode-card 都 display:none —— 這三張卡是死 DOM，
+       畫面上真正在跑的選單在 MENU_ROWS（搜 name:'TIMED'）。留著只因 JS 仍抓 id
+       更新續玩徽章與選關列；要刪必須連同那段 JS 一起，屬於「選單系統」場次。
+       ★ v137 圖示 🎈→⏰：舊圖示已害我誤判過一次現役圖示是氣球。 -->
   <button class="mode-card balloon" data-mode="balloon">
     <span class="soon" id="balloonBest" style="display:none"></span>
-    <span class="emoji">🎈</span>
+    <span class="emoji">⏰</span>
     <span>
-      <div class="mc-name" data-i18n="mode.balloon.name">緊張的氣球</div>
-      <div class="mc-desc" data-i18n="mode.balloon.desc">氣球不講理的一路膨脹，消除方塊減緩膨脹，達成收集寶石數過關。</div>
+      <div class="mc-name" data-i18n="mode.balloon.name">倒數</div>
+      <div class="mc-desc" data-i18n="mode.balloon.desc">藍線繞著棋盤外框跑，繞完一圈就時間到。消除方塊把線往回推，達成收集寶石數過關。</div>
     </span>
   </button>
   <div class="lvpick-row" id="balloonLvPickRow"><span class="lvpick-btn" id="balloonLvPick" data-mode="balloon" data-i18n="lvpick.btn">🏆 選關</span></div>
@@ -1294,7 +1273,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v136・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v137・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1321,13 +1300,8 @@
       <circle id="hzHead" r="12" fill="#3fb0ea"/>
       <circle id="hzHeadShine" r="3.6" fill="#fff" fill-opacity=".45"/>
     </svg>
-    <div id="hzNozzle"><div class="barrel"></div><div class="ring"></div><div class="puff"></div><div class="cuff"></div></div>
     <div id="hzDanger"></div>
   </div>
-  <!-- ★ v63 仙人掌抬層：搬出 hzLayer（z:0，躲在棋盤後面），改為 #app 直屬、z-index:2。
-       v61/v62 兩版數學鐵則都在極端擠壓螢幕上被「另一頭的鐵則」推翻 —— 與其繼續賭量測，
-       不如讓仙人掌物理上不可能被棋盤蓋住。緊貼 hzLayer 之後 → CSS 相鄰選擇器同步顯示/隱藏。 -->
-  <div id="hzCactus" aria-hidden="true"><span class="em">🌵</span></div>
   <!-- ★ v14 齒輪：浮在最右上角，貼齊右邊界（畫面很寬，元素推到兩側） -->
   <div class="gear-wrap">
     <button class="icon-btn" id="gearBtn" title="選單">⚙️<span class="noti-dot" id="gearDot"></span></button>
@@ -1661,7 +1635,7 @@
       <div class="shop-sec-title">🎮 三大玩法模式</div>
       <div class="shop-item"><span class="si-ic">♾️</span><div class="si-info"><div class="si-name">無盡模式</div><div class="si-desc">沒有終點，測試手感、消除爽度、防死局重洗牌</div></div></div>
       <div class="shop-item"><span class="si-ic">🍡</span><div class="si-info"><div class="si-name">繽紛收集</div><div class="si-desc">主線關卡，測試皮膚邂逅機率、碎片收集、難度曲線</div></div></div>
-      <div class="shop-item"><span class="si-ic">🎈</span><div class="si-info"><div class="si-name">緊張的氣球</div><div class="si-desc">物理機關救援，測試威脅／解藥碰撞、炸彈瞄準、震動回饋</div></div></div>
+      <div class="shop-item"><span class="si-ic">⏰</span><div class="si-info"><div class="si-name">倒數</div><div class="si-desc">倒數線救援，測試線條繞圈、炸彈瞄準、震動回饋</div></div></div>
 
       <div class="shop-sec-title">💎 商業變現項目</div>
       <div class="shop-item"><span class="si-ic">🎁</span><div class="si-info"><div class="si-name">每日簽到禮</div><div class="si-desc">每日金幣領取，測試紅點提醒、換日邏輯</div></div></div>
@@ -1723,7 +1697,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v136・繽紛樂',
+  'menu.footer':'v137・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1741,11 +1715,11 @@ const I18N = {
   /* ★ v101 中局續玩卡片 */
   'resume.name':'繼續上一局', 'resume.drop':'放棄這局',
   'resume.meta.gem':'繽紛收集・第 {lv} 關・{s} 分', 'resume.meta.endless':'無盡模式・{s} 分',
-  'resume.meta.balloon':'緊張的氣球・第 {lv} 關・{s} 分',
+  'resume.meta.balloon':'倒數・第 {lv} 關・{s} 分',
   'resume.dropConfirm':'確定放棄這局的進度嗎？放棄後就回不來了。',
   'mode.endless.name':'無盡模式', 'mode.endless.desc':'沒有終點，放到沒空間為止。挑戰你的極限。',
   'mode.gem.name':'繽紛收集', 'mode.gem.desc':'收集不同顏色寶石使對應的花苗成長，全數花朵綻放進入下一關。',
-  'mode.balloon.name':'緊張的氣球', 'mode.balloon.desc':'氣球不講理的一路膨脹，消除方塊減緩膨脹，達成收集寶石數過關。',
+  'mode.balloon.name':'倒數', 'mode.balloon.desc':'藍線繞著棋盤外框跑，繞完一圈就時間到。消除方塊把線往回推，達成收集寶石數過關。',
   'gear.sound':'音效', 'gear.haptic':'震動', 'gear.shop':'商店', 'gear.skin':'換膚', 'gear.tester':'測試員模式', 'gear.home':'主選單',
   'gear.paused':'遊戲暫停中',   // ★ v87 防作弊暫停幕文字
   'side.level':'關卡', 'side.score':'分數', 'side.best':'最佳', 'side.hint':'提示', 'side.bomb':'炸彈', 'side.dm':'💎 鑽石', 'side.gold':'🪙 金幣',
@@ -1758,13 +1732,13 @@ const I18N = {
   'lang.title':'🌐 選擇語言', 'lang.using':'使用中',
   'win.title':'🎉 過關！', 'win.text':'第 {lv} 關完成！總分 {s}　🪙+{n}',
   'intro.level':'第 {n} 關', 'mode.endless':'無盡模式',
-  'win.balloonTitle':'🎈 氣球守住了！', 'win.balloonText':'第 {lv} 關完成！仙人掌鬆了一口氣（得分 {s}）　🪙+{n}',
+  'win.balloonTitle':'⏰ 趕上了！', 'win.balloonText':'第 {lv} 關完成！藍線沒能繞完一圈（得分 {s}）　🪙+{n}',
   'win.next':'下一關 →', 'win.home':'回主選單',
   'lose.title':'😿 沒空間了',
   'lose.text.endless':'盤面塞滿了，這局到此為止。看廣告換一批方塊續命，或重新開始。',
   'lose.text.gem':'盤面塞滿放不下了！看廣告換一批方塊續命，或重新挑戰本關。',
   'lose.score':'本局得分 {s}　最佳 {b}。{nr}', 'lose.newRecord':'刷新紀錄！',
-  'lose.boomTitle':'💥 氣球爆了！', 'lose.boomText':'仙人掌把氣球戳破了⋯⋯看廣告讓氣球洩掉一半，原地再拼一次！',
+  'lose.boomTitle':'💥 時間到！', 'lose.boomText':'藍線繞完了一圈⋯⋯看廣告讓線退回一半，原地再拼一次！',
   'lose.retry':'重新開始', 'lose.home':'回主選單',
   /* ★ v125 極簡失敗卡（低分死亡）＋ 慶祝式救援視窗（高分死亡） */
   'mini.title':'再接再厲', 'mini.retry':'再來一局', 'mini.home':'主選單',
@@ -1772,7 +1746,7 @@ const I18N = {
   'hi.newRecord':'🎉 新紀錄！', 'hi.hot':'🔥 手感正熱！', 'hi.close':'✨ 差一點就破紀錄！',
   'hi.text':'這一局打得真好。還有一次機會延續它 —— 或就這樣把成績留下。',
   'hi.keep':'保留這個成績',
-  'revive.ad.balloon':'📺 看廣告救援（氣球洩氣一半）', 'revive.ad.board':'📺 看廣告救援（清出空間換新方塊）',
+  'revive.ad.balloon':'📺 看廣告救援（藍線退回一半）', 'revive.ad.board':'📺 看廣告救援（清出空間換新方塊）',
   'revive.free':'本關免費救援還剩 {n} 次',
   'revive.bomb':'💣 用炸彈救援（擁有 {n} 顆）', 'revive.bombHint':'免費救援用完了，炸彈直接續命、免看廣告',
   'revive.shop':'💎 前往商店買炸彈救援', 'revive.out':'免費救援已用完（每關 {n} 次）',
@@ -1794,8 +1768,8 @@ const I18N = {
   'iap.m.name':'鑽石中包', 'iap.m.desc':'最多人選的划算包',
   'iap.l.name':'鑽石大包', 'iap.l.desc':'豪華大禮，一步到位',
   'combo.shuffle':'🔄 自動換牌', 'combo.hint':'💡 試試這裡',
-  'combo.deflate':'🫧 氣球洩氣了一半！',
-  'combo.warnGem':'🎈 機關關！別讓氣球碰到仙人掌', 'combo.warn':'🎈 別讓氣球碰到仙人掌！',
+  'combo.deflate':'🫧 藍線退回一半了！',
+  'combo.warnGem':'⏰ 機關關！別讓藍線繞完一圈', 'combo.warn':'⏰ 別讓藍線繞完一圈！',
   'combo.noAds':'🚫 已永久去廣告！', 'combo.dm':'💎 +{n}！', 'combo.daily':'🎁 每日禮物 +{n}💎',
   'combo.dmShort':'💎 鑽石不足', 'combo.goldShort':'🪙 金幣不足', 'combo.hintMenu':'💡 進入關卡後才能使用提示', 'combo.bomb':'💣 +{n}！', 'combo.aim':'💣 按住棋盤拖曳瞄準，放開引爆 3×3', 'combo.bombRevive':'💣 炸彈救援！',
   'skin.clashBluePink':'電光藍撞桃紅', 'skin.clashGreenCoral':'森林綠撞珊瑚橘', 'skin.clashVioletLime':'紫羅蘭撞檸檬黃', 'skin.clashRedTeal':'火焰紅撞松石綠', 'skin.clashAmberIndigo':'焦糖橘撞靛藍',
@@ -1827,7 +1801,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v136 · Vivid Blast',
+  'menu.footer':'v137 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -1845,11 +1819,11 @@ const I18N = {
   /* ★ v101 mid-run resume card */
   'resume.name':'Resume last run', 'resume.drop':'Discard this run',
   'resume.meta.gem':'Vivid Collect · Lv {lv} · {s} pts', 'resume.meta.endless':'Endless · {s} pts',
-  'resume.meta.balloon':'Nervous Balloon · Lv {lv} · {s} pts',
+  'resume.meta.balloon':'Countdown · Lv {lv} · {s} pts',
   'resume.dropConfirm':'Discard this run for good? There is no undo.',
   'mode.endless.name':'Endless', 'mode.endless.desc':'No finish line — play until the board fills up. Push your limits.',
   'mode.gem.name':'Vivid Collect', 'mode.gem.desc':'Collect gems of each color to grow the matching sprouts — when every flower blooms, you advance.',
-  'mode.balloon.name':'Nervous Balloon', 'mode.balloon.desc':'The balloon inflates relentlessly — clear blocks to slow it down and collect enough gems to pass.',
+  'mode.balloon.name':'Countdown', 'mode.balloon.desc':'A blue line traces the board — when it closes the loop, time is up. Clear blocks to push it back and collect enough gems to pass.',
   'gear.sound':'Sound', 'gear.haptic':'Vibration', 'gear.shop':'Shop', 'gear.skin':'Themes', 'gear.tester':'Tester Mode', 'gear.home':'Main Menu',
   'gear.paused':'Game Paused',   // ★ v87
   'side.level':'LEVEL', 'side.score':'SCORE', 'side.best':'BEST', 'side.hint':'Hint', 'side.bomb':'Bomb', 'side.dm':'💎 Gems', 'side.gold':'🪙 Gold',
@@ -1862,20 +1836,20 @@ const I18N = {
   'lang.title':'🌐 Select Language', 'lang.using':'Active',
   'win.title':'🎉 Level Clear!', 'win.text':'Level {lv} complete! Total score {s}　🪙+{n}',
   'intro.level':'Level {n}', 'mode.endless':'Endless',
-  'win.balloonTitle':'🎈 Balloon Saved!', 'win.balloonText':'Level {lv} complete! The cactus sighs in relief (score {s})　🪙+{n}',
+  'win.balloonTitle':'⏰ Beat the Clock!', 'win.balloonText':'Level {lv} complete! The line never closed the loop (score {s})　🪙+{n}',
   'win.next':'Next Level →', 'win.home':'Main Menu',
   'lose.title':'😿 No Space Left',
   'lose.text.endless':'The board is full — that\'s the run. Watch an ad for fresh blocks, or restart.',
   'lose.text.gem':'The board jammed up! Watch an ad for fresh blocks, or retry this level.',
   'lose.score':'Score {s}　Best {b}. {nr}', 'lose.newRecord':'New record!',
-  'lose.boomTitle':'💥 Balloon Popped!', 'lose.boomText':'The cactus popped the balloon... Watch an ad to deflate it halfway and keep going!',
+  'lose.boomTitle':'💥 Time Up!', 'lose.boomText':'The line closed the loop... Watch an ad to push it back halfway and keep going!',
   'lose.retry':'Restart', 'lose.home':'Main Menu',
   'mini.title':'Nice try!', 'mini.retry':'Play again', 'mini.home':'Menu',
   'mini.score':'This round: {s}',
   'hi.newRecord':'🎉 New record!', 'hi.hot':'🔥 You\'re on fire!', 'hi.close':'✨ So close to your best!',
   'hi.text':'That was a great run. You have one chance to keep it going \u2014 or bank the score as it is.',
   'hi.keep':'Keep this score',
-  'revive.ad.balloon':'📺 Watch Ad to Rescue (deflate 50%)', 'revive.ad.board':'📺 Watch Ad to Rescue (clear space)',
+  'revive.ad.balloon':'📺 Watch Ad to Rescue (rewind 50%)', 'revive.ad.board':'📺 Watch Ad to Rescue (clear space)',
   'revive.free':'{n} free rescue(s) left this level',
   'revive.bomb':'💣 Bomb Rescue (you have {n})', 'revive.bombHint':'Free rescues used up — a bomb revives you instantly, no ad',
   'revive.shop':'💎 Buy Bombs in the Shop', 'revive.out':'Free rescues used up ({n} per level)',
@@ -1897,8 +1871,8 @@ const I18N = {
   'iap.m.name':'Gem Chest', 'iap.m.desc':'Most popular — best value', 
   'iap.l.name':'Gem Vault', 'iap.l.desc':'The deluxe haul, all at once',
   'combo.shuffle':'🔄 Auto Shuffle', 'combo.hint':'💡 Try here',
-  'combo.deflate':'🫧 Balloon deflated halfway!',
-  'combo.warnGem':'🎈 Hazard level! Keep the balloon off the cactus', 'combo.warn':'🎈 Keep the balloon off the cactus!',
+  'combo.deflate':'🫧 Line pushed back halfway!',
+  'combo.warnGem':'⏰ Hazard level! Keep the line from closing the loop', 'combo.warn':'⏰ Keep the line from closing the loop!',
   'combo.noAds':'🚫 Ads removed forever!', 'combo.dm':'💎 +{n}!', 'combo.daily':'🎁 Daily gift +{n}💎',
   'combo.dmShort':'💎 Not enough gems', 'combo.goldShort':'🪙 Not enough gold', 'combo.hintMenu':'💡 Hints only work during a level', 'combo.bomb':'💣 +{n}!', 'combo.aim':'💣 Hold & drag to aim — release to blast 3×3', 'combo.bombRevive':'💣 Bomb rescue!',
   'skin.clashBluePink':'Electric Blue x Pink', 'skin.clashGreenCoral':'Forest x Coral', 'skin.clashVioletLime':'Violet x Lime', 'skin.clashRedTeal':'Flame x Teal', 'skin.clashAmberIndigo':'Amber x Indigo',
@@ -1930,7 +1904,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v136・ビビッドブラスト',
+  'menu.footer':'v137・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -1948,11 +1922,11 @@ const I18N = {
   /* ★ v101 途中セーブの再開カード */
   'resume.name':'前回の続きから', 'resume.drop':'このプレイを破棄',
   'resume.meta.gem':'ビビッドコレクト・レベル {lv}・{s} 点', 'resume.meta.endless':'エンドレス・{s} 点',
-  'resume.meta.balloon':'ドキドキ風船・レベル {lv}・{s} 点',
+  'resume.meta.balloon':'カウントダウン・レベル {lv}・{s} 点',
   'resume.dropConfirm':'このプレイの進行を破棄しますか？元には戻せません。',
   'mode.endless.name':'エンドレス', 'mode.endless.desc':'終わりなき挑戦。盤面が埋まるまで、限界に挑もう。',
   'mode.gem.name':'ビビッドコレクト', 'mode.gem.desc':'色ごとの宝石を集めて花の苗を育てよう。すべての花が咲いたら次のステージへ。',
-  'mode.balloon.name':'ハラハラバルーン', 'mode.balloon.desc':'風船は容赦なく膨らみ続ける。ブロックを消して膨張を抑え、宝石を集めてクリアしよう。',
+  'mode.balloon.name':'カウントダウン', 'mode.balloon.desc':'青いラインが盤面のふちを一周したらタイムアップ。ブロックを消してラインを押し戻し、宝石を集めてクリアしよう。',
   'gear.sound':'サウンド', 'gear.haptic':'バイブ', 'gear.shop':'ショップ', 'gear.skin':'きせかえ', 'gear.tester':'テスターモード', 'gear.home':'メニュー',
   'gear.paused':'一時停止中',   // ★ v87
   'side.level':'レベル', 'side.score':'スコア', 'side.best':'ベスト', 'side.hint':'ヒント', 'side.bomb':'ボム', 'side.dm':'💎 ジェム', 'side.gold':'🪙 ゴールド',
@@ -1965,20 +1939,20 @@ const I18N = {
   'lang.title':'🌐 言語を選択', 'lang.using':'使用中',
   'win.title':'🎉 クリア！', 'win.text':'レベル {lv} クリア！合計スコア {s}　🪙+{n}',
   'intro.level':'レベル {n}', 'mode.endless':'エンドレス',
-  'win.balloonTitle':'🎈 風船を守った！', 'win.balloonText':'レベル {lv} クリア！サボテンもひと安心（スコア {s}）　🪙+{n}',
+  'win.balloonTitle':'⏰ 間に合った！', 'win.balloonText':'レベル {lv} クリア！ラインは一周しなかった（スコア {s}）　🪙+{n}',
   'win.next':'次のレベル →', 'win.home':'メニューへ',
   'lose.title':'😿 置き場がない…',
   'lose.text.endless':'盤面がいっぱいに。広告を見て新しいブロックで続けるか、最初からやり直そう。',
   'lose.text.gem':'盤面が詰まった！広告を見て新しいブロックで続けるか、このレベルに再挑戦しよう。',
   'lose.score':'スコア {s}　ベスト {b}。{nr}', 'lose.newRecord':'新記録！',
-  'lose.boomTitle':'💥 風船が割れた！', 'lose.boomText':'サボテンに刺さっちゃった…広告を見れば空気が半分抜けて、その場で再開できる！',
+  'lose.boomTitle':'💥 タイムアップ！', 'lose.boomText':'ラインが一周してしまった…広告を見ればラインが半分戻って、その場で再開できる！',
   'lose.retry':'リトライ', 'lose.home':'メニューへ',
   'mini.title':'もう一回！', 'mini.retry':'もう一局', 'mini.home':'メニュー',
   'mini.score':'今回 {s} 点',
   'hi.newRecord':'🎉 新記録！', 'hi.hot':'🔥 絶好調！', 'hi.close':'✨ ベストまであと少し！',
   'hi.text':'すごい一局だった。続けるチャンスがもう一回だけある \u2014 このまま記録を残してもいい。',
   'hi.keep':'この記録を残す',
-  'revive.ad.balloon':'📺 広告を見て復活（空気を半分抜く）', 'revive.ad.board':'📺 広告を見て復活（スペース確保）',
+  'revive.ad.balloon':'📺 広告を見て復活（ラインが半分戻る）', 'revive.ad.board':'📺 広告を見て復活（スペース確保）',
   'revive.free':'このレベルの無料復活：残り {n} 回',
   'revive.bomb':'💣 ボムで復活（所持 {n} 個）', 'revive.bombHint':'無料復活は使い切り。ボムなら広告なしで即復活！',
   'revive.shop':'💎 ショップでボムを買う', 'revive.out':'無料復活を使い切りました（1レベル {n} 回）',
@@ -2000,8 +1974,8 @@ const I18N = {
   'iap.m.name':'ジェム（中）', 'iap.m.desc':'一番人気のお得パック',
   'iap.l.name':'ジェム（大）', 'iap.l.desc':'豪華な大盛りパック',
   'combo.shuffle':'🔄 自動シャッフル', 'combo.hint':'💡 ここに置いてみて',
-  'combo.deflate':'🫧 空気が半分抜けた！',
-  'combo.warnGem':'🎈 ギミックレベル！風船をサボテンに当てないで', 'combo.warn':'🎈 風船をサボテンに当てないで！',
+  'combo.deflate':'🫧 ラインが半分戻った！',
+  'combo.warnGem':'⏰ ギミックレベル！ラインを一周させないで', 'combo.warn':'⏰ ラインを一周させないで！',
   'combo.noAds':'🚫 広告を永久削除しました！', 'combo.dm':'💎 +{n}！', 'combo.daily':'🎁 デイリーギフト +{n}💎',
   'combo.dmShort':'💎 ジェムが足りません', 'combo.goldShort':'🪙 ゴールドが足りません', 'combo.hintMenu':'💡 ヒントはレベル中のみ使えます', 'combo.bomb':'💣 +{n}！', 'combo.aim':'💣 ドラッグで狙って、離すと 3×3 爆破', 'combo.bombRevive':'💣 ボムで復活！',
   'skin.clashBluePink':'エレクトリックブルー×ピンク', 'skin.clashGreenCoral':'フォレスト×コーラル', 'skin.clashVioletLime':'バイオレット×ライム', 'skin.clashRedTeal':'フレイム×ティール', 'skin.clashAmberIndigo':'アンバー×インディゴ',
@@ -2123,7 +2097,7 @@ const MODES = {
      失敗有兩條路：氣球爆（HZ.boom）或盤面塞死（anyPlaceable）。
      兩條路各自有救援分流，見 reviveBtn。 */
   balloon: {
-    name:'緊張的氣球', useGoals:true, useMoves:false, useScore:true,
+    name:'倒數', useGoals:true, useMoves:false, useScore:true,
     setup(){ goals=[]; movesLeft=0; },   // 真正的目標在 HZ.syncGoals() 產生（緊接在後）
     isWin(){ return goals.length>0 && goals.every(g=>g.got>=g.need); },
     loseTitle:'lose.title', loseText:'lose.text.gem',   // ★ v36 i18n key
@@ -4435,13 +4409,10 @@ function initBoard(){
 
 function calcCellSize(){
   const wrap = document.getElementById('boardWrap');
-  // ★ v55 機關關左側讓道：氣球跑道走 x≈32 的左側走廊，寬度計算先扣掉走廊保留區，
-  //    棋盤右移縮一點點 → 玩家整局都看得到氣球（時間線）的完整軌跡，這是機關模式的生命線。
-  const gutter = (typeof HZ !== 'undefined' && HZ.active) ? 44 : 0;
-  // ★ v58 垂直走廊扣高：機關關上下保留空間給氣球管線（見 #app.hz-on #boardWrap），
-  //    高度計算必須同步扣掉，否則矮螢幕上棋盤照樣吃滿、把跑道蓋回去。
-  // ★ v62 同步加大：上 38 + 下 62 = 100（下方走廊要塞管線＋整株仙人掌，38 不夠住）。
-  const vGut = (typeof HZ !== 'undefined' && HZ.active) ? 100 : 0;
+  // ★ v137 走廊保留區歸零：壓力條改繞棋盤外框，機關關不再需要向棋盤借空間。
+  //    這兩個常數是氣球模式棋盤比其他模式小 29% 的唯一原因。
+  const gutter = 0;
+  const vGut = 0;
   const avail = Math.min(wrap.clientWidth - gutter, wrap.clientHeight - vGut) - 16;
   // gap 已歸零、#board padding 改 6px（左右各 6 = 12）→ 縫隙不再占空間，格子可放大一點
   CELL = Math.floor((avail - 12) / SIZE);
@@ -4752,6 +4723,17 @@ const HZ = {
     need0:6,     needEvery:4,   needCap:9,      // need = min(cap, need0 + floor((lv-1)/every))
   },
 
+  /* ★ v137 跨裝置難度校正（治 v33 就存在的舊傷）
+     ---------------------------------------------------------------
+     B/P 表裡的 base 與 deflate 單位都是 px，而跑道長 HZ.total 隨裝置浮動。
+     舊版 ㄈ 形跑道飄移 22%；改成棋盤外框後，周長隨 CELL(30~48) 走 → 飄移擴大到 57%，
+     不校正的話同一關在 SE 與 Pro Max 上會是兩個難度。
+     解法不必重跑機器人：整張定案表都是在跑道長 ≈1050px 的環境實測的，
+     把 1050 訂為基準，實際跑道長算出縮放比 k，表中所有 px 值乘上 k 即可 ——
+     「跑完一圈要幾秒」與「消一顆退幾分之一圈」在任何裝置上都與基準環境完全相同。
+     Lv1 恆定約 105 秒繞完、Lv15 封頂恆定約 72 秒。gem 模式的機關關一併受惠。 */
+  REF_TOTAL: 1050,
+
   /* 本關實際生效的參數。由 tuneFor() 依模式填好，tick/onFood 只讀這裡，不再讀 P。 */
   run: { base:13, deflate:6.5, need:8, types:3 },
 
@@ -4772,87 +4754,42 @@ HZ.rampAt = t => { const r=HZ.SKIN.ramp, n=r.length-1;
 
 HZ.$ = id => document.getElementById(id);
 
-/* ── 版面：氣球路徑隨 #app 實際尺寸重算（ㄈ 字形繞過所有 UI）──
-   頂部走廊：任務欄下方、棋盤上方
-   左側走廊：x≈32，穿過資訊卡的縫隙（玩家看得到它在卡片後面蠕動）
-   底部走廊：棋盤下方、托盤上方 → 仙人掌站在終點 */
+/* 跑道長度縮放比：實際周長 ÷ 基準跑道長。layout 每次重算後自動跟著變，
+   resize 時 HZ.inflated 已等比保留 → 進度與速度同時守恆。 */
+HZ.k = () => (HZ.total > 0 ? HZ.total / HZ.REF_TOTAL : 1);
+
+/* ── 版面：壓力條貼著棋盤外框走一圈（★ v137 總監定案 20260817）──
+   起點＝右上角，逆時針（先往左走上緣）→ 左緣 → 下緣 → 右緣爬回起點。
+   四邊等長、四角等弧 → 右緣正好落在進度 75%~100%，
+   與 HZ.render 既有的 `prog > 0.75` 變紅門檻天生對齊，警戒演算法一行都不必改。
+   舊版 ㄈ 形路徑要同時閃過分數、棋盤、托盤、還要讓仙人掌站得下，補了 v55/v58/v61/v62
+   四層，最後還得靠 v63 反過來縮小 CELL 才擺得平 —— 那整套約束在這裡全部消失，
+   因為路徑不再「繞過」棋盤，而是直接由棋盤自己的矩形導出。 */
 HZ.layout = function(){
   const app = HZ.$('app'); if(!app) return;
   const W = app.clientWidth, H = app.clientHeight;
   if(W < 40 || H < 40) return;
-  const goalsH = HZ.$('goals').offsetHeight;
-  const trayH  = HZ.$('tray').offsetHeight + 10;
-  const M = 32, R = 16;
-  // ★ v55 頂部走廊避開大分數：v54 在任務欄下方新增了 #bigScore，但這裡的 yTop
-  //    仍只算 goalsH → 管線剛好壓在分數正中央（「分數害羞了」事故的根源）。
-  //    修正：yTop 起算點加上 bigScore 高度；若量得到棋盤頂端，管線鎖在
-  //    「分數下緣 ～ 棋盤上緣」的正中間，兩邊都不碰。
-  const bigEl = HZ.$('bigScore');
-  const bigH = (bigEl && !bigEl.classList.contains('hidden')) ? bigEl.offsetHeight : 0;
-  let yTop = Math.round(goalsH + bigH + 22);
-  const boardEl = HZ.$('board');
-  if(boardEl){
-    const appRect = app.getBoundingClientRect();
-    const bTop = boardEl.getBoundingClientRect().top - appRect.top;
-    if(bTop - (goalsH + bigH) > 30) yTop = Math.round((goalsH + bigH + bTop) / 2);
-    // ★ v58 鐵則夾限：不管上面怎麼算，管線中心至少離棋盤頂緣 20px
-    //    （管線 22px 寬 → 半寬 11px，留 20px 保證整條可見不被蓋）。
-    //    這是舊版的隱形漏洞：縫隙 ≤30px 時走「固定 +22」路徑，可能直接落在棋盤裡。
-    yTop = Math.min(yTop, Math.round(bTop - 20));
-  }
-  let yBot = Math.round(H - trayH - 26);
-  // ★ v61 底部走廊鐵則：v58 只夾了頂部（管線離棋盤頂緣 ≥20px），底部卻仍盲算
-  //    「托盤上方固定 26px」、完全沒量棋盤底緣在哪 —— 高瘦螢幕上棋盤底緣吃進走廊，
-  //    仙人掌（34px 高、z 層在棋盤之下）半截身體躲進棋盤後面，真機實錘「仙人掌被擋住」。
-  //    修正（照抄 v58 頂部的成功處方）：
-  //    (a) 量得到棋盤底緣且縫隙夠寬 → 走廊鎖在「棋盤下緣 ～ 托盤上緣」正中間；
-  //    (b) 鐵則夾限 yBot ≥ 棋盤底緣 + 38px（仙人掌全高 34 + 4px 呼吸空間），
-  //        保證仙人掌整株站在棋盤外，一根刺都不被蓋。
-  // ★ v62 托盤天花板：v61 鐵則只顧仙人掌、沒顧托盤 —— 擠壓環境（瀏覽器工具列吃高度）
-  //    下管線被推到托盤方塊頭上（真機實錘）。補上另一頭的鐵則：管線下緣（半寬 11px）
-  //    離托盤頂至少 2px → yBot ≤ 托盤頂 - 13。天花板最後套用：兩頭衝突的極端矮螢幕，
-  //    優先保住「管線不踩托盤」（v62 已加大保留區，實務上兩頭都顧得到）。
-  if(boardEl){
-    const bBot = boardEl.getBoundingClientRect().bottom - app.getBoundingClientRect().top;
-    const trayTop = H - trayH;
-    // ★ v63 根治「兩鐵則打架」：v61 保仙人掌、v62 保托盤，但擠壓螢幕（LINE/FB 內建
-    //    瀏覽器工具列吃高度）上縫隙 < 51px 時兩者必衝突，天花板最後套用 = 仙人掌再度
-    //    被棋盤蓋住（真機三度實錘）。走廊需要的空間是物理事實，唯一有彈性的是格子
-    //    尺寸 —— 縫不夠就當場把 CELL 縮小到走廊塞得下為止，重排棋盤後再量一次。
-    //    _reflow 旗標保證整個回饋迴圈最多走一輪，杜絕無限循環。
-    const NEED = 51;                             // 38（仙人掌+呼吸）+ 13（托盤安全距）
-    if(trayTop - bBot < NEED && !HZ._reflow && typeof CELL === 'number'){
-      const overflow = Math.ceil(NEED - (trayTop - bBot));
-      const newCell = Math.floor((CELL * SIZE - overflow) / SIZE);
-      if(newCell >= 22 && newCell < CELL){
-        HZ._reflow = true;
-        CELL = newCell;
-        renderBoard(); renderTray();
-        requestAnimationFrame(()=>{ HZ.layout(); HZ._reflow = false; });
-        return;                                  // 本輪座標作廢，等重排後的第二輪
-      }
-    }
-    if(trayTop - bBot > 30) yBot = Math.round((bBot + trayTop) / 2);
-    yBot = Math.max(yBot, Math.round(bBot + 38));
-    yBot = Math.min(yBot, Math.round(trayTop - 13));
-  }
-  if(yBot - yTop < 80) return;                 // 版面太矮，放棄重繪（避免路徑自交）
-  const xR = W - 34, xEnd = W - 46;
+  const boardEl = HZ.$('board'); if(!boardEl) return;
 
-  const d = `M ${xR} ${yTop} L ${M+R} ${yTop} Q ${M} ${yTop} ${M} ${yTop+R} `
-          + `L ${M} ${yBot-R} Q ${M} ${yBot} ${M+R} ${yBot} L ${xEnd} ${yBot}`;
+  const aR = app.getBoundingClientRect(), bR = boardEl.getBoundingClientRect();
+  const GAP = 9;                    // 線心離棋盤外緣（線寬 22 → 半寬 11，內側切齊棋盤邊）
+  const x0 = bR.left  - aR.left - GAP, y0 = bR.top    - aR.top - GAP;
+  const x1 = bR.right - aR.left + GAP, y1 = bR.bottom - aR.top + GAP;
+  if(x1 - x0 < 80 || y1 - y0 < 80) return;    // 棋盤還沒排版好 → 放棄本輪
+  const R = 18 + GAP;               // 棋盤圓角 18 + 外擴，圓角同心才不會歪
+
+  // 右上角起 → 往左 → 逆時針一圈 → 回到同一點
+  const d = `M ${x1-R} ${y0} L ${x0+R} ${y0} Q ${x0} ${y0} ${x0} ${y0+R} `
+          + `L ${x0} ${y1-R} Q ${x0} ${y1} ${x0+R} ${y1} `
+          + `L ${x1-R} ${y1} Q ${x1} ${y1} ${x1} ${y1-R} `
+          + `L ${x1} ${y0+R} Q ${x1} ${y0} ${x1-R} ${y0}`;
   HZ.$('hzSvg').setAttribute('viewBox', `0 0 ${W} ${H}`);
   ['hzTube','hzWarn','hzInfl','hzShine'].forEach(id=>HZ.$(id).setAttribute('d', d));
 
   const nt = HZ.$('hzTube').getTotalLength();
-  if(HZ.total > 0 && nt > 0) HZ.inflated *= nt / HZ.total;   // 轉屏時等比保留進度
+  if(HZ.total > 0 && nt > 0) HZ.inflated *= nt / HZ.total;   // 轉屏／換關等比保留進度
   HZ.total = nt;
   HZ.$('hzTube').style.strokeDasharray = nt;
-
-  HZ.$('hzNozzle').style.left = (xR - 8) + 'px';
-  HZ.$('hzNozzle').style.top  = (yTop - 15) + 'px';
-  HZ.$('hzCactus').style.left = (xEnd - 15) + 'px';
-  HZ.$('hzCactus').style.top  = (yBot - 34) + 'px';
 
   /* ★ v68 ④ 一次付清的「每幀常駐稅」：
      (a) 元素參照快取 —— 舊版 HZ.render 每一幀 getElementById 十來次；
@@ -4864,7 +4801,7 @@ HZ.layout = function(){
     tube:HZ.$('hzTube'), infl:HZ.$('hzInfl'), shine:HZ.$('hzShine'),
     warn:HZ.$('hzWarn'), warnHead:HZ.$('hzWarnHead'),
     head:HZ.$('hzHead'), headShine:HZ.$('hzHeadShine'),
-    danger:HZ.$('hzDanger'), em:HZ.$('hzCactus').querySelector('.em')
+    danger:HZ.$('hzDanger')
   };
   { const tubeEl = HZ.el.tube, N = 256;
     HZ._pts = new Float32Array((N+1)*2); HZ._ptsN = N;
@@ -4952,8 +4889,15 @@ HZ.reset = function(){
   HZ.$('hzHead').setAttribute('fill',  HZ.SKIN.body);
   HZ.$('hzWarn').style.opacity = 0; HZ.$('hzWarnHead').style.opacity = 0;
   HZ.$('hzDanger').style.opacity = 0;
-  HZ.$('hzNozzle').classList.remove('popped');
-  HZ.$('hzCactus').querySelector('.em').style.transform = 'none';
+  // ★ v137 棋盤炸開的善後：解除 overflow 解禁，並取消殘留的碎塊動畫。
+  //    animate() 用 fill:'forwards' 會把方塊凍在「飛走且透明」的終幀，
+  //    重試時若某格指紋沒變、renderBoard 的增量 diff 就不會重建它 → 整格憑空消失。
+  //    getAnimations 在 Safari 13.1+ 才有；舊 WebView／測試環境缺這支就跳過取消，
+  //    此時 renderBoard 的全量重蓋仍會換掉節點，不會留下鬼影。
+  { const bd = HZ.$('board');
+    if(bd){ bd.classList.remove('hz-shatter');
+      if(typeof Element !== 'undefined' && Element.prototype.getAnimations)
+        bd.querySelectorAll('.filled').forEach(el=>el.getAnimations().forEach(a=>a.cancel())); } }
   // 清掉殘留碎片（★ 放過 4 條路徑 + 2 顆圓頭，否則重來一次警戒燈就再也不亮）
   HZ.$('hzSvg').querySelectorAll(
     'path:not(#hzTube):not(#hzWarn):not(#hzInfl):not(#hzShine), ' +
@@ -4968,7 +4912,7 @@ HZ.onFood = function(isGlow){
   if(!HZ.active || HZ.over) return;
   switch(HZ.CONFIG.solution){          // 查表分派，不寫死
     case 'deflate': {
-      const d = HZ.run.deflate * (isGlow ? HZ.P.glowMul : 1);
+      const d = HZ.run.deflate * HZ.k() * (isGlow ? HZ.P.glowMul : 1);
       HZ.inflated = Math.max(0, HZ.inflated - d);
       if(isGlow) HZ.pulsePump();
       break;
@@ -4983,7 +4927,7 @@ HZ.onFood = function(isGlow){
 HZ.tick = function(dt){
   if(HZ.CONFIG.type !== 'gas') return;
   HZ.t += dt;
-  const sp = HZ.run.base * (1 + HZ.P.ramp * Math.pow(HZ.t/60, 2));
+  const sp = HZ.run.base * HZ.k() * (1 + HZ.P.ramp * Math.pow(HZ.t/60, 2));
   HZ.inflated = Math.min(HZ.total, HZ.inflated + sp*dt);
   if(HZ.inflated >= HZ.total - 0.5) HZ.boom();
 };
@@ -4997,7 +4941,7 @@ HZ.render = function(){
   if(!HZ.active || HZ.total <= 0) return;
   const E = HZ.el;
   if(!E || !HZ._pts) return;   // layout 尚未跑完（首幀競速）→ 等下一幀
-  if(!HZ._lv) HZ._lv = { infl:-1, shine:-1, show:-1, cur:'', halo:-1, wh:-1, danger:-1, em:'' };
+  if(!HZ._lv) HZ._lv = { infl:-1, shine:-1, show:-1, cur:'', halo:-1, wh:-1, danger:-1 };
   const L = HZ._lv;
   const prog = HZ.inflated / HZ.total;
 
@@ -5038,12 +4982,6 @@ HZ.render = function(){
   const dQ = Math.round((HZ.over ? 0 : danger)*1000)/1000;
   if(dQ !== L.danger){ L.danger = dQ; E.danger.style.opacity = dQ; }
 
-  if(!HZ.over){
-    const emT = danger > 0
-      ? `translateX(${Math.sin(performance.now()/60)*danger*3}px) scale(${1+danger*0.12})`
-      : 'none';
-    if(emT !== L.em){ L.em = emT; E.em.style.transform = emT; }
-  }
 };
 
 HZ.loop = function(now){
@@ -5053,26 +4991,65 @@ HZ.loop = function(now){
   HZ.raf = requestAnimationFrame(HZ.loop);
 };
 
-/* 吃到發光食物：噴嘴後座 + 噴一小團氣（洩壓的實體回饋） */
+/* 吃到發光食物：線頭一縮一放 + 白色擴散環（★ v137 取代噴嘴後座）。
+   回饋必須發生在「線頭」上，因為那是玩家唯一在看的地方 —— 線退回去多少，
+   眼睛就跟到哪裡。舊版把回饋演在畫面另一端的噴嘴上，玩家其實看不到。 */
 HZ.pulsePump = function(){
-  const n = HZ.$('hzNozzle'), puff = n.querySelector('.puff');
-  n.animate([{transform:'translateX(0)'},{transform:'translateX(7px)'},{transform:'translateX(0)'}],{duration:240});
-  puff.animate([{opacity:.85,transform:'scale(.4)'},{opacity:0,transform:'scale(2.6) translateX(-10px)'}],{duration:340});
+  const head = HZ.$('hzHead'); if(!head) return;
+  head.animate([{transform:'scale(1)'},{transform:'scale(1.75)'},{transform:'scale(1)'}],
+               {duration:260, easing:'cubic-bezier(.3,1.4,.5,1)'});
+  const pt = HZ.pointAt(HZ.inflated);
+  const ring = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  ring.setAttribute('cx',pt.x); ring.setAttribute('cy',pt.y);
+  ring.setAttribute('r',10); ring.setAttribute('fill','none');
+  ring.setAttribute('stroke','#ffffff'); ring.setAttribute('stroke-width',3);
+  HZ.$('hzSvg').appendChild(ring);
+  ring.animate([{r:10,opacity:.85},{r:42,opacity:0}],
+    {duration:400, easing:'cubic-bezier(.15,.7,.3,1)'}).onfinish = ()=> ring.remove();
   if(typeof haptic === 'function') haptic(14);
+};
+
+/* ★ v137 棋盤炸開（總監定案 20260817）：時間到的懲罰從「氣球破掉」改成「盤面解體」。
+   換掉的不只是道具，是因果 —— 舊版炸的是畫面邊上的一顆氣球，玩家的心血（盤面）
+   毫髮無傷；現在炸的就是玩家剛才排了一分鐘的那盤棋，代價直接演在他的成果上。
+   每塊方塊沿「盤心 → 自己」的方向往外炸，離中心越遠飛得越開，讀起來就是一次爆震。 */
+HZ.shatterBoard = function(){
+  const bd = HZ.$('board'); if(!bd) return;
+  const r = bd.getBoundingClientRect();
+  const cx = r.width/2, cy = r.height/2;
+  bd.classList.add('hz-shatter');              // 解除 overflow:hidden，碎塊才飛得出框
+  bd.querySelectorAll('.filled').forEach(el=>{
+    const q = el.getBoundingClientRect();
+    const px = q.left - r.left + q.width/2  - cx;
+    const py = q.top  - r.top  + q.height/2 - cy;
+    const m = Math.hypot(px, py) || 1;         // 盤心那一塊沒有方向 → 保底 1，避免除以 0
+    const dist = 150 + Math.random()*220;
+    const dx = px/m*dist + (Math.random()-.5)*70;
+    const dy = py/m*dist + (Math.random()-.5)*70 - 40;
+    const rot = (Math.random()-.5)*900;
+    if(!el.animate) return;              // 無 WAAPI 的環境：不炸畫面，直接靜默略過
+    el.animate([
+      {transform:'translate(0,0) rotate(0deg) scale(1)', opacity:1},
+      {transform:`translate(${dx*0.6}px,${dy*0.55}px) rotate(${rot*0.5}deg) scale(1.18)`,
+       opacity:1, offset:0.34},
+      {transform:`translate(${dx}px,${dy+190}px) rotate(${rot}deg) scale(.34)`, opacity:0}
+    ],{duration:740+Math.random()*400, delay:m/Math.max(cx,cy)*90,
+       easing:'cubic-bezier(.15,.72,.3,1)', fill:'forwards'});
+  });
+  // 棋盤本體被震了一下：先撐開再回彈，讓「框」也參與這場爆炸
+  if(bd.animate) bd.animate([{transform:'scale(1)'},{transform:'scale(1.055)',offset:.16},
+              {transform:'scale(.975)',offset:.42},{transform:'scale(1)'}],
+             {duration:640, easing:'cubic-bezier(.3,1.2,.4,1)'});
 };
 
 HZ.boom = function(){
   if(HZ.over) return;
   HZ.over = 'boom';
   HZ.burst();
+  HZ.shatterBoard();
   ['hzInfl','hzShine','hzHead','hzHeadShine','hzTube'].forEach(id=>HZ.$(id).style.opacity=0);
   HZ.$('hzWarn').style.opacity = 0; HZ.$('hzWarnHead').style.opacity = 0;
   HZ.$('hzDanger').style.opacity = 0;
-  HZ.$('hzNozzle').classList.add('popped');
-  const em = HZ.$('hzCactus').querySelector('.em');
-  em.style.transform = 'none';   // 清掉凍結的發抖殘留，否則動畫播完會退回歪掉的姿勢
-  em.animate([{transform:'scale(1)'},{transform:'scale(1.4) rotate(-14deg)'},
-              {transform:'scale(1.1) rotate(6deg)'},{transform:'scale(1)'}],{duration:520});
   if(typeof haptic === 'function') haptic([90,50,90]);
   HZ.boomTimer = setTimeout(()=>{ if(HZ.over==='boom'){ HZ.loseNow = true; showLose(); } }, 900);
 };
@@ -5139,20 +5116,18 @@ HZ.burst = function(){
   if(app){ app.classList.remove('app-shake'); void app.offsetWidth; app.classList.add('app-shake'); }
 };
 
-/* 勝利：仙人掌鬆一口氣（文案說牠鬆了口氣，畫面就得對得起這句話） */
+/* 勝利：整條線鬆開（★ v137 取代仙人掌鬆口氣）。
+   壓力條在贏的那一刻就不該再逼人 —— 先亮一下表示「你贏在這裡」，再整條淡掉。 */
 HZ.relief = function(){
   if(!HZ.active) return;
   HZ.over = 'win';
-  const em = HZ.$('hzCactus').querySelector('.em');
-  em.style.transform = 'none';
-  em.animate([
-    {transform:'translateX(-2px) scale(1.05)', offset:0},
-    {transform:'translateX(2px) scale(1.07)',  offset:0.12},
-    {transform:'translateX(0) scale(1.12)',    offset:0.28},
-    {transform:'translateX(0) scale(0.90) translateY(4px)', offset:0.58},
-    {transform:'translateX(0) scale(1.04) translateY(-2px)', offset:0.80},
-    {transform:'none', offset:1}
-  ],{duration:640, easing:'cubic-bezier(.34,1.36,.5,1)'});
+  const infl = HZ.$('hzInfl'), head = HZ.$('hzHead');
+  if(infl) infl.animate([{opacity:1},{opacity:1,offset:.35},{opacity:0}],
+                        {duration:760, easing:'ease-out', fill:'forwards'});
+  if(head) head.animate([{transform:'scale(1)',opacity:1},
+                         {transform:'scale(1.6)',opacity:1,offset:.3},
+                         {transform:'scale(.2)',opacity:0}],
+                        {duration:760, easing:'cubic-bezier(.3,1.2,.4,1)', fill:'forwards'});
   HZ.$('hzDanger').style.opacity = 0;
 };
 
