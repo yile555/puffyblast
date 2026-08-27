@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v139</title>
-<meta property="og:title" content="繽紛樂 v139">
+<title>繽紛樂 v140</title>
+<meta property="og:title" content="繽紛樂 v140">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・看花開！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -933,10 +933,8 @@
      兩者都是「氣球從嘴巴吹出來、往仙人掌爬過去」這條敘事的道具；
      改成棋盤外框的時間線之後，起點與終點是同一個角，中間沒有角色可站。 */
 
-  /* 危險暈影：紅光從右緣打進來 —— 對齊壓力條最後那條邊（進度 75%~100%）。
-     ★ v137 位置 84% 80% → 92% 50%：舊值瞄準的是右下角的仙人掌，不是右緣。 */
-  #hzDanger { position:absolute; inset:0; opacity:0; transition:opacity .25s;
-        background:radial-gradient(circle at 92% 50%, #ff2d2d44, #0000 55%); }
+  /* ★ v140 全螢幕危險暈影退役（總監定案）：警戒改由壓力線本身的心跳脈動承擔。
+     細線在藍↔紅之間跳，訊息來源與危險源是同一個東西，不必再借畫面邊緣說話。 */
 
   /* ★ v137 棋盤炸開：#board 平時 overflow:hidden（切齊圓角），碎塊要飛出框外
      必須臨時解除，否則整場爆炸被裁在棋盤裡面完全看不到。 */
@@ -1273,7 +1271,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v139・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v140・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1292,15 +1290,13 @@
   <!-- ★ v32 機關圖層：非機關關時 display:none，完全不影響既有版面 -->
   <div id="hzLayer" aria-hidden="true">
     <svg id="hzSvg" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <path id="hzTube"  fill="none" stroke="#8cc4e4" stroke-opacity=".30" stroke-width="4"  stroke-linecap="round"/>
-      <path id="hzWarn"  fill="none" stroke="#e2342f" stroke-width="34" opacity="0" stroke-linecap="round" stroke-linejoin="round"/>
-      <path id="hzInfl"  fill="none" stroke="#3fb0ea" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
-      <path id="hzShine" fill="none" stroke="#ffffff" stroke-opacity=".34" stroke-width="5" stroke-linecap="round"/>
-      <circle id="hzWarnHead" r="17" fill="#e2342f" opacity="0"/>
-      <circle id="hzHead" r="12" fill="#3fb0ea"/>
-      <circle id="hzHeadShine" r="3.6" fill="#fff" fill-opacity=".45"/>
+      <!-- ★ v140 總監定案 20260828：壓力線就是棋盤那條細外框本身。
+           跑道（hzTube）＝淡藍細線，進度（hzInfl）＝同寬同路徑、只用顏色說話。
+           退役：粗管(22)、白高光、紅色粗暈(34)、線頭圓球、全螢幕紅暈。
+           收益：不必為粗線在棋盤外留 26px 淨空 → 三模式棋盤同尺寸且開到最大。 -->
+      <path id="hzTube" fill="none" stroke="#8cc4e4" stroke-opacity=".30" stroke-width="4" stroke-linecap="round"/>
+      <path id="hzInfl" fill="none" stroke="#3fb0ea" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
-    <div id="hzDanger"></div>
   </div>
   <!-- ★ v14 齒輪：浮在最右上角，貼齊右邊界（畫面很寬，元素推到兩側） -->
   <div class="gear-wrap">
@@ -1697,7 +1693,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v139・繽紛樂',
+  'menu.footer':'v140・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1801,7 +1797,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v139 · Vivid Blast',
+  'menu.footer':'v140 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -1904,7 +1900,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v139・ビビッドブラスト',
+  'menu.footer':'v140・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -2784,6 +2780,8 @@ function _gestureUnlock(){
 }
 
 document.addEventListener('visibilitychange', ()=>{
+  /* ★ v140 音樂跟著前後景走。BGM 宣告在後方，但本回呼只在執行期觸發，不會踩 TDZ。 */
+  try{ if(typeof BGM !== 'undefined') BGM.setHidden(document.visibilityState === 'hidden'); }catch(e){}
   if(document.visibilityState === 'hidden'){
     _unlocked = false;                 // 進背景就視為失去裝置，回來必須重新解鎖
   }else{
@@ -3365,6 +3363,7 @@ const BGM = {
   VOL:  { main:0.34, rush:0.44 },   // 音樂是墊底的：消行音效永遠要壓得過它
   FADE: 0.9,                        // 交叉淡化秒數（夠長不突兀，夠短不拖泥）
   el:{}, gain:{}, rushing:false, wired:false, playing:false, _st:null,
+  hidden:false,                     // ★ v140 切到背景 → 兩軌一律停，回前景再續
 };
 
 /* 音檔位置。相對路徑 → GitHub Pages 與 Capacitor 皆可直接取用。
@@ -3406,30 +3405,54 @@ BGM.ramp = function(k, v){
    所有狀態變化（開局、紅區進出、按下靜音）都收斂到這一個函式，不散在各處。 */
 BGM.apply = function(){
   if(!BGM.wired) return;
-  const live = BGM.playing && soundOn;
+  const live = BGM.playing && soundOn && !BGM.hidden;
   const want = { main:0, rush:0 };
   if(live){ const k = BGM.rushing ? 'rush' : 'main'; want[k] = BGM.VOL[k]; }
   ['main','rush'].forEach(k=>{
     const a = BGM.el[k];
-    if(want[k] > 0 && a.paused){ const p = a.play(); if(p && p.catch) p.catch(()=>{}); }
+    /* ★ v140 治「進紅區變靜音」的病根 ──────────────────────────
+       舊版只在 want[k] > 0 時才 play()，於是 rush 這一軌從頭到尾
+       沒有在「使用者手勢」的當下起播過。iOS Safari 的規則是逐元素的：
+       沒被手勢播過的 <audio>，之後任何程式呼叫 play() 一律被拒。
+       進紅區的 setRush(true) 發生在 rAF 迴圈裡（非手勢）→ 被擋 →
+       promise 被 catch 吞掉 → 慢曲照淡出、快曲起不來 → 全靜音。
+       桌機沒有這條限制，所以這個 bug 只在真機上出現。
+       解法：只要 live 就兩軌都播，靜音那軌把 gain 壓在 0 藏著跑。
+       代價是同時解兩支 mp3（各 30 秒短循環，可忽略），
+       換來的是切歌 100% 可靠 —— 這筆划算。 */
+    if(live && a.paused){ const p = a.play(); if(p && p.catch) p.catch(()=>{}); }
     BGM.ramp(k, want[k]);
   });
-  /* 淡完之後才把靜音那一軌暫停：省電，也避免兩軌同時解碼。
-     不能立刻 pause() —— 那會把交叉淡化砍成硬切。 */
+  /* 只有「整個音樂該停」時才收兩軌（靜音鍵／離開對局／切背景）。
+     live 期間兩軌恆常播放，切歌純靠 gain 交叉，不再 pause 任何一軌。 */
   clearTimeout(BGM._st);
-  BGM._st = setTimeout(()=>{
-    ['main','rush'].forEach(k=>{
-      const g = BGM.gain[k], a = BGM.el[k];
-      if(g && a && !a.paused && g.gain.value < 0.005){ try{ a.pause(); }catch(e){} }
-    });
-  }, BGM.FADE*1000 + 150);
+  if(!live){
+    const delay = BGM.hidden ? 0 : BGM.FADE*1000 + 150;   // 切背景要立刻靜，不等淡化
+    BGM._st = setTimeout(()=>{
+      ['main','rush'].forEach(k=>{
+        const a = BGM.el[k];
+        if(a && !a.paused){ try{ a.pause(); }catch(e){} }
+      });
+    }, delay);
+  }
+};
+
+/* ★ v140 切背景／回前景。<audio> 預設在背景會繼續播 —— 必須主動攔。
+   兩軌都已被第一次手勢解鎖過，回前景時 play() 不需要新的手勢。 */
+BGM.setHidden = function(h){
+  h = !!h;
+  if(BGM.hidden === h) return;
+  BGM.hidden = h;
+  if(!BGM.wired) return;
+  BGM.apply();
 };
 
 /* 第一次使用者手勢時呼叫。iOS 只認手勢，這是唯一能起音的時機。 */
 BGM.start = function(){
   if(!BGM.init()) return;
   BGM.playing = true;
-  BGM.apply();
+  BGM.hidden = (typeof document !== 'undefined' && document.visibilityState === 'hidden');
+  BGM.apply();          // ★ v140 apply() 內已改成兩軌齊播 → rush 在這一刻拿到 iOS 的通行證
 };
 
 /* 紅區進出。切到 rush 時一律從樂句開頭打進來 —— 這首的第一小節就是滿能量，
@@ -4791,8 +4814,15 @@ const HZ = {
   SKIN: {
     body:'#3fb0ea',
     ramp:['#3fb0ea','#7b63e6','#d0388a','#e2342f'],  // 升溫色階，避開 RGB 直線內插的髒灰紫
-    warnHz:1.68,   // ★ 必須 < 3Hz，超過有光敏性癲癇風險（Google Play / App Store 審查項）
-    warnMax:0.62, bodyMax:0.92, floor:0.45,
+    /* ★ v140 心跳脈動（總監定案）：舊版是正弦「呼吸」＋ floor 0.45 保底，
+       線一旦進紅區就再也回不到藍色，看起來是「持續發燙」而不是「在跳」。
+       改成 lub-dub 雙拍：咚—噠—（停），中間確實回到原色藍，
+       危險度只改「振幅」與「心率」，不改波形 —— 越危險跳得越用力、越急。
+       ★ 每秒最多 2 次亮度變化（1.45Hz × 雙拍中的主拍），遠低於 3Hz
+         光敏性癲癇門檻，且發亮面積只有一條 4px 細線。 */
+    bodyMax:0.92,
+    beatHz0:0.90,     // 剛進紅區的心率（次/秒）
+    beatHzMax:1.45,   // 逼近終點的心率
   },
 
   P: {
@@ -4904,7 +4934,7 @@ HZ.layout = function(){
           + `L ${x1-R} ${y1} Q ${x1} ${y1} ${x1} ${y1-R} `
           + `L ${x1} ${y0+R} Q ${x1} ${y0} ${x1-R} ${y0}`;
   HZ.$('hzSvg').setAttribute('viewBox', `0 0 ${W} ${H}`);
-  ['hzTube','hzWarn','hzInfl','hzShine'].forEach(id=>HZ.$(id).setAttribute('d', d));
+  ['hzTube','hzInfl'].forEach(id=>HZ.$(id).setAttribute('d', d));
 
   const nt = HZ.$('hzTube').getTotalLength();
   if(HZ.total > 0 && nt > 0) HZ.inflated *= nt / HZ.total;   // 轉屏／換關等比保留進度
@@ -4917,12 +4947,7 @@ HZ.layout = function(){
          舊版每幀現算一次。改成 layout 時沿路徑等距取 256 個樣本點存表，
          render 幀查表＋線性內插，成本從幾何運算降到兩次陣列讀取。
      版面重算（resize／轉屏）會重跑 layout → 快取與取樣表自動跟著換新。 */
-  HZ.el = {
-    tube:HZ.$('hzTube'), infl:HZ.$('hzInfl'), shine:HZ.$('hzShine'),
-    warn:HZ.$('hzWarn'), warnHead:HZ.$('hzWarnHead'),
-    head:HZ.$('hzHead'), headShine:HZ.$('hzHeadShine'),
-    danger:HZ.$('hzDanger')
-  };
+  HZ.el = { tube:HZ.$('hzTube'), infl:HZ.$('hzInfl') };
   { const tubeEl = HZ.el.tube, N = 256;
     HZ._pts = new Float32Array((N+1)*2); HZ._ptsN = N;
     for(let i=0;i<=N;i++){
@@ -5006,11 +5031,18 @@ HZ.reset = function(){
   HZ.inflated = 0; HZ.t = 0; HZ.over = null; HZ.loseNow = false;
   HZ.cur = HZ.SKIN.body;
   clearTimeout(HZ.boomTimer); HZ.boomTimer = null;
-  ['hzInfl','hzShine','hzHead','hzHeadShine','hzTube'].forEach(id=>HZ.$(id).style.opacity=1);
+  /* ★ v140 治「玩幾關後壓力條變一條細灰線」──────────────────────
+     HZ.relief() 的過關動畫用了 fill:'forwards'，把 hzInfl 凍在 opacity 0 的終幀。
+     WAAPI 的 forwards 終幀在階層上壓過 inline style —— 下一關這裡寫
+     style.opacity = 1 根本推不動它，畫面上只剩底下那條淡藍跑道（hzTube）。
+     與 5014 行「棋盤碎塊被凍住」是同一類病，當年只治了 .filled，漏了壓力線自己。
+     先取消動畫、再復原樣式，順序不能顛倒。 */
+  ['hzInfl','hzTube'].forEach(id=>{
+    const el = HZ.$(id); if(!el) return;
+    if(el.getAnimations) el.getAnimations().forEach(a=>a.cancel());
+    el.style.opacity = 1;
+  });
   HZ.$('hzInfl').setAttribute('stroke', HZ.SKIN.body);
-  HZ.$('hzHead').setAttribute('fill',  HZ.SKIN.body);
-  HZ.$('hzWarn').style.opacity = 0; HZ.$('hzWarnHead').style.opacity = 0;
-  HZ.$('hzDanger').style.opacity = 0;
   // ★ v137 棋盤炸開的善後：解除 overflow 解禁，並取消殘留的碎塊動畫。
   //    animate() 用 fill:'forwards' 會把方塊凍在「飛走且透明」的終幀，
   //    重試時若某格指紋沒變、renderBoard 的增量 diff 就不會重建它 → 整格憑空消失。
@@ -5022,8 +5054,7 @@ HZ.reset = function(){
         bd.querySelectorAll('.filled').forEach(el=>el.getAnimations().forEach(a=>a.cancel())); } }
   // 清掉殘留碎片（★ 放過 4 條路徑 + 2 顆圓頭，否則重來一次警戒燈就再也不亮）
   HZ.$('hzSvg').querySelectorAll(
-    'path:not(#hzTube):not(#hzWarn):not(#hzInfl):not(#hzShine), ' +
-    'circle:not(#hzHead):not(#hzHeadShine):not(#hzWarnHead)').forEach(e=>e.remove());
+    'path:not(#hzTube):not(#hzInfl), circle, polygon').forEach(e=>e.remove());
 };
 
 /* ============================================================
@@ -5059,11 +5090,21 @@ HZ.tick = function(dt){
    一樣就直接跳過。安全區（danger=0，佔一關 75% 時間）膨脹又慢，多數幀
    一筆 DOM 都不必寫；危險區呼吸閃爍本來就該每幀動，照常全速演。
    視覺輸出與舊版逐像素等價，只是不再重複寫一樣的值。 */
+/* ★ v140 心跳波形。回傳 0..1：
+     0.00~0.15 主拍（咚）  0.21~0.33 次拍（噠，七成力道）  其餘留白 → 回到原色藍
+   心率隨 danger 從 0.90Hz 爬到 1.45Hz，越接近終點跳得越急。 */
+HZ.heartbeat = function(danger){
+  const hz  = HZ.SKIN.beatHz0 + (HZ.SKIN.beatHzMax - HZ.SKIN.beatHz0) * danger;
+  const x   = (performance.now() * 0.001 * hz) % 1;
+  const bump = (u, w) => (u < 0 || u > w) ? 0 : Math.sin(Math.PI * u / w);
+  return Math.max(bump(x, 0.15), 0.70 * bump(x - 0.21, 0.12));
+};
+
 HZ.render = function(){
   if(!HZ.active || HZ.total <= 0) return;
   const E = HZ.el;
   if(!E || !HZ._pts) return;   // layout 尚未跑完（首幀競速）→ 等下一幀
-  if(!HZ._lv) HZ._lv = { infl:-1, shine:-1, show:-1, cur:'', halo:-1, wh:-1, danger:-1 };
+  if(!HZ._lv) HZ._lv = { infl:-1, cur:'' };
   const L = HZ._lv;
   const prog = HZ.inflated / HZ.total;
 
@@ -5072,37 +5113,20 @@ HZ.render = function(){
     if(inflQ !== L.infl){
       L.infl = inflQ;
       E.infl.style.strokeDasharray = `${HZ.inflated} ${HZ.total}`;
-      E.warn.style.strokeDasharray = `${HZ.inflated} ${HZ.total}`;
-      E.shine.style.strokeDasharray = `${Math.max(0,HZ.inflated-14)} ${HZ.total}`;
-      if(L.shine !== 1){ L.shine = 1; E.shine.setAttribute('transform','translate(0,-5)'); }
-      const pt = HZ.pointAt(HZ.inflated);
-      E.head.setAttribute('cx',pt.x); E.head.setAttribute('cy',pt.y);
-      E.warnHead.setAttribute('cx',pt.x); E.warnHead.setAttribute('cy',pt.y);
-      E.headShine.setAttribute('cx',pt.x-3); E.headShine.setAttribute('cy',pt.y-4);
     }
-    const show = HZ.inflated > 4 ? 1 : 0;
-    if(show !== L.show){ L.show = show; E.head.style.opacity = show; E.headShine.style.opacity = show; }
   }
 
-  /* 警戒閃爍：danger 綁「剩餘距離」而非時間 —— 越慢越紅，因果清清楚楚。
-     pulse 有保底(floor)，進危險區後不會閃回全藍讓玩家誤判「沒事了」。 */
-  const danger  = prog > 0.75 ? (prog-0.75)/0.25 : 0;
-  const breathe = 0.5 + 0.5*Math.sin(performance.now() * HZ.SKIN.warnHz * 0.00628);
-  const pulse   = (!HZ.over && danger > 0)
-                ? danger * (HZ.SKIN.floor + (1-HZ.SKIN.floor)*breathe) : 0;
+  /* ★ v140 心跳警戒：danger 綁「剩餘距離」而非時間 —— 越近終點越急，因果清清楚楚。
+     波形是 lub-dub 雙拍（主拍重、次拍輕、然後留白），中間確實回到原色藍。
+     danger 只調兩件事：振幅（跳多用力）與心率（跳多快）。 */
+  const danger = prog > 0.75 ? (prog-0.75)/0.25 : 0;
+  const beat   = (!HZ.over && danger > 0) ? HZ.heartbeat(danger) : 0;
 
-  HZ.cur = HZ.rampAt(pulse * HZ.SKIN.bodyMax);
+  HZ.cur = HZ.rampAt(danger * beat * HZ.SKIN.bodyMax);
   if(HZ.over !== 'boom' && HZ.cur !== L.cur){
     L.cur = HZ.cur;
     E.infl.setAttribute('stroke', HZ.cur);
-    E.head.setAttribute('fill',   HZ.cur);
   }
-  const halo = Math.round((pulse * HZ.SKIN.warnMax)*1000)/1000;
-  if(halo !== L.halo){ L.halo = halo; E.warn.style.opacity = HZ.over ? 0 : halo; }
-  const wh = (HZ.over || HZ.inflated <= 4) ? 0 : halo;
-  if(wh !== L.wh){ L.wh = wh; E.warnHead.style.opacity = wh; }
-  const dQ = Math.round((HZ.over ? 0 : danger)*1000)/1000;
-  if(dQ !== L.danger){ L.danger = dQ; E.danger.style.opacity = dQ; }
 
   /* ★ v138 告急音樂：綁的是「玩家眼睛看到的那條紅線」的同一個門檻，不另立標準。
      進場 0.75、退場 0.70 的遲滯是必要的 —— 玩家在門檻附近邊消邊被推，
@@ -5123,9 +5147,8 @@ HZ.loop = function(now){
    回饋必須發生在「線頭」上，因為那是玩家唯一在看的地方 —— 線退回去多少，
    眼睛就跟到哪裡。舊版把回饋演在畫面另一端的噴嘴上，玩家其實看不到。 */
 HZ.pulsePump = function(){
-  const head = HZ.$('hzHead'); if(!head) return;
-  head.animate([{transform:'scale(1)'},{transform:'scale(1.75)'},{transform:'scale(1)'}],
-               {duration:260, easing:'cubic-bezier(.3,1.4,.5,1)'});
+  if(!HZ.$('hzSvg') || !HZ._pts) return;
+  /* ★ v140 線頭圓球退役 → 回饋只剩白色擴散環，正好開在線退回去的那一點上。 */
   const pt = HZ.pointAt(HZ.inflated);
   const ring = document.createElementNS('http://www.w3.org/2000/svg','circle');
   ring.setAttribute('cx',pt.x); ring.setAttribute('cy',pt.y);
@@ -5175,9 +5198,7 @@ HZ.boom = function(){
   HZ.over = 'boom';
   HZ.burst();
   HZ.shatterBoard();
-  ['hzInfl','hzShine','hzHead','hzHeadShine','hzTube'].forEach(id=>HZ.$(id).style.opacity=0);
-  HZ.$('hzWarn').style.opacity = 0; HZ.$('hzWarnHead').style.opacity = 0;
-  HZ.$('hzDanger').style.opacity = 0;
+  ['hzInfl','hzTube'].forEach(id=>HZ.$(id).style.opacity=0);
   if(typeof haptic === 'function') haptic([90,50,90]);
   HZ.boomTimer = setTimeout(()=>{ if(HZ.over==='boom'){ HZ.loseNow = true; showLose(); } }, 900);
 };
@@ -5249,14 +5270,12 @@ HZ.burst = function(){
 HZ.relief = function(){
   if(!HZ.active) return;
   HZ.over = 'win';
-  const infl = HZ.$('hzInfl'), head = HZ.$('hzHead');
+  /* ★ v140 線頭圓球退役；淡出只演在線本身。
+     fill:'forwards' 仍保留（動畫結束後要維持隱形直到下一關），
+     殘留由 HZ.reset() 的 getAnimations().cancel() 負責清乾淨。 */
+  const infl = HZ.$('hzInfl');
   if(infl) infl.animate([{opacity:1},{opacity:1,offset:.35},{opacity:0}],
                         {duration:760, easing:'ease-out', fill:'forwards'});
-  if(head) head.animate([{transform:'scale(1)',opacity:1},
-                         {transform:'scale(1.6)',opacity:1,offset:.3},
-                         {transform:'scale(.2)',opacity:0}],
-                        {duration:760, easing:'cubic-bezier(.3,1.2,.4,1)', fill:'forwards'});
-  HZ.$('hzDanger').style.opacity = 0;
 };
 
 /* ===== 商業接口：激勵廣告救援（氣球洩氣一半，原地續戰）===== */
