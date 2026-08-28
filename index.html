@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v141</title>
-<meta property="og:title" content="繽紛樂 v141">
+<title>繽紛樂 v142</title>
+<meta property="og:title" content="繽紛樂 v142">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・看花開！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -1277,7 +1277,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v141・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v142・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1699,7 +1699,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v141・繽紛樂',
+  'menu.footer':'v142・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1803,7 +1803,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v141 · Vivid Blast',
+  'menu.footer':'v142 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -1906,7 +1906,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v141・ビビッドブラスト',
+  'menu.footer':'v142・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -3370,6 +3370,15 @@ const BGM = {
   FADE: 0.9,                        // 交叉淡化秒數（夠長不突兀，夠短不拖泥）
   el:{}, gain:{}, rushing:false, wired:false, playing:false, _st:null,
   hidden:false,                     // ★ v140 切到背景 → 兩軌一律停，回前景再續
+  /* ★ v142 閘門：齒輪選單開著、或人不在對局畫面時，音樂一律收掉。
+     與 hidden 分開記，因為兩者可能同時成立，解除時不能互相把對方蓋掉。 */
+  blocked:false,
+  /* ★ v142 快板有兩個獨立的需求方，用聯集決定要不要切過去：
+       rushHz    倒數模式壓力線進紅區（緊張）
+       rushCombo 連消 ×2 以上（歡樂加分時刻）
+     兩者互不知道對方存在，各自舉手，這裡取聯集 —— 未來要加第三個來源
+     （例如限時活動）只要再加一個旗標，不必動 apply()。 */
+  rushHz:false, rushCombo:false,
 };
 
 /* 音檔位置。相對路徑 → GitHub Pages 與 Capacitor 皆可直接取用。
@@ -3396,14 +3405,16 @@ BGM.init = function(){
 };
 
 /* 把某一軌的音量斜坡到 v。用 AudioParam 排程而非逐幀 JS，交叉淡化才會平滑。 */
-BGM.ramp = function(k, v){
+BGM.ramp = function(k, v, fast){
   const g = BGM.gain[k]; const ctx = _actx;
   if(!g || !ctx) return;
   try{
     const t = ctx.currentTime;
     g.gain.cancelScheduledValues(t);
     g.gain.setValueAtTime(g.gain.value, t);
-    g.gain.linearRampToValueAtTime(v, t + BGM.FADE);
+    // ★ v142 fast：閘門關上（開齒輪／換模式／切背景）要在 0.18 秒內靜下來。
+    //    交叉淡化仍走 0.9 秒 —— 那是兩首曲子交接，慢一點才不突兀。
+    g.gain.linearRampToValueAtTime(v, t + (fast ? 0.18 : BGM.FADE));
   }catch(e){ try{ g.gain.value = v; }catch(_){} }
 };
 
@@ -3411,7 +3422,8 @@ BGM.ramp = function(k, v){
    所有狀態變化（開局、紅區進出、按下靜音）都收斂到這一個函式，不散在各處。 */
 BGM.apply = function(){
   if(!BGM.wired) return;
-  const live = BGM.playing && soundOn && !BGM.hidden;
+  const live = BGM.playing && soundOn && !BGM.hidden && !BGM.blocked;
+  const fast = !live && (BGM.hidden || BGM.blocked);   // ★ v142 閘門關上 → 快速收音
   const want = { main:0, rush:0 };
   if(live){ const k = BGM.rushing ? 'rush' : 'main'; want[k] = BGM.VOL[k]; }
   ['main','rush'].forEach(k=>{
@@ -3427,13 +3439,13 @@ BGM.apply = function(){
        代價是同時解兩支 mp3（各 30 秒短循環，可忽略），
        換來的是切歌 100% 可靠 —— 這筆划算。 */
     if(live && a.paused){ const p = a.play(); if(p && p.catch) p.catch(()=>{}); }
-    BGM.ramp(k, want[k]);
+    BGM.ramp(k, want[k], fast);
   });
   /* 只有「整個音樂該停」時才收兩軌（靜音鍵／離開對局／切背景）。
      live 期間兩軌恆常播放，切歌純靠 gain 交叉，不再 pause 任何一軌。 */
   clearTimeout(BGM._st);
   if(!live){
-    const delay = BGM.hidden ? 0 : BGM.FADE*1000 + 150;   // 切背景要立刻靜，不等淡化
+    const delay = fast ? 200 : BGM.FADE*1000 + 150;       // 閘門關上要立刻靜，不等淡化
     BGM._st = setTimeout(()=>{
       ['main','rush'].forEach(k=>{
         const a = BGM.el[k];
@@ -3450,7 +3462,46 @@ BGM.setHidden = function(h){
   if(BGM.hidden === h) return;
   BGM.hidden = h;
   if(!BGM.wired) return;
+  if(!h) BGM.rewind();      // ★ v142 從背景回來 → 從頭播（總監定案）
   BGM.apply();
+};
+
+/* ★ v142 兩軌一起倒回開頭。回前景、關掉齒輪、換模式都用它 ——
+   總監定案：音樂不做「接續播放」，回到遊戲畫面就從頭開始。 */
+BGM.rewind = function(){
+  ['main','rush'].forEach(k=>{
+    const a = BGM.el[k]; if(!a) return;
+    try{ a.currentTime = 0; }catch(e){}
+  });
+};
+
+/* ★ v142 閘門：齒輪選單開著、或正在切換模式時關上。
+   與 setHidden 分開，兩者可同時成立（開著齒輪切去別的 App），解除時互不干擾。 */
+BGM.setBlocked = function(b){
+  b = !!b;
+  if(BGM.blocked === b) return;
+  BGM.blocked = b;
+  if(!BGM.wired) return;
+  if(!b) BGM.rewind();
+  BGM.apply();
+};
+
+/* ★ v142 進對局：從頭起播，並把上一局殘留的快板需求全部清掉。 */
+BGM.restart = function(){
+  if(!BGM.init()) return;
+  BGM.rushHz = false; BGM.rushCombo = false; BGM.rushing = false;
+  BGM.blocked = false;
+  BGM.hidden = (typeof document !== 'undefined' && document.visibilityState === 'hidden');
+  BGM.rewind();
+  BGM.playing = true;
+  BGM.apply();
+};
+
+/* ★ v142 離開對局（回主選單）：整組停掉。 */
+BGM.stop = function(){
+  BGM.playing = false;
+  BGM.rushHz = false; BGM.rushCombo = false; BGM.rushing = false;
+  if(BGM.wired) BGM.apply();
 };
 
 /* 第一次使用者手勢時呼叫。iOS 只認手勢，這是唯一能起音的時機。 */
@@ -3463,12 +3514,28 @@ BGM.start = function(){
 
 /* 紅區進出。切到 rush 時一律從樂句開頭打進來 —— 這首的第一小節就是滿能量，
    玩家在最緊張的那一刻要立刻聽到東西，不是聽到某個樂句的中段。 */
+/* ★ v142 快板的兩個需求方各自舉手，這裡取聯集後才真的換軌。 */
+BGM._syncRush = function(){
+  const want = !!(BGM.rushHz || BGM.rushCombo);
+  if(BGM.rushing === want) return;
+  BGM.rushing = want;
+  if(want && BGM.el.rush){ try{ BGM.el.rush.currentTime = 0; }catch(e){} }
+  BGM.apply();
+};
+
+/* 連消 ×2 以上 → 快板。玩家不必看數字就知道「現在正在賺」。 */
+BGM.setCombo = function(on){
+  on = !!on;
+  if(BGM.rushCombo === on) return;
+  BGM.rushCombo = on;
+  BGM._syncRush();
+};
+
 BGM.setRush = function(on){
   on = !!on;
-  if(BGM.rushing === on) return;
-  BGM.rushing = on;
-  if(on && BGM.el.rush){ try{ BGM.el.rush.currentTime = 0; }catch(e){} }
-  BGM.apply();
+  if(BGM.rushHz === on) return;
+  BGM.rushHz = on;
+  BGM._syncRush();
 };
 
 /* ── 得分啾啾聲：短促上行的小音粒，數字爬升的聽覺對應物 ──
@@ -4839,8 +4906,12 @@ const HZ = {
        ★ 每秒最多 2 次亮度變化（1.45Hz × 雙拍中的主拍），遠低於 3Hz
          光敏性癲癇門檻，且發亮面積只有一條 4px 細線。 */
     bodyMax:1.00,     // ★ v141 0.92→1.00：頂點要真的踩到色階最後那格紅，不是紅紫
-    beatHz0:0.62,     // ★ v141 心率放慢（總監真機：「變換頻率太快，幾乎看不到紅色」）
-    beatHzMax:0.95,   // 逼近終點的心率
+    /* ★ v142 再放慢一級（總監真機二審：「改半秒切換，紅色停留太短促」）。
+       0.40Hz → 一次心跳 2.5 秒：滿紅停留 0.5 秒、回藍留白約 0.8 秒，
+       正好是「一下藍、一下紅」看得清楚的節奏。
+       逼近終點 0.66Hz → 心跳週期收到 1.5 秒，急促感靠變快而不是靠變閃。 */
+    beatHz0:0.40,
+    beatHzMax:0.66,
   },
 
   P: {
@@ -5113,10 +5184,10 @@ HZ.tick = function(dt){
    v140 用正弦尖峰，頂點只存在一瞬間，加上心率 0.9~1.45Hz，
    真機上紅色來不及被眼睛抓到（總監實測：「幾乎不太感覺有紅色出現」）。
    ── 現在的波形 ──
-     0.00~0.05 升起   0.05~0.25 停在滿紅   0.25~0.37 落下
-     0.44~0.68 次拍（噠，六成力道）
-     0.68~1.00 留白 → 確實回到原色藍
-   心率 0.62~0.95Hz：最慢時滿紅停留約 320ms，看得清清楚楚。 */
+     0.00~0.04 升起   0.04~0.24 停在滿紅   0.24~0.34 落下
+     0.42~0.62 次拍（噠，六成力道）
+     0.62~1.00 留白 → 確實回到原色藍
+   ★ v142 心率 0.40~0.66Hz：最慢時滿紅實停 500ms，紅與藍各佔畫面一段時間。 */
 HZ.heartbeat = function(danger){
   const hz = HZ.SKIN.beatHz0 + (HZ.SKIN.beatHzMax - HZ.SKIN.beatHz0) * danger;
   const x  = (performance.now() * 0.001 * hz) % 1;
@@ -5127,7 +5198,7 @@ HZ.heartbeat = function(danger){
     if(u < rise + hold + fall) return 1 - (u - rise - hold) / fall;
     return 0;
   };
-  return Math.max(P(x, 0.05, 0.20, 0.12), 0.62 * P(x - 0.44, 0.04, 0.10, 0.10));
+  return Math.max(P(x, 0.04, 0.20, 0.10), 0.62 * P(x - 0.42, 0.03, 0.09, 0.08));
 };
 
 HZ.render = function(){
@@ -5876,6 +5947,7 @@ function clearLines(){
   if(fullRows.length===0 && fullCols.length===0){
     // ★ v49 連消中斷：歸零、徽章收起，一切回到初始的基本小碎光
     if(clearStreak !== 0){ clearStreak = 0; updateStreakBadge(false); }
+    try{ BGM.setCombo(false); }catch(e){}   // ★ v142 連消斷了 → 快板收回，回到一般曲
     moodOnBreak();           // ★ v132 連消中斷：借穿中的話從下一次消除開始倒數歸還
     checkSmartPlacement();   // ★ v49 沒消行才判定「聰明的一步」（消行有自己的讚美系統）
     afterMove();
@@ -5884,6 +5956,9 @@ function clearLines(){
 
   // ★ v49 連消 +1：放下即消，不間斷就一路疊
   clearStreak++;
+  /* ★ v142 連消 ×2 起 → 切快板（總監定案）。不看模式：倒數模式的紅區另有一路
+     需求（rushHz），兩邊取聯集，誰先舉手誰就把曲子換過去，互不打架。 */
+  try{ BGM.setCombo(clearStreak >= 2); }catch(e){}
   skinCheckExpiry();         // ★ v132 免費期 72 小時到了就在這一刻換回初始皮膚
   moodOnClear();             // ★ v132 連消借穿／歸還（獨立計數，不動 clearStreak）
   lastPlacement = null;      // 這一手已用消行慶祝，聰明讚不重複跳
@@ -8140,6 +8215,7 @@ function startLevel(){
 
   adRevivesUsed = 0;        // ★ v36 免費救援每關重置（上限 ECON.adReviveCap 次）
   clearStreak = 0;          // ★ v49 連消每關重新起算
+  try{ BGM.setCombo(false); }catch(e){}   // ★ v142 新關卡 = 快板需求歸零
   lastMilestone = 0;        // ★ v54 分數里程碑每關重新起算
   _lvBestBeaten = false;    // ★ v102 新關卡 = 新的紀錄挑戰，破紀錄動畫重新武裝
   {  // ★ v103 大分數的發光狀態必須跟著清掉，否則新關卡會帶著上一關的金光開場
@@ -8202,6 +8278,9 @@ function enterMode(mode, forceLevel){
   winStreak = 0;            // ★ v6：新一局從蜜月期重新開始
   document.getElementById('menu').classList.add('hidden');
   const aw = document.getElementById('actionWrap'); if(aw) aw.classList.remove('hidden');  // ★ v54 進對局才顯示左上操作鈕
+  /* ★ v142 換模式 = 音樂從頭開始，而不是把上一個模式的進度接著播下去。
+     這裡是使用者手勢的同一條呼叫鏈（點模式卡），iOS 的起播許可拿得到。 */
+  try{ if(soundOn) BGM.restart(); }catch(e){}
   startLevel();
 }
 
@@ -8211,6 +8290,7 @@ function goHome(){
   roundEnded = false; winShown = false;   // ★ v134 降旗：離開對局，旗子不留到下一次進場
   currentMode = null;            // ★ v64 A2 回選單後系統不再誤以為「還在對局中」（商店買提示等誤觸的總根源）
   restStop();                    // ★ v98 回選單 = 這局的休息提醒作廢（不在選單背後偷偷彈）
+  try{ BGM.stop(); }catch(e){}   // ★ v142 回選單 = 音樂收掉，選單頁保持安靜
   HZ.stop();                     // ★ v33 收掉機關圖層 + 停 rAF，否則氣球在選單背後繼續膨脹
   refreshMenuBadges();           // 剛打完的最高關，回選單就要看得到
   document.getElementById('winOverlay').classList.remove('show');
@@ -8346,6 +8426,7 @@ function openGear(){
   }
   document.getElementById('gearMenu').classList.add('show');
   document.getElementById('gearBackdrop').classList.add('show');
+  try{ BGM.setBlocked(true); }catch(e){}    // ★ v142 開設定 = 音樂停（總監定案）
 }
 function closeGear(){
   // 解凍前先確認失敗視窗沒開著 —— 從失敗視窗上開齒輪再關，不能把氣球放出來
@@ -8353,6 +8434,7 @@ function closeGear(){
   document.getElementById('gearMenu').classList.remove('show');
   document.getElementById('gearBackdrop').classList.remove('show');
   document.getElementById('gearBackdrop').classList.remove('privacy');   // ★ v87 收幕，不留殘影
+  try{ BGM.setBlocked(false); }catch(e){}   // ★ v142 關設定 = 音樂從頭再來
 }
 document.getElementById('gearBtn').onclick = (e)=>{
   e.stopPropagation();
