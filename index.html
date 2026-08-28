@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v140</title>
-<meta property="og:title" content="繽紛樂 v140">
+<title>繽紛樂 v141</title>
+<meta property="og:title" content="繽紛樂 v141">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・看花開！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -231,6 +231,9 @@
      花整體縮 9%，苗期空白同步變少，順帶把整排長回 padding-top 吃掉的高度。 */
   #goals .gicon { width:100%; height:auto; aspect-ratio:100/122; }   /* ★ v87 直立：花盆從下緣長出去 */
   #goals .gtext { white-space:nowrap; }
+  /* ★ v141 無盡模式的隱形佔位卡：只佔高度，不畫任何東西。
+     用 visibility 而非 display/opacity —— 前者保留版位，後者不是失去版位就是踩到「禁用 opacity<1」。 */
+  #goals .goal-ghost { visibility:hidden; }
 
   #goals[data-n="3"] .goal  { max-width:92px; }
   #goals[data-n="3"] .gicon { max-width:64px; }
@@ -365,7 +368,10 @@
   .side-ad-btn:active { transform:scale(.95); }
 
   /* 棋盤 */
-  #boardWrap { flex:1; display:flex; align-items:center; justify-content:center; padding:0 12px 0 6px; position:relative; }
+  /* ★ v141 左右改對稱 14px：舊值 6/12 是 v55 左側走廊時代的遺產。
+     壓力線改繞棋盤外框之後，那圈線會在棋盤外緣再外擴 11px（GAP 9 + 半線寬 2），
+     不對稱的留白會讓整圈線偏向一邊、左緣直接掉出螢幕（真機實錘）。 */
+  #boardWrap { flex:1; display:flex; align-items:center; justify-content:center; padding:0 14px; position:relative; }
   /* ★ v90 棋盤「挖深」：舊版只有一圈外投影（0 8px 24px），視覺上是一塊板「浮在」桌面上。
      真正的凹坑要靠 inset：上緣內側壓一道暗影（光從上方來，坑口上緣最暗），
      下緣內側補一道極淡亮邊（坑底反光），外圈再留一道細亮線當坑口倒角。
@@ -1271,7 +1277,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v140・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v141・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1693,7 +1699,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v140・繽紛樂',
+  'menu.footer':'v141・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1797,7 +1803,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v140 · Vivid Blast',
+  'menu.footer':'v141 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -1900,7 +1906,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v140・ビビッドブラスト',
+  'menu.footer':'v141・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -4745,6 +4751,18 @@ function flyGemToGoal(gemKey, fromEl, delay, fromRect, toRect){
 
 function renderGoals(){
   const el = document.getElementById('goals');
+  /* ★ v141 棋盤尺寸不穩的病根之一 ──────────────────────────────
+     無盡模式沒有目標 → 任務欄整條塌成只剩 padding（約 34px），
+     #playArea 因此比其他兩模式高 130px，棋盤跟著大一圈。
+     解法不是去猜一個固定高度（會隨字級/花盆比例飄），
+     而是放三張「看不見但佔位」的卡：高度由同一套 CSS 算出來，
+     天生與寶石/倒數模式一模一樣，未來改花盆尺寸也自動跟上。 */
+  if(!goals.length){
+    el.dataset.n = 3;
+    el.innerHTML = ('<div class="goal goal-ghost">'
+                  + '<span class="gicon"></span><span class="gtext">0</span></div>').repeat(3);
+    return;
+  }
   el.dataset.n = goals.length;   // ★ v33 交給 CSS 決定 3/4/5 隻的卡片尺寸
   el.innerHTML = '';
   goals.forEach(g=>{
@@ -4820,9 +4838,9 @@ const HZ = {
        危險度只改「振幅」與「心率」，不改波形 —— 越危險跳得越用力、越急。
        ★ 每秒最多 2 次亮度變化（1.45Hz × 雙拍中的主拍），遠低於 3Hz
          光敏性癲癇門檻，且發亮面積只有一條 4px 細線。 */
-    bodyMax:0.92,
-    beatHz0:0.90,     // 剛進紅區的心率（次/秒）
-    beatHzMax:1.45,   // 逼近終點的心率
+    bodyMax:1.00,     // ★ v141 0.92→1.00：頂點要真的踩到色階最後那格紅，不是紅紫
+    beatHz0:0.62,     // ★ v141 心率放慢（總監真機：「變換頻率太快，幾乎看不到紅色」）
+    beatHzMax:0.95,   // 逼近終點的心率
   },
 
   P: {
@@ -5090,14 +5108,26 @@ HZ.tick = function(dt){
    一樣就直接跳過。安全區（danger=0，佔一關 75% 時間）膨脹又慢，多數幀
    一筆 DOM 都不必寫；危險區呼吸閃爍本來就該每幀動，照常全速演。
    視覺輸出與舊版逐像素等價，只是不再重複寫一樣的值。 */
-/* ★ v140 心跳波形。回傳 0..1：
-     0.00~0.15 主拍（咚）  0.21~0.33 次拍（噠，七成力道）  其餘留白 → 回到原色藍
-   心率隨 danger 從 0.90Hz 爬到 1.45Hz，越接近終點跳得越急。 */
+/* ★ v141 心跳波形改帶「停留」的脈衝。回傳 0..1。
+   ── 為什麼要改 ──
+   v140 用正弦尖峰，頂點只存在一瞬間，加上心率 0.9~1.45Hz，
+   真機上紅色來不及被眼睛抓到（總監實測：「幾乎不太感覺有紅色出現」）。
+   ── 現在的波形 ──
+     0.00~0.05 升起   0.05~0.25 停在滿紅   0.25~0.37 落下
+     0.44~0.68 次拍（噠，六成力道）
+     0.68~1.00 留白 → 確實回到原色藍
+   心率 0.62~0.95Hz：最慢時滿紅停留約 320ms，看得清清楚楚。 */
 HZ.heartbeat = function(danger){
-  const hz  = HZ.SKIN.beatHz0 + (HZ.SKIN.beatHzMax - HZ.SKIN.beatHz0) * danger;
-  const x   = (performance.now() * 0.001 * hz) % 1;
-  const bump = (u, w) => (u < 0 || u > w) ? 0 : Math.sin(Math.PI * u / w);
-  return Math.max(bump(x, 0.15), 0.70 * bump(x - 0.21, 0.12));
+  const hz = HZ.SKIN.beatHz0 + (HZ.SKIN.beatHzMax - HZ.SKIN.beatHz0) * danger;
+  const x  = (performance.now() * 0.001 * hz) % 1;
+  const P = (u, rise, hold, fall) => {
+    if(u < 0) return 0;
+    if(u < rise) return u / rise;
+    if(u < rise + hold) return 1;
+    if(u < rise + hold + fall) return 1 - (u - rise - hold) / fall;
+    return 0;
+  };
+  return Math.max(P(x, 0.05, 0.20, 0.12), 0.62 * P(x - 0.44, 0.04, 0.10, 0.10));
 };
 
 HZ.render = function(){
@@ -5121,8 +5151,13 @@ HZ.render = function(){
      danger 只調兩件事：振幅（跳多用力）與心率（跳多快）。 */
   const danger = prog > 0.75 ? (prog-0.75)/0.25 : 0;
   const beat   = (!HZ.over && danger > 0) ? HZ.heartbeat(danger) : 0;
+  /* ★ v141 振幅與心率分家。舊版把 danger 乘進振幅裡，於是剛進紅區時
+     頂點只到色階三成（藍紫），要拖到 95% 進度才看得到真紅 —— 紅燈等於沒亮。
+     現在：進紅區後頂點一律踩滿紅，danger 只管「跳多快」。
+     amp 只負責入場那一小段淡入，避免顏色突然彈出來。 */
+  const amp = Math.min(1, danger / 0.15);
 
-  HZ.cur = HZ.rampAt(danger * beat * HZ.SKIN.bodyMax);
+  HZ.cur = HZ.rampAt(amp * beat * HZ.SKIN.bodyMax);
   if(HZ.over !== 'boom' && HZ.cur !== L.cur){
     L.cur = HZ.cur;
     E.infl.setAttribute('stroke', HZ.cur);
@@ -7840,9 +7875,9 @@ function resumeRun(){
   adRevivesUsed = Math.max(0, d.adRevivesUsed|0);
   cancelBombAim();
   refreshEconomyUI();
+  renderGoals();          // ★ v141 同上：先畫任務欄，再量版位
   calcCellSize();
   renderBoard();
-  renderGoals();
   renderTray();
   updateStatus();
   updateStreakBadge(false);
@@ -8119,9 +8154,13 @@ function startLevel(){
   initBoard();
   generateGoals();          // 走當前模式的 setup()（會讀 curDiff）
   HZ.syncGoals();           // ★ v32 機關關覆寫目標為 3 種×8。務必早於 refillTray()
+  /* ★ v141 順序修正：舊版 calcCellSize() 跑在 renderGoals() 之前，
+     量到的是「上一個模式」還留在畫面上的任務欄高度 —— 這就是每次切模式
+     棋盤大小都不一樣的真正原因（無盡←→寶石來回切會一大一小交替）。
+     任務欄先畫好，再量版位，最後才照新的 CELL 蓋棋盤。 */
+  renderGoals();
   calcCellSize();
   renderBoard();
-  renderGoals();
   refillTray();
   updateStatus();
   // ★ v14 左側關卡卡：闖關模式顯示關數，無盡模式顯示 ∞
