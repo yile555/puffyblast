@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v142</title>
-<meta property="og:title" content="繽紛樂 v142">
+<title>繽紛樂 v143</title>
+<meta property="og:title" content="繽紛樂 v143">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・看花開！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -1277,7 +1277,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v142・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v143・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1699,7 +1699,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v142・繽紛樂',
+  'menu.footer':'v143・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1803,7 +1803,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v142 · Vivid Blast',
+  'menu.footer':'v143 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -1906,7 +1906,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v142・ビビッドブラスト',
+  'menu.footer':'v143・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -3151,6 +3151,11 @@ function lineClearScore(totalLines, streak){
 }
 
 let clearStreak = 0;            // 目前連消數（放下即消 +1；放下沒消 → 歸零）
+/* ★ v143 快板尾巴（總監定案）：連消斷掉時音樂不立刻收，而是進入「尾聲」——
+   從斷掉那一刻開始數消除次數（不必連續），數滿 2 次才把快板收回一般曲。
+   −1 = 不在尾聲；0/1 = 尾聲中已消除的次數。
+   目的是不讓音樂在「連消斷一下又接回來」時來回跳，聽起來像壞掉。 */
+let comboTail = -1;
 let lastSmartPraiseAt = 0;      // 聰明讚冷卻計時（防氾濫）
 let lastPlacement = null;       // 剛放下那一手的情報：{cells, contacts, filledContacts, size, perimeter, couldSetupBefore}
 const SMART_PRAISE_COOLDOWN = 6000;
@@ -4906,12 +4911,13 @@ const HZ = {
        ★ 每秒最多 2 次亮度變化（1.45Hz × 雙拍中的主拍），遠低於 3Hz
          光敏性癲癇門檻，且發亮面積只有一條 4px 細線。 */
     bodyMax:1.00,     // ★ v141 0.92→1.00：頂點要真的踩到色階最後那格紅，不是紅紫
-    /* ★ v142 再放慢一級（總監真機二審：「改半秒切換，紅色停留太短促」）。
-       0.40Hz → 一次心跳 2.5 秒：滿紅停留 0.5 秒、回藍留白約 0.8 秒，
-       正好是「一下藍、一下紅」看得清楚的節奏。
-       逼近終點 0.66Hz → 心跳週期收到 1.5 秒，急促感靠變快而不是靠變閃。 */
-    beatHz0:0.40,
-    beatHzMax:0.66,
+    /* ★ v143 總監規格（真機三審）：「一種顏色停留 0.5 秒」。
+       紅 0.5 秒 → 藍 0.5 秒 → 紅 …，週期 1.0 秒，固定不加速。
+       hold 是單一顏色的實停秒數；xfade 是兩色交接的過渡，
+       留 0.08 秒是為了避免硬切變成頻閃燈，肉眼仍讀成「停 0.5 秒」。
+       ★ 每秒 1 次亮度變化，遠低於 3Hz 光敏性癲癇門檻。 */
+    beatHold:0.50,
+    beatFade:0.08,
   },
 
   P: {
@@ -5119,6 +5125,7 @@ HZ.stop = function(){
 HZ.reset = function(){
   HZ.inflated = 0; HZ.t = 0; HZ.over = null; HZ.loseNow = false;
   HZ.cur = HZ.SKIN.body;
+  HZ._phase = 0; HZ._beatT = 0;   // ★ v143 相位歸零：新關卡從紅色那一拍重新起算
   clearTimeout(HZ.boomTimer); HZ.boomTimer = null;
   /* ★ v140 治「玩幾關後壓力條變一條細灰線」──────────────────────
      HZ.relief() 的過關動畫用了 fill:'forwards'，把 hzInfl 凍在 opacity 0 的終幀。
@@ -5179,26 +5186,39 @@ HZ.tick = function(dt){
    一樣就直接跳過。安全區（danger=0，佔一關 75% 時間）膨脹又慢，多數幀
    一筆 DOM 都不必寫；危險區呼吸閃爍本來就該每幀動，照常全速演。
    視覺輸出與舊版逐像素等價，只是不再重複寫一樣的值。 */
-/* ★ v141 心跳波形改帶「停留」的脈衝。回傳 0..1。
-   ── 為什麼要改 ──
-   v140 用正弦尖峰，頂點只存在一瞬間，加上心率 0.9~1.45Hz，
-   真機上紅色來不及被眼睛抓到（總監實測：「幾乎不太感覺有紅色出現」）。
-   ── 現在的波形 ──
-     0.00~0.04 升起   0.04~0.24 停在滿紅   0.24~0.34 落下
-     0.42~0.62 次拍（噠，六成力道）
-     0.62~1.00 留白 → 確實回到原色藍
-   ★ v142 心率 0.40~0.66Hz：最慢時滿紅實停 500ms，紅與藍各佔畫面一段時間。 */
+/* ★ v143 紅藍交替。回傳 0（原色藍）~ 1（滿紅）。
+
+   ── v142 為什麼在真機上變成亂閃（總監實測「一秒閃五六下，數不清」）──
+   舊式是 x = (performance.now() * hz) % 1，用「絕對時間 × 頻率」求相位。
+   致命處在於 hz 不是常數：它綁著 danger，壓力線每推進一點就微調一次。
+   而 performance.now() 開局幾分鐘後已是幾十萬毫秒的大數，
+   hz 只要動 0.0001，乘積就跳掉好幾百個週期 —— 相位每一幀都被丟到波形的
+   隨機位置，畫面自然變成無規律的高速閃爍，跟設定的秒數完全無關。
+   （單元測試把 hz 釘死才會通過，所以這個洞在桌機測不出來。）
+
+   ── 正解：相位逐幀累加 ──
+   每幀只累加「這一幀經過的秒數 × 當下頻率」。頻率再怎麼變動，
+   相位都是連續的，不會跳。這是所有變頻振盪器的標準寫法。
+   dt 夾在 0.1 秒以內：分頁凍結後回來的那一大跳不能算進相位。
+
+   ── 波形（總監規格：一種顏色停留 0.5 秒，不加速）──
+     紅 0.50s → 過渡 0.08s → 藍 0.50s → 過渡 0.08s → 循環（週期 1.16s）
+   danger 不再影響節奏，只負責入場淡入（見 render 的 amp）。 */
+HZ._phase = 0;
+HZ._beatT = 0;
 HZ.heartbeat = function(danger){
-  const hz = HZ.SKIN.beatHz0 + (HZ.SKIN.beatHzMax - HZ.SKIN.beatHz0) * danger;
-  const x  = (performance.now() * 0.001 * hz) % 1;
-  const P = (u, rise, hold, fall) => {
-    if(u < 0) return 0;
-    if(u < rise) return u / rise;
-    if(u < rise + hold) return 1;
-    if(u < rise + hold + fall) return 1 - (u - rise - hold) / fall;
-    return 0;
-  };
-  return Math.max(P(x, 0.04, 0.20, 0.10), 0.62 * P(x - 0.42, 0.03, 0.09, 0.08));
+  const H = HZ.SKIN.beatHold, F = HZ.SKIN.beatFade;
+  const cyc = 2 * (H + F);                       // 一個完整的紅→藍→紅 週期（秒）
+  const now = performance.now();
+  const dt  = HZ._beatT ? Math.min(0.1, (now - HZ._beatT) / 1000) : 0;
+  HZ._beatT = now;
+  HZ._phase = (HZ._phase + dt / cyc) % 1;        // 相位永遠連續，不隨頻率跳動
+
+  const u = HZ._phase * cyc;                     // 換算回「這個週期走到第幾秒」
+  if(u < H)         return 1;                    // 紅：停 0.5 秒
+  if(u < H + F)     return 1 - (u - H) / F;      // 紅 → 藍
+  if(u < H + F + H) return 0;                    // 藍：停 0.5 秒
+  return (u - (H + F + H)) / F;                  // 藍 → 紅
 };
 
 HZ.render = function(){
@@ -5222,9 +5242,10 @@ HZ.render = function(){
      danger 只調兩件事：振幅（跳多用力）與心率（跳多快）。 */
   const danger = prog > 0.75 ? (prog-0.75)/0.25 : 0;
   const beat   = (!HZ.over && danger > 0) ? HZ.heartbeat(danger) : 0;
-  /* ★ v141 振幅與心率分家。舊版把 danger 乘進振幅裡，於是剛進紅區時
+  /* ★ v141 振幅與顏色分家。舊版把 danger 乘進振幅裡，於是剛進紅區時
      頂點只到色階三成（藍紫），要拖到 95% 進度才看得到真紅 —— 紅燈等於沒亮。
-     現在：進紅區後頂點一律踩滿紅，danger 只管「跳多快」。
+     現在：進紅區後頂點一律踩滿紅。
+     ★ v143 節奏也不再受 danger 影響（固定 0.5 秒交替），
      amp 只負責入場那一小段淡入，避免顏色突然彈出來。 */
   const amp = Math.min(1, danger / 0.15);
 
@@ -5947,7 +5968,9 @@ function clearLines(){
   if(fullRows.length===0 && fullCols.length===0){
     // ★ v49 連消中斷：歸零、徽章收起，一切回到初始的基本小碎光
     if(clearStreak !== 0){ clearStreak = 0; updateStreakBadge(false); }
-    try{ BGM.setCombo(false); }catch(e){}   // ★ v142 連消斷了 → 快板收回，回到一般曲
+    /* ★ v143 連消斷了 → 不立刻收音樂，改成開始數尾巴。
+       已經在尾聲中的話維持原計數，不重新歸零（否則永遠數不滿 2 次）。 */
+    if(BGM.rushCombo && comboTail < 0) comboTail = 0;
     moodOnBreak();           // ★ v132 連消中斷：借穿中的話從下一次消除開始倒數歸還
     checkSmartPlacement();   // ★ v49 沒消行才判定「聰明的一步」（消行有自己的讚美系統）
     afterMove();
@@ -5957,8 +5980,17 @@ function clearLines(){
   // ★ v49 連消 +1：放下即消，不間斷就一路疊
   clearStreak++;
   /* ★ v142 連消 ×2 起 → 切快板（總監定案）。不看模式：倒數模式的紅區另有一路
-     需求（rushHz），兩邊取聯集，誰先舉手誰就把曲子換過去，互不打架。 */
-  try{ BGM.setCombo(clearStreak >= 2); }catch(e){}
+     需求（rushHz），兩邊取聯集，誰先舉手誰就把曲子換過去，互不打架。
+     ★ v143 加上尾巴：
+       連消回到 ×2 以上 → 重新武裝，尾巴計數作廢（音樂繼續）
+       仍在尾聲中     → 這次消除計 1 次，數滿 2 次才收音樂 */
+  try{
+    if(clearStreak >= 2){ BGM.setCombo(true); comboTail = -1; }
+    else if(comboTail >= 0){
+      comboTail++;
+      if(comboTail >= 2){ BGM.setCombo(false); comboTail = -1; }
+    }
+  }catch(e){}
   skinCheckExpiry();         // ★ v132 免費期 72 小時到了就在這一刻換回初始皮膚
   moodOnClear();             // ★ v132 連消借穿／歸還（獨立計數，不動 clearStreak）
   lastPlacement = null;      // 這一手已用消行慶祝，聰明讚不重複跳
@@ -8215,6 +8247,7 @@ function startLevel(){
 
   adRevivesUsed = 0;        // ★ v36 免費救援每關重置（上限 ECON.adReviveCap 次）
   clearStreak = 0;          // ★ v49 連消每關重新起算
+  comboTail = -1;           // ★ v143 尾巴不跨關
   try{ BGM.setCombo(false); }catch(e){}   // ★ v142 新關卡 = 快板需求歸零
   lastMilestone = 0;        // ★ v54 分數里程碑每關重新起算
   _lvBestBeaten = false;    // ★ v102 新關卡 = 新的紀錄挑戰，破紀錄動畫重新武裝
@@ -8290,6 +8323,7 @@ function goHome(){
   roundEnded = false; winShown = false;   // ★ v134 降旗：離開對局，旗子不留到下一次進場
   currentMode = null;            // ★ v64 A2 回選單後系統不再誤以為「還在對局中」（商店買提示等誤觸的總根源）
   restStop();                    // ★ v98 回選單 = 這局的休息提醒作廢（不在選單背後偷偷彈）
+  comboTail = -1;                // ★ v143 尾巴不跨局
   try{ BGM.stop(); }catch(e){}   // ★ v142 回選單 = 音樂收掉，選單頁保持安靜
   HZ.stop();                     // ★ v33 收掉機關圖層 + 停 rAF，否則氣球在選單背後繼續膨脹
   refreshMenuBadges();           // 剛打完的最高關，回選單就要看得到
