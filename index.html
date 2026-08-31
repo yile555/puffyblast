@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v143</title>
-<meta property="og:title" content="繽紛樂 v143">
+<title>繽紛樂 v145</title>
+<meta property="og:title" content="繽紛樂 v145">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・看花開！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -1277,7 +1277,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v143・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v145・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1699,7 +1699,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v143・繽紛樂',
+  'menu.footer':'v145・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1717,11 +1717,13 @@ const I18N = {
   /* ★ v101 中局續玩卡片 */
   'resume.name':'繼續上一局', 'resume.drop':'放棄這局',
   'resume.meta.gem':'繽紛收集・第 {lv} 關・{s} 分', 'resume.meta.endless':'無盡模式・{s} 分',
-  'resume.meta.balloon':'倒數・第 {lv} 關・{s} 分',
+  'resume.meta.balloon':'計時・第 {lv} 關・{s} 分',
   'resume.dropConfirm':'確定放棄這局的進度嗎？放棄後就回不來了。',
   'mode.endless.name':'無盡模式', 'mode.endless.desc':'沒有終點，放到沒空間為止。挑戰你的極限。',
   'mode.gem.name':'繽紛收集', 'mode.gem.desc':'收集不同顏色寶石使對應的花苗成長，全數花朵綻放進入下一關。',
-  'mode.balloon.name':'倒數', 'mode.balloon.desc':'藍線繞著棋盤外框跑，繞完一圈就時間到。消除方塊把線往回推，達成收集寶石數過關。',
+  /* ★ v145 總監定案：對玩家一律稱「計時模式」，不再出現「氣球／倒數」。
+     註解務必獨立成行 —— 這一行後面還接著 mode.balloon.desc，行尾 // 會把它一起吃掉。 */
+  'mode.balloon.name':'計時模式', 'mode.balloon.desc':'藍線繞著棋盤外框跑，繞完一圈就時間到。消除方塊把線往回推，達成收集寶石數過關。',
   'gear.sound':'音效', 'gear.haptic':'震動', 'gear.shop':'商店', 'gear.skin':'換膚', 'gear.tester':'測試員模式', 'gear.home':'主選單',
   'gear.paused':'遊戲暫停中',   // ★ v87 防作弊暫停幕文字
   'side.level':'關卡', 'side.score':'分數', 'side.best':'最佳', 'side.hint':'提示', 'side.bomb':'炸彈', 'side.dm':'💎 鑽石', 'side.gold':'🪙 金幣',
@@ -1803,7 +1805,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v143 · Vivid Blast',
+  'menu.footer':'v145 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -1906,7 +1908,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v143・ビビッドブラスト',
+  'menu.footer':'v145・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -2092,6 +2094,10 @@ const MODES = {
     // 失敗＝盤面塞死放不下（與無盡模式同源，公平且靠實力）
     loseTitle:'lose.title', loseText:'lose.text.gem',   // ★ v36 i18n key
   },
+  /* ★ v145 命名備忘：對玩家的稱呼是「計時模式」（見 mode.balloon.name）。
+     內部鍵值仍叫 'balloon' —— 那是存檔、續關紀錄、廣告救援分流共用的識別碼，
+     改了會讓玩家既有的存檔對不上模式。內部鍵與對外名稱本來就不必一致，
+     底下註解裡的「氣球」是 v33~v136 的歷史脈絡，保留以免日後看不懂當初為何這樣設計。 */
   /* ───────── ★ v33 氣球大逃亡：整局都是機關關，關關加速 ─────────
      目標與勝負條件跟 gem 同源；差異全部收在 HZ 裡（見 HZ.tuneFor）：
        • goals 由 HZ.syncGoals() 覆寫成 3 種 × need(lv)
@@ -2990,6 +2996,86 @@ function playCrack(){
    ② 中頻厚度：三角波 220→55Hz，給爆炸一點「肉」
    ③ 悶雷餘震：低通白噪音、濾波器從 900Hz 慢慢關到 120Hz —— 轟完慢慢滾走的 rumble
    高頻碎裂聲延後 20ms 疊上（先轟、再碎，層次才對）。全走母帶壓縮器，大聲但圓潤不破音。 */
+/* ★ v144 時間到的爆炸聲（倒數模式壓力線走完）。
+   ------------------------------------------------------------
+   ── 為什麼不直接用 playBoom() ──
+   playBoom() 是「付費炸彈道具」專屬的聲音。專案硬規則：付費道具的聽感
+   必須壓過所有免費機制 —— 如果失敗爆炸跟花錢買的炸彈一樣響，道具就白買了。
+   這裡刻意做成另一種爆炸：破裂感夠、但整體音量壓在道具炸彈的七成左右，
+   分野不靠「有沒有失真」，改靠音域厚度與尾韻（見下）。
+
+   ── ★ v145 為什麼 v144 在真機上「完全沒聲音」──
+   v144 為了讓失敗爆炸弱於付費道具，做了兩件事：拿掉飽和失真、把低音壓到 26Hz。
+   這兩件事加起來剛好讓它在手機喇叭上消失：
+     · 手機喇叭在 500Hz 以下急遽衰減，26~98Hz 的純正弦等於沒發出去
+     · 道具炸彈之所以聽得到低音，是因為它的 WaveShaper 飽和會生出 2×3×4× 泛音，
+       泛音落在 200Hz 以上，喇叭放得出來 —— v144 把這條唯一的出路也砍了
+   結果整顆聲音只剩 45ms 的高頻小 tick，再被背景音樂蓋掉。
+   桌機喇叭與耳機低頻響應好，測起來是有聲音的，所以桌機驗不出來。
+
+   ── 修法：改用「音域」而不是「有無失真」來區分付費與免費 ──
+   保留輕微飽和（tanh×1.6，道具是 ×2.4）讓泛音回來，基頻抬到手機放得出的音域，
+   並補一層中頻厚度。音量峰值仍壓在道具炸彈的七成 —— 分野改由「厚度與尾韻」承擔：
+   道具有火球、雙層衝擊波、0.85 秒悶雷；這顆只有破裂 + 塌陷 + 洩氣。
+
+   ── 四層結構 ──
+     ① 破裂  600Hz 以上高通噪音，70ms。第一下要銳利。
+     ② 塌陷  180Hz → 60Hz 下墜 + 輕飽和。泛音落在 360Hz 以上，喇叭放得出來。
+     ③ 厚度  三角波 300Hz → 110Hz，補中頻。這是手機上真正「聽到重量」的一層。
+     ④ 洩氣  帶通噪音由 2.6kHz 掃到 420Hz，0.8 秒尾（下限從 240 抬到 420，
+             尾巴才不會在手機上憑空消失）。蓋住爆炸到失敗視窗那 900ms 的空白。
+   全部走既有的 adest 母帶總線（壓縮器 + 殘響）與噪音冰箱，零外部音檔。 */
+function playHzBoom(){
+  if(!soundOn) return; const ctx=actx(); if(!ctx) return;
+  const t = ctx.currentTime, out = adest(ctx);
+
+  // ① 破裂 transient
+  const c = ctx.createBufferSource(); c.buffer = noiseBuf(ctx, 'hzcrack', 0.07, 0.8);
+  c.playbackRate.value = 0.92 + Math.random()*0.16;      // 每次略有差異，不像罐頭音
+  const chp = ctx.createBiquadFilter(); chp.type='highpass'; chp.frequency.value = 600;
+  const cg = ctx.createGain();
+  cg.gain.setValueAtTime(0.78, t);
+  cg.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+  c.connect(chp).connect(cg).connect(out); c.start(t);
+
+  /* ② 低音塌陷 + 輕飽和。★ v145 飽和是「讓手機喇叭聽得到低音」的唯一手段，
+     不是威力的來源 —— 道具是 tanh×2.4，這裡 ×1.6，泛音較少、聽感較悶。 */
+  const o = ctx.createOscillator(), og = ctx.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(180, t);
+  o.frequency.exponentialRampToValueAtTime(60, t + 0.40);
+  og.gain.setValueAtTime(0.0001, t);
+  og.gain.exponentialRampToValueAtTime(0.66, t + 0.014);
+  og.gain.exponentialRampToValueAtTime(0.0001, t + 0.52);
+  const shp = ctx.createWaveShaper();
+  const cv = new Float32Array(257);
+  for(let i=0;i<257;i++){ const x = i/128 - 1; cv[i] = Math.tanh(x*1.6); }
+  shp.curve = cv;
+  o.connect(og).connect(shp).connect(out); o.start(t); o.stop(t + 0.58);
+
+  // ③ 中頻厚度：手機上真正聽到「重量」的一層
+  const m = ctx.createOscillator(), mg = ctx.createGain();
+  m.type = 'triangle';
+  m.frequency.setValueAtTime(300, t);
+  m.frequency.exponentialRampToValueAtTime(110, t + 0.26);
+  mg.gain.setValueAtTime(0.0001, t);
+  mg.gain.exponentialRampToValueAtTime(0.30, t + 0.012);
+  mg.gain.exponentialRampToValueAtTime(0.0001, t + 0.32);
+  m.connect(mg).connect(out); m.start(t); m.stop(t + 0.36);
+
+  // ④ 洩氣 + 碎屑：帶通由高掃到低（下限 420Hz，尾巴才不會在手機上消失）
+  const sN = ctx.createBufferSource(); sN.buffer = noiseBuf(ctx, 'hzhiss', 0.8, 1.6);
+  sN.playbackRate.value = 0.95 + Math.random()*0.1;
+  const bp = ctx.createBiquadFilter(); bp.type='bandpass'; bp.Q.value = 0.9;
+  bp.frequency.setValueAtTime(2600, t + 0.02);
+  bp.frequency.exponentialRampToValueAtTime(420, t + 0.70);
+  const sg = ctx.createGain();
+  sg.gain.setValueAtTime(0.0001, t);
+  sg.gain.exponentialRampToValueAtTime(0.40, t + 0.05);
+  sg.gain.exponentialRampToValueAtTime(0.0001, t + 0.80);
+  sN.connect(bp).connect(sg).connect(out); sN.start(t);
+}
+
 function playBoom(){
   if(!soundOn) return; const ctx=actx(); if(!ctx) return;
   const t = ctx.currentTime, out = adest(ctx);
@@ -5323,6 +5409,12 @@ HZ.shatterBoard = function(){
 HZ.boom = function(){
   if(HZ.over) return;
   HZ.over = 'boom';
+  /* ★ v144 補上爆炸聲。此前這條路徑只有畫面與震動 —— 有爆炸沒聲音，
+     而 showLose() 要 900ms 後才出現，中間整整快一秒是全靜音的。
+     ★ v145 移到最前面：burst() + shatterBoard() 會同步建出上百個 SVG 元素與
+     WAAPI 動畫，在低階機上是一段可觀的主執行緒工作。聲音先排程，
+     畫面再慢慢畫 —— Web Audio 走獨立執行緒，排早一點只有好處沒有壞處。 */
+  try{ playHzBoom(); }catch(e){}
   HZ.burst();
   HZ.shatterBoard();
   ['hzInfl','hzTube'].forEach(id=>HZ.$(id).style.opacity=0);
