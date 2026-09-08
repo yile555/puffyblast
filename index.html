@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v145</title>
-<meta property="og:title" content="繽紛樂 v145">
+<title>繽紛樂 v146</title>
+<meta property="og:title" content="繽紛樂 v146">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・看花開！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -1277,7 +1277,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v145・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v146・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1476,6 +1476,9 @@
       </div>
     </div>
     <button class="text-link" id="profileCloseBtn" data-i18n="profile.close">關閉</button>
+    <!-- ★ v146 清除所有資料入口（品管 v100 報告 #8）：GDPR 刪除權＋客服排錯＋自測都需要，
+         放在帳號面板最下方、視覺弱化為警示色文字連結，不搶主流程版面。 -->
+    <button class="text-link" id="resetAllBtn" style="color:#e5484d" data-i18n="profile.resetAll">清除所有資料</button>
   </div>
 </div>
 
@@ -1670,6 +1673,81 @@
 
 <script>
 /* ============================================================
+   ★ v146 全域錯誤回報（品管 v100 報告 #7）
+   ─────────────────────────────────────────────
+   目的：上架後玩家端崩潰目前完全看不見。這裡先做最輕量的地基——
+   不接外部服務、不加任何介面，只把最近的錯誤存進 localStorage 的
+   環狀緩衝區，未來要接 Sentry 之類的服務，或請玩家「匯出診斷資料」
+   時，都能從這裡讀。
+   刻意做的事：
+     • 獨立 key（不混進 SAVE_KEY），壞了不影響帳本資料
+     • 上限 30 筆、單筆 stack 截斷 500 字，避免無限灌爆 localStorage
+     • 連續重複的同一個錯誤（例如 rAF 迴圈裡每幀都拋同一個例外）
+       只記一次並標記次數，不逐筆洗版
+     • try/catch 包住寫入本身，寫入失敗（隱私模式等）不能再拋新錯誤
+   ============================================================ */
+(function setupErrorLog(){
+  const KEY = 'puffyblast_errlog_v1';
+  const MAX_ENTRIES = 30;
+  const MAX_STACK = 500;
+  let lastSig = null;
+
+  function readLog(){
+    try{ return JSON.parse(localStorage.getItem(KEY) || '[]'); }catch(e){ return []; }
+  }
+  function writeLog(list){
+    try{ localStorage.setItem(KEY, JSON.stringify(list)); }catch(e){ /* 隱私模式/容量滿 → 靜默放棄 */ }
+  }
+  function logEntry(entry){
+    try{
+      const sig = entry.type + '|' + entry.msg + '|' + entry.line;
+      const list = readLog();
+      if(lastSig === sig && list.length && list[list.length-1]._sig === sig){
+        list[list.length-1].count = (list[list.length-1].count||1) + 1;
+        list[list.length-1].t = entry.t;
+      } else {
+        entry._sig = sig; entry.count = 1;
+        list.push(entry);
+        if(list.length > MAX_ENTRIES) list.shift();
+      }
+      lastSig = sig;
+      writeLog(list);
+    }catch(e){ /* 記錄本身絕不能再拋出新的例外 */ }
+  }
+
+  window.addEventListener('error', function(ev){
+    logEntry({
+      type: 'error',
+      t: new Date().toISOString(),
+      msg: String(ev.message || '(無訊息)').slice(0, 200),
+      src: String(ev.filename || '').slice(0, 120),
+      line: ev.lineno || 0, col: ev.colno || 0,
+      stack: ev.error && ev.error.stack ? String(ev.error.stack).slice(0, MAX_STACK) : '',
+      ver: 'v146',
+    });
+  });
+
+  window.addEventListener('unhandledrejection', function(ev){
+    const reason = ev.reason;
+    logEntry({
+      type: 'unhandledrejection',
+      t: new Date().toISOString(),
+      msg: String((reason && reason.message) || reason || '(無訊息)').slice(0, 200),
+      src: '', line: 0, col: 0,
+      stack: reason && reason.stack ? String(reason.stack).slice(0, MAX_STACK) : '',
+      ver: 'v146',
+    });
+  });
+
+  // 客服排錯用：主控台輸入 exportErrorLog() 印出目前緩衝區
+  window.exportErrorLog = function(){
+    const list = readLog();
+    console.log('[繽紛樂錯誤紀錄] 共 ' + list.length + ' 筆：', list);
+    return list;
+  };
+})();
+
+/* ============================================================
    繽紛樂 Vivid Blast — 核心引擎 v1.0
    架構：Block Blast 拖放 + 食物鑲嵌收集 + 隨機關卡目標
    ============================================================ */
@@ -1699,7 +1777,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v145・繽紛樂',
+  'menu.footer':'v146・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1732,6 +1810,7 @@ const I18N = {
   'welcome.defaultName':'繽紛玩家',
   'welcome.start':'開始冒險 →',
   'profile.title':'👤 個人資料', 'profile.save':'儲存暱稱', 'profile.close':'關閉',
+  'profile.resetAll':'清除所有資料', 'profile.resetConfirm':'確定要清除所有資料嗎？分數、金幣、鑽石、皮膚、進度全部無法復原。',
   'login.guest':'遊客模式', 'login.using':'使用中', 'login.google':'Google 登入', 'login.apple':'Apple 登入', 'login.soon':'即將推出',
   'lang.title':'🌐 選擇語言', 'lang.using':'使用中',
   'win.title':'🎉 過關！', 'win.text':'第 {lv} 關完成！總分 {s}　🪙+{n}',
@@ -1805,7 +1884,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v145 · Vivid Blast',
+  'menu.footer':'v146 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -1836,6 +1915,7 @@ const I18N = {
   'welcome.defaultName':'Vivid Player',
   'welcome.start':'Start Adventure →',
   'profile.title':'👤 Account', 'profile.save':'Save Nickname', 'profile.close':'Close',
+  'profile.resetAll':'Erase All Data', 'profile.resetConfirm':'Erase all data? Scores, coins, gems, skins, and progress cannot be recovered.',
   'login.guest':'Guest', 'login.using':'Active', 'login.google':'Sign in with Google', 'login.apple':'Sign in with Apple', 'login.soon':'Coming soon',
   'lang.title':'🌐 Select Language', 'lang.using':'Active',
   'win.title':'🎉 Level Clear!', 'win.text':'Level {lv} complete! Total score {s}　🪙+{n}',
@@ -1908,7 +1988,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v145・ビビッドブラスト',
+  'menu.footer':'v146・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -1939,6 +2019,7 @@ const I18N = {
   'welcome.defaultName':'ビビッドプレイヤー',
   'welcome.start':'冒険を始める →',
   'profile.title':'👤 アカウント', 'profile.save':'ニックネームを保存', 'profile.close':'閉じる',
+  'profile.resetAll':'すべてのデータを消去', 'profile.resetConfirm':'すべてのデータを消去しますか？スコア・コイン・ジェム・スキン・進行状況はすべて元に戻せません。',
   'login.guest':'ゲストモード', 'login.using':'使用中', 'login.google':'Googleでログイン', 'login.apple':'Appleでログイン', 'login.soon':'近日公開',
   'lang.title':'🌐 言語を選択', 'lang.using':'使用中',
   'win.title':'🎉 クリア！', 'win.text':'レベル {lv} クリア！合計スコア {s}　🪙+{n}',
@@ -7032,9 +7113,17 @@ let playerName = '';
 function randomName(){
   return T('welcome.defaultName') + Math.floor(1000 + Math.random()*9000);
 }
-/* 回傳過濾後的合法暱稱；不合法（太短/全空白）回傳 null 交呼叫端決定要不要退回隨機名 */
+/* 回傳過濾後的合法暱稱；不合法（太短/全空白）回傳 null 交呼叫端決定要不要退回隨機名
+   ★ v146 安全強化（品管 v100 報告 #3）：過濾零寬字元／雙向文字控制字元／HTML 特殊字元。
+   現況（v145）暱稱只寫入 <input>.value 與 localStorage，沒有 innerHTML 插入點，
+   本身不構成立即風險；但存檔會長期保存這個字串，未來遠端排行榜／好友列表一旦把它
+   插進畫面，沒過濾就是現成的注入或 RTL 視覺偽裝向量，所以在資料源頭先擋乾淨。 */
 function sanitizeName(raw){
-  const s = String(raw||'').trim().replace(/\s+/g,' ');
+  const s = String(raw||'')
+    .replace(/[​-‍﻿]/g,'')     // 零寬字元：可夾帶不可見內容
+    .replace(/[‪-‮⁦-⁩]/g,'') // 雙向控制字元：可讓顯示順序被反轉偽裝
+    .replace(/[<>&"']/g,'')                       // HTML 特殊字元：預先擋注入
+    .trim().replace(/\s+/g,' ');
   if(s.length < 2 || s.length > 12) return null;
   return s;
 }
@@ -8996,6 +9085,24 @@ function saveProfileName(){
   showCombo(T('combo.nameSaved'));
 }
 document.getElementById('profileSaveBtn').onclick = saveProfileName;
+
+/* ============================================================
+   ★ v146 清除所有資料（品管 v100 報告 #8）
+   ─────────────────────────────────────────────
+   只清本遊戲自己的 localStorage 資料（'puffyblast_' 前綴），不用
+   localStorage.clear()，避免誤刪同網域下其他資料。清完直接重新整理
+   頁面，讓所有記憶體變數回到「首次啟動」的乾淨狀態，不用逐一手動歸零。
+   ============================================================ */
+function resetAllData(){
+  if(!confirm(T('profile.resetConfirm'))) return;
+  try{
+    Object.keys(localStorage)
+      .filter(k => k.indexOf('puffyblast_') === 0)
+      .forEach(k => localStorage.removeItem(k));
+  }catch(e){ /* 隱私模式下本來就沒有東西可清 */ }
+  location.reload();
+}
+document.getElementById('resetAllBtn').onclick = resetAllData;
 
 
 /* ============================================================
