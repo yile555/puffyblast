@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v146</title>
-<meta property="og:title" content="繽紛樂 v146">
+<title>繽紛樂 v147</title>
+<meta property="og:title" content="繽紛樂 v147">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・看花開！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -1277,7 +1277,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v146・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v147・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1723,7 +1723,7 @@
       src: String(ev.filename || '').slice(0, 120),
       line: ev.lineno || 0, col: ev.colno || 0,
       stack: ev.error && ev.error.stack ? String(ev.error.stack).slice(0, MAX_STACK) : '',
-      ver: 'v146',
+      ver: 'v147',
     });
   });
 
@@ -1735,7 +1735,7 @@
       msg: String((reason && reason.message) || reason || '(無訊息)').slice(0, 200),
       src: '', line: 0, col: 0,
       stack: reason && reason.stack ? String(reason.stack).slice(0, MAX_STACK) : '',
-      ver: 'v146',
+      ver: 'v147',
     });
   });
 
@@ -1777,7 +1777,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v146・繽紛樂',
+  'menu.footer':'v147・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1884,7 +1884,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v146 · Vivid Blast',
+  'menu.footer':'v147 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -1988,7 +1988,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v146・ビビッドブラスト',
+  'menu.footer':'v147・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -7120,9 +7120,9 @@ function randomName(){
    插進畫面，沒過濾就是現成的注入或 RTL 視覺偽裝向量，所以在資料源頭先擋乾淨。 */
 function sanitizeName(raw){
   const s = String(raw||'')
-    .replace(/[​-‍﻿]/g,'')     // 零寬字元：可夾帶不可見內容
-    .replace(/[‪-‮⁦-⁩]/g,'') // 雙向控制字元：可讓顯示順序被反轉偽裝
-    .replace(/[<>&"']/g,'')                       // HTML 特殊字元：預先擋注入
+    .replace(/[\u200B-\u200D\uFEFF]/g,'')          // 零寬字元：可夾帶不可見內容
+    .replace(/[\u202A-\u202E\u2066-\u2069]/g,'')   // 雙向控制字元：可讓顯示順序被反轉偽裝
+    .replace(/[<>&"']/g,'')                        // HTML 特殊字元：預先擋注入
     .trim().replace(/\s+/g,' ');
   if(s.length < 2 || s.length > 12) return null;
   return s;
