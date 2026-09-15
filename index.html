@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v147</title>
-<meta property="og:title" content="繽紛樂 v147">
+<title>繽紛樂 v149</title>
+<meta property="og:title" content="繽紛樂 v149">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・看花開！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -1277,7 +1277,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v147・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v149・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1723,7 +1723,7 @@
       src: String(ev.filename || '').slice(0, 120),
       line: ev.lineno || 0, col: ev.colno || 0,
       stack: ev.error && ev.error.stack ? String(ev.error.stack).slice(0, MAX_STACK) : '',
-      ver: 'v147',
+      ver: 'v149',
     });
   });
 
@@ -1735,7 +1735,7 @@
       msg: String((reason && reason.message) || reason || '(無訊息)').slice(0, 200),
       src: '', line: 0, col: 0,
       stack: reason && reason.stack ? String(reason.stack).slice(0, MAX_STACK) : '',
-      ver: 'v147',
+      ver: 'v149',
     });
   });
 
@@ -1777,7 +1777,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v147・繽紛樂',
+  'menu.footer':'v149・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1878,13 +1878,22 @@ const I18N = {
   'mood.freeHint':'鑑賞期內，可免看廣告直接換上（限一次）', 'rest.title':'眼睛該休息囉～', 'rest.hint':'玩了好一陣子了！換個皮膚讓眼睛減輕一點疲勞，或看個廣告拿提示幫你解盤', 'rest.watch':'📺 看廣告拿提示',
   'combo.adGold':'🪙 +{n}！', 'combo.exchange':'🔁 兌換成功 +{n}🪙', 'combo.firstBonus':'🎉 首購加碼！鑽石 +{n}',
   'combo.nameBad':'暱稱需 2~12 個字', 'combo.nameSaved':'✅ 暱稱已儲存',
+  /* ★ v149 分數里程碑／過關演出的讚美字。v148 以前寫死在 milestoneWord() 裡，
+     英日玩家一律看到中文；文字內容與當時一字不差，只是搬進三語表。 */
+  'mile.good':'不錯喔！',        'mile.good.sub':'繼續衝 👍',
+  'mile.nice':'漂亮！',          'mile.nice.sub':'節奏抓到了 🎯',
+  'mile.great':'超讚的！',       'mile.great.sub':'手感發燙 ✨',
+  'mile.power':'火力全開！',     'mile.power.sub':'越戰越勇 ⚡',
+  'mile.wild':'太狂啦！',        'mile.wild.sub':'分數破萬 💎',
+  'mile.unstop':'勢不可擋！',    'mile.unstop.sub':'你就是高手 🔥',
+  'mile.legend':'封神了！',      'mile.legend.sub':'傳說級的表現 🏆',
   'diff.boss':'⚠ 魔王關', 'diff.spike':'🔥 挑戰關',
   'ad.tag':'廣告', 'ad.brand':'繽紛樂', 'ad.sub':'感謝你的支持，讓遊戲免費又好玩', 'ad.end':'廣告結束：{n} 秒',
 },
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v147 · Vivid Blast',
+  'menu.footer':'v149 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -1982,13 +1991,21 @@ const I18N = {
   'mood.freeHint':'Preview window — one free swap, no ad needed', 'rest.title':'Time to rest your eyes~', 'rest.hint':'You\'ve been playing a while! Try a fresh skin to ease eye strain, or watch an ad for a hint', 'rest.watch':'📺 Watch ad for a hint',
   'combo.adGold':'🪙 +{n}!', 'combo.exchange':'🔁 Exchanged +{n}🪙', 'combo.firstBonus':'🎉 First-purchase bonus! +{n} gems',
   'combo.nameBad':'Nickname must be 2-12 characters', 'combo.nameSaved':'✅ Nickname saved',
+  /* ★ v149 讚美字英文版：維持「越高分越澎湃」的階梯感，用短促的驚嘆句，不直譯 */
+  'mile.good':'Nice one!',       'mile.good.sub':'Keep going 👍',
+  'mile.nice':'Sweet!',          'mile.nice.sub':'You found the rhythm 🎯',
+  'mile.great':'Awesome!',       'mile.great.sub':'You are on fire ✨',
+  'mile.power':'Full power!',    'mile.power.sub':'Better and better ⚡',
+  'mile.wild':'Insane!',         'mile.wild.sub':'Past 10,000 points 💎',
+  'mile.unstop':'Unstoppable!',  'mile.unstop.sub':'You are the real deal 🔥',
+  'mile.legend':'Legendary!',    'mile.legend.sub':'A performance for the ages 🏆',
   'diff.boss':'⚠ BOSS LEVEL', 'diff.spike':'🔥 CHALLENGE',
   'ad.tag':'AD', 'ad.brand':'Vivid Blast', 'ad.sub':'Thanks for your support — it keeps the game free!', 'ad.end':'Ad ends in {n}s',
 },
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v147・ビビッドブラスト',
+  'menu.footer':'v149・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -2086,6 +2103,14 @@ const I18N = {
   'mood.freeHint':'お試し期間中：広告なしで1回だけ着替えられます', 'rest.title':'目を休めましょう～', 'rest.hint':'長く遊んでいますね！スキンを変えて目の疲れを和らげるか、広告を見てヒントをもらいましょう', 'rest.watch':'📺 広告を見てヒント',
   'combo.adGold':'🪙 +{n}！', 'combo.exchange':'🔁 交換成功 +{n}🪙', 'combo.firstBonus':'🎉 初回購入ボーナス！ジェム +{n}',
   'combo.nameBad':'ニックネームは2〜12文字で入力してください', 'combo.nameSaved':'✅ ニックネームを保存しました',
+  /* ★ v149 讚美字日文版：口語短句，階梯感與中文版對齊（いいね → 神ってる） */
+  'mile.good':'いいね！',         'mile.good.sub':'この調子 👍',
+  'mile.nice':'ナイス！',         'mile.nice.sub':'リズムをつかんだ 🎯',
+  'mile.great':'最高！',          'mile.great.sub':'手が冴えてる ✨',
+  'mile.power':'フルパワー！',    'mile.power.sub':'勢いに乗ってる ⚡',
+  'mile.wild':'ヤバすぎ！',       'mile.wild.sub':'1万点突破 💎',
+  'mile.unstop':'止まらない！',   'mile.unstop.sub':'まさに達人 🔥',
+  'mile.legend':'神ってる！',     'mile.legend.sub':'伝説級のプレイ 🏆',
   'diff.boss':'⚠ ボス面', 'diff.spike':'🔥 チャレンジ面',
   'ad.tag':'広告', 'ad.brand':'ビビッドブラスト', 'ad.sub':'応援ありがとう！おかげでゲームは無料です', 'ad.end':'広告終了まで {n} 秒',
 },
@@ -6413,17 +6438,26 @@ function milestoneStep(s){
   if(s < 50000)  return 2500;
   return 5000;
 }
+/* 大小通吃：依分數高低給不同澎湃度的讚美。
+   ★ v149 三語化：v148 以前這裡直接回傳寫死的繁體中文，
+   於是英文／日文玩家在分數里程碑與過關演出都會看到中文字。
+   （對照組：緊鄰的 showLevelIntro 一直都走 T('intro.level')，是正確的。）
+   改法：這裡只決定「屬於哪一階」，實際字串一律查三語表。 */
 function milestoneWord(s){
-  // 大小通吃：依分數高低給不同澎湃度的中文讚美
-  if(s >= 50000) return { word:'封神了！', sub:'傳說級的表現 🏆' };
-  if(s >= 20000) return { word:'勢不可擋！', sub:'你就是高手 🔥' };
-  if(s >= 10000) return { word:'太狂啦！', sub:'分數破萬 💎' };
-  if(s >= 5000)  return { word:'火力全開！', sub:'越戰越勇 ⚡' };
-  if(s >= 2000)  return { word:'超讚的！', sub:'手感發燙 ✨' };
-  if(s >= 1000)  return { word:'漂亮！', sub:'節奏抓到了 🎯' };
-  return { word:'不錯喔！', sub:'繼續衝 👍' };
+  const tier = (s >= 50000) ? 'legend'
+             : (s >= 20000) ? 'unstop'
+             : (s >= 10000) ? 'wild'
+             : (s >= 5000)  ? 'power'
+             : (s >= 2000)  ? 'great'
+             : (s >= 1000)  ? 'nice'
+             :                'good';
+  return { word: T('mile.' + tier), sub: T('mile.' + tier + '.sub') };
 }
-/* 檢查本次加分有沒有跨過新的里程碑門檻；有 → 觸發慶祝（大分數金色狂跳＋中文飄字） */
+/* 檢查本次加分有沒有跨過新的里程碑門檻；有 → 觸發慶祝（大分數金色狂跳＋中文飄字）
+   ★ v148 修正：門檻基準維持「累積分 score」不變，真正的病灶在 startLevel
+   把 lastMilestone 每關歸零 —— 歸零後 crossed 立刻從 0 跳回上一關已達成的
+   門檻，於是每進一個新關卡都會在玩家還沒動手前誤觸發一次慶祝。
+   歸零點已移到 enterMode（＝真正的新一局），詳見該處註解。 */
 function checkScoreMilestone(){
   const step = milestoneStep(score);
   const crossed = Math.floor(score / step) * step;
@@ -6432,17 +6466,20 @@ function checkScoreMilestone(){
     fireScoreMilestone();
   }
 }
-function fireScoreMilestone(){
+/* ★ v148 慶祝演出的共用呈現層。
+   大分數金光 + 中央飄字 + 上揚音效這一整套視覺，原本只寫在 fireScoreMilestone
+   裡面。v148 把「怎麼演」跟「為什麼演」拆開：呈現方式共用一份，
+   觸發理由各自獨立（分數里程碑／過關演出），日後要單獨調整其中一種才不會互相牽動。 */
+function playCelebration(word, sub){
   const num = document.getElementById('bigScoreVal');
   if(num){
     num.classList.remove('milestone'); void num.offsetWidth; num.classList.add('milestone');
     // ★ v58 修正殘留 bug：class 加了永遠沒拿掉 → 動畫跑完後分數一直卡在
     //    「透明文字」狀態，被底層黑影染成髒古銅色（真機截圖實錘）。
     //    動畫 0.8s，0.9s 後摘掉 class，分數回到乾淨的實色金黃。
-    clearTimeout(fireScoreMilestone._t);
-    fireScoreMilestone._t = setTimeout(()=>{ num.classList.remove('milestone'); }, 900);
+    clearTimeout(playCelebration._t);
+    playCelebration._t = setTimeout(()=>{ num.classList.remove('milestone'); }, 900);
   }
-  const { word, sub } = milestoneWord(score);
   const el = document.getElementById('scoreMile');
   if(el){
     el.innerHTML = '<div class="sm-word">'+word+'</div><div class="sm-sub">'+sub+'</div>';
@@ -6451,6 +6488,30 @@ function fireScoreMilestone(){
   // ★ v67 補上靜音守衛：此處先前裸呼叫 tone()、繞過喇叭開關 —— 正是「靜音仍漏音」的兇手。
   //   （tone() 本體已裝總閘門，這行是自我註記的雙保險。）
   if(soundOn){ try{ tone(880, 0, .12, 'triangle', .18); tone(1320, .06, .16, 'sine', .16); }catch(_){} }   // 輕巧上揚的慶祝音
+}
+
+/* 分數里程碑的慶祝：文案澎湃度取決於累積分。 */
+function fireScoreMilestone(){
+  const { word, sub } = milestoneWord(score);
+  playCelebration(word, sub);
+}
+
+/* ★ v148 過關演出（名正言順版）。
+   ── 這個函式的由來 ──
+   v147 以前，玩家每次按「下一關」都會看到一次金光＋讚美字＋慶祝音。
+   那不是任何人寫的演出，而是 startLevel 把 lastMilestone 歸零後，
+   分數里程碑被迫重新跨過同一個門檻所產生的副作用（總監定案：那個副作用要修掉，
+   但演出本身要留下來，改成正式的過關演出）。
+   ── 刻意的設計決定 ──
+   ① 只在「真的過關前進」時演（proceedToNextLevel），一局的第一關不演
+      —— 與 v147 的實際觀感一致（第 1 關因為累積分是 0，本來就不會觸發）。
+   ② 失敗重試不演。v147 的副作用連重試都會恭喜玩家，但玩家才剛死掉，
+      那是「把慶祝放在傷口上」，與本專案「廣告不落在傷口上」是同一個道理。
+   ③ 文案沿用 milestoneWord(累積分)，讓畫面與玩家熟悉的 v147 完全一致。
+      要改成關卡導向的專屬文案，只要換掉下面這一行即可。 */
+function fireLevelFanfare(){
+  const { word, sub } = milestoneWord(score);
+  playCelebration(word, sub);
 }
 
 /* 更新頂部狀態膠囊（分數 / 最佳 / 步數）+ near-miss 警示 */
@@ -8400,10 +8461,18 @@ function playInterstitialAd(done){
   }, 1000);
 }
 
+/* ★ v148 這一次 startLevel 是不是「過關前進」。
+   用旗子而不是加參數，是因為 startLevel 中間可能隔著一層廣告 callback
+   （playInterstitialAd(go)），參數傳遞會被那一層截斷。
+   旗子由 startLevel 讀取後立刻放下，不會殘留到下一次。 */
+let _levelAdvanced = false;
+
 /* 過場統一入口：想進下一關時呼叫這個。
    會自動判斷要不要先插廣告，再執行 proceed()。 */
 function proceedToNextLevel(){
-  const go = ()=>{ level++; startLevel(); };
+  // ★ v148 只有這條路（真的過關前進）才會點亮過關演出的旗子；
+  //    enterMode 的第一關與 restartRun 的失敗重試都不會經過這裡，因此不演。
+  const go = ()=>{ level++; _levelAdvanced = true; startLevel(); };
   if(shouldShowInterstitial()){
     playInterstitialAd(go);
   } else {
@@ -8430,7 +8499,11 @@ function startLevel(){
   clearStreak = 0;          // ★ v49 連消每關重新起算
   comboTail = -1;           // ★ v143 尾巴不跨關
   try{ BGM.setCombo(false); }catch(e){}   // ★ v142 新關卡 = 快板需求歸零
-  lastMilestone = 0;        // ★ v54 分數里程碑每關重新起算
+  /* ★ v148 這裡原本是 lastMilestone = 0（v54「每關重新起算」），已移到 enterMode。
+     原因：門檻用的是累積分，一歸零就等於宣告「上一關達成的門檻全部沒發生過」，
+     下一次 updateStatus 立刻重新跨過同一個門檻 → 新關一開場就跳金光＋慶祝音，
+     而大分數當下顯示的是本關實得 0。慶祝白送，真正努力換來的那幾次就被稀釋了。
+     里程碑本來就該隨累積分「由密漸疏、稀有才珍貴」，跨關遞進才是原始設計意圖。 */
   _lvBestBeaten = false;    // ★ v102 新關卡 = 新的紀錄挑戰，破紀錄動畫重新武裝
   {  // ★ v103 大分數的發光狀態必須跟著清掉，否則新關卡會帶著上一關的金光開場
     const _bn = document.getElementById('bigScoreVal');
@@ -8453,6 +8526,10 @@ function startLevel(){
   renderBoard();
   refillTray();
   updateStatus();
+  /* ★ v148 過關演出：接在 updateStatus 之後，時機與 v147 那個副作用完全相同
+     （緊接著 200ms 後才飄「第 X 關」），所以玩家看到的節奏跟以前一樣。
+     旗子讀完立刻放下，避免殘留到下一次 startLevel。 */
+  if(_levelAdvanced){ _levelAdvanced = false; fireLevelFanfare(); }
   // ★ v14 左側關卡卡：闖關模式顯示關數，無盡模式顯示 ∞
   const levelVal = document.getElementById('levelVal');
   if(currentMode!=='endless'){
@@ -8489,6 +8566,7 @@ function enterMode(mode, forceLevel){
           : 1;
   }
   score = 0;
+  lastMilestone = 0;        // ★ v148 里程碑歸零點：新的一局（不是新的一關）。score 在這裡歸零，兩者必須同進退
   winStreak = 0;            // ★ v6：新一局從蜜月期重新開始
   document.getElementById('menu').classList.add('hidden');
   const aw = document.getElementById('actionWrap'); if(aw) aw.classList.remove('hidden');  // ★ v54 進對局才顯示左上操作鈕
