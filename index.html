@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v149</title>
-<meta property="og:title" content="繽紛樂 v149">
+<title>繽紛樂 v151</title>
+<meta property="og:title" content="繽紛樂 v151">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・看花開！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -748,6 +748,9 @@
   .modal .big-btn { width:100%; padding:15px; border:none; border-radius:16px; font-size:17px; font-weight:700;
     color:#fff; cursor:pointer; background:linear-gradient(135deg,#4fc3f7,#2196f3); margin-top:8px; }
   .modal .big-btn.ad { background:linear-gradient(135deg,#ff9800,#ff5722); }
+  /* ★ v151 破壞性動作專用：紅色 + 未通過驗證時看得出來是按不下去的 */
+  .modal .big-btn.danger { background:linear-gradient(135deg,#ff6b6b,#e5484d); }
+  .modal .big-btn[disabled] { opacity:.38; cursor:not-allowed; filter:grayscale(.5); }
   .modal .big-btn:active { transform:scale(.97); }
   /* ★ v20 弱化的「回主選單」文字連結：不搶救援/重戰的視覺焦點 */
   .modal .text-link { display:block; width:100%; margin-top:14px; padding:6px; background:none; border:none;
@@ -1277,7 +1280,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v149・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v151・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1476,9 +1479,34 @@
       </div>
     </div>
     <button class="text-link" id="profileCloseBtn" data-i18n="profile.close">關閉</button>
-    <!-- ★ v146 清除所有資料入口（品管 v100 報告 #8）：GDPR 刪除權＋客服排錯＋自測都需要，
-         放在帳號面板最下方、視覺弱化為警示色文字連結，不搶主流程版面。 -->
-    <button class="text-link" id="resetAllBtn" style="color:#e5484d" data-i18n="profile.resetAll">清除所有資料</button>
+    <!-- ★ v146 刪除帳號入口（品管 v100 報告 #8）：GDPR 刪除權＋客服排錯＋自測都需要，
+         放在帳號面板最下方、視覺弱化為警示色文字連結，不搶主流程版面。
+         ★ v151 改名為業界通用的「刪除帳號」，並加上打字驗證（見 #wipeOverlay）。 -->
+    <button class="text-link" id="wipeBtn" style="color:#e5484d" data-i18n="profile.wipe">刪除帳號</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     ★ v151 刪除帳號的二次驗證（總監定案）
+     ─────────────────────────────────────────────
+     為什麼要打字而不是只跳一個確認框：這是全遊戲唯一不可復原的動作，
+     一個「確定／取消」在手機上太容易被誤觸，按下去玩家幾百關的進度就沒了。
+     業界標準做法（GitHub 刪 repo、各家 App 刪帳號）都是要求手動輸入一個詞，
+     因為那需要「看懂 + 動手打字」，不可能是口袋裡的誤觸。
+     註：目前是單機遊客模式，沒有伺服器帳號，所以做不到真正的身分驗證
+     （輸密碼／收驗證信）。等 Apple／Google 登入上線後，這裡再改接平台的
+     重新驗證流程即可，彈窗與文案可以直接沿用。
+     z-index：用預設的 .overlay（1300），必須高於帳號面板的 .shop-z（1150）
+     才蓋得住它，同時低於廣告層 .ad-veil（1400）。
+     ============================================================ -->
+<div class="overlay" id="wipeOverlay">
+  <div class="modal">
+    <h2 data-i18n="wipe.title">⚠️ 刪除帳號</h2>
+    <p data-i18n="wipe.warn">將永久刪除你的暱稱、最佳成績、關卡進度、金幣、鑽石與已解鎖的皮膚。此動作無法復原。</p>
+    <p data-i18n="wipe.ask">請輸入「刪除」兩個字以確認：</p>
+    <input class="name-input" id="wipeInput" maxlength="12" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <button class="big-btn danger" id="wipeConfirmBtn" data-i18n="wipe.confirm" disabled>永久刪除</button>
+    <button class="text-link" id="wipeCancelBtn" data-i18n="wipe.cancel">取消</button>
   </div>
 </div>
 
@@ -1723,7 +1751,7 @@
       src: String(ev.filename || '').slice(0, 120),
       line: ev.lineno || 0, col: ev.colno || 0,
       stack: ev.error && ev.error.stack ? String(ev.error.stack).slice(0, MAX_STACK) : '',
-      ver: 'v149',
+      ver: 'v151',
     });
   });
 
@@ -1735,7 +1763,7 @@
       msg: String((reason && reason.message) || reason || '(無訊息)').slice(0, 200),
       src: '', line: 0, col: 0,
       stack: reason && reason.stack ? String(reason.stack).slice(0, MAX_STACK) : '',
-      ver: 'v149',
+      ver: 'v151',
     });
   });
 
@@ -1777,7 +1805,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v149・繽紛樂',
+  'menu.footer':'v151・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1810,12 +1838,22 @@ const I18N = {
   'welcome.defaultName':'繽紛玩家',
   'welcome.start':'開始冒險 →',
   'profile.title':'👤 個人資料', 'profile.save':'儲存暱稱', 'profile.close':'關閉',
-  'profile.resetAll':'清除所有資料', 'profile.resetConfirm':'確定要清除所有資料嗎？分數、金幣、鑽石、皮膚、進度全部無法復原。',
+  /* ★ v151 刪除帳號。wipe.word 是玩家必須親手打出來的驗證詞，
+     與 wipe.ask 裡引號中的字必須一致，翻譯時兩者要一起改。 */
+  'profile.wipe':'刪除帳號',
+  'wipe.title':'⚠️ 刪除帳號', 'wipe.word':'刪除',
+  'wipe.warn':'將永久刪除你的暱稱、最佳成績、關卡進度、金幣、鑽石與已解鎖的皮膚。此動作無法復原。',
+  'wipe.ask':'請輸入「刪除」兩個字以確認：',
+  'wipe.confirm':'永久刪除', 'wipe.cancel':'取消', 'wipe.done':'✅ 帳號已刪除',
   'login.guest':'遊客模式', 'login.using':'使用中', 'login.google':'Google 登入', 'login.apple':'Apple 登入', 'login.soon':'即將推出',
   'lang.title':'🌐 選擇語言', 'lang.using':'使用中',
-  'win.title':'🎉 過關！', 'win.text':'第 {lv} 關完成！總分 {s}　🪙+{n}',
+  /* ★ v150 總監定案：過關視窗只講兩件事——恭喜你過關了、這關拿幾分。
+     舊版那句「第 N 關完成！藍線沒能繞完一圈（得分 X）」是在描述過程，
+     玩家剛打完自己最清楚，不需要被複述一次；而且分數改用「本關得分」，
+     跟 v103 大分數的定義一致（累積總分被遊玩時間污染，不適合當成就感指標）。 */
+  'win.title':'🎉 恭喜過關！', 'win.text':'本關得分 {s}　🪙+{n}',
   'intro.level':'第 {n} 關', 'mode.endless':'無盡模式',
-  'win.balloonTitle':'⏰ 趕上了！', 'win.balloonText':'第 {lv} 關完成！藍線沒能繞完一圈（得分 {s}）　🪙+{n}',
+  'win.balloonTitle':'🎉 恭喜過關！', 'win.balloonText':'本關得分 {s}　🪙+{n}',
   'win.next':'下一關 →', 'win.home':'回主選單',
   'lose.title':'😿 沒空間了',
   'lose.text.endless':'盤面塞滿了，這局到此為止。看廣告換一批方塊續命，或重新開始。',
@@ -1893,7 +1931,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v149 · Vivid Blast',
+  'menu.footer':'v151 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -1924,12 +1962,16 @@ const I18N = {
   'welcome.defaultName':'Vivid Player',
   'welcome.start':'Start Adventure →',
   'profile.title':'👤 Account', 'profile.save':'Save Nickname', 'profile.close':'Close',
-  'profile.resetAll':'Erase All Data', 'profile.resetConfirm':'Erase all data? Scores, coins, gems, skins, and progress cannot be recovered.',
+  'profile.wipe':'Delete Account',
+  'wipe.title':'⚠️ Delete Account', 'wipe.word':'DELETE',
+  'wipe.warn':'This permanently deletes your nickname, best scores, level progress, coins, gems and unlocked skins. It cannot be undone.',
+  'wipe.ask':'Type DELETE to confirm:',
+  'wipe.confirm':'Delete Permanently', 'wipe.cancel':'Cancel', 'wipe.done':'✅ Account deleted',
   'login.guest':'Guest', 'login.using':'Active', 'login.google':'Sign in with Google', 'login.apple':'Sign in with Apple', 'login.soon':'Coming soon',
   'lang.title':'🌐 Select Language', 'lang.using':'Active',
-  'win.title':'🎉 Level Clear!', 'win.text':'Level {lv} complete! Total score {s}　🪙+{n}',
+  'win.title':'🎉 Level Clear!', 'win.text':'Level score {s}　🪙+{n}',
   'intro.level':'Level {n}', 'mode.endless':'Endless',
-  'win.balloonTitle':'⏰ Beat the Clock!', 'win.balloonText':'Level {lv} complete! The line never closed the loop (score {s})　🪙+{n}',
+  'win.balloonTitle':'🎉 Level Clear!', 'win.balloonText':'Level score {s}　🪙+{n}',
   'win.next':'Next Level →', 'win.home':'Main Menu',
   'lose.title':'😿 No Space Left',
   'lose.text.endless':'The board is full — that\'s the run. Watch an ad for fresh blocks, or restart.',
@@ -1991,13 +2033,16 @@ const I18N = {
   'mood.freeHint':'Preview window — one free swap, no ad needed', 'rest.title':'Time to rest your eyes~', 'rest.hint':'You\'ve been playing a while! Try a fresh skin to ease eye strain, or watch an ad for a hint', 'rest.watch':'📺 Watch ad for a hint',
   'combo.adGold':'🪙 +{n}!', 'combo.exchange':'🔁 Exchanged +{n}🪙', 'combo.firstBonus':'🎉 First-purchase bonus! +{n} gems',
   'combo.nameBad':'Nickname must be 2-12 characters', 'combo.nameSaved':'✅ Nickname saved',
-  /* ★ v149 讚美字英文版：維持「越高分越澎湃」的階梯感，用短促的驚嘆句，不直譯 */
-  'mile.good':'Nice one!',       'mile.good.sub':'Keep going 👍',
-  'mile.nice':'Sweet!',          'mile.nice.sub':'You found the rhythm 🎯',
+  /* ★ v149 讚美字英文版：維持「越高分越澎湃」的階梯感，用短促的驚嘆句，不直譯。
+     ★ v151 總監定案再縮短：意思到就好，不要逐字翻中文。
+     原因是英文字母多、而讚美字設定成不換行，最長的 Unstoppable!（305px）
+     在最窄的機型上只剩左右各 8px，風險太高。現在最長的 Legendary! 也在安全範圍內。 */
+  'mile.good':'Nice!',           'mile.good.sub':'Keep going 👍',
+  'mile.nice':'Great!',          'mile.nice.sub':'You found the rhythm 🎯',
   'mile.great':'Awesome!',       'mile.great.sub':'You are on fire ✨',
-  'mile.power':'Full power!',    'mile.power.sub':'Better and better ⚡',
+  'mile.power':'Amazing!',       'mile.power.sub':'Better and better ⚡',
   'mile.wild':'Insane!',         'mile.wild.sub':'Past 10,000 points 💎',
-  'mile.unstop':'Unstoppable!',  'mile.unstop.sub':'You are the real deal 🔥',
+  'mile.unstop':'Unreal!',       'mile.unstop.sub':'You are the real deal 🔥',
   'mile.legend':'Legendary!',    'mile.legend.sub':'A performance for the ages 🏆',
   'diff.boss':'⚠ BOSS LEVEL', 'diff.spike':'🔥 CHALLENGE',
   'ad.tag':'AD', 'ad.brand':'Vivid Blast', 'ad.sub':'Thanks for your support — it keeps the game free!', 'ad.end':'Ad ends in {n}s',
@@ -2005,7 +2050,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v149・ビビッドブラスト',
+  'menu.footer':'v151・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -2036,12 +2081,16 @@ const I18N = {
   'welcome.defaultName':'ビビッドプレイヤー',
   'welcome.start':'冒険を始める →',
   'profile.title':'👤 アカウント', 'profile.save':'ニックネームを保存', 'profile.close':'閉じる',
-  'profile.resetAll':'すべてのデータを消去', 'profile.resetConfirm':'すべてのデータを消去しますか？スコア・コイン・ジェム・スキン・進行状況はすべて元に戻せません。',
+  'profile.wipe':'アカウント削除',
+  'wipe.title':'⚠️ アカウント削除', 'wipe.word':'削除',
+  'wipe.warn':'ニックネーム・ベストスコア・レベル進行・コイン・ジェム・解除済みスキンをすべて完全に削除します。元に戻せません。',
+  'wipe.ask':'確認のため「削除」と入力してください：',
+  'wipe.confirm':'完全に削除', 'wipe.cancel':'キャンセル', 'wipe.done':'✅ アカウントを削除しました',
   'login.guest':'ゲストモード', 'login.using':'使用中', 'login.google':'Googleでログイン', 'login.apple':'Appleでログイン', 'login.soon':'近日公開',
   'lang.title':'🌐 言語を選択', 'lang.using':'使用中',
-  'win.title':'🎉 クリア！', 'win.text':'レベル {lv} クリア！合計スコア {s}　🪙+{n}',
+  'win.title':'🎉 クリア！', 'win.text':'このレベルのスコア {s}　🪙+{n}',
   'intro.level':'レベル {n}', 'mode.endless':'エンドレス',
-  'win.balloonTitle':'⏰ 間に合った！', 'win.balloonText':'レベル {lv} クリア！ラインは一周しなかった（スコア {s}）　🪙+{n}',
+  'win.balloonTitle':'🎉 クリア！', 'win.balloonText':'このレベルのスコア {s}　🪙+{n}',
   'win.next':'次のレベル →', 'win.home':'メニューへ',
   'lose.title':'😿 置き場がない…',
   'lose.text.endless':'盤面がいっぱいに。広告を見て新しいブロックで続けるか、最初からやり直そう。',
@@ -5295,9 +5344,23 @@ HZ.syncStage = function(){
   HZ.paused = false;   // ★ v35 新關卡一律解凍（重試/下一關都走這裡）
   HZ.last = performance.now();
   if(!HZ.raf) HZ.raf = requestAnimationFrame(HZ.loop);
-  // 氣球模式每關都是機關關，只在第一關喊一次；gem 模式的機關關很稀有，每次都值得喊
-  if(currentMode === 'gem')      setTimeout(()=>showCombo(T('combo.warnGem')), 260);
-  else if(level === 1)           setTimeout(()=>showCombo(T('combo.warn')), 260);
+  /* 氣球模式每關都是機關關，只在第一關喊一次；gem 模式的機關關很稀有，每次都值得喊。
+     ★ v150 延後喊話時機（總監真機回報）：原本 260ms 就喊，正面撞上兩個東西——
+       ① #levelIntro「第 X 關」200ms 出場、動畫 1.6 秒，位置 top:40%
+       ② 魔王/小考關的 curDiff.label 250ms 出場、動畫 0.8 秒，用的是同一個 #combo
+     而本行在 top:42%，跟 ① 只差 2%，等於寫在同一個地方 → 畫面上兩行字直接疊在一起
+     （截圖實錘：「第 1 關」與「別讓藍線繞完一圈！」重疊閃現）；撞上 ② 時更慘，
+     同一個 #combo 元素在 10ms 內被覆寫，魔王關的關名根本來不及被看見。
+     改成等開場提示「整段播完」再喊。時間怎麼算的：#levelIntro 於 200ms 出場、
+     動畫 1.6 秒，所以要到 1800ms 才真正淡完（它的 opacity 在 72% 之後才開始降，
+     中途插話一樣會疊字）。
+     ★ 餘裕刻意放大：先前取 1900ms，排程間隔只剩 100ms，實測在忙碌的裝置上
+     計時器誤差就能把它吃掉（自動化測試量到間隔縮到 1593ms，低於動畫長度）。
+     取 2100ms → 排程間隔 1900ms，留 300ms 給計時器漂移。
+     藍線繞完一圈要一百秒上下，晚 1.9 秒毫不影響玩家的反應時間。 */
+  const WARN_DELAY = 2100;
+  if(currentMode === 'gem')      setTimeout(()=>showCombo(T('combo.warnGem')), WARN_DELAY);
+  else if(level === 1)           setTimeout(()=>showCombo(T('combo.warn')), WARN_DELAY);
 };
 
 HZ.stop = function(){
@@ -6496,23 +6559,10 @@ function fireScoreMilestone(){
   playCelebration(word, sub);
 }
 
-/* ★ v148 過關演出（名正言順版）。
-   ── 這個函式的由來 ──
-   v147 以前，玩家每次按「下一關」都會看到一次金光＋讚美字＋慶祝音。
-   那不是任何人寫的演出，而是 startLevel 把 lastMilestone 歸零後，
-   分數里程碑被迫重新跨過同一個門檻所產生的副作用（總監定案：那個副作用要修掉，
-   但演出本身要留下來，改成正式的過關演出）。
-   ── 刻意的設計決定 ──
-   ① 只在「真的過關前進」時演（proceedToNextLevel），一局的第一關不演
-      —— 與 v147 的實際觀感一致（第 1 關因為累積分是 0，本來就不會觸發）。
-   ② 失敗重試不演。v147 的副作用連重試都會恭喜玩家，但玩家才剛死掉，
-      那是「把慶祝放在傷口上」，與本專案「廣告不落在傷口上」是同一個道理。
-   ③ 文案沿用 milestoneWord(累積分)，讓畫面與玩家熟悉的 v147 完全一致。
-      要改成關卡導向的專屬文案，只要換掉下面這一行即可。 */
-function fireLevelFanfare(){
-  const { word, sub } = milestoneWord(score);
-  playCelebration(word, sub);
-}
+/* ★ v150 原本這裡有 fireLevelFanfare()（v148 的過關演出）。
+   總監真機驗收後定案移除：它與過關視窗重複慶祝，而且閃太快根本看不清楚。
+   慶祝的職責整合到過關視窗，這裡不再有關卡開場的讚美字。
+   分數里程碑（對局中真的打出分數時）不受影響，仍然照常演出。 */
 
 /* 更新頂部狀態膠囊（分數 / 最佳 / 步數）+ near-miss 警示 */
 function updateStatus(){
@@ -6566,14 +6616,16 @@ function showWin(){
     const rw = (curDiff && curDiff.tier==='boss') ? ECON.bossReward : ECON.winReward;
     goldCoin += rw; refreshEconomyUI();
     document.getElementById('winTitle').textContent = T('win.title');
-    document.getElementById('winText').textContent = T('win.text', {lv:level, s:score, n:rw});
+    // ★ v150 改報「本關得分」而非累積總分；千分位逗號與下方的紀錄行對齊
+    document.getElementById('winText').textContent = T('win.text', {lv:level, s:Math.max(0, score - levelStartScore).toLocaleString(), n:rw});
     document.getElementById('nextBtn').style.display='';
   } else if(currentMode==='balloon'){
     // ★ v33 氣球模式：分開記最高關（跟 gem 的進度互不干擾）
     if(level+1 > maxBalloonLevel) maxBalloonLevel = level+1;
     goldCoin += ECON.winReward; refreshEconomyUI();   // ★ v37 氣球模式同樣領工資（金幣）
     document.getElementById('winTitle').textContent = T('win.balloonTitle');
-    document.getElementById('winText').textContent = T('win.balloonText', {lv:level, s:score, n:ECON.winReward});
+    // ★ v150 同上：本關得分，不是累積總分
+    document.getElementById('winText').textContent = T('win.balloonText', {lv:level, s:Math.max(0, score - levelStartScore).toLocaleString(), n:ECON.winReward});
     document.getElementById('nextBtn').style.display='';
   }
   // ★ v102 關卡別最佳分結算：用「本關實得」而非累積總分（見 updateLevelBestLine 註解）
@@ -8461,18 +8513,11 @@ function playInterstitialAd(done){
   }, 1000);
 }
 
-/* ★ v148 這一次 startLevel 是不是「過關前進」。
-   用旗子而不是加參數，是因為 startLevel 中間可能隔著一層廣告 callback
-   （playInterstitialAd(go)），參數傳遞會被那一層截斷。
-   旗子由 startLevel 讀取後立刻放下，不會殘留到下一次。 */
-let _levelAdvanced = false;
-
 /* 過場統一入口：想進下一關時呼叫這個。
-   會自動判斷要不要先插廣告，再執行 proceed()。 */
+   會自動判斷要不要先插廣告，再執行 proceed()。
+   ★ v150 移除 v148 的 _levelAdvanced 旗子——過關演出已取消，沒有人需要這個資訊了。 */
 function proceedToNextLevel(){
-  // ★ v148 只有這條路（真的過關前進）才會點亮過關演出的旗子；
-  //    enterMode 的第一關與 restartRun 的失敗重試都不會經過這裡，因此不演。
-  const go = ()=>{ level++; _levelAdvanced = true; startLevel(); };
+  const go = ()=>{ level++; startLevel(); };
   if(shouldShowInterstitial()){
     playInterstitialAd(go);
   } else {
@@ -8526,10 +8571,12 @@ function startLevel(){
   renderBoard();
   refillTray();
   updateStatus();
-  /* ★ v148 過關演出：接在 updateStatus 之後，時機與 v147 那個副作用完全相同
-     （緊接著 200ms 後才飄「第 X 關」），所以玩家看到的節奏跟以前一樣。
-     旗子讀完立刻放下，避免殘留到下一次 startLevel。 */
-  if(_levelAdvanced){ _levelAdvanced = false; fireLevelFanfare(); }
+  /* ★ v150 過關演出已移除（總監真機定案）。
+     v148 把它從「分數里程碑的副作用」扶正成獨立功能，但真機一看就發現兩個問題：
+       ① 它跟緊接著出場的過關視窗在講同一件事，重複慶祝
+       ② 1.4 秒的動畫裡真正看得清楚的只有中間一瞬，要靠錄影暫停才捕捉得到
+     慶祝的職責交還給過關視窗（那裡玩家會停留、看得完），這裡保持乾淨。
+     v148 建立的 playCelebration 呈現層保留，分數里程碑仍在使用。 */
   // ★ v14 左側關卡卡：闖關模式顯示關數，無盡模式顯示 ∞
   const levelVal = document.getElementById('levelVal');
   if(currentMode!=='endless'){
@@ -9165,14 +9212,44 @@ function saveProfileName(){
 document.getElementById('profileSaveBtn').onclick = saveProfileName;
 
 /* ============================================================
-   ★ v146 清除所有資料（品管 v100 報告 #8）
+   ★ v146 刪除帳號（品管 v100 報告 #8）／★ v151 加上打字驗證
    ─────────────────────────────────────────────
    只清本遊戲自己的 localStorage 資料（'puffyblast_' 前綴），不用
    localStorage.clear()，避免誤刪同網域下其他資料。清完直接重新整理
    頁面，讓所有記憶體變數回到「首次啟動」的乾淨狀態，不用逐一手動歸零。
+
+   v151 的驗證設計：玩家必須親手打出 wipe.word（繁中「刪除」／英文 DELETE
+   ／日文「削除」）才會解鎖刪除鍵。比對前做 trim 與大小寫正規化，
+   避免玩家打對了卻因為手機自動大寫或多一個空格而卡住。
    ============================================================ */
-function resetAllData(){
-  if(!confirm(T('profile.resetConfirm'))) return;
+function wipeWordMatches(raw){
+  const norm = s => String(s||'').trim().toUpperCase();
+  return norm(raw) !== '' && norm(raw) === norm(T('wipe.word'));
+}
+
+/* 依輸入內容即時決定刪除鍵能不能按 */
+function syncWipeButton(){
+  const btn = document.getElementById('wipeConfirmBtn');
+  const inp = document.getElementById('wipeInput');
+  if(!btn || !inp) return;
+  btn.disabled = !wipeWordMatches(inp.value);
+}
+
+function openWipe(){
+  const inp = document.getElementById('wipeInput');
+  if(inp) inp.value = '';          // 每次重開都要重打，不留上一次的內容
+  syncWipeButton();                // → 一定是 disabled 狀態
+  document.getElementById('wipeOverlay').classList.add('show');
+}
+function closeWipe(){
+  document.getElementById('wipeOverlay').classList.remove('show');
+}
+
+/* 真正執行刪除。刻意再驗一次：不信任「按鈕沒有 disabled」這件事
+   （DOM 可能被外力改過），驗證詞不對就什麼都不做。 */
+function doWipeAccount(){
+  const inp = document.getElementById('wipeInput');
+  if(!wipeWordMatches(inp && inp.value)) return;
   try{
     Object.keys(localStorage)
       .filter(k => k.indexOf('puffyblast_') === 0)
@@ -9180,7 +9257,11 @@ function resetAllData(){
   }catch(e){ /* 隱私模式下本來就沒有東西可清 */ }
   location.reload();
 }
-document.getElementById('resetAllBtn').onclick = resetAllData;
+
+document.getElementById('wipeBtn').onclick = openWipe;
+document.getElementById('wipeCancelBtn').onclick = closeWipe;
+document.getElementById('wipeConfirmBtn').onclick = doWipeAccount;
+document.getElementById('wipeInput').addEventListener('input', syncWipeButton);
 
 
 /* ============================================================
