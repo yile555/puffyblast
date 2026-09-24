@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v152</title>
-<meta property="og:title" content="繽紛樂 v152">
+<title>繽紛樂 v153</title>
+<meta property="og:title" content="繽紛樂 v153">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・看花開！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -155,6 +155,13 @@
     pointer-events:none; user-select:none; font-variant-numeric:tabular-nums;
     text-shadow:0 1px 2px rgba(0,0,0,.55); transition:color .25s; }
   #lvBest.hidden { display:none; }
+  /* ★ v153 難度標示（接在第 N 關右邊）。純實色，無透明度、無描邊。
+     藍色刻意用亮天藍：純藍放在深藍底上幾乎看不見。 */
+  #lvBest .dtag { margin-left:6px; font-weight:800; }
+  #lvBest .dt0 { color:#ffffff; }   /* 一般 */
+  #lvBest .dt1 { color:#4ade80; }   /* 難 */
+  #lvBest .dt2 { color:#5cb8ff; }   /* 困難 */
+  #lvBest .dt3 { color:#ff5252; }   /* 超級難 */
   /* 已超越本關紀錄：轉金 + 一次性跳動。跟里程碑用不同動畫，避免兩者同時發生時視覺打架 */
   /* ★ v104 超越紀錄：慢速規律呼吸閃爍（2.2 秒一循環）。
      刻意做「慢」—— 快閃是警告，慢閃才是榮耀。這行同時會開始跟著目前分同步爬升，
@@ -1280,7 +1287,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v152・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v153・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1751,7 +1758,7 @@
       src: String(ev.filename || '').slice(0, 120),
       line: ev.lineno || 0, col: ev.colno || 0,
       stack: ev.error && ev.error.stack ? String(ev.error.stack).slice(0, MAX_STACK) : '',
-      ver: 'v152',
+      ver: 'v153',
     });
   });
 
@@ -1763,7 +1770,7 @@
       msg: String((reason && reason.message) || reason || '(無訊息)').slice(0, 200),
       src: '', line: 0, col: 0,
       stack: reason && reason.stack ? String(reason.stack).slice(0, MAX_STACK) : '',
-      ver: 'v152',
+      ver: 'v153',
     });
   });
 
@@ -1805,7 +1812,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v152・繽紛樂',
+  'menu.footer':'v153・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1925,13 +1932,13 @@ const I18N = {
   'mile.wild':'太狂啦！',        'mile.wild.sub':'分數破萬 💎',
   'mile.unstop':'勢不可擋！',    'mile.unstop.sub':'你就是高手 🔥',
   'mile.legend':'封神了！',      'mile.legend.sub':'傳說級的表現 🏆',
-  'diff.boss':'⚠ 魔王關', 'diff.spike':'🔥 挑戰關',
+  'diff.t0':'一般', 'diff.t1':'難', 'diff.t2':'困難', 'diff.t3':'超級難',
   'ad.tag':'廣告', 'ad.brand':'繽紛樂', 'ad.sub':'感謝你的支持，讓遊戲免費又好玩', 'ad.end':'廣告結束：{n} 秒',
 },
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v152 · Vivid Blast',
+  'menu.footer':'v153 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -2044,13 +2051,13 @@ const I18N = {
   'mile.wild':'Insane!',         'mile.wild.sub':'Past 10,000 points 💎',
   'mile.unstop':'Unreal!',       'mile.unstop.sub':'You are the real deal 🔥',
   'mile.legend':'Legendary!',    'mile.legend.sub':'A performance for the ages 🏆',
-  'diff.boss':'⚠ BOSS LEVEL', 'diff.spike':'🔥 CHALLENGE',
+  'diff.t0':'Normal', 'diff.t1':'Hard', 'diff.t2':'Expert', 'diff.t3':'Extreme',
   'ad.tag':'AD', 'ad.brand':'Vivid Blast', 'ad.sub':'Thanks for your support — it keeps the game free!', 'ad.end':'Ad ends in {n}s',
 },
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v152・ビビッドブラスト',
+  'menu.footer':'v153・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -2160,7 +2167,7 @@ const I18N = {
   'mile.wild':'ヤバすぎ！',       'mile.wild.sub':'1万点突破 💎',
   'mile.unstop':'止まらない！',   'mile.unstop.sub':'まさに達人 🔥',
   'mile.legend':'神ってる！',     'mile.legend.sub':'伝説級のプレイ 🏆',
-  'diff.boss':'⚠ ボス面', 'diff.spike':'🔥 チャレンジ面',
+  'diff.t0':'普通', 'diff.t1':'難しい', 'diff.t2':'高難度', 'diff.t3':'超難関',
   'ad.tag':'広告', 'ad.brand':'ビビッドブラスト', 'ad.sub':'応援ありがとう！おかげでゲームは無料です', 'ad.end':'広告終了まで {n} 秒',
 },
 };
@@ -2314,54 +2321,68 @@ function gemTypesForLevel(lv){
    實際的鬆緊由 tray 生成 與 goal/move 設定去讀它 —— 換曲線不動核心。
    ============================================================ */
 
-/* 連勝計數器：玩家「順順過關」的長度，用來決定何時該丟硬關 */
+/* 連勝計數器：v153 起不再影響難度（改為每關獨立抽籤）。
+   變數與存檔欄位保留，只為相容舊存檔與既有的讀寫點，不要刪。 */
 let winStreak = 0;
 
-/* 回傳這一關的難度設定檔。tier:
-     'chill'  放水關  —— 大量救命小牌、目標砍半
-     'normal' 日常關  —— 標準節奏
-     'spike'  小考關  —— 三張牌偏緊、目標略多
-     'boss'   硬關    —— 空間殺手齊發、目標加重
-   註：moveMul 自 v8 起已停用（寶石模式改為「盤面塞死才失敗」，不限步數），
-       欄位保留只為相容，實際不影響任何邏輯。壓力全靠 trapCap / goalMul。
-*/
+/* ============================================================
+   ★ v153 難度分級（總監定案 20260924）
+   ------------------------------------------------------------
+   對外只有四個名稱，常駐顯示在左上角「第 N 關」右邊：
+     一般（白）／ 難（綠）／ 困難（藍）／ 超級難（紅）
+   內部 tier key「完全不改名」——chill / normal / spike / boss 是舊存檔裡的既有值，
+   改名會讓舊存檔讀不懂。只新增一個 'hard'（困難）。對應：
+     chill、normal → 一般(0)　spike → 難(1)　hard → 困難(2)　boss → 超級難(3)
+
+   關卡分三個時期：
+     第 1~2 關   教育期  教玩家認識遊戲，固定放水數值（不抽籤）
+     第 3~10 關  放水期  新手保護，同樣固定放水數值
+     第 11 關起  抽籤期  每關獨立抽一次難度，權重見 TIER_WEIGHTS
+
+   防呆規則：剛打完「困難」或「超級難」的下一關，只從「一般／難」抽，讓玩家喘口氣。
+   重試同一關沿用同一份 curDiff（v64 既有規則，startLevel 處理），不會重抽。
+   想調鬆緊，只改 TIER_WEIGHTS 與 DIFF_PRESETS 兩張表，其它完全不動。
+   ============================================================ */
+const TIER_DISP = { chill:0, normal:0, spike:1, hard:2, boss:3 };   // 內部 tier → 顯示等級
+const TIER_NAME_KEYS = ['diff.t0', 'diff.t1', 'diff.t2', 'diff.t3'];  // 顯示等級 → i18n key
+
+/* 各性格的數值設定檔。label 只有「困難／超級難」有值：開場才飄橫幅，
+   一般與難靠左上角常駐標示就夠，不每關都打斷玩家。
+   moveMul 自 v8 起已停用（寶石模式改為「盤面塞死才失敗」），欄位保留只為相容。 */
+const DIFF_PRESETS = {
+  chill:  { tier:'chill',  label:'',        trapCap:0, rareBoost:2.2,  goalMul:0.75, moveMul:1.5  },  // 放水：不出空間殺手、救命牌大量
+  normal: { tier:'normal', label:'',        trapCap:1, rareBoost:1.0,  goalMul:1.0,  moveMul:1.1  },  // 一般
+  spike:  { tier:'spike',  label:'',        trapCap:2, rareBoost:0.7,  goalMul:1.15, moveMul:0.95 },  // 難（原小考關數值）
+  hard:   { tier:'hard',   label:'diff.t2', trapCap:2, rareBoost:0.5,  goalMul:1.25, moveMul:0.88 },  // 困難（新增：介於難與超級難之間）
+  boss:   { tier:'boss',   label:'diff.t3', trapCap:3, rareBoost:0.35, goalMul:1.35, moveMul:0.82 },  // 超級難（原魔王關數值）
+};
+
+/* 抽籤期的權重（總和 100）。難最常見、一般是「福利」所以不常給——總監定案。 */
+const TIER_WEIGHTS = [ ['normal', 30], ['spike', 40], ['hard', 20], ['boss', 10] ];
+
+/* 取設定檔的乾淨複本（不讓任何人改到共用的預設表） */
+function cloneDiff(tier){ return Object.assign({}, DIFF_PRESETS[tier] || DIFF_PRESETS.normal); }
+
+/* 讀存檔用：只信 tier，數值一律從預設表重取。舊存檔的 label（如 'diff.boss'）已不存在於字典，
+   若原樣沿用，同一場重試時橫幅會顯示成 key 字串。 */
+function normalizeDiff(o){ return cloneDiff(o && o.tier); }
+
+/* 目前設定檔的顯示等級 0~3 */
+function tierDispOf(d){ const v = d && TIER_DISP[d.tier]; return (typeof v === 'number') ? v : 0; }
+
+/* 抽一個 tier。afterHard=true（上一關是困難以上）時，只在「一般／難」之間抽。 */
+function rollTier(afterHard){
+  const pool = afterHard ? TIER_WEIGHTS.filter(t => TIER_DISP[t[0]] <= 1) : TIER_WEIGHTS;
+  const total = pool.reduce((sum, t) => sum + t[1], 0);
+  let r = Math.random() * total;
+  for(const t of pool){ r -= t[1]; if(r < 0) return t[0]; }
+  return pool[pool.length - 1][0];   // 浮點誤差保底
+}
+
+/* 回傳這一關的難度設定檔。呼叫當下的全域 curDiff 還是「上一關」的，防呆規則靠它判斷。 */
 function difficultyOf(lv){
-  // ── 開場蜜月期：第 1~2 關放水（★ v9：從 3 關縮短為 2 關，避免玩家覺得一直在暖身）──
-  if(lv <= 2){
-    return { tier:'chill', label:'',
-             trapCap:0,        // 一組三張完全不出空間殺手
-             rareBoost:2.2,    // 救命小牌出現率大幅提高
-             goalMul:0.75,     // ★ v9：目標折扣從 0.55 放寬到 0.75，前期不再空到誇張
-             moveMul:1.5 };    // 步數給超鬆
-  }
-
-  // ── 連勝爆棚 → 丟 Boss 硬關（連順 8 關以上，機率隨連勝升高）──
-  // 這就是你說的「連順 10、15 關後突然一關要打 20、30 次」的來源
-  if(winStreak >= 8 && Math.random() < Math.min(0.85, (winStreak-7)*0.18)){
-    return { tier:'boss', label:'diff.boss',
-             trapCap:3,        // 三張可以全是空間殺手（極限壓迫）
-             rareBoost:0.35,   // 救命牌變超稀有，自食其力
-             goalMul:1.35,     // 目標加重
-             moveMul:0.82 };   // 步數收緊，逼近 near-miss
-  }
-
-  // ── 每 4~6 關穿插一個「小考」，打斷順風、製造心跳 ──
-  // 用關數 + 一點隨機，避免玩家數出固定週期
-  const cyclePos = lv % 5;
-  if((cyclePos === 0 || cyclePos === 4) && Math.random() < 0.7){
-    return { tier:'spike', label:'diff.spike',
-             trapCap:2,        // 最多兩張空間殺手
-             rareBoost:0.7,
-             goalMul:1.15,
-             moveMul:0.95 };
-  }
-
-  // ── 其餘：日常關，標準節奏 ──
-  return { tier:'normal', label:'',
-           trapCap:1,          // 維持原本「一組最多一張 trap」的舒適感
-           rareBoost:1.0,
-           goalMul:1.0,
-           moveMul:1.1 };      // 比原版略鬆一點，整體更順手
+  if(lv <= 10) return cloneDiff('chill');                 // 教育期＋放水期
+  return cloneDiff(rollTier(tierDispOf(curDiff) >= 2));   // 抽籤期
 }
 
 /* 本關的難度設定檔（startLevel 時抽一次，整關沿用） */
@@ -5563,7 +5584,7 @@ function makeBalancedTrio(){
 
   // ── 節奏決策：不在連發中 → 擲骰子決定要不要開一輪甜蜜連發 ──
   if(RHYTHM.streak <= 0 && boardFillRatio() < 0.5){
-    const chance = (curDiff.tier==='boss') ? 0.10 : 0.28;   // 魔王關少放糖
+    const chance = ({ boss:0.10, hard:0.18 })[curDiff.tier] ?? 0.28;   // ★ v153 超級難最少放糖、困難次之，其餘照舊
     if(Math.random() < chance){
       RHYTHM.streak = 2 + rand(2);                          // 連發 2~3 手
       // ★ v59 鐵則：下一輪連發永遠不能跟上一輪同池。
@@ -6365,14 +6386,14 @@ function showWin(){
   playWin();
   if(m.useScore) bumpBest();   // ★ v64 D2 分模式記帳
   if(currentMode==='gem'){
-    // ★ v6：過關就累積連勝。連勝越長，下一輪丟魔王關的機率越高(成就感的引信)
-    //       但剛打完魔王關就把連勝歸零，給玩家一段喘息的順風期
+    // ★ v6：過關就累積連勝。★ v153 起連勝不再影響難度（改為每關獨立抽籤，見 difficultyOf），
+    //       這裡只是維持舊存檔欄位的讀寫，無其他作用
     if(curDiff.tier==='boss') winStreak = 0;
     else winStreak++;
     // ★ v21 記錄歷史最高關（下次可續玩）
     if(level+1 > maxLevelReached) maxLevelReached = level+1;
-    // ★ v37 過關工資：改發金幣（工作賺工資，不是課金貨幣）一般 +20🪙、魔王 +50🪙
-    const rw = (curDiff && curDiff.tier==='boss') ? ECON.bossReward : ECON.winReward;
+    // ★ v37 過關工資：改發金幣（工作賺工資，不是課金貨幣）。v153 起依難度：一般 20／難 30／困難 40／超級難 50
+    const rw = (curDiff && ECON.tierReward[curDiff.tier]) || ECON.winReward;   // ★ v153 依難度分級
     goldCoin += rw; refreshEconomyUI();
     document.getElementById('winTitle').textContent = T('win.title');
     // ★ v150 改報「本關得分」而非累積總分；千分位逗號與下方的紀錄行對齊
@@ -6946,7 +6967,8 @@ const ECON = {
   startGold: 300, startDiamonds: 30, startBombs: 1,
   dailyGift: 150,                        // 每日簽到金幣
   adGoldLadder: [30, 50, 80, 120, 180],  // 看廣告賺金幣，階梯遞增，長度＝每日上限次數
-  winReward: 20, bossReward: 50,         // 過關金幣工資（一般／魔王關）
+  winReward: 20,                         // 過關金幣工資（氣球模式與保底值）
+  tierReward: { chill:20, normal:20, spike:30, hard:40, boss:50 },   // ★ v153 收集模式依難度分級：越難領越多
   adReviveCap: 1,                        // ★ v125 2→1：一局只能救一次（救太多次分數就虛了）
   // 道具雙標價（金幣價／鑽石特惠價，皆以 1💎=200🪙 回推）
   bombPacks: [ { n:1, gold:1000, dm:5 }, { n:3, gold:2500, dm:12 } ],
@@ -7704,7 +7726,7 @@ let _runStartBest = 0;
 function updateLevelBestLine(){
   const el = document.getElementById('lvBest');
   if(!el) return;
-  if(!currentMode || !MODE().useScore){ el.classList.add('hidden'); el.classList.remove('beat'); return; }
+  if(!currentMode || !MODE().useScore){ el.classList.add('hidden'); el.classList.remove('beat'); el.textContent=''; return; }
 
   // ★ v104 ⑦ 無盡模式的追趕目標用「開局當下的歷史最佳快照」——
   //   不能直接用 bestScores，bumpBest() 在對局中即時改寫它，
@@ -7723,6 +7745,15 @@ function updateLevelBestLine(){
   if(isLvMode){
     el.classList.remove('hidden', 'beat');   // 里程碑是靜態事實，不呼吸閃爍
     el.textContent = '🏆 ' + T('lvb.trophyLevel', { n: maxLevelOf(currentMode) });
+    /* ★ v153 難度標示：接在「第 N 關」右邊，用顏色區分（白／綠／藍／紅）。
+       只有收集模式有難度分級；無盡、計時模式先不動（總監定案）。 */
+    if(currentMode === 'gem'){
+      const dt = tierDispOf(curDiff);
+      const tag = document.createElement('span');
+      tag.className = 'dtag dt' + dt;
+      tag.textContent = T(TIER_NAME_KEYS[dt]);
+      el.appendChild(tag);
+    }
   } else if(best > 0){
     el.classList.remove('hidden');
     // 超越之後數字跟著目前分同步爬升 —— 紀錄正被玩家親手改寫，就該一起往上跑（v104 定案②）
@@ -7730,6 +7761,7 @@ function updateLevelBestLine(){
     el.classList.toggle('beat', beaten);     // 慢速呼吸閃爍：快閃是警告，慢閃才是榮耀
   } else {
     el.classList.add('hidden');              // 無盡模式還沒有紀錄 → 沒有獎盃可秀
+    el.textContent = '';                     // ★ v153 順手清掉上一個模式殘留的難度標示
     el.classList.remove('beat');
   }
 
@@ -8004,7 +8036,7 @@ function resumeRun(){
   clearStreak     = Math.max(0, d.clearStreak|0);
   lastMilestone   = Math.max(0, d.lastMilestone|0);
   adRevivesUsed   = Math.max(0, d.adRevivesUsed|0);
-  if(d.curDiff && typeof d.curDiff==='object') curDiff = d.curDiff;
+  if(d.curDiff && typeof d.curDiff==='object') curDiff = normalizeDiff(d.curDiff);   // ★ v153 只信 tier，數值與 label 從預設表重取
   if(d.levelPalette && typeof d.levelPalette==='object') levelPalette = d.levelPalette;
 
   // 盤面：board 是 const 陣列，只能就地重填，不能整顆換掉
@@ -8339,7 +8371,7 @@ function startLevel(){
   if(currentMode!=='endless'){
     levelVal.textContent = level;
     // ★ v54 每關開場飄「第 X 關」進場說明；魔王/挑戰關則飄專屬 label 維持心跳感
-    if(curDiff.label){ setTimeout(()=>showCombo(T(curDiff.label)), 250); }   // ★ v36 label 為 i18n key
+    if(curDiff.label){ setTimeout(()=>showCombo('\u26A0\uFE0F ' + T(curDiff.label)), 250); }   // ★ v36 label 為 i18n key；★ v153 只有困難／超級難有 label
     else { setTimeout(()=>showLevelIntro(level), 200); }                     // ★ v54 一般關開場提示
   } else {
     levelVal.textContent = '∞';
@@ -8372,6 +8404,7 @@ function enterMode(mode, forceLevel){
   score = 0;
   lastMilestone = 0;        // ★ v148 里程碑歸零點：新的一局（不是新的一關）。score 在這裡歸零，兩者必須同進退
   winStreak = 0;            // ★ v6：新一局從蜜月期重新開始
+  curDiff = cloneDiff('normal');   // ★ v153 新的一局：上一局殘留的難度不能拿來判斷「剛打完困難」
   document.getElementById('menu').classList.add('hidden');
   const aw = document.getElementById('actionWrap'); if(aw) aw.classList.remove('hidden');  // ★ v54 進對局才顯示左上操作鈕
   startLevel();
@@ -8617,6 +8650,7 @@ function applyLang(){
   buildIapList();
   refreshMenuBadges();
   refreshEconomyUI();          // 內含 renderShopStates（每日鈕/去廣告鈕文案）
+  try{ updateLevelBestLine(); }catch(_){}   // ★ v153 左上角獎盃列與難度標示跟著語言換
   if(document.getElementById('loseOverlay').classList.contains('show')) refreshReviveBtn();
 }
 
