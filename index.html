@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v151</title>
-<meta property="og:title" content="繽紛樂 v151">
+<title>繽紛樂 v152</title>
+<meta property="og:title" content="繽紛樂 v152">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・看花開！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -1280,7 +1280,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v151・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v152・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1751,7 +1751,7 @@
       src: String(ev.filename || '').slice(0, 120),
       line: ev.lineno || 0, col: ev.colno || 0,
       stack: ev.error && ev.error.stack ? String(ev.error.stack).slice(0, MAX_STACK) : '',
-      ver: 'v151',
+      ver: 'v152',
     });
   });
 
@@ -1763,7 +1763,7 @@
       msg: String((reason && reason.message) || reason || '(無訊息)').slice(0, 200),
       src: '', line: 0, col: 0,
       stack: reason && reason.stack ? String(reason.stack).slice(0, MAX_STACK) : '',
-      ver: 'v151',
+      ver: 'v152',
     });
   });
 
@@ -1805,7 +1805,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v151・繽紛樂',
+  'menu.footer':'v152・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1931,7 +1931,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v151 · Vivid Blast',
+  'menu.footer':'v152 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -2050,7 +2050,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v151・ビビッドブラスト',
+  'menu.footer':'v152・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -2941,14 +2941,9 @@ function _gestureUnlock(){
   _silentPingSync();
   _unlocked = true;
   _wakeAudio(true);
-  /* ★ v138 音樂也跟著這一次手勢起音。BGM 用 const 宣告在後方，
-     但本函式只在使用者互動時執行（腳本早已求值完畢），不會踩到 TDZ。 */
-  try{ if(typeof BGM !== 'undefined') BGM.start(); }catch(e){}
 }
 
 document.addEventListener('visibilitychange', ()=>{
-  /* ★ v140 音樂跟著前後景走。BGM 宣告在後方，但本回呼只在執行期觸發，不會踩 TDZ。 */
-  try{ if(typeof BGM !== 'undefined') BGM.setHidden(document.visibilityState === 'hidden'); }catch(e){}
   if(document.visibilityState === 'hidden'){
     _unlocked = false;                 // 進背景就視為失去裝置，回來必須重新解鎖
   }else{
@@ -3392,11 +3387,6 @@ function lineClearScore(totalLines, streak){
 }
 
 let clearStreak = 0;            // 目前連消數（放下即消 +1；放下沒消 → 歸零）
-/* ★ v143 快板尾巴（總監定案）：連消斷掉時音樂不立刻收，而是進入「尾聲」——
-   從斷掉那一刻開始數消除次數（不必連續），數滿 2 次才把快板收回一般曲。
-   −1 = 不在尾聲；0/1 = 尾聲中已消除的次數。
-   目的是不讓音樂在「連消斷一下又接回來」時來回跳，聽起來像壞掉。 */
-let comboTail = -1;
 let lastSmartPraiseAt = 0;      // 聰明讚冷卻計時（防氾濫）
 let lastPlacement = null;       // 剛放下那一手的情報：{cells, contacts, filledContacts, size, perimeter, couldSetupBefore}
 const SMART_PRAISE_COOLDOWN = 6000;
@@ -3574,215 +3564,6 @@ function playVoice(key){
     return true;
   }catch(e){ return false; }
 }
-
-/* ============================================================
-   ★ v138 背景音樂（BGM）
-   ------------------------------------------------------------
-   兩首曲子，都是「整小節剪裁」的無縫循環段（不是淡入淡出的片段）：
-     main  一般場合，43.1 秒 = 16 小節 @ 89.1 BPM，−19.0 LUFS
-     rush  倒數模式紅區，28.2 秒 = 16 小節 @ 136 BPM，−17.8 LUFS
-   rush 刻意比 main 響 1.2 LU：切過去玩家要「感覺到壓上來」，
-   但差距小到不會像是音量被誰跳著調。
-
-   ── 為什麼走 Web Audio 而不是 <audio>.volume ──
-   iOS Safari 的 HTMLMediaElement.volume 是唯讀的。用它做交叉淡化
-   在 iPhone 上會完全沒有效果（桌機測起來卻是好的，最陰險的那種 bug）。
-   MediaElementSource → GainNode 才是唯一在 iOS 上真的能控音量的路。
-
-   ── 為什麼不接 adest 母帶總線 ──
-   音樂是持續訊號。灌進 adest 的壓縮器（threshold −18）會讓它一直觸發
-   增益衰減，消行音效跟著被壓扁；殘響則會把音樂本身糊成一團。
-   音樂走自己的 gain 直進喇叭，跟音效各走各的。
-
-   ── 音檔在哪（★ v139 總監定案：外置）──
-   兩首曲子是與 index.html 並排的獨立檔案，不再 base64 內嵌。
-   v138 曾內嵌，實測代價太大：base64 會脹 1.33 倍，兩首曲子佔掉整個
-   HTML 的 65%，而且每發一版玩家就得重新下載兩首完全沒變的曲子。
-   外置之後：
-     • index.html 維持 0.8MB → 選單瞬開，改版只重下程式碼
-     • 音檔由瀏覽器獨立快取 → 換版本不重下
-     • Capacitor 打包時本來就是多檔並存，比 base64 更自然
-   單檔架構的其餘部分（圖形、音效合成、字型）一律不變 ——
-   音檔是唯一「大體積、不會改、不需與程式碼同步」的資產，只有它破例。
-
-   保留 window.__BGM 覆寫接口：若日後要做「單檔離線版」（Email 一個檔就能玩），
-   把 base64 填進去即可，這裡的程式碼一行都不用改。
-
-   ⚠ 切背景回來的殘餘無聲問題沿用 v118 封存決議：不在網頁層修，
-     推到 Capacitor 打包後由原生 AVAudioSession 中斷通知接手。
-   ============================================================ */
-const BGM = {
-  VOL:  { main:0.34, rush:0.44 },   // 音樂是墊底的：消行音效永遠要壓得過它
-  FADE: 0.9,                        // 交叉淡化秒數（夠長不突兀，夠短不拖泥）
-  el:{}, gain:{}, rushing:false, wired:false, playing:false, _st:null,
-  hidden:false,                     // ★ v140 切到背景 → 兩軌一律停，回前景再續
-  /* ★ v142 閘門：齒輪選單開著、或人不在對局畫面時，音樂一律收掉。
-     與 hidden 分開記，因為兩者可能同時成立，解除時不能互相把對方蓋掉。 */
-  blocked:false,
-  /* ★ v142 快板有兩個獨立的需求方，用聯集決定要不要切過去：
-       rushHz    倒數模式壓力線進紅區（緊張）
-       rushCombo 連消 ×2 以上（歡樂加分時刻）
-     兩者互不知道對方存在，各自舉手，這裡取聯集 —— 未來要加第三個來源
-     （例如限時活動）只要再加一個旗標，不必動 apply()。 */
-  rushHz:false, rushCombo:false,
-};
-
-/* 音檔位置。相對路徑 → GitHub Pages 與 Capacitor 皆可直接取用。
-   window.__BGM 若有值（單檔離線版）優先採用，否則走這兩個外部檔。 */
-BGM.SRC = { main:'bgm_main.mp3', rush:'bgm_rush.mp3' };
-
-BGM.init = function(){
-  if(BGM.wired) return true;
-  const O = window.__BGM || {};
-  const D = { main: O.main || BGM.SRC.main, rush: O.rush || BGM.SRC.rush };
-  const ctx = actx(); if(!ctx) return false;
-  try{
-    ['main','rush'].forEach(k=>{
-      const a = new Audio();
-      a.src = D[k]; a.loop = true; a.preload = 'auto';
-      const src = ctx.createMediaElementSource(a);
-      const g = ctx.createGain(); g.gain.value = 0;
-      src.connect(g); g.connect(ctx.destination);
-      BGM.el[k] = a; BGM.gain[k] = g;
-    });
-  }catch(e){ return false; }                       // 極舊瀏覽器沒 MediaElementSource → 靜默沒音樂，遊戲照跑
-  BGM.wired = !!(BGM.el.main && BGM.el.rush);
-  return BGM.wired;
-};
-
-/* 把某一軌的音量斜坡到 v。用 AudioParam 排程而非逐幀 JS，交叉淡化才會平滑。 */
-BGM.ramp = function(k, v, fast){
-  const g = BGM.gain[k]; const ctx = _actx;
-  if(!g || !ctx) return;
-  try{
-    const t = ctx.currentTime;
-    g.gain.cancelScheduledValues(t);
-    g.gain.setValueAtTime(g.gain.value, t);
-    // ★ v142 fast：閘門關上（開齒輪／換模式／切背景）要在 0.18 秒內靜下來。
-    //    交叉淡化仍走 0.9 秒 —— 那是兩首曲子交接，慢一點才不突兀。
-    g.gain.linearRampToValueAtTime(v, t + (fast ? 0.18 : BGM.FADE));
-  }catch(e){ try{ g.gain.value = v; }catch(_){} }
-};
-
-/* 依「該不該播 / 播哪一首 / 音效總開關」算出兩軌各自的目標音量，一次套用。
-   所有狀態變化（開局、紅區進出、按下靜音）都收斂到這一個函式，不散在各處。 */
-BGM.apply = function(){
-  if(!BGM.wired) return;
-  const live = BGM.playing && soundOn && !BGM.hidden && !BGM.blocked;
-  const fast = !live && (BGM.hidden || BGM.blocked);   // ★ v142 閘門關上 → 快速收音
-  const want = { main:0, rush:0 };
-  if(live){ const k = BGM.rushing ? 'rush' : 'main'; want[k] = BGM.VOL[k]; }
-  ['main','rush'].forEach(k=>{
-    const a = BGM.el[k];
-    /* ★ v140 治「進紅區變靜音」的病根 ──────────────────────────
-       舊版只在 want[k] > 0 時才 play()，於是 rush 這一軌從頭到尾
-       沒有在「使用者手勢」的當下起播過。iOS Safari 的規則是逐元素的：
-       沒被手勢播過的 <audio>，之後任何程式呼叫 play() 一律被拒。
-       進紅區的 setRush(true) 發生在 rAF 迴圈裡（非手勢）→ 被擋 →
-       promise 被 catch 吞掉 → 慢曲照淡出、快曲起不來 → 全靜音。
-       桌機沒有這條限制，所以這個 bug 只在真機上出現。
-       解法：只要 live 就兩軌都播，靜音那軌把 gain 壓在 0 藏著跑。
-       代價是同時解兩支 mp3（各 30 秒短循環，可忽略），
-       換來的是切歌 100% 可靠 —— 這筆划算。 */
-    if(live && a.paused){ const p = a.play(); if(p && p.catch) p.catch(()=>{}); }
-    BGM.ramp(k, want[k], fast);
-  });
-  /* 只有「整個音樂該停」時才收兩軌（靜音鍵／離開對局／切背景）。
-     live 期間兩軌恆常播放，切歌純靠 gain 交叉，不再 pause 任何一軌。 */
-  clearTimeout(BGM._st);
-  if(!live){
-    const delay = fast ? 200 : BGM.FADE*1000 + 150;       // 閘門關上要立刻靜，不等淡化
-    BGM._st = setTimeout(()=>{
-      ['main','rush'].forEach(k=>{
-        const a = BGM.el[k];
-        if(a && !a.paused){ try{ a.pause(); }catch(e){} }
-      });
-    }, delay);
-  }
-};
-
-/* ★ v140 切背景／回前景。<audio> 預設在背景會繼續播 —— 必須主動攔。
-   兩軌都已被第一次手勢解鎖過，回前景時 play() 不需要新的手勢。 */
-BGM.setHidden = function(h){
-  h = !!h;
-  if(BGM.hidden === h) return;
-  BGM.hidden = h;
-  if(!BGM.wired) return;
-  if(!h) BGM.rewind();      // ★ v142 從背景回來 → 從頭播（總監定案）
-  BGM.apply();
-};
-
-/* ★ v142 兩軌一起倒回開頭。回前景、關掉齒輪、換模式都用它 ——
-   總監定案：音樂不做「接續播放」，回到遊戲畫面就從頭開始。 */
-BGM.rewind = function(){
-  ['main','rush'].forEach(k=>{
-    const a = BGM.el[k]; if(!a) return;
-    try{ a.currentTime = 0; }catch(e){}
-  });
-};
-
-/* ★ v142 閘門：齒輪選單開著、或正在切換模式時關上。
-   與 setHidden 分開，兩者可同時成立（開著齒輪切去別的 App），解除時互不干擾。 */
-BGM.setBlocked = function(b){
-  b = !!b;
-  if(BGM.blocked === b) return;
-  BGM.blocked = b;
-  if(!BGM.wired) return;
-  if(!b) BGM.rewind();
-  BGM.apply();
-};
-
-/* ★ v142 進對局：從頭起播，並把上一局殘留的快板需求全部清掉。 */
-BGM.restart = function(){
-  if(!BGM.init()) return;
-  BGM.rushHz = false; BGM.rushCombo = false; BGM.rushing = false;
-  BGM.blocked = false;
-  BGM.hidden = (typeof document !== 'undefined' && document.visibilityState === 'hidden');
-  BGM.rewind();
-  BGM.playing = true;
-  BGM.apply();
-};
-
-/* ★ v142 離開對局（回主選單）：整組停掉。 */
-BGM.stop = function(){
-  BGM.playing = false;
-  BGM.rushHz = false; BGM.rushCombo = false; BGM.rushing = false;
-  if(BGM.wired) BGM.apply();
-};
-
-/* 第一次使用者手勢時呼叫。iOS 只認手勢，這是唯一能起音的時機。 */
-BGM.start = function(){
-  if(!BGM.init()) return;
-  BGM.playing = true;
-  BGM.hidden = (typeof document !== 'undefined' && document.visibilityState === 'hidden');
-  BGM.apply();          // ★ v140 apply() 內已改成兩軌齊播 → rush 在這一刻拿到 iOS 的通行證
-};
-
-/* 紅區進出。切到 rush 時一律從樂句開頭打進來 —— 這首的第一小節就是滿能量，
-   玩家在最緊張的那一刻要立刻聽到東西，不是聽到某個樂句的中段。 */
-/* ★ v142 快板的兩個需求方各自舉手，這裡取聯集後才真的換軌。 */
-BGM._syncRush = function(){
-  const want = !!(BGM.rushHz || BGM.rushCombo);
-  if(BGM.rushing === want) return;
-  BGM.rushing = want;
-  if(want && BGM.el.rush){ try{ BGM.el.rush.currentTime = 0; }catch(e){} }
-  BGM.apply();
-};
-
-/* 連消 ×2 以上 → 快板。玩家不必看數字就知道「現在正在賺」。 */
-BGM.setCombo = function(on){
-  on = !!on;
-  if(BGM.rushCombo === on) return;
-  BGM.rushCombo = on;
-  BGM._syncRush();
-};
-
-BGM.setRush = function(on){
-  on = !!on;
-  if(BGM.rushHz === on) return;
-  BGM.rushHz = on;
-  BGM._syncRush();
-};
 
 /* ── 得分啾啾聲：短促上行的小音粒，數字爬升的聽覺對應物 ──
    step 越大音越高，連續呼叫時自動疊成「啾啾啾」的爬升感。 */
@@ -5366,7 +5147,6 @@ HZ.syncStage = function(){
 HZ.stop = function(){
   HZ.active = false;
   HZ.paused = false;
-  try{ BGM.setRush(false); }catch(e){}   // ★ v138 離開機關關 → 音樂淡回一般曲
 
   if(HZ.raf){ cancelAnimationFrame(HZ.raf); HZ.raf = 0; }
   clearTimeout(HZ.boomTimer); HZ.boomTimer = null;
@@ -5510,12 +5290,6 @@ HZ.render = function(){
     E.infl.setAttribute('stroke', HZ.cur);
   }
 
-  /* ★ v138 告急音樂：綁的是「玩家眼睛看到的那條紅線」的同一個門檻，不另立標準。
-     進場 0.75、退場 0.70 的遲滯是必要的 —— 玩家在門檻附近邊消邊被推，
-     沒有遲滯的話兩首曲子會來回抽搐。收集模式每 20 關的機關關走同一條壓力線，
-     因此自動共用同一套音樂邏輯，這裡不加模式分支。 */
-  const wantRush = HZ.active && !HZ.over && prog > (BGM.rushing ? 0.70 : 0.75);
-  if(BGM.rushing !== wantRush) BGM.setRush(wantRush);
 };
 
 HZ.loop = function(now){
@@ -6229,9 +6003,6 @@ function clearLines(){
   if(fullRows.length===0 && fullCols.length===0){
     // ★ v49 連消中斷：歸零、徽章收起，一切回到初始的基本小碎光
     if(clearStreak !== 0){ clearStreak = 0; updateStreakBadge(false); }
-    /* ★ v143 連消斷了 → 不立刻收音樂，改成開始數尾巴。
-       已經在尾聲中的話維持原計數，不重新歸零（否則永遠數不滿 2 次）。 */
-    if(BGM.rushCombo && comboTail < 0) comboTail = 0;
     moodOnBreak();           // ★ v132 連消中斷：借穿中的話從下一次消除開始倒數歸還
     checkSmartPlacement();   // ★ v49 沒消行才判定「聰明的一步」（消行有自己的讚美系統）
     afterMove();
@@ -6240,18 +6011,6 @@ function clearLines(){
 
   // ★ v49 連消 +1：放下即消，不間斷就一路疊
   clearStreak++;
-  /* ★ v142 連消 ×2 起 → 切快板（總監定案）。不看模式：倒數模式的紅區另有一路
-     需求（rushHz），兩邊取聯集，誰先舉手誰就把曲子換過去，互不打架。
-     ★ v143 加上尾巴：
-       連消回到 ×2 以上 → 重新武裝，尾巴計數作廢（音樂繼續）
-       仍在尾聲中     → 這次消除計 1 次，數滿 2 次才收音樂 */
-  try{
-    if(clearStreak >= 2){ BGM.setCombo(true); comboTail = -1; }
-    else if(comboTail >= 0){
-      comboTail++;
-      if(comboTail >= 2){ BGM.setCombo(false); comboTail = -1; }
-    }
-  }catch(e){}
   skinCheckExpiry();         // ★ v132 免費期 72 小時到了就在這一刻換回初始皮膚
   moodOnClear();             // ★ v132 連消借穿／歸還（獨立計數，不動 clearStreak）
   lastPlacement = null;      // 這一手已用消行慶祝，聰明讚不重複跳
@@ -8542,8 +8301,6 @@ function startLevel(){
 
   adRevivesUsed = 0;        // ★ v36 免費救援每關重置（上限 ECON.adReviveCap 次）
   clearStreak = 0;          // ★ v49 連消每關重新起算
-  comboTail = -1;           // ★ v143 尾巴不跨關
-  try{ BGM.setCombo(false); }catch(e){}   // ★ v142 新關卡 = 快板需求歸零
   /* ★ v148 這裡原本是 lastMilestone = 0（v54「每關重新起算」），已移到 enterMode。
      原因：門檻用的是累積分，一歸零就等於宣告「上一關達成的門檻全部沒發生過」，
      下一次 updateStatus 立刻重新跨過同一個門檻 → 新關一開場就跳金光＋慶祝音，
@@ -8617,9 +8374,6 @@ function enterMode(mode, forceLevel){
   winStreak = 0;            // ★ v6：新一局從蜜月期重新開始
   document.getElementById('menu').classList.add('hidden');
   const aw = document.getElementById('actionWrap'); if(aw) aw.classList.remove('hidden');  // ★ v54 進對局才顯示左上操作鈕
-  /* ★ v142 換模式 = 音樂從頭開始，而不是把上一個模式的進度接著播下去。
-     這裡是使用者手勢的同一條呼叫鏈（點模式卡），iOS 的起播許可拿得到。 */
-  try{ if(soundOn) BGM.restart(); }catch(e){}
   startLevel();
 }
 
@@ -8629,8 +8383,6 @@ function goHome(){
   roundEnded = false; winShown = false;   // ★ v134 降旗：離開對局，旗子不留到下一次進場
   currentMode = null;            // ★ v64 A2 回選單後系統不再誤以為「還在對局中」（商店買提示等誤觸的總根源）
   restStop();                    // ★ v98 回選單 = 這局的休息提醒作廢（不在選單背後偷偷彈）
-  comboTail = -1;                // ★ v143 尾巴不跨局
-  try{ BGM.stop(); }catch(e){}   // ★ v142 回選單 = 音樂收掉，選單頁保持安靜
   HZ.stop();                     // ★ v33 收掉機關圖層 + 停 rAF，否則氣球在選單背後繼續膨脹
   refreshMenuBadges();           // 剛打完的最高關，回選單就要看得到
   document.getElementById('winOverlay').classList.remove('show');
@@ -8766,7 +8518,6 @@ function openGear(){
   }
   document.getElementById('gearMenu').classList.add('show');
   document.getElementById('gearBackdrop').classList.add('show');
-  try{ BGM.setBlocked(true); }catch(e){}    // ★ v142 開設定 = 音樂停（總監定案）
 }
 function closeGear(){
   // 解凍前先確認失敗視窗沒開著 —— 從失敗視窗上開齒輪再關，不能把氣球放出來
@@ -8774,7 +8525,6 @@ function closeGear(){
   document.getElementById('gearMenu').classList.remove('show');
   document.getElementById('gearBackdrop').classList.remove('show');
   document.getElementById('gearBackdrop').classList.remove('privacy');   // ★ v87 收幕，不留殘影
-  try{ BGM.setBlocked(false); }catch(e){}   // ★ v142 關設定 = 音樂從頭再來
 }
 document.getElementById('gearBtn').onclick = (e)=>{
   e.stopPropagation();
@@ -8816,9 +8566,6 @@ document.getElementById('soundBtn').onclick = function(){
   this.querySelector('.gm-ic').textContent = soundOn ? '🔊' : '🔇';
   this.style.opacity = soundOn ? '1' : '.55';
   if(soundOn){ actx(); playCrack(); }   // 開啟時解鎖音訊 + 試聽一聲
-  /* ★ v138 音樂與音效共用同一個開關：不新增選單列、不新增三語文案、不動存檔格式。
-     玩家對「🔊」的預期就是「全部的聲音」，拆成兩顆反而要他多按一次。 */
-  try{ if(BGM.wired) BGM.apply(); else if(soundOn) BGM.start(); }catch(e){}
   saveGame();                            // ★ v21 記住玩家的音效偏好
 };
 
