@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v155</title>
-<meta property="og:title" content="繽紛樂 v155">
+<title>繽紛樂 v156</title>
+<meta property="og:title" content="繽紛樂 v156">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・看花開！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -419,26 +419,6 @@
     z-index:0;
     border:5px solid;
     border-color:rgba(255,255,255,.52) rgba(0,0,0,.22) rgba(0,0,0,.36) rgba(255,255,255,.24); }
-  /* ============================================================
-     ★ v155 開局障礙方塊（總監定案 20260926）：石紋方塊，跨皮膚固定同一種材質，
-     讓玩家一眼認出「這格不是我放的、不能隨便忽略」。裂痕與 hp 數字都是純實色疊圖，
-     不用 opacity<1（沿用專案對方塊材質的既有規範）。
-     ============================================================ */
-  .filled.obstacle { background:linear-gradient(155deg,#9a9cb0 0%,#6d6f85 45%,#54566a 100%); }
-  .filled.obstacle::after { content:''; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
-    background-image:
-      linear-gradient(118deg, transparent 44%, rgba(255,255,255,.30) 46%, rgba(255,255,255,.30) 48%, transparent 50%),
-      linear-gradient(28deg,  transparent 38%, rgba(30,20,10,.32) 40%, rgba(30,20,10,.32) 42%, transparent 44%); }
-  .filled.obstacle[data-hp="1"]::after { background-image:
-      linear-gradient(118deg, transparent 40%, rgba(255,255,255,.32) 42%, rgba(255,255,255,.32) 44%, transparent 46%),
-      linear-gradient(28deg,  transparent 34%, rgba(20,10,5,.4) 36%, rgba(20,10,5,.4) 38%, transparent 40%),
-      linear-gradient(72deg,  transparent 58%, rgba(20,10,5,.36) 60%, rgba(20,10,5,.36) 62%, transparent 64%); }
-  .ob-hp { position:relative; z-index:1; font-size:15px; font-weight:900; color:#fff;
-    text-shadow:0 1px 3px rgba(0,0,0,.65); }
-  /* 挨了一下線清但 hp 還沒見底：抖一下＋亮一下，讓玩家感覺「打中了」而不是消行沒反應 */
-  .cell.ob-hit .filled.obstacle { animation:obHit .32s ease; }
-  @keyframes obHit { 0%{filter:brightness(1);transform:scale(1);} 35%{filter:brightness(1.6);transform:scale(.88) rotate(-2deg);}
-    70%{filter:brightness(1.15);transform:scale(1.04) rotate(1deg);} 100%{filter:brightness(1);transform:scale(1);} }
   /* ★ v73.4 光斑全域移除：舊版左上角柔光是「果凍殼」的視覺語言，全皮膚共用、
      甩不掉——參考業界 Wood Block Puzzle 類遊戲後發現它們的方塊頂面幾乎純色平塗，
      立體感全靠斜切邊框撐，光斑反而是「舊時代手遊」的印記。直接關閉，
@@ -1352,7 +1332,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v155・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v156・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1837,7 +1817,7 @@
       src: String(ev.filename || '').slice(0, 120),
       line: ev.lineno || 0, col: ev.colno || 0,
       stack: ev.error && ev.error.stack ? String(ev.error.stack).slice(0, MAX_STACK) : '',
-      ver: 'v155',
+      ver: 'v156',
     });
   });
 
@@ -1849,7 +1829,7 @@
       msg: String((reason && reason.message) || reason || '(無訊息)').slice(0, 200),
       src: '', line: 0, col: 0,
       stack: reason && reason.stack ? String(reason.stack).slice(0, MAX_STACK) : '',
-      ver: 'v155',
+      ver: 'v156',
     });
   });
 
@@ -1891,7 +1871,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v155・繽紛樂',
+  'menu.footer':'v156・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -2017,7 +1997,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v155 · Vivid Blast',
+  'menu.footer':'v156 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -2136,7 +2116,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v155・ビビッドブラスト',
+  'menu.footer':'v156・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -4317,59 +4297,70 @@ function pickWeightedShape(){
 const rand = n => Math.floor(Math.random()*n);
 
 /* ============================================================
-   ★ v155 開局障礙方塊（總監定案 20260926）
+   ★ v156 開局障礙方塊（總監修正定案 20260926）
    ------------------------------------------------------------
-   只在收集模式（gem）、教育期＋放水期（level ≤ 10）之後才可能出現；
-   出現與否、放幾顆、耐久幾點，全部掛在本關已經抽出的難度分級（curDiff.tier）上——
-   難度系統本身已經把「難以上」變稀有，這裡不再疊加另一套獨立機率的心智負擔，
-   只在「本關真的抽到難以上」時才擲一次要不要放、放多少。
-   一般／放水難度完全不會出現障礙——維持總監說的「福利品要乾淨」。
+   總監看過總監參考圖後指正：障礙物不是「特殊材質、要打好幾下才會破」的硬方塊
+   （那是 v155 誤解的方向，已整段收回），而是「開局棋盤上預先擺好的一般方塊」——
+   材質、顏色、清除方式跟玩家自己放的方塊完全一樣，純粹是「一開局棋盤就不是
+   空的」這件事本身構成考驗，玩家得想辦法把這些既有方塊跟手上的牌一起消掉。
 
-   位置只挑棋盤最外圈（第一/最後一列或欄），把中央留給玩家操作；
-   一塊全空棋盤上最多放 4 顆，遠低於「消行機制保證盤面至少一格空」的下限，
-   不需要額外驗證死局——障礙格對「公平發牌」（makeBalancedTrio）而言
-   就是一般已占用格，三張牌仍保證放得下，核心引擎一行都不用改。
+   做法：直接借用遊戲既有的方塊形狀庫（SHAPE_LIB），隨機挑形狀、隨機轉向、
+   隨機丟到棋盤上還空著的合法位置，丟到接近目標覆蓋率就收手。丟的時候會
+   即時檢查「這次放下去會不會讓整行或整列一開局就是滿的」（那樣等於玩家
+   還沒動手棋盤就自動消行一次，莫名其妙），會的話撤回這次嘗試、換個地方再試。
 
-   耐久：hp>1 時格內顯示剩餘敲擊次數；hp=1 時不顯示數字，改用更深的裂痕暗示「快了」。
-   打法：這格所在的整行或整列被消滿的當下，不會像普通格直接清空，
-   而是先扣一點 hp、原地留下更深的裂痕；hp 見底那一次才真正清除、
-   照普通格計分／播特效（障礙格沒有寶石，不會誤算進收集目標）。
+   關鍵好處：生出來的格子資料跟玩家放的方塊一模一樣（{color, gem:null, glow:false}），
+   對存讀檔、消行判定、公平發牌（makeBalancedTrio）而言就是「一般已占用格」，
+   全部原封不動地正確處理，不需要任何新欄位、新特例，也完全不碰核心引擎。
 
-   crackObstacle 刻意留 force 參數：未來要接「鑽石敲開」商店道具時，
-   按鈕只要呼叫 crackObstacle(r,c,true) 瞬間敲光即可，不必再碰這裡任何邏輯。
+   只在收集模式、教育期＋放水期（level>10）之後才可能出現；出現機率與覆蓋格數
+   隨本關難度分級（curDiff.tier）而定——沿用難度系統既有的「難以上才稀有出現」
+   原則，一般／放水難度維持空盤。
    ============================================================ */
-const OBSTACLE_RULES = {
-  spike: { chance:0.40, count:[1,2], hp:[1,1] },   // 難：偶爾出現，1 下就破
-  hard:  { chance:0.65, count:[2,3], hp:[1,2] },   // 困難：常出現，1~2 下
-  boss:  { chance:0.85, count:[3,4], hp:[2,3] },   // 超級難：幾乎必出，扎實 2~3 下
+const PREFILL_RULES = {
+  spike: { chance:0.40, target:[10,14] },   // 難：小考驗
+  hard:  { chance:0.65, target:[16,20] },   // 困難：明顯的開局挑戰
+  boss:  { chance:0.85, target:[22,27] },   // 超級難：真的要動腦才能起手
 };
+/* 形狀 90 度旋轉：SHAPE_LIB 的 cells 是 [r,c] 元組陣列（不是 {r,c} 物件），
+   這裡照同樣格式處理，轉完重新正規化回左上角靠 0,0，避免超出棋盤判定出錯。 */
+function rotateShapeCells(cells){
+  const maxR = Math.max(...cells.map(([r])=>r));
+  const rot = cells.map(([r,c])=>[c, maxR-r]);
+  const minR = Math.min(...rot.map(([r])=>r)), minC = Math.min(...rot.map(([,c])=>c));
+  return rot.map(([r,c])=>[r-minR, c-minC]);
+}
 function placeObstacles(){
   if(currentMode !== 'gem') return;         // ★ 其他模式先不動（沿用難度系統既有原則，總監已定案）
   if(level <= 10) return;                   // ★ 教育期＋放水期維持空盤
-  const rule = OBSTACLE_RULES[curDiff.tier];
+  const rule = PREFILL_RULES[curDiff.tier];
   if(!rule) return;                         // 一般／放水：維持空盤
   if(Math.random() >= rule.chance) return;
-  const n = rule.count[0] + rand(rule.count[1]-rule.count[0]+1);
-  const rim = [];
-  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
-    if(r===0||r===SIZE-1||c===0||c===SIZE-1) rim.push([r,c]);
+  const target = rule.target[0] + rand(rule.target[1]-rule.target[0]+1);
+  // 形狀池：排除稀有救命小牌（單/雙格、斜牌）——那些是留給玩家解圍用的，
+  // 不該拿來當開局路障；也排除 6 格以上的大塊頭，避免一次佔掉太大一塊。
+  const pool = SHAPE_LIB.filter(s=> s.tier !== 'rare' && s.cells.length <= 5);
+  let filled = 0, guard = 0;
+  while(filled < target && guard < 300){
+    guard++;
+    const def = pick(pool);
+    let cells = def.cells;
+    const rot = rand(4);
+    for(let i=0;i<rot;i++) cells = rotateShapeCells(cells);
+    const maxR = Math.max(...cells.map(([r])=>r)), maxC = Math.max(...cells.map(([,c])=>c));
+    if(maxR>=SIZE || maxC>=SIZE) continue;
+    const baseR = rand(SIZE-maxR), baseC = rand(SIZE-maxC);
+    if(cells.some(([r,c])=> board[baseR+r][baseC+c])) continue;   // 疊到既有方塊：換一次
+    const placed = cells.map(([r,c])=>[baseR+r, baseC+c]);
+    placed.forEach(([r,c])=>{ board[r][c] = { color:pickPieceColor(), gem:null, glow:false }; });
+    // 開局就整行/整列滿＝還沒開始就自動消行，莫名其妙：偵測到就撤回這次放置
+    let wouldClear = false;
+    const rows = new Set(placed.map(([r])=>r)), cols = new Set(placed.map(([,c])=>c));
+    rows.forEach(r=>{ if(board[r].every(x=>x)) wouldClear = true; });
+    cols.forEach(c=>{ if(board.every(row=>row[c])) wouldClear = true; });
+    if(wouldClear){ placed.forEach(([r,c])=>{ board[r][c] = null; }); continue; }
+    filled += placed.length;
   }
-  for(let i=rim.length-1;i>0;i--){ const j=rand(i+1); const t=rim[i]; rim[i]=rim[j]; rim[j]=t; }   // Fisher–Yates
-  rim.slice(0, Math.min(n, rim.length)).forEach(([r,c])=>{
-    const hp = rule.hp[0] + rand(rule.hp[1]-rule.hp[0]+1);
-    board[r][c] = { color:'#7d7f95', gem:null, glow:false, obstacle:true, hp };
-  });
-}
-/* 障礙格挨了一次線清：hp-1。force=true（未來鑽石道具用）直接歸零。
-   回傳 true＝這格已見底，呼叫端要當一般格清掉；false＝格子還在，只是裂痕更深，
-   呼叫端要略過本格的清空／計分／崩塌特效，只播一個「打中了」的小抖動。 */
-function crackObstacle(r, c, force){
-  const d = board[r][c];
-  if(!d || !d.obstacle) return true;
-  d.hp = force ? 0 : d.hp - 1;
-  if(d.hp <= 0) return true;
-  markCellDirty(r,c);   // hp 變了：外觀（裂痕／數字）下次 renderBoard 一定要重畫
-  return false;
 }
 const pick = arr => arr[rand(arr.length)];
 
@@ -4844,22 +4835,11 @@ function markCellDirty(r,c){
   if(_cellKeys && _cellKeys[r] !== undefined) _cellKeys[r][c] = '\u0000dirty';
 }
 function _cellKeyOf(data){
-  if(!data) return '';
-  if(data.obstacle) return 'OB|'+data.hp;   // ★ v155 障礙格只認 hp，皮膚/材質固定，跟其餘系統無關
-  return data.color+'|'+(data.gem||'')+'|'+(data.glow?1:0)+'|'+activeSkinId();
+  return data ? (data.color+'|'+(data.gem||'')+'|'+(data.glow?1:0)+'|'+activeSkinId()) : '';
 }
 function _makeFilled(data){
   const f = document.createElement('div');
   f.className = 'filled';
-  if(data.obstacle){   // ★ v155 障礙格：固定石紋材質，不吃皮膚/寶石渲染那一套
-    f.classList.add('obstacle');
-    f.dataset.hp = data.hp;
-    if(data.hp > 1){
-      const b = document.createElement('div'); b.className = 'ob-hp'; b.textContent = data.hp;
-      f.appendChild(b);
-    }
-    return f;
-  }
   f.style.background = gemMaterial(skinPieceColor(data.color, data.gem), activeSkinId());
   if(data.gem){ f.innerHTML = gemSVG(data.gem); if(data.glow) f.classList.add('glow'); }
   return f;
@@ -6200,7 +6180,6 @@ function clearLines(){
   const justDone = [];   // 這一次「剛好收齊達標」的目標 → 只有這些才響達標音
   const flyList = [];    // ★ v21 待飛的食物：{gem, cellEl, rect} → 稍後拋向任務欄
   const cellFx  = [];    // ★ v68 ⑥ 每格特效素材先入袋：{data, cellHost, rect}，下一幀才開演
-  const crackedCells = [];   // ★ v155 這輪被線清「打到」但 hp 還沒見底的障礙格：只播抖動，不清空、不計分
   // ★ v66 ② 棋盤座標只量 1 次、其餘用數學推（v68 沿用）。
   // ★ v68 ⑥「資料同步、視覺下一幀」：這個迴圈從此只做資料 ——
   //   盤面清空、收集記帳、機關洩氣（v64 S1 防白嫖鎖原封不動，資料仍在 pointerup 當下清完）。
@@ -6212,11 +6191,6 @@ function clearLines(){
   toClear.forEach(key=>{
     const [r,c]=key.split('_').map(Number);
     const data=board[r][c];
-    if(data && data.obstacle){
-      // ★ v155 障礙格只扣血、不清空——見底之前，這格「消行」等於白打，只留裂痕當回饋
-      const broken = crackObstacle(r,c);
-      if(!broken){ crackedCells.push(boardCellEl(r,c)); return; }
-    }
     board[r][c] = null;   // ★ v64 S1 資料當場清空（動畫層演的是屍體）：
                           //   堵死 360ms 空窗內再放一張牌 → 重掃發現「該列還滿」→ 同列重複收集/計分/洩氣的白嫖漏洞
     markCellDirty(r,c);   // ★ v66 ① 動畫層即將徒手改這格 DOM（藏方塊、摘寶石）→ 踩髒指紋，強迫下次 diff 重建
@@ -6290,12 +6264,6 @@ function clearLines(){
       spawnTwinkle(cellEl, 'clear', rect, fxFrag, twinklePer);
     });
     document.body.appendChild(fxFrag);
-
-    // ★ v155 障礙格「打中但沒破」：補一個抖動＋亮一下，玩家才知道這行有打到東西
-    crackedCells.forEach(cellHost=>{
-      if(!cellHost) return;
-      cellHost.classList.remove('ob-hit'); void cellHost.offsetWidth; cellHost.classList.add('ob-hit');
-    });
 
     // ── ★ v49 連消慶祝階梯（含徽章＋中央大字，v68 ⑥ 自 pointerup 幀移駕至此）──
     updateStreakBadge(true);
@@ -8143,7 +8111,7 @@ function saveRun(){
     const data = {
       v: RUN_VER, at: Date.now(),
       mode: currentMode, level, score,
-      board: board.map(row=> row.map(cell=> cell ? { color:cell.color, gem:cell.gem||null, glow:!!cell.glow, obstacle:!!cell.obstacle, hp:cell.hp||0 } : null)),   // ★ v155 障礙格的 obstacle/hp 要跟著存，不然續玩後悄悄變回普通格
+      board: board.map(row=> row.map(cell=> cell ? { color:cell.color, gem:cell.gem||null, glow:!!cell.glow } : null)),
       tray: trayPieces.map(_serPiece),
       goals: goals.map(g=>({ gem:g.gem, need:g.need, got:g.got })),
       winStreak, curDiff, levelStartScore, movesLeft,
@@ -8207,8 +8175,7 @@ function resumeRun(){
     const row = d.board[r] || [];
     for(let c=0;c<SIZE;c++){
       const cell = row[c];
-      board[r][c] = cell && cell.obstacle ? { color:cell.color||'#7d7f95', gem:null, glow:false, obstacle:true, hp:Math.max(1,cell.hp|0) }
-                  : cell ? { color:cell.color, gem:(cell.gem && GEMS[cell.gem]) ? cell.gem : null, glow:!!cell.glow } : null;   // ★ v155 障礙格還原
+      board[r][c] = cell ? { color:cell.color, gem:(cell.gem && GEMS[cell.gem]) ? cell.gem : null, glow:!!cell.glow } : null;
     }
   }
   trayPieces = d.tray.map(_desPiece).filter(Boolean);
@@ -8513,7 +8480,7 @@ function startLevel(){
   refreshEconomyUI();       // ★ v36 側欄鑽石/炸彈數即時同步
 
   initBoard();
-  placeObstacles();          // ★ v155 空盤鋪好障礙方塊，之後 refillTray 的公平發牌會自動把它們當占用格處理
+  placeObstacles();          // ★ v156 空盤鋪好開局障礙方塊，之後 refillTray 的公平發牌會自動把它們當占用格處理
   generateGoals();          // 走當前模式的 setup()（會讀 curDiff）
   HZ.syncGoals();           // ★ v32 機關關覆寫目標為 3 種×8。務必早於 refillTray()
   /* ★ v141 順序修正：舊版 calcCellSize() 跑在 renderGoals() 之前，
