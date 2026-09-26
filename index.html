@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v156</title>
-<meta property="og:title" content="繽紛樂 v156">
+<title>繽紛樂 v157</title>
+<meta property="og:title" content="繽紛樂 v157">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・看花開！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -1332,7 +1332,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v156・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v157・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1817,7 +1817,7 @@
       src: String(ev.filename || '').slice(0, 120),
       line: ev.lineno || 0, col: ev.colno || 0,
       stack: ev.error && ev.error.stack ? String(ev.error.stack).slice(0, MAX_STACK) : '',
-      ver: 'v156',
+      ver: 'v157',
     });
   });
 
@@ -1829,7 +1829,7 @@
       msg: String((reason && reason.message) || reason || '(無訊息)').slice(0, 200),
       src: '', line: 0, col: 0,
       stack: reason && reason.stack ? String(reason.stack).slice(0, MAX_STACK) : '',
-      ver: 'v156',
+      ver: 'v157',
     });
   });
 
@@ -1871,7 +1871,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v156・繽紛樂',
+  'menu.footer':'v157・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1997,7 +1997,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v156 · Vivid Blast',
+  'menu.footer':'v157 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -2116,7 +2116,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v156・ビビッドブラスト',
+  'menu.footer':'v157・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -4313,14 +4313,19 @@ const rand = n => Math.floor(Math.random()*n);
    對存讀檔、消行判定、公平發牌（makeBalancedTrio）而言就是「一般已占用格」，
    全部原封不動地正確處理，不需要任何新欄位、新特例，也完全不碰核心引擎。
 
-   只在收集模式、教育期＋放水期（level>10）之後才可能出現；出現機率與覆蓋格數
-   隨本關難度分級（curDiff.tier）而定——沿用難度系統既有的「難以上才稀有出現」
-   原則，一般／放水難度維持空盤。
+   只在收集模式才可能出現；出現機率與覆蓋格數隨本關難度分級（curDiff.tier）而定——
+   五個難度（chill／normal／spike／hard／boss）各自都有機率與格數區間，越難機率
+   越高、覆蓋越廣。★ v157 起：不再排除第 1~10 關（教學期＋放水期固定抽到 chill），
+   從第 1 關（含教學關）就會依此曲線出現，只是 chill／normal 本身機率與格數都設
+   得很低，等於「淺量出現」而非完全沒有——總監定案：教學期也要有，但密度仍照既
+   有的難度分級％系統走，不另外疊加關卡數的特例判斷。
    ============================================================ */
 const PREFILL_RULES = {
-  spike: { chance:0.40, target:[10,14] },   // 難：小考驗
-  hard:  { chance:0.65, target:[16,20] },   // 困難：明顯的開局挑戰
-  boss:  { chance:0.85, target:[22,27] },   // 超級難：真的要動腦才能起手
+  chill:  { chance:0.25, target:[3,6]   },  // 一般（教學期＋放水期，第1~10關固定抽到）：最淺，讓新手先學會拖放
+  normal: { chance:0.35, target:[6,9]   },  // 一般（抽籤期福利關）：比 chill 略多，玩家已上手
+  spike:  { chance:0.40, target:[10,14] },  // 難：小考驗
+  hard:   { chance:0.65, target:[16,20] },  // 困難：明顯的開局挑戰
+  boss:   { chance:0.85, target:[22,27] },  // 超級難：真的要動腦才能起手
 };
 /* 形狀 90 度旋轉：SHAPE_LIB 的 cells 是 [r,c] 元組陣列（不是 {r,c} 物件），
    這裡照同樣格式處理，轉完重新正規化回左上角靠 0,0，避免超出棋盤判定出錯。 */
@@ -4332,9 +4337,8 @@ function rotateShapeCells(cells){
 }
 function placeObstacles(){
   if(currentMode !== 'gem') return;         // ★ 其他模式先不動（沿用難度系統既有原則，總監已定案）
-  if(level <= 10) return;                   // ★ 教育期＋放水期維持空盤
   const rule = PREFILL_RULES[curDiff.tier];
-  if(!rule) return;                         // 一般／放水：維持空盤
+  if(!rule) return;                         // 保底：萬一 tier 名稱對不上，寧可空盤也不要炸掉
   if(Math.random() >= rule.chance) return;
   const target = rule.target[0] + rand(rule.target[1]-rule.target[0]+1);
   // 形狀池：排除稀有救命小牌（單/雙格、斜牌）——那些是留給玩家解圍用的，
