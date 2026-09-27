@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>繽紛樂 v158</title>
-<meta property="og:title" content="繽紛樂 v158">
+<title>繽紛樂 v159</title>
+<meta property="og:title" content="繽紛樂 v159">
 <meta name="google" content="notranslate">
 <meta property="og:description" content="VIVID BLAST 繽紛樂 放方塊・消整排・看花開！台灣獨立製作">
 <meta property="og:type" content="website">
@@ -1333,7 +1333,7 @@
   <!-- ★ v112 SVG 選單容器：內容由 buildMenuSVG() 以座標繪製 -->
   <div id="menuSvgHost"></div>
 
-  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v158・繽紛樂</div>
+  <div class="footer-note" id="footerNote" data-i18n="menu.footer">v159・繽紛樂</div>
 </div>
 
 <!-- ★ v112 開局選項視窗：取代首頁的「繼續上一局」卡片，把選擇挪到玩家真的要開局的那一刻 -->
@@ -1818,7 +1818,7 @@
       src: String(ev.filename || '').slice(0, 120),
       line: ev.lineno || 0, col: ev.colno || 0,
       stack: ev.error && ev.error.stack ? String(ev.error.stack).slice(0, MAX_STACK) : '',
-      ver: 'v158',
+      ver: 'v159',
     });
   });
 
@@ -1830,7 +1830,7 @@
       msg: String((reason && reason.message) || reason || '(無訊息)').slice(0, 200),
       src: '', line: 0, col: 0,
       stack: reason && reason.stack ? String(reason.stack).slice(0, MAX_STACK) : '',
-      ver: 'v158',
+      ver: 'v159',
     });
   });
 
@@ -1872,7 +1872,7 @@ const I18N = {
 'zh-Hant': {
   _name:'繁體中文',
   'menu.title':'繽紛樂', 'menu.tagline':'消除方塊。收集寶石',
-  'menu.footer':'v158・繽紛樂',
+  'menu.footer':'v159・繽紛樂',
   /* ★ v112 開局選項視窗（取代首頁的「繼續上一局」卡片） */
   'st.titleResume':'上次還有一局沒下完', 'st.titleFresh':'準備好了嗎',
   'st.metaLv':'第 {n} 關 · {s} 分', 'st.metaScore':'{s} 分',
@@ -1998,7 +1998,7 @@ const I18N = {
 'en': {
   _name:'English',
   'menu.title':'Vivid Blast', 'menu.tagline':'Clear blocks. Collect gems.',
-  'menu.footer':'v158 · Vivid Blast',
+  'menu.footer':'v159 · Vivid Blast',
   /* ★ v112 start options dialog */
   'st.titleResume':'You left a run unfinished', 'st.titleFresh':'Ready?',
   'st.metaLv':'Level {n} · {s} pts', 'st.metaScore':'{s} pts',
@@ -2117,7 +2117,7 @@ const I18N = {
 'ja': {
   _name:'日本語',
   'menu.title':'ビビッドブラスト', 'menu.tagline':'ブロックを消して、宝石を集めよう',
-  'menu.footer':'v158・ビビッドブラスト',
+  'menu.footer':'v159・ビビッドブラスト',
   /* ★ v112 スタート選択ウィンドウ */
   'st.titleResume':'前回の途中データがあります', 'st.titleFresh':'準備はいい？',
   'st.metaLv':'レベル {n} · {s} 点', 'st.metaScore':'{s} 点',
@@ -2246,6 +2246,7 @@ let level = 1;
 let goals = [];            // 本關目標 [{gem, need, got}]
 let trayPieces = [];       // 待命區三塊
 let dragState = null;
+let pendingOpeningHand = null;   // ★ v159 殘局謎題引擎：本關「解答牌＋陪襯牌」暫存，refillTray() 第一次發牌時取用一次即清空
 
 /* ===== 模式系統狀態 ===== */
 let currentMode = null;    // 'endless' | 'gem'（'rescue' 留給 v7）
@@ -4307,34 +4308,43 @@ function pickWeightedShape(){
 const rand = n => Math.floor(Math.random()*n);
 
 /* ============================================================
-   ★ v156 開局障礙方塊（總監修正定案 20260926），★ v158 拿掉「機率」（總監定案 20260927）
+   ★ v159 殘局謎題引擎（總監定案 20260928）：反向出題，保證有解
    ------------------------------------------------------------
-   總監看過總監參考圖後指正：障礙物不是「特殊材質、要打好幾下才會破」的硬方塊
-   （那是 v155 誤解的方向，已整段收回），而是「開局棋盤上預先擺好的一般方塊」——
-   材質、顏色、清除方式跟玩家自己放的方塊完全一樣，純粹是「一開局棋盤就不是
-   空的」這件事本身構成考驗，玩家得想辦法把這些既有方塊跟手上的牌一起消掉。
+   總監帶著另一款遊戲的參考截圖（近全滿棋盤＋3 張牌）指出核心洞察：
+   好玩的「開局幾乎全滿」關卡，難度不是來自「隨機鋪多少格」，而是來自
+   「發給玩家的手牌，是不是剛好能解開盤面」。本遊戲沒有時間限制，玩家
+   可以慢慢想「這一手要怎麼下才能把這一行/這一列清掉」——這個「破解
+   殘局」的頓悟時刻才是留存玩家的關鍵。v156~v158 的「隨機密度」做法
+   完全沒有保證每一局都解得出來，也沒有這種「量身訂做」的解謎感，
+   總監明確要求直接做「反向出題引擎」：先決定答案，再回推題目。
 
-   做法：直接借用遊戲既有的方塊形狀庫（SHAPE_LIB），隨機挑形狀、隨機轉向、
-   隨機丟到棋盤上還空著的合法位置，丟到接近目標覆蓋率就收手。丟的時候會
-   即時檢查「這次放下去會不會讓整行或整列一開局就是滿的」（那樣等於玩家
-   還沒動手棋盤就自動消行一次，莫名其妙），會的話撤回這次嘗試、換個地方再試。
+   做法（反向出題，而非隨機鋪完再檢查有沒有解）：
+   ① 選一（或兩）條「即將完成」的行／列：先決定一段長度 3~5 的連續缺口
+      （gap），把該行/列除了缺口以外的格子全部先鋪滿方塊。
+   ② 缺口的形狀（3/4/5 格一字長條，借用 SHAPE_LIB 現成的長條定義）直接
+      做成「解答牌」——透過既有的 makePiece() 建構函式，跟玩家平常抽到
+      的長條牌資料結構完全一樣，放進去、對準缺口，一放就整行/整列清除，
+      得到「啊，原來要這樣拆」的頓悟快感。
+   ③ 缺口本身在鋪線階段保持 null（棋盤上暫時是空的），但用 reserved
+      集合記起來——後面的隨機填充（跟 v156~158 的邏輯共用）絕對不能把
+      這些格子鋪滿，否則解答牌就對不上縫、殘局變死局。
+   ④ 開局那一手三張牌不再走 makeBalancedTrio() 的隨機池，而是「解答牌
+      ＋陪襯牌」的固定組合，透過 pendingOpeningHand 暫存，讓 refillTray()
+      在本關第一次發牌時直接取用；之後正常發牌完全不受影響（沿用原本
+      的公平發牌邏輯，makeBalancedTrio 一字不改，核心引擎不碰）。
 
-   關鍵好處：生出來的格子資料跟玩家放的方塊一模一樣（{color, gem:null, glow:false}），
-   對存讀檔、消行判定、公平發牌（makeBalancedTrio）而言就是「一般已占用格」，
-   全部原封不動地正確處理，不需要任何新欄位、新特例，也完全不碰核心引擎。
-
-   只在收集模式才會出現；★ v158 總監定案：每一關都保證出現，不再用「機率」決定
-   要不要出現——只有覆蓋格數隨本關難度分級（curDiff.tier）而定，五個難度
-   （一般／普通／難／困難／超困難）份量平滑遞增，不會再有「開局棋盤是空的」
-   這種情況。第 1~10 關（教學期＋放水期）固定抽到「一般」，份量也是全部難度
-   中最淺的一級，連新手第一關都會看到一點點、但絕不嚇人的預放方塊。
+   五個難度都套用同一顆引擎，差別只在「缺口行/列的數量」機率：
+   一般／普通固定 1 條；難 40% 機率變 2 條；困難 65% 機率變 2 條；
+   超困難固定 2 條。兩條缺口一定同方向（都橫或都直），避免交叉格造成
+   兩個缺口互相打架的複雜案例。第 1~10 關（教學期＋放水期）固定抽到
+   「一般」難度，同樣走這套引擎、只是缺口與填充份量都是最淺的一級。
    ============================================================ */
 const PREFILL_RULES = {
-  chill:  { target:[2,4]   },  // 一般（教學期＋放水期固定抽到；抽籤期也可能抽到，當舒緩級）：份量最淺
-  normal: { target:[5,8]   },  // 普通（抽籤期最常見的一級）：份量中等
-  spike:  { target:[10,14] },  // 難：小考驗
-  hard:   { target:[16,20] },  // 困難：明顯的開局挑戰
-  boss:   { target:[22,27] },  // 超困難：真的要動腦才能起手
+  chill:  { target:[5,8]   },  // 一般（教學期＋放水期固定抽到；抽籤期也可能抽到，當舒緩級）：份量最淺
+  normal: { target:[8,12]  },  // 普通（抽籤期最常見的一級）：份量中等
+  spike:  { target:[12,17] },  // 難：小考驗
+  hard:   { target:[18,23] },  // 困難：明顯的開局挑戰
+  boss:   { target:[24,29] },  // 超困難：真的要動腦才能起手
 };
 /* 形狀 90 度旋轉：SHAPE_LIB 的 cells 是 [r,c] 元組陣列（不是 {r,c} 物件），
    這裡照同樣格式處理，轉完重新正規化回左上角靠 0,0，避免超出棋盤判定出錯。 */
@@ -4344,16 +4354,66 @@ function rotateShapeCells(cells){
   const minR = Math.min(...rot.map(([r])=>r)), minC = Math.min(...rot.map(([,c])=>c));
   return rot.map(([r,c])=>[r-minR, c-minC]);
 }
-function placeObstacles(){
-  if(currentMode !== 'gem') return;         // ★ 其他模式先不動（沿用難度系統既有原則，總監已定案）
-  const rule = PREFILL_RULES[curDiff.tier];
-  if(!rule) return;                         // 保底：萬一 tier 名稱對不上，寧可空盤也不要炸掉
-  const target = rule.target[0] + rand(rule.target[1]-rule.target[0]+1);
+const pick = arr => arr[rand(arr.length)];
+
+/* 純「一字長條」形狀池：所有格子共用同一行或同一列，用來當「解答牌」的
+   候選長度池。直接從 SHAPE_LIB 篩，不另外硬寫一份座標——長度固定跟著
+   SHAPE_LIB 既有的長條定義走（3/4/5 格，橫直各半，共 6 種）。 */
+function isLineShape(cells){
+  if(cells.length < 2) return false;
+  const rows = new Set(cells.map(([r])=>r));
+  const cols = new Set(cells.map(([,c])=>c));
+  return rows.size === 1 || cols.size === 1;
+}
+/* ★ 排除稀有救命牌：橫2/直2（2 格一字）本質上屬於「救命小牌」，權重極低
+   （0.06）本來就不該被當成「殘局解答形狀」——一旦被抽到，缺口只有 2 格，
+   跟「3~5 格一字長條」的設計不符，也會讓填充計算的份量估算失準。 */
+const LINE_SHAPES = SHAPE_LIB.filter(s=> s.tier !== 'rare' && isLineShape(s.cells));
+
+const cellKey = (r,c)=> r+'_'+c;
+
+/* 在指定行(orientation='row',lineIndex=行號)或列(orientation='col',lineIndex=列號)裡，
+   挑一段長度 N 的連續缺口，回傳缺口的絕對座標陣列（[r,c] 元組）。 */
+function pickLineGap(orientation, lineIndex, N){
+  const start = rand(SIZE - N + 1);
+  const cells = [];
+  for(let i=0;i<N;i++) cells.push(orientation==='row' ? [lineIndex, start+i] : [start+i, lineIndex]);
+  return cells;
+}
+
+/* 把一整條行/列鋪好（缺口除外留 null），回傳這次挖的缺口座標與長條的
+   tier（給解答牌沿用），並把缺口座標登記進 reserved（filler 隨機丟塊要避開）。 */
+function buildLinePuzzle(orientation, lineIndex, reserved){
+  const bar = pick(LINE_SHAPES);           // 隨機挑一種長條當「解答形狀」（3/4/5 格）
+  const N = bar.cells.length;
+  const gap = pickLineGap(orientation, lineIndex, N);
+  const gapSet = new Set(gap.map(([r,c])=>cellKey(r,c)));
+  for(let i=0;i<SIZE;i++){
+    const r = orientation==='row' ? lineIndex : i;
+    const c = orientation==='row' ? i : lineIndex;
+    if(gapSet.has(cellKey(r,c))) continue;      // 缺口留白，等玩家的解答牌來補
+    board[r][c] = { color:pickPieceColor(), gem:null, glow:false };
+  }
+  gap.forEach(([r,c])=> reserved.add(cellKey(r,c)));
+  return { gap, tier: bar.tier };
+}
+
+/* 把缺口座標轉成 makePiece() 吃得下的 shapeDef：正規化回左上角 0,0。 */
+function gapToShapeDef(gapCells, tier){
+  const minR = Math.min(...gapCells.map(([r])=>r));
+  const minC = Math.min(...gapCells.map(([,c])=>c));
+  return { tier: tier || 'common', weight:1, cells: gapCells.map(([r,c])=>[r-minR, c-minC]) };
+}
+
+/* 隨機填充剩餘目標格數：跟 v156~158 placeObstacles 同一套「隨機挑形狀、
+   隨機轉向、隨機丟合法位置、偵測開局自動消行就撤回」邏輯，差別只多一個
+   reserved 集合——絕對不能疊到缺口格，否則解答牌就對不上縫。 */
+function dropFillerBlocks(target, reserved){
   // 形狀池：排除稀有救命小牌（單/雙格、斜牌）——那些是留給玩家解圍用的，
   // 不該拿來當開局路障；也排除 6 格以上的大塊頭，避免一次佔掉太大一塊。
   const pool = SHAPE_LIB.filter(s=> s.tier !== 'rare' && s.cells.length <= 5);
   let filled = 0, guard = 0;
-  while(filled < target && guard < 300){
+  while(filled < target && guard < 400){
     guard++;
     const def = pick(pool);
     let cells = def.cells;
@@ -4362,7 +4422,7 @@ function placeObstacles(){
     const maxR = Math.max(...cells.map(([r])=>r)), maxC = Math.max(...cells.map(([,c])=>c));
     if(maxR>=SIZE || maxC>=SIZE) continue;
     const baseR = rand(SIZE-maxR), baseC = rand(SIZE-maxC);
-    if(cells.some(([r,c])=> board[baseR+r][baseC+c])) continue;   // 疊到既有方塊：換一次
+    if(cells.some(([r,c])=> board[baseR+r][baseC+c] || reserved.has(cellKey(baseR+r, baseC+c)))) continue;   // 疊到既有方塊或缺口：換一次
     const placed = cells.map(([r,c])=>[baseR+r, baseC+c]);
     placed.forEach(([r,c])=>{ board[r][c] = { color:pickPieceColor(), gem:null, glow:false }; });
     // 開局就整行/整列滿＝還沒開始就自動消行，莫名其妙：偵測到就撤回這次放置
@@ -4374,7 +4434,59 @@ function placeObstacles(){
     filled += placed.length;
   }
 }
-const pick = arr => arr[rand(arr.length)];
+
+/* 依難度決定本關要建幾條「即將完成」的行/列（缺口謎題數）。
+   ★ 總監定案：所有難度都採用這套引擎，差別只在條數機率。 */
+function rollLineCount(tier){
+  if(tier==='spike') return Math.random()<0.40 ? 2 : 1;
+  if(tier==='hard')  return Math.random()<0.65 ? 2 : 1;
+  if(tier==='boss')  return 2;
+  return 1;   // chill / normal 固定 1 條
+}
+
+function generateResidualPuzzle(){
+  if(currentMode !== 'gem'){ pendingOpeningHand = null; return; }   // ★ 其他模式先不動（沿用難度系統既有原則，總監已定案）
+  const rule = PREFILL_RULES[curDiff.tier];
+  if(!rule){ pendingOpeningHand = null; return; }   // 保底：萬一 tier 名稱對不上，寧可空盤也不要炸掉
+  const target = rule.target[0] + rand(rule.target[1]-rule.target[0]+1);
+
+  const lineCount = rollLineCount(curDiff.tier);
+  const orientation = Math.random()<0.5 ? 'row' : 'col';
+  // 洗牌後取前 lineCount 個不重複的行/列索引，避免兩條缺口挑到同一行/列
+  const idxPool = [...Array(SIZE).keys()];
+  for(let i=idxPool.length-1;i>0;i--){ const j=rand(i+1); [idxPool[i],idxPool[j]]=[idxPool[j],idxPool[i]]; }
+  const lineIndices = idxPool.slice(0, lineCount);
+
+  const reserved = new Set();
+  const solutionDefs = [];
+  let usedByLines = 0;
+  lineIndices.forEach(idx=>{
+    const { gap, tier } = buildLinePuzzle(orientation, idx, reserved);
+    solutionDefs.push(gapToShapeDef(gap, tier));
+    usedByLines += (SIZE - gap.length);   // 這條線裡「已鋪滿」的格數（缺口不算）
+  });
+
+  dropFillerBlocks(Math.max(0, target - usedByLines), reserved);
+
+  // ── 組開局手牌：解答牌（對準缺口，一放即消）＋陪襯牌，湊滿 3 張 ──
+  // ★ 解答牌是臨時算出來的合成形狀，不是 SHAPE_LIB 的成員，makePiece() 預設會把
+  //   sig 指向這個合成物件——但 sig 的唯一用途是「跟 SHAPE_LIB 比對」，指向一個
+  //   查不到的合成物件既沒意義、存讀檔也救不回來（SHAPE_LIB.indexOf 一定是 -1）。
+  //   直接拿掉 sig，跟其他「非 SHAPE_LIB 成員」的救命/保底牌（makeSingleCellPiece
+  //   等）一視同仁：本來就沒有 sig，存讀檔前後一致。
+  const hand = solutionDefs.map(def=>{ const p = makePiece(def); delete p.sig; return p; });
+  while(hand.length < 3){
+    let filler = null;
+    for(let k=0;k<12;k++){
+      const cand = makePiece(pickWeightedShape());
+      if(cand.tier !== 'rare' && pieceFitsSomewhere(cand)){ filler = cand; break; }
+    }
+    hand.push(filler || makeSingleCellPiece());
+  }
+  // 洗牌：解答牌不要每次都固定卡在同一格，手感更自然
+  for(let i=hand.length-1;i>0;i--){ const j=rand(i+1); [hand[i],hand[j]]=[hand[j],hand[i]]; }
+  pendingOpeningHand = hand;
+}
 
 
 /* ============================================================
@@ -5677,7 +5789,15 @@ function isDiagonal(shape){
 }
 
 function refillTray(){
-  trayPieces = makeBalancedTrio();
+  // ★ v159：本關第一次發牌，若殘局引擎已準備好「解答牌＋陪襯牌」就直接採用
+  //   （保證能解開開局的殘局），用過一次立刻清空——之後每一次補牌
+  //   （玩家用掉手上的牌）完全走原本的公平發牌 makeBalancedTrio()，一字不改。
+  if(pendingOpeningHand){
+    trayPieces = pendingOpeningHand;
+    pendingOpeningHand = null;
+  } else {
+    trayPieces = makeBalancedTrio();
+  }
   renderTray();
   // 防死局檢查
   if(!anyPlaceable()){
@@ -8492,7 +8612,7 @@ function startLevel(){
   refreshEconomyUI();       // ★ v36 側欄鑽石/炸彈數即時同步
 
   initBoard();
-  placeObstacles();          // ★ v156 空盤鋪好開局障礙方塊，之後 refillTray 的公平發牌會自動把它們當占用格處理
+  generateResidualPuzzle();  // ★ v159 反向出題引擎：鋪好殘局＋算出保證有解的開局手牌（存進 pendingOpeningHand）
   generateGoals();          // 走當前模式的 setup()（會讀 curDiff）
   HZ.syncGoals();           // ★ v32 機關關覆寫目標為 3 種×8。務必早於 refillTray()
   /* ★ v141 順序修正：舊版 calcCellSize() 跑在 renderGoals() 之前，
